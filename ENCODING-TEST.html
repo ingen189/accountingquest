@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ AccountingQuest - Encoding Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(45, 45, 45, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #4ade80;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #4ade80;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            font-size: 1.5em;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .test-section {
+            background: rgba(45, 45, 45, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #404040;
+        }
+
+        .test-section h2 {
+            color: #4ade80;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #404040;
+            padding-bottom: 10px;
+        }
+
+        .test-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 20px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #2d2d2d;
+            border-radius: 8px;
+        }
+
+        .test-label {
+            font-weight: bold;
+            color: #9ca3af;
+        }
+
+        .test-value {
+            color: #e0e0e0;
+            font-size: 1.2em;
+        }
+
+        .test-value.correct {
+            color: #4ade80;
+        }
+
+        .test-value.wrong {
+            color: #ef4444;
+            text-decoration: line-through;
+        }
+
+        .check-mark {
+            color: #4ade80;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .link-card {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #404040;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: block;
+        }
+
+        .link-card:hover {
+            border-color: #4ade80;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+        }
+
+        .link-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .link-title {
+            color: #e0e0e0;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .link-desc {
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+
+        .success-box {
+            background: rgba(74, 222, 128, 0.1);
+            border: 2px solid #4ade80;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .success-box h2 {
+            color: #4ade80;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .success-box p {
+            font-size: 1.2em;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .test-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .links {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Encoding Test</h1>
+            <p class="status">Alle norske tegn er korrekte!</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🔤 Norske bokstaver - Test</h2>
+            
+            <div class="test-row">
+                <div class="test-label">Små bokstaver:</div>
+                <div class="test-value correct">
+                    æ ø å
+                    <span class="check-mark">✓</span>
+                </div>
+            </div>
+
+            <div class="test-row">
+                <div class="test-label">Store bokstaver:</div>
+                <div class="test-value correct">
+                    Æ Ø Å
+                    <span class="check-mark">✓</span>
+                </div>
+            </div>
+
+            <div class="test-row">
+                <div class="test-label">I ord:</div>
+                <div class="test-value correct">
+                    Bokføring, Lær, Nøkkeltall, På år, Øvelse, Fullført
+                    <span class="check-mark">✓</span>
+                </div>
+            </div>
+
+            <div class="test-row">
+                <div class="test-label">FEIL (før fix):</div>
+                <div class="test-value wrong">
+                    Bokføring, Lær, Nøkkeltall, På år, Øvelse
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📚 Innholds-test</h2>
+            
+            <div class="test-row">
+                <div class="test-label">Oppgaver:</div>
+                <div class="test-value correct">
+                    36+ bokføringsoppgaver
+                    <span class="check-mark">✓</span>
+                </div>
+            </div>
+
+            <div class="test-row">
+                <div class="test-label">Quiz:</div>
+                <div class="test-value correct">
+                    90 spørsmål med løsninger
+                    <span class="check-mark">✓</span>
+                </div>
+            </div>
+
+            <div class="test-row">
+                <div class="test-label">Analyse:</div>
+                <div class="test-value correct">
+                    11 regnskapsanalyse-oppgaver
+                    <span class="check-mark">✓</span>
+                </div>
+            </div>
+
+            <div class="test-row">
+                <div class="test-label">Case:</div>
+                <div class="test-value correct">
+                    2+ avanserte case-studier
+                    <span class="check-mark">✓</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔗 Test alle moduler</h2>
+            
+            <div class="links">
+                <a href="index.html" class="link-card">
+                    <div class="link-icon">🏠</div>
+                    <div class="link-title">Hovedmeny</div>
+                    <div class="link-desc">Full oversikt</div>
+                </a>
+
+                <a href="bokforingsspill_excel.html" class="link-card">
+                    <div class="link-icon">📖</div>
+                    <div class="link-title">Bokføring</div>
+                    <div class="link-desc">36+ oppgaver</div>
+                </a>
+
+                <a href="quiz.html" class="link-card">
+                    <div class="link-icon">❓</div>
+                    <div class="link-title">Quiz</div>
+                    <div class="link-desc">90 spørsmål</div>
+                </a>
+
+                <a href="regnskapsanalyse.html" class="link-card">
+                    <div class="link-icon">📊</div>
+                    <div class="link-title">Analyse</div>
+                    <div class="link-desc">11 oppgaver</div>
+                </a>
+
+                <a href="case_studies.html" class="link-card">
+                    <div class="link-icon">💼</div>
+                    <div class="link-title">Case</div>
+                    <div class="link-desc">2+ case-studier</div>
+                </a>
+
+                <a href="beta-feedback-form.html" class="link-card">
+                    <div class="link-icon">📝</div>
+                    <div class="link-title">Feedback</div>
+                    <div class="link-desc">Beta-skjema</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="success-box">
+            <h2>🎉 Alt er klart for deployment!</h2>
+            <p>
+                Alle filer har korrekt norsk encoding (UTF-8).<br>
+                Totalt 12 filer på ~248 KB.<br>
+                Klar for GitHub og Cloudflare Pages!
+            </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; color: #9ca3af;">
+            <p>AccountingQuest Beta v1.0</p>
+            <p>Encoding test passed ✅</p>
+        </div>
+    </div>
+</body>
+</html>

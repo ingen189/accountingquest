@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AccountingQuest Beta - Feedback Form</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            color: #4ade80;
+        }
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #1a1a2e;
+            margin-top: 0;
+            border-bottom: 2px solid #4ade80;
+            padding-bottom: 10px;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f9f9f9;
+            border-left: 3px solid #4ade80;
+        }
+        .checklist li:before {
+            content: '☐ ';
+            margin-right: 10px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        .priority {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .priority.high {
+            background: #fee;
+            color: #c00;
+        }
+        .priority.medium {
+            background: #ffa;
+            color: #880;
+        }
+        .priority.low {
+            background: #efe;
+            color: #080;
+        }
+        .links {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .links a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin: 5px 0;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 AccountingQuest - Beta Testing</h1>
+        <p>Takk for at du tester plattformen! Dine tilbakemeldinger er uvurderlige.</p>
+        <p><strong>Beta versjon:</strong> 1.0 | <strong>Dato:</strong> 26. november 2024</p>
+    </div>
+
+    <div class="section">
+        <h2>🔗 Test-lenker</h2>
+        <div class="links">
+            <a href="https://accountingquest.app" target="_blank">🏠 Hovedside (index.html)</a>
+            <a href="https://accountingquest.app/bokforingsspill_excel.html" target="_blank">📖 Bokføringsspill</a>
+            <a href="https://accountingquest.app/quiz.html" target="_blank">❓ Quiz</a>
+            <a href="https://accountingquest.app/regnskapsanalyse.html" target="_blank">📊 Regnskapsanalyse</a>
+            <a href="https://accountingquest.app/case_studies.html" target="_blank">💼 Case Studies</a>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>✅ Test-sjekkliste</h2>
+        
+        <h3>Generelt</h3>
+        <ul class="checklist">
+            <li>Fungerer på desktop? <span class="priority high">Høy</span></li>
+            <li>Fungerer på mobil? <span class="priority high">Høy</span></li>
+            <li>Fungerer på nettbrett? <span class="priority medium">Medium</span></li>
+            <li>Er navigasjon intuitiv? <span class="priority high">Høy</span></li>
+            <li>Lastes siden raskt? <span class="priority medium">Medium</span></li>
+        </ul>
+
+        <h3>Faglig innhold</h3>
+        <ul class="checklist">
+            <li>Er lovhjemlene korrekte? <span class="priority high">Høy</span></li>
+            <li>Er kontonummerne riktige? <span class="priority high">Høy</span></li>
+            <li>Er forklaringene forståelige? <span class="priority high">Høy</span></li>
+            <li>Er oppgavene realistiske? <span class="priority medium">Medium</span></li>
+            <li>Er vanskelighetsnivået passende? <span class="priority medium">Medium</span></li>
+        </ul>
+
+        <h3>Bokføringsspill</h3>
+        <ul class="checklist">
+            <li>Fungerer Excel-griden? <span class="priority high">Høy</span></li>
+            <li>Fungerer kalkulatoren? <span class="priority medium">Medium</span></li>
+            <li>Fungerer drag-and-drop? <span class="priority medium">Medium</span></li>
+            <li>Fungerer formler (=B1*0.25)? <span class="priority high">Høy</span></li>
+            <li>Er feedback på svar tydelig? <span class="priority high">Høy</span></li>
+        </ul>
+
+        <h3>Quiz</h3>
+        <ul class="checklist">
+            <li>Fungerer alle spørsmålstyper? <span class="priority high">Høy</span></li>
+            <li>Er lovhjemlene lenket korrekt? <span class="priority medium">Medium</span></li>
+            <li>Lagres progresjon? <span class="priority high">Høy</span></li>
+            <li>Er svarene riktige? <span class="priority high">Høy</span></li>
+        </ul>
+
+        <h3>Regnskapsanalyse</h3>
+        <ul class="checklist">
+            <li>Fungerer formler i tabellene? <span class="priority high">Høy</span></li>
+            <li>Er nøkkeltallene riktige? <span class="priority high">Høy</span></li>
+            <li>Er forklaringene gode? <span class="priority medium">Medium</span></li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>🐛 Bugs / Feil funnet</h2>
+        <p>Beskriv bugs eller feil du finner (vær så detaljert som mulig):</p>
+        <textarea placeholder="Eksempel:
+- På mobil: Kalkulator-knappen overlapper med tekst
+- Quiz spørsmål 5: Feil lovhjemmel (skal være § 4-2, ikke § 4-1)
+- Bokføring oppgave 12: Beløpet 15000 skal være 15 000 (mellomrom)
+"></textarea>
+    </div>
+
+    <div class="section">
+        <h2>💡 Forbedringsforslag</h2>
+        <p>Hva kan gjøres bedre?</p>
+        <textarea placeholder="Eksempel:
+- Legg til 'Hvorfor?'-knapper med forklaringer
+- Legg til søkefunksjon i kontoplan
+- Legg til progress bar på hver modul
+- Lag hint-system for vanskelige oppgaver
+"></textarea>
+    </div>
+
+    <div class="section">
+        <h2>📚 Faglig kvalitetssikring</h2>
+        <p><strong>Som revisor/regnskapsfører, vennligst sjekk:</strong></p>
+        <textarea placeholder="- Er alle kontonumre i henhold til standard norsk kontoplan?
+- Er alle lovhenvisninger korrekte?
+- Er bokføringene korrekte?
+- Er terminologien korrekt?
+- Er det noe som er villedende eller feil?
+"></textarea>
+    </div>
+
+    <div class="section">
+        <h2>⭐ Hva fungerer bra?</h2>
+        <p>Hva liker du? Hva fungerer godt?</p>
+        <textarea placeholder="Eksempel:
+- Excel-griden er intuitiv
+- Quiz-systemet er engasjerende
+- Dark mode er behagelig å jobbe i
+"></textarea>
+    </div>
+
+    <div class="section">
+        <h2>🎯 Egnethet for studenter</h2>
+        <p>Er plattformen egnet for regnskapsstudenter (bachelor)?</p>
+        <textarea placeholder="- Er nivået riktig for studenter?
+- Vil dette hjelpe med læringsmål?
+- Hva mangler for å være komplett?
+- Ville du anbefalt dette til dine studenter?
+"></textarea>
+    </div>
+
+    <div class="section">
+        <h2>📊 Samlet vurdering</h2>
+        <p><strong>På en skala fra 1-10:</strong></p>
+        <ul style="list-style: none; padding: 0;">
+            <li>📐 Faglig kvalitet: ___/10</li>
+            <li>🎨 Design/UX: ___/10</li>
+            <li>💻 Teknisk fungering: ___/10</li>
+            <li>🎓 Pedagogisk verdi: ___/10</li>
+            <li>⭐ Helhetlig inntrykk: ___/10</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>📧 Kontaktinfo</h2>
+        <p><strong>Navn:</strong> ____________________</p>
+        <p><strong>Rolle:</strong> ____________________</p>
+        <p><strong>E-post:</strong> ____________________</p>
+        <p><strong>Dato testet:</strong> ____________________</p>
+        <p><strong>Enhet brukt:</strong> Desktop ☐ Mobil ☐ Nettbrett ☐</p>
+        <p><strong>Nettleser:</strong> Chrome ☐ Firefox ☐ Safari ☐ Edge ☐</p>
+    </div>
+
+    <div class="section" style="background: #e8f5e9; border-left: 4px solid #4caf50;">
+        <h2>✅ Send tilbakemelding</h2>
+        <p>Når du er ferdig med testing:</p>
+        <ol>
+            <li>Skriv ut dette skjemaet eller lagre som PDF</li>
+            <li>Fyll ut alle seksjoner</li>
+            <li>Send til: <strong>[DIN EPOST]</strong></li>
+        </ol>
+        <p><strong>Mål:</strong> Ha alle tilbakemeldinger innen <strong>30. november 2024</strong></p>
+    </div>
+
+    <div style="text-align: center; color: #666; padding: 20px; margin-top: 40px; border-top: 2px solid #ddd;">
+        <p><strong>AccountingQuest</strong> | Beta v1.0 | accountingquest.app</p>
+        <p>Takk for din tid og innsats! 🙏</p>
+    </div>
+</body>
+</html>

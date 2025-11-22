@@ -1,0 +1,12 @@
+# robots.txt for AccountingQuest
+# https://accountingquest.app
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://accountingquest.app/sitemap.xml
+
+# Disallow admin/api pages (for fremtiden)
+Disallow: /api/
+Disallow: /admin/

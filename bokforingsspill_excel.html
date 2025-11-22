@@ -1,0 +1,2708 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bokføringsspill - Excel Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Main Menu */
+        .main-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 20px;
+        }
+
+        .main-menu h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #4ade80, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(74, 222, 128, 0.3);
+        }
+
+        .main-menu p {
+            font-size: 1.5em;
+            margin-bottom: 50px;
+            color: #9ca3af;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .menu-card {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 15px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-10px);
+            border-color: #4ade80;
+            box-shadow: 0 10px 40px rgba(74, 222, 128, 0.3);
+        }
+
+        .menu-card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .menu-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #4ade80;
+        }
+
+        .menu-card p {
+            font-size: 1em;
+            color: #9ca3af;
+        }
+
+        /* Game Container */
+        .game-container {
+            display: none;
+            min-height: 100vh;
+            background: #1e1e1e;
+        }
+
+        /* Header */
+        .game-header {
+            background: #2d2d2d;
+            border-bottom: 2px solid #404040;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            background: #404040;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #4ade80;
+            color: #1e1e1e;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: #404040;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        .stat-label {
+            color: #9ca3af;
+            margin-right: 5px;
+        }
+
+        .stat-value {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        /* Life System */
+        .life-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .life-bar {
+            width: 150px;
+            height: 25px;
+            background: #404040;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid #555;
+        }
+
+        .life-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #f59e0b, #4ade80);
+            transition: width 0.5s, background 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .life-fill.low {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .life-fill.medium {
+            background: linear-gradient(90deg, #f59e0b, #eab308);
+        }
+
+        /* Locked Next Button System */
+        .next-button-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5em;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .action-btn.next.locked {
+            background: #6b7280;
+            cursor: not-allowed;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .action-btn.next.locked:hover {
+            background: #6b7280;
+            transform: none;
+        }
+
+        .lock-crack {
+            position: absolute;
+            background: #ef4444;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .lock-crack.show {
+            opacity: 0.8;
+        }
+
+        .lock-crack-1 {
+            width: 2px;
+            height: 25px;
+            top: 10px;
+            left: 25px;
+            transform: rotate(20deg);
+        }
+
+        .lock-crack-2 {
+            width: 2px;
+            height: 30px;
+            top: 8px;
+            left: 30px;
+            transform: rotate(-15deg);
+        }
+
+        .lock-crack-3 {
+            width: 2px;
+            height: 35px;
+            top: 5px;
+            left: 20px;
+            transform: rotate(35deg);
+        }
+
+        .lock-icon.shake {
+            animation: lockShake 0.5s;
+        }
+
+        @keyframes lockShake {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            25% { transform: translate(-50%, -50%) rotate(-15deg); }
+            75% { transform: translate(-50%, -50%) rotate(15deg); }
+        }
+
+        .lock-icon.unlock {
+            animation: unlockAnim 0.5s forwards;
+        }
+
+        @keyframes unlockAnim {
+            0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+            50% { transform: translate(-50%, -50%) rotate(20deg) scale(1.2); }
+            100% { transform: translate(-50%, -50%) rotate(0deg) scale(0); opacity: 0; }
+        }
+
+        /* Main Content */
+        .game-content {
+            display: flex;
+            height: calc(100vh - 100px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: #2d2d2d;
+            border-right: 2px solid #404040;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .sidebar h3 {
+            color: #4ade80;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            border-bottom: 2px solid #404040;
+            padding-bottom: 10px;
+        }
+
+        .account-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .account-group {
+            background: #404040;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .account-group-header {
+            padding: 12px;
+            background: #4a4a4a;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #4ade80;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .account-group-header:hover {
+            background: #525252;
+        }
+
+        .account-group-header.has-stars::before {
+            content: 'â­';
+            position: absolute;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+            50% { opacity: 0.6; transform: translateY(-50%) scale(1.2); }
+        }
+
+        .account-group-header.has-stars {
+            background: rgba(74, 222, 128, 0.15);
+            border-left: 3px solid #4ade80;
+        }
+
+        .account-group-header .chevron {
+            transition: transform 0.3s;
+        }
+
+        .account-group-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .account-group-items {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .account-group-items.collapsed {
+            max-height: 0;
+        }
+
+        .account-item {
+            background: transparent;
+            padding: 8px 12px;
+            border-radius: 0;
+            font-size: 0.9em;
+            cursor: grab;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .account-item:active {
+            cursor: grabbing;
+        }
+
+        .account-item:hover {
+            background: #4a4a4a;
+            border-left-color: #4ade80;
+        }
+
+        .account-item.starred {
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .account-item.dragging {
+            opacity: 0.5;
+        }
+
+        .account-star {
+            color: #fbbf24;
+            font-size: 1.1em;
+            margin-left: 5px;
+        }
+
+        .cell.drag-over {
+            background: rgba(74, 222, 128, 0.3) !important;
+            outline: 2px dashed #4ade80 !important;
+        }
+
+        .cell.selected-for-formula {
+            outline: 3px solid #3b82f6 !important;
+            background: rgba(59, 130, 246, 0.2) !important;
+            animation: cellPulse 1s infinite;
+        }
+
+        @keyframes cellPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
+        }
+
+        .cell.selecting-mode {
+            cursor: crosshair;
+        }
+
+        .cell-selector-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #3b82f6;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .account-code {
+            color: #4ade80;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        /* Workspace */
+        .workspace {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .task-header {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .task-title {
+            font-size: 1.8em;
+            color: #4ade80;
+            margin-bottom: 15px;
+        }
+
+        .task-description {
+            background: #404040;
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.8;
+            border-left: 4px solid #4ade80;
+        }
+
+        /* Excel-style Grid */
+        .excel-grid {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .grid-btn {
+            background: #404040;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .grid-btn:hover {
+            background: #4ade80;
+            color: #1e1e1e;
+        }
+
+        .grid-btn.calc-btn {
+            background: #3b82f6;
+        }
+
+        .grid-btn.calc-btn:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .spreadsheet {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e1e1e;
+        }
+
+        .spreadsheet th {
+            background: #404040;
+            color: #9ca3af;
+            padding: 10px;
+            font-weight: bold;
+            border: 1px solid #555;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .spreadsheet td {
+            border: 1px solid #555;
+            padding: 0;
+            position: relative;
+        }
+
+        .cell {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            padding: 10px;
+            font-size: 0.95em;
+            font-family: 'Consolas', 'Courier New', monospace;
+            text-align: right;
+        }
+
+        .cell:focus {
+            outline: 2px solid #4ade80;
+            background: #2d2d2d;
+        }
+
+        .cell.formula {
+            color: #3b82f6;
+        }
+
+        .cell.account-cell {
+            text-align: left;
+        }
+
+        .cell-label {
+            background: #404040;
+            color: #9ca3af;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #555;
+        }
+
+        /* Calculator Popup */
+        .calculator-popup {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: #2d2d2d;
+            border: 2px solid #4ade80;
+            border-radius: 15px;
+            padding: 20px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            cursor: move;
+        }
+
+        .calculator-popup.show {
+            display: block;
+        }
+
+        .calculator-popup.dragging {
+            cursor: grabbing;
+        }
+
+        .calc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calc-title {
+            color: #4ade80;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .calc-close {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .calc-display {
+            background: #1e1e1e;
+            border: 2px solid #404040;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: right;
+            font-size: 1.8em;
+            color: #4ade80;
+            margin-bottom: 15px;
+            font-family: 'Consolas', monospace;
+            min-height: 50px;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-btn {
+            background: #404040;
+            color: #e0e0e0;
+            border: none;
+            padding: 20px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .calc-btn:hover {
+            background: #4a4a4a;
+        }
+
+        .calc-btn.operator {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .calc-btn.operator:hover {
+            background: #2563eb;
+        }
+
+        .calc-btn.equals {
+            background: #4ade80;
+            color: #1e1e1e;
+            grid-column: span 2;
+        }
+
+        .calc-btn.equals:hover {
+            background: #22c55e;
+        }
+
+        .calc-btn.clear {
+            background: #ef4444;
+            color: white;
+        }
+
+        .calc-btn.clear:hover {
+            background: #dc2626;
+        }
+
+        /* Balance Check */
+        .balance-display {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .balance-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #404040;
+        }
+
+        .balance-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .balance-row.balanced {
+            color: #4ade80;
+        }
+
+        .balance-row.unbalanced {
+            color: #ef4444;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn.check {
+            background: #4ade80;
+            color: #1e1e1e;
+        }
+
+        .action-btn.check:hover {
+            background: #22c55e;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.hint {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .action-btn.hint:hover {
+            background: #d97706;
+        }
+
+        .action-btn.next {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.next:hover {
+            background: #2563eb;
+        }
+
+        /* Feedback */
+        .feedback {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            border-color: #4ade80;
+            color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .feedback.incorrect {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .hint-box {
+            background: #2d2d2d;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .hint-box.show {
+            display: block;
+        }
+
+        .hint-title {
+            color: #f59e0b;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        /* Achievements */
+        .achievement-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4ade80, #3b82f6);
+            border-radius: 10px;
+            padding: 20px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: slideIn 0.5s;
+        }
+
+        .achievement-popup.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .achievement-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .achievement-desc {
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Tutorial Overlay */
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            display: none;
+        }
+
+        .tutorial-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tutorial-box {
+            background: #2d2d2d;
+            border: 2px solid #4ade80;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .tutorial-box h2 {
+            color: #4ade80;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .tutorial-box p {
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .tutorial-btn {
+            background: #4ade80;
+            color: #1e1e1e;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .tutorial-btn:hover {
+            background: #22c55e;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px;
+            }
+
+            .egg-container {
+                top: 70px;
+                right: 10px;
+            }
+
+            .egg {
+                width: 80px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 200px;
+            }
+
+            .workspace {
+                padding: 15px;
+            }
+
+            .main-menu h1 {
+                font-size: 2.5em;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Menu -->
+    <div class="main-menu" id="main-menu">
+        <h1>ðŸ“Š Bokføringsspill</h1>
+        <p>Lær regnskap med Excel-lignende interface</p>
+        
+        <div class="menu-grid">
+            <div class="menu-card" onclick="startGame('tutorial', 'easy')">
+                <div class="menu-card-icon">ðŸŽ“</div>
+                <h3>Tutorial</h3>
+                <p>Lær grunnleggende bokføring steg for steg</p>
+            </div>
+            
+            <div class="menu-card" onclick="startGame('training', 'easy')">
+                <div class="menu-card-icon">ðŸ’ª</div>
+                <h3>Øvelse - Lett</h3>
+                <p>Enkle oppgaver uten straff</p>
+            </div>
+            
+            <div class="menu-card" onclick="startGame('training', 'medium')">
+                <div class="menu-card-icon">ðŸ“š</div>
+                <h3>Øvelse - Middels</h3>
+                <p>Middels vanskelige oppgaver</p>
+            </div>
+            
+            <div class="menu-card" onclick="startGame('training', 'hard')">
+                <div class="menu-card-icon">ðŸ”¥</div>
+                <h3>Øvelse - Vanskelig</h3>
+                <p>Avanserte oppgaver med mva og lønn</p>
+            </div>
+            
+            <div class="menu-card" onclick="startGame('normal', 'mixed')">
+                <div class="menu-card-icon">ðŸŽ¯</div>
+                <h3>Normal - Blandet</h3>
+                <p>3 liv per oppgave - alle nivåer</p>
+            </div>
+            
+            <div class="menu-card" onclick="startGame('challenge', 'hard')">
+                <div class="menu-card-icon">âš¡</div>
+                <h3>Utfordring</h3>
+                <p>Vanskelige oppgaver med tidspress</p>
+            </div>
+            
+            <div class="menu-card" onclick="showAchievements()">
+                <div class="menu-card-icon">ðŸ†</div>
+                <h3>Prestasjoner</h3>
+                <p>Se dine achievements og fremgang</p>
+            </div>
+            
+            <div class="menu-card" onclick="showSettings()">
+                <div class="menu-card-icon">âš™ï¸</div>
+                <h3>Innstillinger</h3>
+                <p>Tilpass spillopplevelsen</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container" id="game-container">
+        <!-- Header -->
+        <div class="game-header">
+            <div class="header-left">
+                <button class="back-btn" onclick="backToMenu()">â† Tilbake</button>
+                <div class="stat-item">
+                    <span class="stat-label">Modus:</span>
+                    <span class="stat-value" id="game-mode">Normal</span>
+                </div>
+            </div>
+            
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Oppgave:</span>
+                    <span class="stat-value"><span id="current-task">1</span>/<span id="total-tasks">10</span></span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Poeng:</span>
+                    <span class="stat-value" id="score">0</span>
+                </div>
+                <div class="life-container">
+                    <span class="stat-label">Liv:</span>
+                    <div class="life-bar">
+                        <div class="life-fill" id="life-fill" style="width: 100%">3/3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="game-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <h3>ðŸ“‹ Kontoplan</h3>
+                <div class="account-list" id="account-list"></div>
+            </div>
+
+            <!-- Workspace -->
+            <div class="workspace">
+                <div class="task-header">
+                    <div class="task-title" id="task-title">Oppgave 1</div>
+                    <div class="task-description" id="task-description"></div>
+                </div>
+
+                <div class="excel-grid">
+                    <div class="grid-controls">
+                        <button class="grid-btn" onclick="addRow()">âž• Ny rad</button>
+                        <button class="grid-btn calc-btn" onclick="toggleCalculator()">ðŸ”¢ Kalkulator</button>
+                        <button class="grid-btn" onclick="clearGrid()">ðŸ—‘ï¸ Tøm</button>
+                    </div>
+
+                    <table class="spreadsheet" id="spreadsheet">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px">#</th>
+                                <th style="width: 40%">A - Konto</th>
+                                <th style="width: 30%">B - Debet</th>
+                                <th style="width: 30%">C - Kredit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="spreadsheet-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="balance-display">
+                    <div class="balance-row">
+                        <span>Total Debet:</span>
+                        <span id="total-debit">0</span>
+                    </div>
+                    <div class="balance-row">
+                        <span>Total Kredit:</span>
+                        <span id="total-credit">0</span>
+                    </div>
+                    <div class="balance-row" id="balance-status">
+                        <span>Status:</span>
+                        <span>Ikke balansert</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn hint" onclick="showHint()">ðŸ’¡ Hint</button>
+                    <button class="action-btn check" onclick="checkAnswer()">âœ“ Sjekk svar</button>
+                    <div class="next-button-container">
+                        <button class="action-btn next locked" id="next-btn" onclick="nextTask()">
+                            <span class="lock-icon" id="lock-icon">ðŸ”’</span>
+                            <div class="lock-crack lock-crack-1"></div>
+                            <div class="lock-crack lock-crack-2"></div>
+                            <div class="lock-crack lock-crack-3"></div>
+                            Neste â†’
+                        </button>
+                    </div>
+                </div>
+
+                <div class="hint-box" id="hint-box">
+                    <div class="hint-title">ðŸ’¡ Hint:</div>
+                    <div id="hint-content"></div>
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator Popup -->
+    <div class="calculator-popup" id="calculator">
+        <div class="calc-header">
+            <div class="calc-title">ðŸ”¢ Kalkulator</div>
+            <button class="calc-close" onclick="toggleCalculator()">âœ•</button>
+        </div>
+        <div class="calc-display" id="calc-display">0</div>
+        <div class="calc-buttons">
+            <button class="calc-btn clear" onclick="calcClear()">C</button>
+            <button class="calc-btn operator" onclick="calcInput('/')">/</button>
+            <button class="calc-btn operator" onclick="calcInput('*')">×—</button>
+            <button class="calc-btn operator" onclick="calcInput('-')">-</button>
+            
+            <button class="calc-btn" onclick="calcInput('7')">7</button>
+            <button class="calc-btn" onclick="calcInput('8')">8</button>
+            <button class="calc-btn" onclick="calcInput('9')">9</button>
+            <button class="calc-btn operator" onclick="calcInput('+')">+</button>
+            
+            <button class="calc-btn" onclick="calcInput('4')">4</button>
+            <button class="calc-btn" onclick="calcInput('5')">5</button>
+            <button class="calc-btn" onclick="calcInput('6')">6</button>
+            <button class="calc-btn operator" onclick="calcInput('(')">(</button>
+            
+            <button class="calc-btn" onclick="calcInput('1')">1</button>
+            <button class="calc-btn" onclick="calcInput('2')">2</button>
+            <button class="calc-btn" onclick="calcInput('3')">3</button>
+            <button class="calc-btn operator" onclick="calcInput(')')">)</button>
+            
+            <button class="calc-btn" onclick="calcInput('0')">0</button>
+            <button class="calc-btn" onclick="calcInput('.')">.</button>
+            <button class="calc-btn equals" onclick="calcEquals()">=</button>
+        </div>
+    </div>
+
+    <!-- Achievement Popup -->
+    <div class="achievement-popup" id="achievement-popup">
+        <div class="achievement-title">ðŸ† <span id="achievement-title"></span></div>
+        <div class="achievement-desc" id="achievement-desc"></div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div class="tutorial-overlay" id="tutorial-overlay">
+        <div class="tutorial-box">
+            <h2 id="tutorial-title">Velkommen!</h2>
+            <p id="tutorial-text"></p>
+            <button class="tutorial-btn" onclick="nextTutorialStep()">Neste</button>
+        </div>
+    </div>
+
+    <script>
+        // Data structures
+        const accountGroups = {
+            "Balansen - Eiendeler": {
+                "Anleggsmidler": ["1000", "1070", "1100", "1150", "1200", "1230", "1250", "1300"],
+                "Omløpsmidler - Varer": ["1400", "1420", "1440", "1460"],
+                "Omløpsmidler - Fordringer": ["1500", "1510", "1530", "1570", "1580"],
+                "Omløpsmidler - Forskuddsbetalinger": ["1700", "1710", "1720", "1740", "1760"],
+                "Omløpsmidler - Investeringer og bank": ["1810", "1820", "1900", "1920", "1950"]
+            },
+            "Balansen - Egenkapital og gjeld": {
+                "Egenkapital": ["2000", "2020", "2030", "2050", "2080"],
+                "Langsiktig gjeld": ["2120", "2220", "2240", "2270"],
+                "Kortsiktig gjeld": ["2310", "2330", "2380", "2400", "2500", "2510", "2540", "2600", "2700", "2710", "2740", "2770", "2780", "2800", "2930", "2940", "2950", "2960", "2970", "2980", "2990"]
+            },
+            "Resultat - Inntekter": {
+                "Driftsinntekter": ["3000", "3050", "3100", "3510", "3600", "3800"]
+            },
+            "Resultat - Kostnader": {
+                "Varekostnader": ["4000", "4090", "4190", "4290", "4300", "4360", "4390"],
+                "Lønnskostnader": ["5000", "5180", "5400", "5410"],
+                "Andre driftskostnader": ["6000", "6010", "6050", "6110", "6300", "6340", "6580", "6600", "6700", "6800", "6840", "6900", "7000", "7130", "7320", "7350", "7360", "7500", "7550", "7560", "7790", "7800", "7830", "7910"]
+            },
+            "Resultat - Finans": {
+                "Finansinntekter": ["8050", "8060", "8070", "8080"],
+                "Finanskostnader": ["8100", "8150", "8160", "8170"],
+                "Skatt og disponering": ["8300", "8309", "8320", "8800", "8920", "8960", "8990"]
+            }
+        };
+
+        const accounts = {
+            "1000": "Forskning og utvikling",
+            "1070": "Utsatt skattefordel",
+            "1100": "Bygninger",
+            "1150": "Tomter",
+            "1200": "Maskiner",
+            "1230": "Biler",
+            "1250": "Inventar og kontormaskiner",
+            "1300": "Investeringer i datterselskaper",
+            "1400": "Råvarer/materialer",
+            "1420": "Varer i arbeid",
+            "1440": "Ferdigvarer",
+            "1460": "Innkjøpte varer for videresalg",
+            "1500": "Kundefordringer",
+            "1510": "Utlegg mv.",
+            "1530": "Opptjent, ikke fakturert driftsinntekt",
+            "1570": "Andre kortsiktige fordringer",
+            "1580": "Avsetning tap på fordringer",
+            "1700": "Forskuddsbetalt leie",
+            "1710": "Forskuddsbetalte renter",
+            "1740": "Forskuddsbetalt lønn",
+            "1720": "Forskuddsbetalt forsikring",
+            "1760": "Påløpte renteinntekter",
+            "1810": "Børsnoterte aksjer",
+            "1820": "Andre aksjer",
+            "1900": "Kontanter",
+            "1920": "Bankinnskudd",
+            "1950": "Bankinnskudd skattetrekk",
+            "2000": "Aksjekapital",
+            "2020": "Overkurs",
+            "2030": "Annen innskutt egenkapital",
+            "2050": "Annen egenkapital",
+            "2080": "Udekket tap",
+            "2120": "Utsatt skatt",
+            "2220": "Gjeld til kredittinstitusjoner",
+            "2240": "Pantelån",
+            "2270": "Valutalån (langsiktig)",
+            "2310": "Kortsiktige lån",
+            "2330": "Valutalån (kortsiktig)",
+            "2380": "Kassekreditt",
+            "2400": "Leverandørgjeld",
+            "2500": "Betalbar skatt, ikke fastsatt",
+            "2510": "Betalbar skatt, fastsatt",
+            "2540": "Forskuddsskatt",
+            "2600": "Skattetrekk",
+            "2700": "Utgående merverdiavgift",
+            "2710": "Inngående merverdiavgift",
+            "2740": "Oppgjørskonto merverdiavgift",
+            "2770": "Skyldig arbeidsgiveravgift",
+            "2780": "Påløpt arbeidsgiveravgift",
+            "2800": "Avsatt utbytte",
+            "2930": "Påløpt lønn",
+            "2940": "Påløpt feriepenger",
+            "2950": "Påløpte renter",
+            "2960": "Andre påløpte kostnader",
+            "2970": "Uopptjent inntekt",
+            "2980": "Garantiavsetning",
+            "2990": "Annen kortsiktig gjeld",
+            "3000": "Salgsinntekt varer, avgiftspliktig",
+            "3050": "Vederlagsinntekt, avgiftspliktig",
+            "3100": "Salgsinntekt, avgiftsfri",
+            "3510": "Opptjent garanti-/serviceinntekt",
+            "3600": "Husleieinntekt",
+            "3800": "Gevinst avgang anleggsmidler",
+            "4000": "Innkjøp av råvarer",
+            "4090": "Beholdningsendring råvarer",
+            "4190": "Beholdningsendring varer i arbeid",
+            "4290": "Beholdningsendring ferdigvarer",
+            "4300": "Innkjøp varer for videresalg, høy sats",
+            "4360": "Frakt og toll vedr. varer for videresalg",
+            "4390": "Beholdningsendring varer for videresalg",
+            "5000": "Lønn",
+            "5180": "Feriepenger",
+            "5400": "Arbeidsgiveravgift",
+            "5410": "Arbeidsgiveravgift på feriepenger",
+            "6000": "Avskrivning",
+            "6010": "Avskrivning andre anleggsmidler",
+            "6050": "Nedskrivning anleggsmidler",
+            "6110": "Frakt- og transportutgifter",
+            "6300": "Leie av lokaler",
+            "6340": "Lys, strøm, varme",
+            "6580": "Driftsmidler < kr 15 000",
+            "6600": "Reparasjon/vedlikehold bygg",
+            "6700": "Revisjons- og regnskapshonorar",
+            "6800": "Kontorrekvisita",
+            "6840": "Aviser og tidsskrifter",
+            "6900": "Telefon og porto",
+            "7000": "Bilkostnader",
+            "7130": "Reisekostnader",
+            "7320": "Reklamekostnader",
+            "7350": "Representasjon, fradragsberettiget",
+            "7360": "Representasjon, ikke fradragsberettiget",
+            "7500": "Forsikringer",
+            "7550": "Garantikostnader",
+            "7560": "Servicekostnader",
+            "7790": "Andre driftskostnader",
+            "7800": "Tap ved avgang anleggsmidler",
+            "7830": "Tap på fordringer",
+            "7910": "Ukurante varer",
+            "8050": "Renteinntekt",
+            "8060": "Valutagevinst",
+            "8070": "Annen finansinntekt",
+            "8080": "Verdiøkning børsnoterte aksjer og lignende",
+            "8100": "Verdireduksjon børsnoterte aksjer og lignende",
+            "8150": "Rentekostnad",
+            "8160": "Valutatap",
+            "8170": "Annen finanskostnad",
+            "8300": "Betalbar skatt",
+            "8309": "Betalbar skatt, for mye/lite avsatt",
+            "8320": "Endring utsatt skatt/skattefordel",
+            "8800": "Årsresultat",
+            "8920": "Avsatt utbytte",
+            "8960": "Overføring annen egenkapital",
+            "8990": "Udekket tap"
+        };
+
+        // Randomization helper functions
+        function randomAmount(min, max, step = 1000) {
+            const steps = Math.floor((max - min) / step);
+            return min + (Math.floor(Math.random() * (steps + 1)) * step);
+        }
+
+        function generateTaskWithRandomAmounts(template) {
+            const task = JSON.parse(JSON.stringify(template)); // Deep clone
+            
+            // Replace placeholders in description
+            if (task.amountVariables) {
+                for (const [key, range] of Object.entries(task.amountVariables)) {
+                    const amount = randomAmount(range.min, range.max, range.step || 1000);
+                    
+                    // Replace in description
+                    task.description = task.description.replace(new RegExp(`{${key}}`, 'g'), amount.toLocaleString('no-NO'));
+                    
+                    // Replace in solution
+                    task.solution = task.solution.map(entry => ({
+                        ...entry,
+                        debit: entry.debit === `{${key}}` ? amount : 
+                               typeof entry.debit === 'string' && entry.debit.includes(key) ? 
+                               eval(entry.debit.replace(new RegExp(key, 'g'), amount)) : entry.debit,
+                        credit: entry.credit === `{${key}}` ? amount : 
+                                typeof entry.credit === 'string' && entry.credit.includes(key) ? 
+                                eval(entry.credit.replace(new RegExp(key, 'g'), amount)) : entry.credit
+                    }));
+                    
+                    // Store for hint
+                    task.generatedAmounts = task.generatedAmounts || {};
+                    task.generatedAmounts[key] = amount;
+                }
+            }
+            
+            return task;
+        }
+
+        const taskTemplates = [
+            // Easy tasks (12 tasks)
+            {
+                description: "Butikken selger varer kontant for kr {amount} (se bort fra mva). Bokfør kontantsalget.",
+                amountVariables: {
+                    amount: { min: 8000, max: 15000, step: 1000 }
+                },
+                solution: [
+                    { account: "1920", debit: "{amount}", credit: 0 },
+                    { account: "3000", debit: 0, credit: "{amount}" }
+                ],
+                hint: "Ved kontantsalg øker bankinnskuddet (debet) og salgsinntekt (kredit). Bruk konto 1920 og 3000.",
+                explanation: `<h3>ðŸ“– Hvorfor bokføres det slik?</h3>
+                <p><strong>Kontantsalg</strong> betyr at du mottar betaling umiddelbart.</p>
+                <ul>
+                    <li><strong>Debet 1920 (Bankinnskudd):</strong> Pengene kommer inn på bankkontoen din - eiendeler øker</li>
+                    <li><strong>Kredit 3000 (Salgsinntekt):</strong> Du har tjent penger - inntekt øker</li>
+                </ul>
+                <p>ðŸ’¡ <em>Huskeregel:</em> Penger inn = Bank debet + Inntekt kredit</p>
+                <p>ðŸ“š <strong>Lovhjemmel:</strong> Bokføringsloven § 5 - transaksjoner skal bokføres løpende</p>`,
+                relevantAccounts: ["1920", "1900", "1500", "3000", "3050", "2700"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Selg varer på kreditt til kunde for kr 35 000 (se bort fra mva). Bokfør kredittsalget.",
+                solution: [
+                    { account: "1500", debit: 35000, credit: 0 },
+                    { account: "3000", debit: 0, credit: 35000 }
+                ],
+                hint: "Ved kredittsalg øker kundefordringer (1500) debet og salgsinntekt (3000) kredit.",
+                relevantAccounts: ["1500", "1920", "1530", "3000", "3050", "2400"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Kunden betaler fakturaen. Bokfør innbetalingen på kr 35 000.",
+                solution: [
+                    { account: "1920", debit: 35000, credit: 0 },
+                    { account: "1500", debit: 0, credit: 35000 }
+                ],
+                hint: "Når kunde betaler øker bankinnskudd (1920) debet og kundefordringer (1500) reduseres kredit.",
+                relevantAccounts: ["1920", "1900", "1500", "1570", "2400", "3000"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Betaler leverandørfaktura på kr 18 750. Bokfør betalingen.",
+                solution: [
+                    { account: "2400", debit: 18750, credit: 0 },
+                    { account: "1920", debit: 0, credit: 18750 }
+                ],
+                hint: "Leverandørgjeld reduseres (debet) og bankinnskudd reduseres (kredit).",
+                relevantAccounts: ["2400", "2310", "2990", "1920", "1900", "1500"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Selger varer kontant for kr 8 500 (se bort fra mva). Bokfør salget.",
+                solution: [
+                    { account: "1920", debit: 8500, credit: 0 },
+                    { account: "3000", debit: 0, credit: 8500 }
+                ],
+                hint: "Kontantsalg: bankinnskudd øker (debet), salgsinntekt øker (kredit).",
+                relevantAccounts: ["1920", "1900", "3000", "3050", "1500"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Tar opp lån i bank på kr 100 000. Bokfør låneopptaket.",
+                solution: [
+                    { account: "1920", debit: 100000, credit: 0 },
+                    { account: "2220", debit: 0, credit: 100000 }
+                ],
+                hint: "Bankinnskudd øker (debet), gjeld til kredittinstitusjoner øker (kredit).",
+                relevantAccounts: ["1920", "2220", "2240", "2310", "2380"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Betaler husleie på kr 15 000. Bokfør husleiekostnaden.",
+                solution: [
+                    { account: "6300", debit: 15000, credit: 0 },
+                    { account: "1920", debit: 0, credit: 15000 }
+                ],
+                hint: "Leiekostnad debiteres, bankinnskudd krediteres.",
+                relevantAccounts: ["6300", "1700", "1920", "2400", "7790"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Betaler strømregning på kr 4 500. Bokfør kostnaden.",
+                solution: [
+                    { account: "6340", debit: 4500, credit: 0 },
+                    { account: "1920", debit: 0, credit: 4500 }
+                ],
+                hint: "Lys/strøm/varme debiteres, bankinnskudd krediteres.",
+                relevantAccounts: ["6340", "6300", "1920", "2400", "7790"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Betaler telefon- og portoregning på kr 2 800. Bokfør kostnaden.",
+                solution: [
+                    { account: "6900", debit: 2800, credit: 0 },
+                    { account: "1920", debit: 0, credit: 2800 }
+                ],
+                hint: "Telefon og porto debiteres, bankinnskudd krediteres.",
+                relevantAccounts: ["6900", "6800", "1920", "2400"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Selger en gammel bil for kr 25 000 (opprinnelig verdi kr 20 000). Bokfør salget.",
+                solution: [
+                    { account: "1920", debit: 25000, credit: 0 },
+                    { account: "1230", debit: 0, credit: 20000 },
+                    { account: "3800", debit: 0, credit: 5000 }
+                ],
+                hint: "Bankinnskudd debiteres med salgspris. Bil krediteres med bokført verdi. Gevinst krediteres med differansen.",
+                relevantAccounts: ["1920", "1230", "3800", "7800"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 3 }
+            },
+            {
+                description: "Kjøper kontorrekvisita for kr 1 200 kontant. Bokfør kjøpet.",
+                solution: [
+                    { account: "6800", debit: 1200, credit: 0 },
+                    { account: "1920", debit: 0, credit: 1200 }
+                ],
+                hint: "Kontorrekvisita (kostnad) debiteres, bankinnskudd krediteres.",
+                relevantAccounts: ["6800", "6840", "6580", "1920", "2400"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Mottar faktura for revisjon på kr 12 000. Bokfør på kreditt.",
+                solution: [
+                    { account: "6700", debit: 12000, credit: 0 },
+                    { account: "2400", debit: 0, credit: 12000 }
+                ],
+                hint: "Revisjonskostnad debiteres, leverandørgjeld krediteres.",
+                relevantAccounts: ["6700", "7790", "2400", "1920"],
+                difficulty: 'easy',
+                prefillEasy: { rows: 2 }
+            },
+            
+            // Medium tasks (12 tasks)
+            {
+                description: "Kjøp varer for videresalg kontant for kr 20 000 (eks mva). MVA er 25%. Bokfør kjøpet.<br><br><strong>Regn ut:</strong> MVA = 20000 ×— 0.25 = ?",
+                solution: [
+                    { account: "4300", debit: 20000, credit: 0 },
+                    { account: "2710", debit: 5000, credit: 0 },
+                    { account: "1920", debit: 0, credit: 25000 }
+                ],
+                hint: "Varekjøp (4300) debiteres, inngående mva (2710) debiteres, og bankinnskudd (1920) krediteres med totalbeløp (20000 + 5000).",
+                relevantAccounts: ["4300", "4000", "1460", "2710", "2700", "1920", "2400"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 3 }
+            },
+            {
+                description: "Motta en faktura på kr 15 000 (eks mva) for varer. MVA 25%. Bokfør varekjøpet på kreditt.",
+                solution: [
+                    { account: "4300", debit: 15000, credit: 0 },
+                    { account: "2710", debit: 3750, credit: 0 },
+                    { account: "2400", debit: 0, credit: 18750 }
+                ],
+                hint: "Varekjøp og mva debiteres, leverandørgjeld (2400) krediteres.",
+                relevantAccounts: ["4300", "4000", "2710", "2700", "2400", "1920", "1500"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 3 }
+            },
+            {
+                description: "Kjøp en maskin for kr 448 000 inkl frakt på kr 40 400. Alt betales kontant. Bokfør kjøpet av anleggsmiddelet.",
+                solution: [
+                    { account: "1200", debit: 488400, credit: 0 },
+                    { account: "1920", debit: 0, credit: 488400 }
+                ],
+                hint: "Maskiner (anleggsmiddel) debiteres med totalt beløp inkl frakt. Bankinnskudd krediteres.",
+                relevantAccounts: ["1200", "1230", "1250", "1100", "6110", "1920", "2400"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Maskinen (kostpris kr 488 400) skal avskrives lineært over 8 år. Bokfør avskrivning for år 1. Beregn: 488 400 ×· 8 = kr 61 050.",
+                solution: [
+                    { account: "6000", debit: 61050, credit: 0 },
+                    { account: "1200", debit: 0, credit: 61050 }
+                ],
+                hint: "Avskrivningskostnad debiteres, maskinkonto krediteres med årlig avskrivning.",
+                relevantAccounts: ["6000", "6010", "6050", "1200", "1230", "1250", "7790"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Markedsverdien på maskinen faller til kr 400 000. Bokverdi er kr 427 350. Nedskrivning = 427 350 - 400 000 = kr 27 350. Bokfør nedskrivningen.",
+                solution: [
+                    { account: "6050", debit: 27350, credit: 0 },
+                    { account: "1200", debit: 0, credit: 27350 }
+                ],
+                hint: "Nedskrivning av anleggsmidler debiteres, maskinkonto krediteres.",
+                relevantAccounts: ["6050", "6000", "7800", "1200", "1230", "8100"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Lagerbeholdning: Inngående kr 100 000, utgående kr 120 000. Bokfør beholdningsendringen (økning på kr 20 000).",
+                solution: [
+                    { account: "1460", debit: 20000, credit: 0 },
+                    { account: "4390", debit: 0, credit: 20000 }
+                ],
+                hint: "Når lager øker: debet varelager, kredit beholdningsendring varer.",
+                relevantAccounts: ["1460", "1440", "1420", "4390", "4290", "4190", "4300"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "En kunde klager og får kreditnota på kr 2 000 fra opprinnelig faktura på kr 10 000. Bokfør kreditnotaen.",
+                solution: [
+                    { account: "3000", debit: 2000, credit: 0 },
+                    { account: "1500", debit: 0, credit: 2000 }
+                ],
+                hint: "Salgsinntekt reverseres (debet), kundefordringer reduseres (kredit).",
+                relevantAccounts: ["3000", "3050", "1500", "1920", "7830", "1580"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Gir kunde 10% kontantrabatt på kr 8 000. Rabatt er kr 800. Kunden betaler kr 7 200 kontant. Bokfør salget med rabatt.",
+                solution: [
+                    { account: "1920", debit: 7200, credit: 0 },
+                    { account: "3000", debit: 0, credit: 7200 }
+                ],
+                hint: "Bankinnskudd øker med faktisk betalt beløp (debet), salgsinntekt med nettobeløp (kredit).",
+                relevantAccounts: ["1920", "1900", "1500", "3000", "3050", "7790"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Kjøper inventar for kr 45 000 på kreditt. Bokfør kjøpet av anleggsmiddel.",
+                solution: [
+                    { account: "1250", debit: 45000, credit: 0 },
+                    { account: "2400", debit: 0, credit: 45000 }
+                ],
+                hint: "Inventar (anleggsmiddel) debiteres, leverandørgjeld krediteres.",
+                relevantAccounts: ["1250", "1200", "1230", "2400", "2220", "1920"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Betaler forsikring for hele året på kr 24 000. Bokfør forskuddsbetalingen.",
+                solution: [
+                    { account: "1720", debit: 24000, credit: 0 },
+                    { account: "1920", debit: 0, credit: 24000 }
+                ],
+                hint: "Forskuddsbetalt forsikring er en eiendel (debet). Bankinnskudd reduseres (kredit).",
+                relevantAccounts: ["1720", "1700", "1710", "7500", "1920", "2400"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Ved månedsslutt skal 1/12 av forsikringen (kr 2 000) kostnadføres. Bokfør periodiseringen.",
+                solution: [
+                    { account: "7500", debit: 2000, credit: 0 },
+                    { account: "1720", debit: 0, credit: 2000 }
+                ],
+                hint: "Forsikringskostnad debiteres, forskuddsbetalt forsikring krediteres.",
+                relevantAccounts: ["7500", "6300", "6340", "1720", "1700", "2960"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "En fordring på kr 5 000 vurderes som tapt. Bokfør tapet.",
+                solution: [
+                    { account: "7830", debit: 5000, credit: 0 },
+                    { account: "1500", debit: 0, credit: 5000 }
+                ],
+                hint: "Tap på fordringer debiteres, kundefordringer krediteres.",
+                relevantAccounts: ["7830", "1580", "1500", "3000"],
+                difficulty: 'medium',
+                prefillEasy: { rows: 2 }
+            },
+            
+            // Hard tasks (12 tasks)
+            {
+                description: "Utbetaler lønn til ansatt:<ul><li>Bruttolønn: kr 40 000</li><li>Skattetrekk: kr 12 000</li><li>Arbeidsgiveravgift (AGA): 14,1% = kr 5 640</li><li>Pensjon (OTP): 2% = kr 800</li><li>Nettolønn: kr 28 000</li></ul>Bokfør hele lønnskjøringen (ikke betal AGA eller skattetrekk ennå).",
+                solution: [
+                    { account: "5000", debit: 40000, credit: 0 },
+                    { account: "5400", debit: 5640, credit: 0 },
+                    { account: "2600", debit: 0, credit: 12000 },
+                    { account: "2780", debit: 0, credit: 5640 },
+                    { account: "2990", debit: 0, credit: 800 },
+                    { account: "1920", debit: 0, credit: 27200 }
+                ],
+                hint: "Debet: lønn og AGA. Kredit: skattetrekk, AGA-gjeld, pensjon og nettoutbetaling (40000-12000-800=27200).",
+                relevantAccounts: ["5000", "5180", "5400", "2600", "2780", "2930", "2940", "2990", "1920"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 6 }
+            },
+            {
+                description: "Betaler det inntrukne skattetrekket på kr 12 000 til skattetrekkskontoen. Bokfør overføringen.",
+                solution: [
+                    { account: "2600", debit: 12000, credit: 0 },
+                    { account: "1920", debit: 0, credit: 12000 }
+                ],
+                hint: "Skattetrekk-gjeld reduseres (debet), penger overføres fra bankinnskudd (kredit).",
+                relevantAccounts: ["2600", "2780", "2770", "1920", "1950", "2510"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Selger varer for kr 50 000 eks mva (25% mva = kr 12 500). Totalt kr 62 500 mottas på bankkonto. Bokfør salget MED mva.",
+                solution: [
+                    { account: "1920", debit: 62500, credit: 0 },
+                    { account: "3000", debit: 0, credit: 50000 },
+                    { account: "2700", debit: 0, credit: 12500 }
+                ],
+                hint: "Bankinnskudd debiteres med totalbeløp. Salgsinntekt og utgående mva krediteres.",
+                relevantAccounts: ["1920", "1500", "3000", "3050", "2700", "2710", "2740"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 3 }
+            },
+            {
+                description: "Mottar renteinntekt på kr 1 500 på bankkonto. Bokfør renteinntekten.",
+                solution: [
+                    { account: "1920", debit: 1500, credit: 0 },
+                    { account: "8050", debit: 0, credit: 1500 }
+                ],
+                hint: "Bankinnskudd øker (debet), renteinntekt (kredit).",
+                relevantAccounts: ["1920", "1900", "8050", "8070", "3000", "1760"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Betaler renter på lån, kr 3 000. Bokfør rentekostnaden.",
+                solution: [
+                    { account: "8150", debit: 3000, credit: 0 },
+                    { account: "1920", debit: 0, credit: 3000 }
+                ],
+                hint: "Rentekostnad debiteres, bankinnskudd krediteres.",
+                relevantAccounts: ["8150", "8170", "2950", "1920", "2220", "2310"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Beregner betalbar skatt på kr 45 000. Bokfør skattekostnaden.",
+                solution: [
+                    { account: "8300", debit: 45000, credit: 0 },
+                    { account: "2500", debit: 0, credit: 45000 }
+                ],
+                hint: "Betalbar skatt (kostnad) debiteres, betalbar skatt (gjeld) krediteres.",
+                relevantAccounts: ["8300", "8309", "8320", "2500", "2510", "2540", "2120"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Skal betale mva til staten. Utgående mva kr 25 000, inngående mva kr 8 000. Oppgjør = 25 000 - 8 000 = kr 17 000. Bokfør oppgjøret.",
+                solution: [
+                    { account: "2700", debit: 25000, credit: 0 },
+                    { account: "2710", debit: 0, credit: 8000 },
+                    { account: "2740", debit: 0, credit: 17000 }
+                ],
+                hint: "Utgående mva debiteres, inngående mva krediteres, differansen til oppgjørskonto.",
+                relevantAccounts: ["2700", "2710", "2740", "1920"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 3 }
+            },
+            {
+                description: "Betaler mva-oppgjøret på kr 17 000 til staten. Bokfør betalingen.",
+                solution: [
+                    { account: "2740", debit: 17000, credit: 0 },
+                    { account: "1920", debit: 0, credit: 17000 }
+                ],
+                hint: "Oppgjørskonto mva debiteres, bankinnskudd krediteres.",
+                relevantAccounts: ["2740", "2700", "2710", "1920"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Får tilbake mva fra staten. Utgående mva kr 5 000, inngående mva kr 12 000. Tilgode = 12 000 - 5 000 = kr 7 000. Bokfør oppgjøret og mottak av penger.",
+                solution: [
+                    { account: "2700", debit: 5000, credit: 0 },
+                    { account: "2710", debit: 0, credit: 12000 },
+                    { account: "1920", debit: 7000, credit: 0 }
+                ],
+                hint: "Utgående mva debiteres, inngående mva krediteres, differansen mottas på bank (debet).",
+                relevantAccounts: ["2700", "2710", "2740", "1920"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 3 }
+            },
+            {
+                description: "Avsetter feriepenger på 12% av årets lønn kr 480 000. Feriepenger = kr 57 600. Bokfør avsetningen.",
+                solution: [
+                    { account: "5180", debit: 57600, credit: 0 },
+                    { account: "2940", debit: 0, credit: 57600 }
+                ],
+                hint: "Feriepenger (kostnad) debiteres, påløpt feriepenger (gjeld) krediteres.",
+                relevantAccounts: ["5180", "5000", "2940", "2930", "1920"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Beregner arbeidsgiveravgift på feriepenger: 57 600 ×— 14,1% = kr 8 122. Bokfør AGA på feriepenger.",
+                solution: [
+                    { account: "5410", debit: 8122, credit: 0 },
+                    { account: "2780", debit: 0, credit: 8122 }
+                ],
+                hint: "AGA på feriepenger debiteres, påløpt AGA krediteres.",
+                relevantAccounts: ["5410", "5400", "2780", "2770", "1920"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 2 }
+            },
+            {
+                description: "Selger aksjer for kr 150 000 som ble kjøpt for kr 120 000. Bokfør salget.",
+                solution: [
+                    { account: "1920", debit: 150000, credit: 0 },
+                    { account: "1810", debit: 0, credit: 120000 },
+                    { account: "8080", debit: 0, credit: 30000 }
+                ],
+                hint: "Bankinnskudd debiteres med salgspris, aksjer krediteres med kostpris, verdiøkning krediteres.",
+                relevantAccounts: ["1920", "1810", "1820", "8080", "8100"],
+                difficulty: 'hard',
+                prefillEasy: { rows: 3 }
+            }
+        ];
+
+        // Game state
+        let gameState = {
+            mode: 'normal',
+            difficulty: 'mixed', // 'easy', 'medium', 'hard', or 'mixed'
+            currentTask: 0,
+            score: 0,
+            lives: 3,
+            maxLives: 3,
+            correctCount: 0,
+            incorrectCount: 0,
+            tutorialStep: 0,
+            lockDamage: 0,
+            selectingCell: false,
+            selectingForCell: null,
+            taskList: [] // Filtered and shuffled tasks
+        };
+
+        // Shuffle array function
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Get filtered and shuffled tasks
+        function getTaskList(difficulty) {
+            let filteredTasks;
+            
+            if (difficulty === 'mixed') {
+                // Mix: 40% easy, 40% medium, 20% hard
+                const easyTasks = tasks.filter(t => t.difficulty === 'easy');
+                const mediumTasks = tasks.filter(t => t.difficulty === 'medium');
+                const hardTasks = tasks.filter(t => t.difficulty === 'hard');
+                
+                const selectedEasy = shuffleArray(easyTasks).slice(0, 8);
+                const selectedMedium = shuffleArray(mediumTasks).slice(0, 8);
+                const selectedHard = shuffleArray(hardTasks).slice(0, 4);
+                
+                filteredTasks = shuffleArray([...selectedEasy, ...selectedMedium, ...selectedHard]);
+            } else {
+                filteredTasks = shuffleArray(tasks.filter(t => t.difficulty === difficulty));
+            }
+            
+            return filteredTasks;
+        }
+
+        // Calculator state
+        let calcState = {
+            display: '0',
+            equation: '',
+            result: null
+        };
+
+        // Initialize
+        function init() {
+            loadAccountList();
+            loadProgress();
+        }
+
+        function loadAccountList() {
+            const accountList = document.getElementById('account-list');
+            accountList.innerHTML = '';
+            
+            const currentTask = gameState.taskList[gameState.currentTask];
+            const relevantAccounts = currentTask ? currentTask.relevantAccounts : [];
+            const showStars = gameState.mode === 'training' || gameState.mode === 'tutorial';
+            
+            for (const [mainGroup, subGroups] of Object.entries(accountGroups)) {
+                const mainGroupDiv = document.createElement('div');
+                mainGroupDiv.className = 'account-group';
+                mainGroupDiv.style.marginBottom = '10px';
+                
+                // Check if this main group has any relevant accounts
+                let hasRelevantAccounts = false;
+                for (const accountCodes of Object.values(subGroups)) {
+                    if (accountCodes.some(code => relevantAccounts.includes(code))) {
+                        hasRelevantAccounts = true;
+                        break;
+                    }
+                }
+                
+                const mainHeader = document.createElement('div');
+                mainHeader.className = 'account-group-header collapsed' + (hasRelevantAccounts && showStars ? ' has-stars' : '');
+                mainHeader.innerHTML = `
+                    <span>${mainGroup}</span>
+                    <span class="chevron">â–¼</span>
+                `;
+                
+                const mainItemsDiv = document.createElement('div');
+                mainItemsDiv.className = 'account-group-items collapsed';
+                
+                mainHeader.onclick = () => {
+                    mainHeader.classList.toggle('collapsed');
+                    mainItemsDiv.classList.toggle('collapsed');
+                };
+                
+                for (const [subGroup, accountCodes] of Object.entries(subGroups)) {
+                    // Check if this subgroup has any relevant accounts
+                    const subHasRelevant = accountCodes.some(code => relevantAccounts.includes(code));
+                    
+                    const subGroupDiv = document.createElement('div');
+                    subGroupDiv.style.padding = '5px 10px';
+                    subGroupDiv.style.background = subHasRelevant && showStars ? 'rgba(74, 222, 128, 0.1)' : '#383838';
+                    subGroupDiv.style.fontWeight = 'bold';
+                    subGroupDiv.style.fontSize = '0.85em';
+                    subGroupDiv.style.color = '#9ca3af';
+                    subGroupDiv.style.cursor = 'pointer';
+                    subGroupDiv.style.borderLeft = subHasRelevant && showStars ? '2px solid #4ade80' : 'none';
+                    subGroupDiv.innerHTML = `
+                        <span>${subHasRelevant && showStars ? 'â­ ' : ''}${subGroup}</span>
+                        <span class="chevron" style="float: right; transform: rotate(-90deg);">â–¼</span>
+                    `;
+                    
+                    const subItemsDiv = document.createElement('div');
+                    subItemsDiv.className = 'account-group-items collapsed';
+                    
+                    subGroupDiv.onclick = (e) => {
+                        e.stopPropagation();
+                        const chevron = subGroupDiv.querySelector('.chevron');
+                        chevron.style.transform = subItemsDiv.classList.contains('collapsed') ? 'rotate(0deg)' : 'rotate(-90deg)';
+                        subItemsDiv.classList.toggle('collapsed');
+                    };
+                    
+                    accountCodes.forEach(code => {
+                        const item = document.createElement('div');
+                        const isRelevant = relevantAccounts.includes(code);
+                        item.className = 'account-item' + (isRelevant && showStars ? ' starred' : '');
+                        item.draggable = true;
+                        item.dataset.accountCode = code;
+                        item.innerHTML = `
+                            <div>
+                                <span class="account-code">${code}</span>${accounts[code]}
+                            </div>
+                            ${isRelevant && showStars ? '<span class="account-star">â­</span>' : ''}
+                        `;
+                        
+                        // Drag events
+                        item.addEventListener('dragstart', (e) => {
+                            e.dataTransfer.setData('text/plain', code);
+                            item.classList.add('dragging');
+                        });
+                        
+                        item.addEventListener('dragend', () => {
+                            item.classList.remove('dragging');
+                        });
+                        
+                        // Keep click to insert functionality
+                        item.onclick = () => insertAccount(code);
+                        
+                        subItemsDiv.appendChild(item);
+                    });
+                    
+                    mainItemsDiv.appendChild(subGroupDiv);
+                    mainItemsDiv.appendChild(subItemsDiv);
+                }
+                
+                mainGroupDiv.appendChild(mainHeader);
+                mainGroupDiv.appendChild(mainItemsDiv);
+                accountList.appendChild(mainGroupDiv);
+            }
+        }
+
+        // Cell selection for formulas
+        function startCellSelection(sourceCell) {
+            gameState.selectingCell = true;
+            gameState.selectingForCell = sourceCell;
+            
+            // Add selecting mode class to all cells
+            document.querySelectorAll('.cell').forEach(cell => {
+                if (cell !== sourceCell && !cell.classList.contains('account-cell')) {
+                    cell.classList.add('selecting-mode');
+                }
+            });
+            
+            // Show hint
+            showCellSelectorHint();
+        }
+
+        function endCellSelection() {
+            gameState.selectingCell = false;
+            gameState.selectingForCell = null;
+            
+            // Remove selecting mode
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('selecting-mode', 'selected-for-formula');
+            });
+            
+            // Hide hint
+            hideCellSelectorHint();
+        }
+
+        function selectCellForFormula(targetCell) {
+            if (!gameState.selectingCell || !gameState.selectingForCell) return;
+            
+            const cellRef = getCellReference(targetCell);
+            const sourceCell = gameState.selectingForCell;
+            
+            if (cellRef) {
+                // Insert cell reference at cursor position or append
+                const cursorPos = sourceCell.selectionStart || sourceCell.value.length;
+                const currentValue = sourceCell.value;
+                sourceCell.value = currentValue.slice(0, cursorPos) + cellRef + currentValue.slice(cursorPos);
+                
+                // Update formula
+                handleFormula(sourceCell);
+                updateBalance();
+                
+                // Visual feedback
+                targetCell.classList.add('selected-for-formula');
+                setTimeout(() => {
+                    targetCell.classList.remove('selected-for-formula');
+                }, 500);
+            }
+            
+            // DON'T end selection mode - allow user to add more cells
+            // User can press ESC or click outside to end
+            
+            // Focus back on source cell
+            if (sourceCell && document.body.contains(sourceCell)) {
+                setTimeout(() => {
+                    sourceCell.focus();
+                    // Move cursor to end
+                    sourceCell.setSelectionRange(sourceCell.value.length, sourceCell.value.length);
+                }, 10);
+            }
+        }
+
+        function getCellReference(cell) {
+            const row = cell.parentElement.parentElement;
+            const tbody = document.getElementById('spreadsheet-body');
+            const rowIndex = Array.from(tbody.children).indexOf(row) + 1;
+            const cellIndex = Array.from(row.children).indexOf(cell.parentElement);
+            
+            // Map cell index to column letter
+            // cellIndex: 1=A (account), 2=B (debit), 3=C (credit)
+            const columnLetters = ['', 'A', 'B', 'C'];
+            const columnLetter = columnLetters[cellIndex];
+            
+            if (columnLetter) {
+                return columnLetter + rowIndex;
+            }
+            return null;
+        }
+
+        function showCellSelectorHint() {
+            const hint = document.createElement('div');
+            hint.className = 'cell-selector-hint';
+            hint.id = 'cell-selector-hint';
+            hint.innerHTML = 'ðŸŽ¯ Klikk på celler for å legge dem til formelen<br><small>Skriv +, -, *, / mellom â€¢ ESC for å avslutte</small>';
+            document.body.appendChild(hint);
+        }
+
+        function hideCellSelectorHint() {
+            const hint = document.getElementById('cell-selector-hint');
+            if (hint) hint.remove();
+        }
+
+        function insertAccount(code) {
+            const activeCell = document.activeElement;
+            if (activeCell && activeCell.classList.contains('cell') && activeCell.classList.contains('account-cell')) {
+                activeCell.value = code;
+                updateBalance();
+            }
+        }
+
+        // Menu functions
+        function startGame(mode, difficulty = 'mixed') {
+            gameState.mode = mode;
+            gameState.difficulty = difficulty;
+            gameState.currentTask = 0;
+            gameState.score = 0;
+            gameState.lives = mode === 'training' ? 999 : 3;
+            gameState.maxLives = mode === 'training' ? 999 : 3;
+            gameState.lockDamage = 0;
+            
+            // Generate filtered and shuffled task list
+            gameState.taskList = getTaskList(difficulty);
+            
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            document.getElementById('game-mode').textContent = 
+                mode === 'tutorial' ? 'Tutorial' :
+                mode === 'training' ? 'Trening (' + (difficulty === 'easy' ? 'Lett' : difficulty === 'medium' ? 'Middels' : difficulty === 'hard' ? 'Vanskelig' : 'Blandet') + ')' :
+                mode === 'normal' ? 'Normal' : 'Utfordring';
+            
+            if (mode === 'tutorial') {
+                startTutorial();
+            } else {
+                loadTask();
+            }
+        }
+
+        function backToMenu() {
+            document.getElementById('game-container').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'flex';
+            saveProgress();
+        }
+
+        function showAchievements() {
+            alert('ðŸ† Achievements coming soon!\n\nDette vil vise alle dine låste og ulåste prestasjoner.');
+        }
+
+        function showSettings() {
+            alert('âš™ï¸ Innstillinger coming soon!\n\nHer kan du tilpasse:\n- Lyd effekter\n- Vanskelighetsgrad\n- Fargetema\n- og mer!');
+        }
+
+        // Task functions
+        function loadTask() {
+            if (gameState.currentTask >= gameState.taskList.length) {
+                showCompletion();
+                return;
+            }
+
+            const task = gameState.taskList[gameState.currentTask];
+            
+            document.getElementById('task-title').textContent = `Oppgave ${gameState.currentTask + 1}`;
+            document.getElementById('task-description').innerHTML = task.description;
+            document.getElementById('current-task').textContent = gameState.currentTask + 1;
+            document.getElementById('total-tasks').textContent = gameState.taskList.length;
+            
+            // Reset grid
+            clearGrid();
+            
+            // Pre-fill rows based on mode and task
+            const rowsToAdd = (gameState.mode === 'training' || gameState.mode === 'tutorial') && task.prefillEasy 
+                ? task.prefillEasy.rows 
+                : 2;
+            
+            for (let i = 0; i < rowsToAdd; i++) {
+                addRow();
+            }
+            
+            // Reset feedback
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('hint-box').classList.remove('show');
+            
+            // Reset lock button
+            resetLockButton();
+            
+            // Reload account list with new stars
+            loadAccountList();
+            
+            updateStats();
+        }
+
+        function clearGrid() {
+            document.getElementById('spreadsheet-body').innerHTML = '';
+            updateBalance();
+        }
+
+        function addRow() {
+            const tbody = document.getElementById('spreadsheet-body');
+            const rowNum = tbody.children.length + 1;
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td class="cell-label">${rowNum}</td>
+                <td><input type="text" class="cell account-cell" placeholder="Kontonr" maxlength="4" onkeydown="handleCellNav(event)" oninput="updateBalance()"></td>
+                <td><input type="text" class="cell" placeholder="0" onkeydown="handleCellNav(event)" oninput="handleFormula(this); updateBalance()"></td>
+                <td><input type="text" class="cell" placeholder="0" onkeydown="handleCellNav(event)" oninput="handleFormula(this); updateBalance()"></td>
+            `;
+            
+            tbody.appendChild(row);
+            
+            // Add drag and drop to account cells
+            const accountCell = row.querySelector('.account-cell');
+            setupCellDragDrop(accountCell);
+            
+            // Add click handlers for cell selection
+            const cells = row.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.addEventListener('click', (e) => {
+                    if (gameState.selectingCell && cell !== gameState.selectingForCell) {
+                        selectCellForFormula(cell);
+                    }
+                });
+            });
+        }
+
+        function setupCellDragDrop(cell) {
+            cell.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (cell.classList.contains('account-cell')) {
+                    cell.classList.add('drag-over');
+                }
+            });
+            
+            cell.addEventListener('dragleave', () => {
+                cell.classList.remove('drag-over');
+            });
+            
+            cell.addEventListener('drop', (e) => {
+                e.preventDefault();
+                cell.classList.remove('drag-over');
+                
+                if (cell.classList.contains('account-cell')) {
+                    const accountCode = e.dataTransfer.getData('text/plain');
+                    if (accountCode) {
+                        cell.value = accountCode;
+                        updateBalance();
+                        
+                        // Visual feedback
+                        cell.style.background = 'rgba(74, 222, 128, 0.3)';
+                        setTimeout(() => {
+                            cell.style.background = '';
+                        }, 500);
+                    }
+                }
+            });
+        }
+
+        function handleCellNav(event) {
+            const cell = event.target;
+            const row = cell.parentElement.parentElement;
+            const cellIndex = Array.from(row.children).indexOf(cell.parentElement);
+            const tbody = document.getElementById('spreadsheet-body');
+            const rowIndex = Array.from(tbody.children).indexOf(row);
+            
+            // ESC to cancel cell selection
+            if (event.key === 'Escape' && gameState.selectingCell) {
+                endCellSelection();
+                return;
+            }
+            
+            // Enter to select cell in formula mode
+            if (event.key === 'Enter' && gameState.selectingCell) {
+                event.preventDefault();
+                selectCellForFormula(cell);
+                return;
+            }
+            
+            // Allow typing operators while in selection mode
+            if (gameState.selectingCell && (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/' || event.key === '(' || event.key === ')' || event.key === '.' || (event.key >= '0' && event.key <= '9'))) {
+                // Let the character be typed normally
+                return;
+            }
+            
+            // Arrow key navigation
+            if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                const nextCell = cell.parentElement.nextElementSibling?.querySelector('.cell');
+                if (nextCell) nextCell.focus();
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                const prevCell = cell.parentElement.previousElementSibling?.querySelector('.cell');
+                if (prevCell) prevCell.focus();
+            } else if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                const nextRow = row.nextElementSibling;
+                if (nextRow) {
+                    const targetCell = nextRow.children[cellIndex]?.querySelector('.cell');
+                    if (targetCell) targetCell.focus();
+                } else {
+                    // If at last row, add new row
+                    addRow();
+                    setTimeout(() => {
+                        const newRow = tbody.children[rowIndex + 1];
+                        if (newRow) {
+                            const targetCell = newRow.children[cellIndex]?.querySelector('.cell');
+                            if (targetCell) targetCell.focus();
+                        }
+                    }, 10);
+                }
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                const prevRow = row.previousElementSibling;
+                if (prevRow) {
+                    const targetCell = prevRow.children[cellIndex]?.querySelector('.cell');
+                    if (targetCell) targetCell.focus();
+                }
+            } else if (event.key === 'Tab') {
+                event.preventDefault();
+                const nextCell = event.shiftKey ? 
+                    cell.parentElement.previousElementSibling?.querySelector('.cell') :
+                    cell.parentElement.nextElementSibling?.querySelector('.cell');
+                
+                if (nextCell) {
+                    nextCell.focus();
+                } else {
+                    const nextRow = event.shiftKey ? row.previousElementSibling : row.nextElementSibling;
+                    if (nextRow) {
+                        const targetCell = nextRow.children[event.shiftKey ? 3 : 1]?.querySelector('.cell');
+                        if (targetCell) targetCell.focus();
+                    }
+                }
+            } else if (event.key === 'Enter' && !gameState.selectingCell) {
+                event.preventDefault();
+                const nextRow = row.nextElementSibling;
+                if (nextRow) {
+                    const targetCell = nextRow.children[cellIndex]?.querySelector('.cell');
+                    if (targetCell) targetCell.focus();
+                } else {
+                    addRow();
+                    setTimeout(() => {
+                        const newRow = row.nextElementSibling;
+                        if (newRow) {
+                            const targetCell = newRow.children[cellIndex]?.querySelector('.cell');
+                            if (targetCell) targetCell.focus();
+                        }
+                    }, 10);
+                }
+            } else if (event.key === '=' && !cell.classList.contains('account-cell')) {
+                // When user types =, start cell selection mode
+                setTimeout(() => {
+                    startCellSelection(cell);
+                }, 10);
+            }
+        }
+
+        function handleFormula(cell) {
+            const value = cell.value.trim();
+            
+            if (value.startsWith('=')) {
+                cell.classList.add('formula');
+                
+                try {
+                    const formula = value.substring(1);
+                    const result = evaluateFormula(formula);
+                    cell.dataset.result = result;
+                    cell.title = `Formel: ${value}\nResultat: ${result}`;
+                } catch (e) {
+                    cell.dataset.result = 0;
+                    cell.title = 'Ugyldig formel';
+                }
+            } else {
+                cell.classList.remove('formula');
+                delete cell.dataset.result;
+                cell.title = '';
+            }
+        }
+
+        function evaluateFormula(formula) {
+            // Replace cell references (A1, B2, C3, etc.) with their values
+            formula = formula.replace(/([A-Z]+)(\d+)/gi, (match, col, row) => {
+                // Convert column letter to index: A=0, B=1, C=2, D=3
+                let colIndex = 0;
+                for (let i = 0; i < col.length; i++) {
+                    colIndex = colIndex * 26 + (col.toUpperCase().charCodeAt(i) - 64);
+                }
+                
+                const rowIndex = parseInt(row) - 1;
+                const tbody = document.getElementById('spreadsheet-body');
+                const targetRow = tbody.children[rowIndex];
+                
+                if (targetRow) {
+                    // Column mapping: A=1 (account), B=2 (debit), C=3 (credit)
+                    // We need to add 1 because first column (index 0) is the row label
+                    const cell = targetRow.children[colIndex]?.querySelector('.cell');
+                    if (cell) {
+                        const value = getCellValue(cell);
+                        return value || 0;
+                    }
+                }
+                return 0;
+            });
+            
+            // Evaluate the expression
+            try {
+                return eval(formula.replace(/×—/g, '*').replace(/×·/g, '/'));
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        function getCellValue(cell) {
+            if (cell.dataset.result) {
+                return parseFloat(cell.dataset.result);
+            }
+            const value = cell.value.replace(/\s/g, '').replace(/,/g, '');
+            return parseFloat(value) || 0;
+        }
+
+        function updateBalance() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+            
+            const rows = document.querySelectorAll('#spreadsheet-body tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('.cell');
+                if (cells.length >= 3) {
+                    totalDebit += getCellValue(cells[1]);
+                    totalCredit += getCellValue(cells[2]);
+                }
+            });
+            
+            document.getElementById('total-debit').textContent = totalDebit.toLocaleString('no-NO');
+            document.getElementById('total-credit').textContent = totalCredit.toLocaleString('no-NO');
+            
+            const balanceStatus = document.getElementById('balance-status');
+            const diff = totalDebit - totalCredit;
+            
+            if (totalDebit === 0 && totalCredit === 0) {
+                balanceStatus.innerHTML = '<span>Status:</span><span>Ingen posteringer</span>';
+                balanceStatus.className = 'balance-row';
+            } else if (diff === 0) {
+                balanceStatus.innerHTML = '<span>Status:</span><span>âœ“ Balansert!</span>';
+                balanceStatus.className = 'balance-row balanced';
+            } else {
+                balanceStatus.innerHTML = `<span>Status:</span><span>âœ— Ubalansert (${Math.abs(diff).toLocaleString('no-NO')})</span>`;
+                balanceStatus.className = 'balance-row unbalanced';
+            }
+        }
+
+        // Calculator functions
+        let calcDragging = false;
+        let calcDragOffset = { x: 0, y: 0 };
+
+        function toggleCalculator() {
+            const calc = document.getElementById('calculator');
+            calc.classList.toggle('show');
+        }
+
+        function initCalculatorDrag() {
+            const calc = document.getElementById('calculator');
+            const header = calc.querySelector('.calc-header');
+            
+            header.addEventListener('mousedown', (e) => {
+                calcDragging = true;
+                calc.classList.add('dragging');
+                calcDragOffset.x = e.clientX - calc.offsetLeft;
+                calcDragOffset.y = e.clientY - calc.offsetTop;
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (calcDragging) {
+                    calc.style.left = (e.clientX - calcDragOffset.x) + 'px';
+                    calc.style.top = (e.clientY - calcDragOffset.y) + 'px';
+                    calc.style.right = 'auto';
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                calcDragging = false;
+                calc.classList.remove('dragging');
+            });
+        }
+
+        function calcInput(value) {
+            if (calcState.display === '0' && value !== '.') {
+                calcState.display = value;
+            } else {
+                calcState.display += value;
+            }
+            document.getElementById('calc-display').textContent = calcState.display;
+        }
+
+        function calcClear() {
+            calcState.display = '0';
+            calcState.equation = '';
+            calcState.result = null;
+            document.getElementById('calc-display').textContent = '0';
+        }
+
+        function calcEquals() {
+            try {
+                const result = eval(calcState.display.replace(/×—/g, '*').replace(/×·/g, '/'));
+                calcState.result = result;
+                calcState.display = result.toString();
+                document.getElementById('calc-display').textContent = result;
+            } catch (e) {
+                document.getElementById('calc-display').textContent = 'Feil';
+                setTimeout(() => {
+                    calcClear();
+                }, 1000);
+            }
+        }
+
+        // Answer checking
+        function checkAnswer() {
+            const task = gameState.taskList[gameState.currentTask];
+            const userAnswer = [];
+            
+            const rows = document.querySelectorAll('#spreadsheet-body tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('.cell');
+                if (cells.length >= 3) {
+                    const account = cells[0].value.trim();
+                    const debit = getCellValue(cells[1]);
+                    const credit = getCellValue(cells[2]);
+                    
+                    if (account && (debit > 0 || credit > 0)) {
+                        userAnswer.push({ account, debit, credit });
+                    }
+                }
+            });
+            
+            const isCorrect = compareAnswers(userAnswer, task.solution);
+            const feedback = document.getElementById('feedback');
+            
+            if (isCorrect) {
+                gameState.correctCount++;
+                const points = gameState.mode === 'challenge' ? 30 : gameState.mode === 'normal' ? 20 : 10;
+                gameState.score += points;
+                
+                feedback.className = 'feedback correct show';
+                feedback.textContent = 'ðŸŽ‰ Riktig! Flott jobbet!';
+                
+                // Unlock next button immediately
+                const nextBtn = document.getElementById('next-btn');
+                nextBtn.classList.remove('locked');
+                nextBtn.disabled = false;
+                document.getElementById('lock-icon').innerHTML = 'âœ“';
+                
+                checkAchievements();
+            } else {
+                gameState.incorrectCount++;
+                
+                if (gameState.mode !== 'training') {
+                    gameState.lives--;
+                    damageLock();
+                }
+                
+                feedback.className = 'feedback incorrect show';
+                
+                if (gameState.lockDamage >= 3) {
+                    feedback.textContent = 'âœ— 3 forsøk brukt. Neste-knappen er nå åpnet. Sjekk hint!';
+                } else {
+                    feedback.textContent = `âœ— Ikke helt riktig. Prøv igjen! (${3 - gameState.lockDamage} forsøk igjen)`;
+                }
+            }
+            
+            updateStats();
+        }
+
+        function compareAnswers(user, solution) {
+            if (user.length !== solution.length) return false;
+            
+            const sortedUser = [...user].sort((a, b) => a.account.localeCompare(b.account));
+            const sortedSolution = [...solution].sort((a, b) => a.account.localeCompare(b.account));
+            
+            for (let i = 0; i < sortedUser.length; i++) {
+                if (sortedUser[i].account !== sortedSolution[i].account ||
+                    Math.abs(sortedUser[i].debit - sortedSolution[i].debit) > 0.01 ||
+                    Math.abs(sortedUser[i].credit - sortedSolution[i].credit) > 0.01) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        function showHint() {
+            const task = gameState.taskList[gameState.currentTask];
+            document.getElementById('hint-content').textContent = task.hint;
+            document.getElementById('hint-box').classList.add('show');
+        }
+
+        function nextTask() {
+            gameState.currentTask++;
+            gameState.lives = gameState.maxLives;
+            gameState.lockDamage = 0;
+            loadTask();
+        }
+
+        // Lock button system
+        function resetLockButton() {
+            const nextBtn = document.getElementById('next-btn');
+            const lockIcon = document.getElementById('lock-icon');
+            
+            nextBtn.classList.add('locked');
+            nextBtn.disabled = true;
+            lockIcon.innerHTML = 'ðŸ”’';
+            lockIcon.classList.remove('shake', 'unlock');
+            
+            const cracks = nextBtn.querySelectorAll('.lock-crack');
+            cracks.forEach(crack => crack.classList.remove('show'));
+            
+            gameState.lockDamage = 0;
+        }
+
+        function damageLock() {
+            const lockIcon = document.getElementById('lock-icon');
+            const nextBtn = document.getElementById('next-btn');
+            
+            lockIcon.classList.add('shake');
+            
+            setTimeout(() => {
+                lockIcon.classList.remove('shake');
+            }, 500);
+            
+            gameState.lockDamage++;
+            
+            if (gameState.lockDamage <= 3) {
+                const crack = nextBtn.querySelector(`.lock-crack-${gameState.lockDamage}`);
+                if (crack) crack.classList.add('show');
+            }
+            
+            if (gameState.lockDamage >= 3) {
+                setTimeout(() => {
+                    unlockButton();
+                }, 500);
+            }
+        }
+
+        function unlockButton() {
+            const nextBtn = document.getElementById('next-btn');
+            const lockIcon = document.getElementById('lock-icon');
+            
+            lockIcon.classList.add('unlock');
+            lockIcon.innerHTML = 'ðŸ”“';
+            
+            setTimeout(() => {
+                nextBtn.classList.remove('locked');
+                nextBtn.disabled = false;
+            }, 500);
+        }
+
+        function updateLifeBar() {
+            const lifeFill = document.getElementById('life-fill');
+            const percentage = (gameState.lives / gameState.maxLives) * 100;
+            
+            lifeFill.style.width = percentage + '%';
+            lifeFill.textContent = `${gameState.lives}/${gameState.maxLives}`;
+            
+            lifeFill.classList.remove('low', 'medium');
+            if (percentage <= 33) {
+                lifeFill.classList.add('low');
+            } else if (percentage <= 66) {
+                lifeFill.classList.add('medium');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = gameState.score;
+            updateLifeBar();
+        }
+
+        // Achievements
+        function checkAchievements() {
+            if (gameState.correctCount === 1) {
+                showAchievement('Første seier!', 'Du har fullført din første oppgave');
+            }
+            if (gameState.correctCount === 5) {
+                showAchievement('På vei opp!', 'Fem oppgaver fullført');
+            }
+            if (gameState.score >= 100) {
+                showAchievement('Poeng-mester!', 'Du har nådd 100 poeng');
+            }
+        }
+
+        function showAchievement(title, desc) {
+            const popup = document.getElementById('achievement-popup');
+            document.getElementById('achievement-title').textContent = title;
+            document.getElementById('achievement-desc').textContent = desc;
+            
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+
+        // Tutorial
+        const tutorialSteps = [
+            {
+                title: 'Velkommen til bokføringsspillet!',
+                text: 'Her lærer du bokføring på en morsom måte. Du bruker et Excel-lignende grensesnitt for å løse oppgaver.'
+            },
+            {
+                title: 'Slik fungerer det',
+                text: 'Du får en oppgave, og må fylle inn riktige kontoer i debet og kredit-kolonner. Bruk kontoplan til venstre for å finne riktige kontoer.'
+            },
+            {
+                title: 'Formler og kalkulator',
+                text: 'Du kan skrive formler som starter med = (f.eks. =20000*0.25), eller bruke kalkulatoren ved å klikke på ðŸ”¢ Kalkulator-knappen.'
+            },
+            {
+                title: 'Liv-systemet',
+                text: 'Du har 3 liv per oppgave. For hver feil får egget en sprekk. Etter 3 feil går du automatisk til neste oppgave.'
+            },
+            {
+                title: 'La oss starte!',
+                text: 'Nå er du klar til å begynne. Lykke til med første oppgave!'
+            }
+        ];
+
+        function startTutorial() {
+            gameState.tutorialStep = 0;
+            showTutorialStep();
+        }
+
+        function showTutorialStep() {
+            const step = tutorialSteps[gameState.tutorialStep];
+            if (!step) {
+                document.getElementById('tutorial-overlay').classList.remove('show');
+                loadTask();
+                return;
+            }
+            
+            document.getElementById('tutorial-title').textContent = step.title;
+            document.getElementById('tutorial-text').textContent = step.text;
+            document.getElementById('tutorial-overlay').classList.add('show');
+        }
+
+        function nextTutorialStep() {
+            gameState.tutorialStep++;
+            showTutorialStep();
+        }
+
+        // Save/Load
+        function saveProgress() {
+            const progress = {
+                score: gameState.score,
+                correctCount: gameState.correctCount,
+                incorrectCount: gameState.incorrectCount
+            };
+            localStorage.setItem('bokforingsspill_progress', JSON.stringify(progress));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('bokforingsspill_progress');
+            if (saved) {
+                const progress = JSON.parse(saved);
+                // Can use this to show total statistics
+            }
+        }
+
+        function showCompletion() {
+            const workspace = document.querySelector('.workspace');
+            workspace.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px;">
+                    <h1 style="font-size: 3em; color: #4ade80; margin-bottom: 20px;">ðŸŽ‰ Gratulerer!</h1>
+                    <p style="font-size: 1.5em; margin-bottom: 40px;">Du har fullført alle oppgavene!</p>
+                    
+                    <div style="background: #2d2d2d; border: 2px solid #4ade80; border-radius: 15px; padding: 40px; max-width: 500px; margin: 0 auto 40px;">
+                        <h3 style="color: #4ade80; margin-bottom: 20px; font-size: 1.5em;">Din statistikk</h3>
+                        <div style="font-size: 1.3em; line-height: 2;">
+                            <p>âœ… Riktige: ${gameState.correctCount}</p>
+                            <p>âœ— Feil: ${gameState.incorrectCount}</p>
+                            <p>â­ Totalt poeng: ${gameState.score}</p>
+                        </div>
+                    </div>
+                    
+                    <button class="action-btn check" onclick="backToMenu()" style="font-size: 1.2em; padding: 20px 50px;">
+                        Tilbake til meny
+                    </button>
+                </div>
+            `;
+            
+            saveProgress();
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            init();
+            initCalculatorDrag();
+        };
+    </script>
+</body>
+</html>
