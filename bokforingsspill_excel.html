@@ -284,7 +284,235 @@
             padding: 20px;
         }
 
-        .sidebar h3 {
+        
+        /* Sidebar Tabs */
+        .sidebar-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #404040;
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 10px;
+            background: #2d2d2d;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.9em;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .sidebar-tab:hover {
+            background: #353535;
+            color: #aaa;
+        }
+
+        .sidebar-tab.active {
+            color: #4ade80;
+            border-bottom-color: #4ade80;
+            background: #353535;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .wiki-content, .oppgaver-content {
+            color: #ccc;
+        }
+
+        
+        .kontoplan-section {
+            margin: 20px 0;
+            background: #404040;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .kontoplan-section h5 {
+            color: #4ade80;
+            margin: 0 0 10px 0;
+            font-size: 1em;
+            border-bottom: 1px solid #4ade80;
+            padding-bottom: 5px;
+        }
+
+        .kontoplan-items {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 5px;
+        }
+
+        .kontoplan-item {
+            padding: 8px;
+            background: #353535;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border-left: 3px solid #4ade80;
+        }
+
+        .kontoplan-item strong {
+            color: #4ade80;
+            min-width: 60px;
+            display: inline-block;
+        }
+
+        .formler-section {
+            background: #404040;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .formler-section h5 {
+            color: #4ade80;
+            margin: 15px 0 10px 0;
+            font-size: 1em;
+        }
+
+        .formler-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .formler-section li {
+            padding: 8px;
+            background: #353535;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 3px solid #4ade80;
+        }
+
+        .formler-section strong {
+            color: #4ade80;
+        }
+
+.wiki-content h4, .oppgaver-content h4 {
+            color: #4ade80;
+            margin: 20px 0 10px 0;
+            font-size: 1.1em;
+        }
+
+        .wiki-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .wiki-content li {
+            padding: 8px 0;
+            border-bottom: 1px solid #404040;
+        }
+
+        .wiki-content li strong {
+            color: #4ade80;
+        }
+
+        .progress-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #404040;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+
+        .achievement-list {
+            margin-top: 10px;
+        }
+
+        .achievement-item {
+            padding: 10px;
+            background: #404040;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 3px solid #4ade80;
+        }
+
+        .achievement-item.locked {
+            opacity: 0.5;
+            border-left-color: #666;
+        }
+
+        /* Task Selector */
+        .task-selector-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .task-selector-item {
+            padding: 12px;
+            background: #404040;
+            margin: 8px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-selector-item:hover {
+            background: #4a4a4a;
+            border-left-color: #4ade80;
+            transform: translateX(5px);
+        }
+
+        .task-selector-item.current {
+            border-left-color: #4ade80;
+            background: #3a5a3a;
+        }
+
+        .task-selector-item.completed {
+            border-left-color: #22c55e;
+            opacity: 0.8;
+        }
+
+        .task-difficulty {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .task-difficulty.easy {
+            background: #22c55e;
+            color: #1e1e1e;
+        }
+
+        .task-difficulty.medium {
+            background: #f59e0b;
+            color: #1e1e1e;
+        }
+
+        .task-difficulty.hard {
+            background: #ef4444;
+            color: white;
+        }
+
+        .task-selector-number {
+            font-weight: bold;
+            color: #4ade80;
+            min-width: 30px;
+        }
+
+.sidebar h3 {
             color: #4ade80;
             margin-bottom: 15px;
             font-size: 1.2em;
@@ -322,7 +550,7 @@
         }
 
         .account-group-header.has-stars::before {
-            content: 'â­';
+            content: '⭐';
             position: absolute;
             left: -5px;
             top: 50%;
@@ -937,57 +1165,56 @@
 <body>
     <!-- Main Menu -->
     <div class="main-menu" id="main-menu">
-        <h1>ðŸ“Š Bokføringsspill</h1>
+        <h1>📊 Bokføringsspill</h1>
         <p>Lær regnskap med Excel-lignende interface</p>
         
         <div class="menu-grid">
             <div class="menu-card" onclick="startGame('tutorial', 'easy')">
-                <div class="menu-card-icon">ðŸŽ“</div>
+                <div class="menu-card-icon">🎓</div>
                 <h3>Tutorial</h3>
                 <p>Lær grunnleggende bokføring steg for steg</p>
             </div>
             
             <div class="menu-card" onclick="startGame('training', 'easy')">
-                <div class="menu-card-icon">ðŸ’ª</div>
+                <div class="menu-card-icon">💪</div>
                 <h3>Øvelse - Lett</h3>
                 <p>Enkle oppgaver uten straff</p>
             </div>
             
             <div class="menu-card" onclick="startGame('training', 'medium')">
-                <div class="menu-card-icon">ðŸ“š</div>
+                <div class="menu-card-icon">📚</div>
                 <h3>Øvelse - Middels</h3>
                 <p>Middels vanskelige oppgaver</p>
             </div>
             
             <div class="menu-card" onclick="startGame('training', 'hard')">
-                <div class="menu-card-icon">ðŸ”¥</div>
+                <div class="menu-card-icon">🔥</div>
                 <h3>Øvelse - Vanskelig</h3>
                 <p>Avanserte oppgaver med mva og lønn</p>
             </div>
             
             <div class="menu-card" onclick="startGame('normal', 'mixed')">
-                <div class="menu-card-icon">ðŸŽ¯</div>
+                <div class="menu-card-icon">🎯</div>
                 <h3>Normal - Blandet</h3>
                 <p>3 liv per oppgave - alle nivåer</p>
             </div>
             
             <div class="menu-card" onclick="startGame('challenge', 'hard')">
-                <div class="menu-card-icon">âš¡</div>
+                <div class="menu-card-icon">⚡</div>
                 <h3>Utfordring</h3>
                 <p>Vanskelige oppgaver med tidspress</p>
             </div>
             
-            <div class="menu-card" onclick="showAchievements()">
-                <div class="menu-card-icon">ðŸ†</div>
-                <h3>Prestasjoner</h3>
-                <p>Se dine achievements og fremgang</p>
+            <div class="menu-card" onclick="window.location.href='wiki.html'">
+                <div class="menu-card-icon">📖</div>
+                <h3>Wiki</h3>
+                <p>Lovartikler og forklaringer</p>
             </div>
             
-            <div class="menu-card" onclick="showSettings()">
-                <div class="menu-card-icon">âš™ï¸</div>
-                <h3>Innstillinger</h3>
-                <p>Tilpass spillopplevelsen</p>
-            </div>
+            <div class="menu-card" onclick="window.location.href='index.html'">
+                <div class="menu-card-icon">🏠</div>
+                <h3>Hjem</h3>
+                <p>Tilbake til hovedmenyen</p></div>
         </div>
     </div>
 
@@ -996,7 +1223,9 @@
         <!-- Header -->
         <div class="game-header">
             <div class="header-left">
-                <button class="back-btn" onclick="backToMenu()">â† Tilbake</button>
+                <button class="back-btn" onclick="window.location.href='index.html'">🏠 Hjem</button>
+                <button class="back-btn" onclick="backToMenu()" style="margin-left: 10px;">← Meny</button>
+                <button class="back-btn" onclick="showSettings()" style="margin-left: 10px;">⚙️ Innstillinger</button>
                 <div class="stat-item">
                     <span class="stat-label">Modus:</span>
                     <span class="stat-value" id="game-mode">Normal</span>
@@ -1025,8 +1254,94 @@
         <div class="game-content">
             <!-- Sidebar -->
             <div class="sidebar">
-                <h3>ðŸ“‹ Kontoplan</h3>
-                <div class="account-list" id="account-list"></div>
+                <div class="sidebar-tabs">
+                    <button class="sidebar-tab active" onclick="switchTab('kontoplan')">📋 Kontoplan</button>
+                    <button class="sidebar-tab" onclick="switchTab('wiki')">📖 Wiki</button>
+                    <button class="sidebar-tab" onclick="switchTab('oppgaver')">📝 Oppgaver</button>
+                </div>
+                
+                <div id="tab-kontoplan" class="tab-content active">
+                    <div class="account-list" id="account-list"></div>
+                </div>
+                
+                <div id="tab-wiki" class="tab-content">
+                    <div class="wiki-content">
+                        <h4>📚 Bokføringsloven</h4>
+                        <p>Hovedelementer i norsk bokføring:</p>
+                        <ul>
+                            <li><strong>§ 4:</strong> Bokføringsplikten</li>
+                            <li><strong>§ 5:</strong> Løpende bokføring</li>
+                            <li><strong>§ 6:</strong> Dokumentasjon</li>
+                        </ul>
+                        
+                        <h4>💰 Grunnleggende prinsipper</h4>
+                        <ul>
+                            <li><strong>Debet:</strong> Økning i eiendeler, reduksjon i gjeld</li>
+                            <li><strong>Kredit:</strong> Reduksjon i eiendeler, økning i gjeld</li>
+                            <li><strong>Balanse:</strong> Debet = Kredit alltid</li>
+                        </ul>
+                        
+                        <h4>🎯 Huskeregel</h4>
+                        <p><em>"Debet til venstre, kredit til høyre - balansen må alltid være lik!"</em></p>
+                        
+                        <h4>📐 Formler (Regnskapsanalyse)</h4>
+                        <div class="formler-section">
+                            <h5>Rentabilitetsanalyse</h5>
+                            <ul>
+                                <li><strong>Egenkapitalrentabilitet:</strong> (Årsresultat / Gjennomsnittlig EK) × 100%</li>
+                                <li><strong>Totalkapitalrentabilitet:</strong> ((Årsresultat + Finanskostnad) / Gjennomsnittlig TK) × 100%</li>
+                                <li><strong>Driftsmargin:</strong> (Driftsresultat / Driftsinntekter) × 100%</li>
+                            </ul>
+                            
+                            <h5>Likviditetsanalyse</h5>
+                            <ul>
+                                <li><strong>Likviditetsgrad 1:</strong> Omløpsmidler / Kortsiktig gjeld</li>
+                                <li><strong>Likviditetsgrad 2:</strong> (Omløpsmidler - Varelager) / Kortsiktig gjeld</li>
+                                <li><strong>Arbeidskapital:</strong> Omløpsmidler - Kortsiktig gjeld</li>
+                            </ul>
+                            
+                            <h5>Kapitalstrukturanalyse</h5>
+                            <ul>
+                                <li><strong>Egenkapitalandel:</strong> (Egenkapital / Totalkapital) × 100%</li>
+                                <li><strong>Gjeldsgrad:</strong> Gjeld / Egenkapital</li>
+                                <li><strong>Soliditet:</strong> Egenkapital / Totalkapital</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-oppgaver" class="tab-content">
+                    <div class="oppgaver-content">
+                        <h4>📋 Velg oppgave</h4>
+                        <p style="font-size: 0.9em; color: #9ca3af; margin-bottom: 15px;">Klikk på en oppgave for å hoppe direkte til den</p>
+                        
+                        <div id="task-selector-list" class="task-selector-list">
+                            <!-- Tasks will be loaded here dynamically -->
+                        </div>
+                        
+                        <h4 style="margin-top: 25px;">📊 Din progresjon</h4>
+                        <div class="progress-item">
+                            <span>Lette oppgaver:</span>
+                            <span id="progress-easy">0/12</span>
+                        </div>
+                        <div class="progress-item">
+                            <span>Middels oppgaver:</span>
+                            <span id="progress-medium">0/12</span>
+                        </div>
+                        <div class="progress-item">
+                            <span>Vanskelige oppgaver:</span>
+                            <span id="progress-hard">0/12</span>
+                        </div>
+                        
+                        <h4>🏆 Prestasjoner</h4>
+                        <div class="achievement-list">
+                            <div class="achievement-item">⭐ Første oppgave løst</div>
+                            <div class="achievement-item locked">🔒 Perfekt balanse 10 ganger</div>
+                            <div class="achievement-item locked">🔒 Fullført alle lette oppgaver</div>
+                            <div class="achievement-item locked">🔒 Mester bokfører</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Workspace -->
@@ -1037,12 +1352,6 @@
                 </div>
 
                 <div class="excel-grid">
-                    <div class="grid-controls">
-                        <button class="grid-btn" onclick="addRow()">âž• Ny rad</button>
-                        <button class="grid-btn calc-btn" onclick="toggleCalculator()">ðŸ”¢ Kalkulator</button>
-                        <button class="grid-btn" onclick="clearGrid()">ðŸ—‘ï¸ Tøm</button>
-                    </div>
-
                     <table class="spreadsheet" id="spreadsheet">
                         <thead>
                             <tr>
@@ -1054,6 +1363,12 @@
                         </thead>
                         <tbody id="spreadsheet-body"></tbody>
                     </table>
+                    
+                    <div class="grid-controls">
+                        <button class="grid-btn" onclick="addRow()">➕ Ny rad</button>
+                        <button class="grid-btn calc-btn" onclick="toggleCalculator()">🔢 Kalkulator</button>
+                        <button class="grid-btn" onclick="clearGrid()">🗑️ Tøm</button>
+                    </div>
                 </div>
 
                 <div class="balance-display">
@@ -1072,21 +1387,20 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="action-btn hint" onclick="showHint()">ðŸ’¡ Hint</button>
-                    <button class="action-btn check" onclick="checkAnswer()">âœ“ Sjekk svar</button>
+                    <button class="action-btn hint" onclick="showHint()">💡 Hint</button>
+                    <button class="action-btn check" onclick="checkAnswer()">✔ Sjekk svar</button>
                     <div class="next-button-container">
                         <button class="action-btn next locked" id="next-btn" onclick="nextTask()">
-                            <span class="lock-icon" id="lock-icon">ðŸ”’</span>
+                            <span class="lock-icon" id="lock-icon">🔒</span>
                             <div class="lock-crack lock-crack-1"></div>
                             <div class="lock-crack lock-crack-2"></div>
                             <div class="lock-crack lock-crack-3"></div>
-                            Neste â†’
-                        </button>
+                            Neste →</button>
                     </div>
                 </div>
 
                 <div class="hint-box" id="hint-box">
-                    <div class="hint-title">ðŸ’¡ Hint:</div>
+                    <div class="hint-title">💡 Hint:</div>
                     <div id="hint-content"></div>
                 </div>
 
@@ -1098,14 +1412,14 @@
     <!-- Calculator Popup -->
     <div class="calculator-popup" id="calculator">
         <div class="calc-header">
-            <div class="calc-title">ðŸ”¢ Kalkulator</div>
-            <button class="calc-close" onclick="toggleCalculator()">âœ•</button>
+            <div class="calc-title">🔢 Kalkulator</div>
+            <button class="calc-close" onclick="toggleCalculator()">✕</button>
         </div>
         <div class="calc-display" id="calc-display">0</div>
         <div class="calc-buttons">
             <button class="calc-btn clear" onclick="calcClear()">C</button>
             <button class="calc-btn operator" onclick="calcInput('/')">/</button>
-            <button class="calc-btn operator" onclick="calcInput('*')">×—</button>
+            <button class="calc-btn operator" onclick="calcInput('*')">×</button>
             <button class="calc-btn operator" onclick="calcInput('-')">-</button>
             
             <button class="calc-btn" onclick="calcInput('7')">7</button>
@@ -1131,7 +1445,7 @@
 
     <!-- Achievement Popup -->
     <div class="achievement-popup" id="achievement-popup">
-        <div class="achievement-title">ðŸ† <span id="achievement-title"></span></div>
+        <div class="achievement-title">🏆 <span id="achievement-title"></span></div>
         <div class="achievement-desc" id="achievement-desc"></div>
     </div>
 
@@ -1140,7 +1454,7 @@
         <div class="tutorial-box">
             <h2 id="tutorial-title">Velkommen!</h2>
             <p id="tutorial-text"></p>
-            <button class="tutorial-btn" onclick="nextTutorialStep()">Neste</button>
+            <button class="tutorial-btn" onclick="nextTutorialStep()">Neste →</button>
         </div>
     </div>
 
@@ -1151,8 +1465,7 @@
                 "Anleggsmidler": ["1000", "1070", "1100", "1150", "1200", "1230", "1250", "1300"],
                 "Omløpsmidler - Varer": ["1400", "1420", "1440", "1460"],
                 "Omløpsmidler - Fordringer": ["1500", "1510", "1530", "1570", "1580"],
-                "Omløpsmidler - Forskuddsbetalinger": ["1700", "1710", "1720", "1740", "1760"],
-                "Omløpsmidler - Investeringer og bank": ["1810", "1820", "1900", "1920", "1950"]
+                "Omløpsmidler - Bank": ["1700", "1710", "1720", "1740", "1760", "1810", "1820", "1900", "1920", "1950"]
             },
             "Balansen - Egenkapital og gjeld": {
                 "Egenkapital": ["2000", "2020", "2030", "2050", "2080"],
@@ -1165,7 +1478,8 @@
             "Resultat - Kostnader": {
                 "Varekostnader": ["4000", "4090", "4190", "4290", "4300", "4360", "4390"],
                 "Lønnskostnader": ["5000", "5180", "5400", "5410"],
-                "Andre driftskostnader": ["6000", "6010", "6050", "6110", "6300", "6340", "6580", "6600", "6700", "6800", "6840", "6900", "7000", "7130", "7320", "7350", "7360", "7500", "7550", "7560", "7790", "7800", "7830", "7910"]
+                "Avskrivninger": ["6000", "6010", "6050"],
+                "Andre driftskostnader": ["6110", "6300", "6340", "6580", "6600", "6700", "6800", "6840", "6900", "7000", "7130", "7320", "7350", "7360", "7500", "7550", "7560", "7790", "7800", "7830", "7910"]
             },
             "Resultat - Finans": {
                 "Finansinntekter": ["8050", "8060", "8070", "8080"],
@@ -1194,43 +1508,43 @@
             "1580": "Avsetning tap på fordringer",
             "1700": "Forskuddsbetalt leie",
             "1710": "Forskuddsbetalte renter",
-            "1740": "Forskuddsbetalt lønn",
             "1720": "Forskuddsbetalt forsikring",
+            "1740": "Forskuddsbetalt lønn",
             "1760": "Påløpte renteinntekter",
             "1810": "Børsnoterte aksjer",
             "1820": "Andre aksjer",
             "1900": "Kontanter",
             "1920": "Bankinnskudd",
             "1950": "Bankinnskudd skattetrekk",
-            "2000": "Aksjekapital",
-            "2020": "Overkurs",
+            "2000": "Aksjekapital/Selskapskapital/Egenkapital",
+            "2020": "Overkursfond",
             "2030": "Annen innskutt egenkapital",
-            "2050": "Annen egenkapital",
-            "2080": "Udekket tap",
-            "2120": "Utsatt skatt",
+            "2050": "Opptjent egenkapital",
+            "2080": "Konsernbidrag (til egenkapitalmetoden)",
+            "2120": "Pensjonsforpliktelser",
             "2220": "Gjeld til kredittinstitusjoner",
-            "2240": "Pantelån",
-            "2270": "Valutalån (langsiktig)",
-            "2310": "Kortsiktige lån",
-            "2330": "Valutalån (kortsiktig)",
-            "2380": "Kassekreditt",
+            "2240": "Konvertible lån",
+            "2270": "Annen langsiktig gjeld",
+            "2310": "Sertifikatgjeld",
+            "2330": "Kassekreditt",
+            "2380": "Gjeld til kredittinstitusjoner",
             "2400": "Leverandørgjeld",
-            "2500": "Betalbar skatt, ikke fastsatt",
-            "2510": "Betalbar skatt, fastsatt",
-            "2540": "Forskuddsskatt",
-            "2600": "Skattetrekk",
+            "2500": "Betalbar skatt",
+            "2510": "Skyldige offentlige avgifter",
+            "2540": "Påløpte kostnader og mottatt ikke opptjent inntekt",
+            "2600": "Forskuddsbetalt inntekt",
             "2700": "Utgående merverdiavgift",
             "2710": "Inngående merverdiavgift",
-            "2740": "Oppgjørskonto merverdiavgift",
-            "2770": "Skyldig arbeidsgiveravgift",
-            "2780": "Påløpt arbeidsgiveravgift",
-            "2800": "Avsatt utbytte",
-            "2930": "Påløpt lønn",
-            "2940": "Påløpt feriepenger",
-            "2950": "Påløpte renter",
-            "2960": "Andre påløpte kostnader",
-            "2970": "Uopptjent inntekt",
-            "2980": "Garantiavsetning",
+            "2740": "Skyldige feriepenger",
+            "2770": "Skyldige påløpte renter",
+            "2780": "Skyldig arbeidsgiveravgift",
+            "2800": "Skyldig skattetrekk",
+            "2930": "Gjeld til ansatte",
+            "2940": "Gjeld til selskaper i samme konsern",
+            "2950": "Utbytte",
+            "2960": "Gjeld til eiere/Aksjonærlån",
+            "2970": "Konsernbidrag",
+            "2980": "Annen kortsiktig gjeld",
             "2990": "Annen kortsiktig gjeld",
             "3000": "Salgsinntekt varer, avgiftspliktig",
             "3050": "Vederlagsinntekt, avgiftspliktig",
@@ -1273,24 +1587,56 @@
             "7800": "Tap ved avgang anleggsmidler",
             "7830": "Tap på fordringer",
             "7910": "Ukurante varer",
-            "8050": "Renteinntekt",
-            "8060": "Valutagevinst",
-            "8070": "Annen finansinntekt",
-            "8080": "Verdiøkning børsnoterte aksjer og lignende",
-            "8100": "Verdireduksjon børsnoterte aksjer og lignende",
-            "8150": "Rentekostnad",
+            "8050": "Renteinntekter",
+            "8060": "Utbytte fra aksjer",
+            "8070": "Gevinst ved salg av aksjer",
+            "8080": "Valutagevinst",
+            "8100": "Rentekostnader",
+            "8150": "Tap ved salg av aksjer og andeler",
             "8160": "Valutatap",
             "8170": "Annen finanskostnad",
-            "8300": "Betalbar skatt",
-            "8309": "Betalbar skatt, for mye/lite avsatt",
-            "8320": "Endring utsatt skatt/skattefordel",
+            "8300": "Skattekostnad ordinært resultat",
+            "8309": "For mye/lite avsatt skatt tidligere år",
+            "8320": "Betalbar skatt til utligning",
             "8800": "Årsresultat",
             "8920": "Avsatt utbytte",
             "8960": "Overføring annen egenkapital",
             "8990": "Udekket tap"
         };
 
-        // Randomization helper functions
+        // Shuffle array function
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Get filtered and shuffled tasks
+        function getTaskList(difficulty) {
+            let filteredTasks;
+            
+            if (difficulty === 'mixed') {
+                // Mix: 40% easy, 40% medium, 20% hard
+                const easyTasks = tasks.filter(t => t.difficulty === 'easy');
+                const mediumTasks = tasks.filter(t => t.difficulty === 'medium');
+                const hardTasks = tasks.filter(t => t.difficulty === 'hard');
+                
+                const selectedEasy = shuffleArray(easyTasks).slice(0, 8);
+                const selectedMedium = shuffleArray(mediumTasks).slice(0, 8);
+                const selectedHard = shuffleArray(hardTasks).slice(0, 4);
+                
+                filteredTasks = shuffleArray([...selectedEasy, ...selectedMedium, ...selectedHard]);
+            } else {
+                filteredTasks = shuffleArray(tasks.filter(t => t.difficulty === difficulty));
+            }
+            
+            return filteredTasks;
+        }
+
+        // Helper function to generate random amounts
         function randomAmount(min, max, step = 1000) {
             const steps = Math.floor((max - min) / step);
             return min + (Math.floor(Math.random() * (steps + 1)) * step);
@@ -1346,7 +1692,7 @@
                     <li><strong>Kredit 3000 (Salgsinntekt):</strong> Du har tjent penger - inntekt øker</li>
                 </ul>
                 <p>ðŸ’¡ <em>Huskeregel:</em> Penger inn = Bank debet + Inntekt kredit</p>
-                <p>ðŸ“š <strong>Lovhjemmel:</strong> Bokføringsloven § 5 - transaksjoner skal bokføres løpende</p>`,
+                <p>ðŸ“š <strong>Lovhjemmel:</strong> Bokføringsloven Â§ 5 - transaksjoner skal bokføres løpende</p>`,
                 relevantAccounts: ["1920", "1900", "1500", "3000", "3050", "2700"],
                 difficulty: 'easy',
                 prefillEasy: { rows: 2 }
@@ -1476,7 +1822,7 @@
             
             // Medium tasks (12 tasks)
             {
-                description: "Kjøp varer for videresalg kontant for kr 20 000 (eks mva). MVA er 25%. Bokfør kjøpet.<br><br><strong>Regn ut:</strong> MVA = 20000 ×— 0.25 = ?",
+                description: "Kjøp varer for videresalg kontant for kr 20 000 (eks mva). MVA er 25%. Bokfør kjøpet.<br><br><strong>Regn ut:</strong> MVA = 20000 × 0.25 = ?",
                 solution: [
                     { account: "4300", debit: 20000, credit: 0 },
                     { account: "2710", debit: 5000, credit: 0 },
@@ -1511,7 +1857,7 @@
                 prefillEasy: { rows: 2 }
             },
             {
-                description: "Maskinen (kostpris kr 488 400) skal avskrives lineært over 8 år. Bokfør avskrivning for år 1. Beregn: 488 400 ×· 8 = kr 61 050.",
+                description: "Maskinen (kostpris kr 488 400) skal avskrives lineært over 8 år. Bokfør avskrivning for år 1. Beregn: 488 400 ÷ 8 = kr 61 050.",
                 solution: [
                     { account: "6000", debit: 61050, credit: 0 },
                     { account: "1200", debit: 0, credit: 61050 }
@@ -1729,7 +2075,7 @@
                 prefillEasy: { rows: 2 }
             },
             {
-                description: "Beregner arbeidsgiveravgift på feriepenger: 57 600 ×— 14,1% = kr 8 122. Bokfør AGA på feriepenger.",
+                description: "Beregner arbeidsgiveravgift på feriepenger: 57 600 × 14,1% = kr 8 122. Bokfør AGA på feriepenger.",
                 solution: [
                     { account: "5410", debit: 8122, credit: 0 },
                     { account: "2780", debit: 0, credit: 8122 }
@@ -1753,10 +2099,13 @@
             }
         ];
 
+        // Generate tasks from templates with randomized amounts
+        const tasks = taskTemplates.map(template => generateTaskWithRandomAmounts(template));
+
         // Game state
         let gameState = {
             mode: 'normal',
-            difficulty: 'mixed', // 'easy', 'medium', 'hard', or 'mixed'
+            difficulty: 'mixed',
             currentTask: 0,
             score: 0,
             lives: 3,
@@ -1767,40 +2116,8 @@
             lockDamage: 0,
             selectingCell: false,
             selectingForCell: null,
-            taskList: [] // Filtered and shuffled tasks
+            taskList: []
         };
-
-        // Shuffle array function
-        function shuffleArray(array) {
-            const shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            return shuffled;
-        }
-
-        // Get filtered and shuffled tasks
-        function getTaskList(difficulty) {
-            let filteredTasks;
-            
-            if (difficulty === 'mixed') {
-                // Mix: 40% easy, 40% medium, 20% hard
-                const easyTasks = tasks.filter(t => t.difficulty === 'easy');
-                const mediumTasks = tasks.filter(t => t.difficulty === 'medium');
-                const hardTasks = tasks.filter(t => t.difficulty === 'hard');
-                
-                const selectedEasy = shuffleArray(easyTasks).slice(0, 8);
-                const selectedMedium = shuffleArray(mediumTasks).slice(0, 8);
-                const selectedHard = shuffleArray(hardTasks).slice(0, 4);
-                
-                filteredTasks = shuffleArray([...selectedEasy, ...selectedMedium, ...selectedHard]);
-            } else {
-                filteredTasks = shuffleArray(tasks.filter(t => t.difficulty === difficulty));
-            }
-            
-            return filteredTasks;
-        }
 
         // Calculator state
         let calcState = {
@@ -1815,13 +2132,40 @@
             loadProgress();
         }
 
+                // Tab switching
+        function switchTab(tabName) {
+            // Deaktiver alle tabs
+            document.querySelectorAll('.sidebar-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Skjul alt innhold
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Aktiver valgt tab
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            console.log('📑 Byttet til tab:', tabName);
+        }
+
         function loadAccountList() {
+            console.log('🔍 loadAccountList kalt');
             const accountList = document.getElementById('account-list');
+            if (!accountList) {
+                console.error('❌ account-list element ikke funnet!');
+                return;
+            }
+            console.log('✅ account-list element funnet');
             accountList.innerHTML = '';
             
             const currentTask = gameState.taskList[gameState.currentTask];
             const relevantAccounts = currentTask ? currentTask.relevantAccounts : [];
             const showStars = gameState.mode === 'training' || gameState.mode === 'tutorial';
+            
+            console.log('📊 accountGroups:', Object.keys(accountGroups).length, 'grupper');
             
             for (const [mainGroup, subGroups] of Object.entries(accountGroups)) {
                 const mainGroupDiv = document.createElement('div');
@@ -1841,7 +2185,7 @@
                 mainHeader.className = 'account-group-header collapsed' + (hasRelevantAccounts && showStars ? ' has-stars' : '');
                 mainHeader.innerHTML = `
                     <span>${mainGroup}</span>
-                    <span class="chevron">â–¼</span>
+                    <span class="chevron">▼</span>
                 `;
                 
                 const mainItemsDiv = document.createElement('div');
@@ -1865,8 +2209,8 @@
                     subGroupDiv.style.cursor = 'pointer';
                     subGroupDiv.style.borderLeft = subHasRelevant && showStars ? '2px solid #4ade80' : 'none';
                     subGroupDiv.innerHTML = `
-                        <span>${subHasRelevant && showStars ? 'â­ ' : ''}${subGroup}</span>
-                        <span class="chevron" style="float: right; transform: rotate(-90deg);">â–¼</span>
+                        <span>${subHasRelevant && showStars ? '⭐ ' : ''}${subGroup}</span>
+                        <span class="chevron" style="float: right; transform: rotate(-90deg);">▼</span>
                     `;
                     
                     const subItemsDiv = document.createElement('div');
@@ -1889,7 +2233,7 @@
                             <div>
                                 <span class="account-code">${code}</span>${accounts[code]}
                             </div>
-                            ${isRelevant && showStars ? '<span class="account-star">â­</span>' : ''}
+                            ${isRelevant && showStars ? '<span class="account-star">⭐</span>' : ''}
                         `;
                         
                         // Drag events
@@ -2004,7 +2348,7 @@
             const hint = document.createElement('div');
             hint.className = 'cell-selector-hint';
             hint.id = 'cell-selector-hint';
-            hint.innerHTML = 'ðŸŽ¯ Klikk på celler for å legge dem til formelen<br><small>Skriv +, -, *, / mellom â€¢ ESC for å avslutte</small>';
+            hint.innerHTML = '🎯 Klikk på celler for å legge dem til formelen<br><small>Skriv +, -, *, / mellom • ESC for å avslutte</small>';
             document.body.appendChild(hint);
         }
 
@@ -2023,6 +2367,7 @@
 
         // Menu functions
         function startGame(mode, difficulty = 'mixed') {
+            console.log('🎮 startGame kalt med:', mode, difficulty);
             gameState.mode = mode;
             gameState.difficulty = difficulty;
             gameState.currentTask = 0;
@@ -2033,6 +2378,8 @@
             
             // Generate filtered and shuffled task list
             gameState.taskList = getTaskList(difficulty);
+            console.log('✅ taskList generert, lengde:', gameState.taskList.length);
+            console.log('📋 Første oppgave:', gameState.taskList[0]);
             
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
@@ -2040,6 +2387,8 @@
                 mode === 'tutorial' ? 'Tutorial' :
                 mode === 'training' ? 'Trening (' + (difficulty === 'easy' ? 'Lett' : difficulty === 'medium' ? 'Middels' : difficulty === 'hard' ? 'Vanskelig' : 'Blandet') + ')' :
                 mode === 'normal' ? 'Normal' : 'Utfordring';
+            
+            console.log('🎯 Kaller', mode === 'tutorial' ? 'startTutorial()' : 'loadTask()');
             
             if (mode === 'tutorial') {
                 startTutorial();
@@ -2054,22 +2403,21 @@
             saveProgress();
         }
 
-        function showAchievements() {
-            alert('ðŸ† Achievements coming soon!\n\nDette vil vise alle dine låste og ulåste prestasjoner.');
-        }
-
         function showSettings() {
-            alert('âš™ï¸ Innstillinger coming soon!\n\nHer kan du tilpasse:\n- Lyd effekter\n- Vanskelighetsgrad\n- Fargetema\n- og mer!');
+            alert('⚙️ Innstillinger\n\nDenne funksjonen kommer snart!\n\nHer kan du tilpasse:\n• Lyd effekter\n• Vanskelighetsgrad\n• Fargetema\n• og mer!');
         }
 
         // Task functions
         function loadTask() {
+            console.log('📋 loadTask kalt, currentTask:', gameState.currentTask, 'taskList length:', gameState.taskList.length);
+            
             if (gameState.currentTask >= gameState.taskList.length) {
                 showCompletion();
                 return;
             }
 
             const task = gameState.taskList[gameState.currentTask];
+            console.log('📝 Laster oppgave:', task);
             
             document.getElementById('task-title').textContent = `Oppgave ${gameState.currentTask + 1}`;
             document.getElementById('task-description').innerHTML = task.description;
@@ -2098,7 +2446,57 @@
             // Reload account list with new stars
             loadAccountList();
             
+            // Update task selector
+            loadTaskSelector();
+            
             updateStats();
+        }
+
+        function loadTaskSelector() {
+            const selectorList = document.getElementById('task-selector-list');
+            if (!selectorList) return;
+            
+            selectorList.innerHTML = '';
+            
+            gameState.taskList.forEach((task, index) => {
+                const item = document.createElement('div');
+                item.className = 'task-selector-item';
+                
+                if (index === gameState.currentTask) {
+                    item.classList.add('current');
+                }
+                
+                // Add difficulty badge
+                const difficultyText = task.difficulty === 'easy' ? 'Lett' : 
+                                      task.difficulty === 'medium' ? 'Middels' : 'Vanskelig';
+                
+                // Extract first sentence or first 80 chars of description
+                let shortDesc = task.description.replace(/<[^>]*>/g, ''); // Remove HTML tags
+                if (shortDesc.length > 80) {
+                    shortDesc = shortDesc.substring(0, 77) + '...';
+                }
+                
+                item.innerHTML = `
+                    <div>
+                        <span class="task-selector-number">#${index + 1}</span>
+                        <span class="task-difficulty ${task.difficulty}">${difficultyText}</span>
+                        <div style="font-size: 0.85em; color: #9ca3af; margin-top: 5px;">${shortDesc}</div>
+                    </div>
+                `;
+                
+                item.onclick = () => jumpToTask(index);
+                selectorList.appendChild(item);
+            });
+        }
+
+        function jumpToTask(taskIndex) {
+            if (taskIndex >= 0 && taskIndex < gameState.taskList.length) {
+                gameState.currentTask = taskIndex;
+                gameState.lives = gameState.maxLives;
+                gameState.lockDamage = 0;
+                updateLifeBar();
+                loadTask();
+            }
         }
 
         function clearGrid() {
@@ -2130,6 +2528,20 @@
                 cell.addEventListener('click', (e) => {
                     if (gameState.selectingCell && cell !== gameState.selectingForCell) {
                         selectCellForFormula(cell);
+                    }
+                });
+                
+                // Vis formel når cellen får fokus, vis resultat når den mister fokus
+                cell.addEventListener('focus', (e) => {
+                    if (cell.dataset.formula) {
+                        cell.value = cell.dataset.formula;
+                    }
+                });
+                
+                cell.addEventListener('blur', (e) => {
+                    if (cell.dataset.formula && cell.dataset.result !== undefined) {
+                        const result = cell.dataset.result;
+                        cell.value = (result !== undefined && result !== null) ? result : '';
                     }
                 });
             });
@@ -2274,21 +2686,35 @@
                 try {
                     const formula = value.substring(1);
                     const result = evaluateFormula(formula);
-                    cell.dataset.result = result;
-                    cell.title = `Formel: ${value}\nResultat: ${result}`;
+                    
+                    // Sjekk at resultatet er et gyldig tall
+                    if (result !== undefined && !isNaN(result) && isFinite(result)) {
+                        cell.dataset.result = result;
+                        cell.dataset.formula = value;
+                        cell.title = `Formel: ${value}\nResultat: ${result}`;
+                    } else {
+                        cell.dataset.result = 0;
+                        cell.title = 'Ugyldig formel - returnerte ikke et tall';
+                        console.warn('Formel ga ugyldig resultat:', formula, '→', result);
+                    }
                 } catch (e) {
                     cell.dataset.result = 0;
-                    cell.title = 'Ugyldig formel';
+                    cell.title = 'Ugyldig formel: ' + e.message;
+                    console.error('Formel-feil:', e);
                 }
             } else {
                 cell.classList.remove('formula');
                 delete cell.dataset.result;
+                delete cell.dataset.formula;
                 cell.title = '';
             }
         }
 
         function evaluateFormula(formula) {
+            console.log('🧮 Evaluerer formel:', formula);
+            
             // Replace cell references (A1, B2, C3, etc.) with their values
+            const originalFormula = formula;
             formula = formula.replace(/([A-Z]+)(\d+)/gi, (match, col, row) => {
                 // Convert column letter to index: A=0, B=1, C=2, D=3
                 let colIndex = 0;
@@ -2306,26 +2732,47 @@
                     const cell = targetRow.children[colIndex]?.querySelector('.cell');
                     if (cell) {
                         const value = getCellValue(cell);
+                        console.log(`  ${match} → ${value}`);
                         return value || 0;
                     }
                 }
+                console.log(`  ${match} → 0 (celle ikke funnet)`);
                 return 0;
             });
             
+            console.log('  Etter celle-erstatning:', formula);
+            
             // Evaluate the expression
             try {
-                return eval(formula.replace(/×—/g, '*').replace(/×·/g, '/'));
+                // Erstatt matematiske symboler med JavaScript-operatorer
+                const jsFormula = formula
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/,/g, ''); // Fjern tusenskiller
+                
+                console.log('  JavaScript-formel:', jsFormula);
+                
+                const result = eval(jsFormula);
+                console.log('  ✅ Resultat:', result);
+                
+                return result;
             } catch (e) {
+                console.error('  ❌ Formel-feil:', e.message);
                 return 0;
             }
         }
 
         function getCellValue(cell) {
-            if (cell.dataset.result) {
-                return parseFloat(cell.dataset.result);
+            // Sjekk om cellen har et beregnet resultat fra en formel
+            if (cell.dataset.result !== undefined && cell.dataset.result !== 'undefined') {
+                const result = parseFloat(cell.dataset.result);
+                return isNaN(result) ? 0 : result;
             }
+            
+            // Hent verdien direkte fra input
             const value = cell.value.replace(/\s/g, '').replace(/,/g, '');
-            return parseFloat(value) || 0;
+            const parsed = parseFloat(value);
+            return isNaN(parsed) ? 0 : parsed;
         }
 
         function updateBalance() {
@@ -2351,10 +2798,10 @@
                 balanceStatus.innerHTML = '<span>Status:</span><span>Ingen posteringer</span>';
                 balanceStatus.className = 'balance-row';
             } else if (diff === 0) {
-                balanceStatus.innerHTML = '<span>Status:</span><span>âœ“ Balansert!</span>';
+                balanceStatus.innerHTML = '<span>Status:</span><span>✔ Balansert!</span>';
                 balanceStatus.className = 'balance-row balanced';
             } else {
-                balanceStatus.innerHTML = `<span>Status:</span><span>âœ— Ubalansert (${Math.abs(diff).toLocaleString('no-NO')})</span>`;
+                balanceStatus.innerHTML = `<span>Status:</span><span>✗ Ubalansert (${Math.abs(diff).toLocaleString('no-NO')})</span>`;
                 balanceStatus.className = 'balance-row unbalanced';
             }
         }
@@ -2411,7 +2858,7 @@
 
         function calcEquals() {
             try {
-                const result = eval(calcState.display.replace(/×—/g, '*').replace(/×·/g, '/'));
+                const result = eval(calcState.display.replace(/×/g, '*').replace(/÷/g, '/'));
                 calcState.result = result;
                 calcState.display = result.toString();
                 document.getElementById('calc-display').textContent = result;
@@ -2451,13 +2898,13 @@
                 gameState.score += points;
                 
                 feedback.className = 'feedback correct show';
-                feedback.textContent = 'ðŸŽ‰ Riktig! Flott jobbet!';
+                feedback.textContent = '🎉 Riktig! Flott jobbet!';
                 
                 // Unlock next button immediately
                 const nextBtn = document.getElementById('next-btn');
                 nextBtn.classList.remove('locked');
                 nextBtn.disabled = false;
-                document.getElementById('lock-icon').innerHTML = 'âœ“';
+                document.getElementById('lock-icon').innerHTML = '✔';
                 
                 checkAchievements();
             } else {
@@ -2471,9 +2918,9 @@
                 feedback.className = 'feedback incorrect show';
                 
                 if (gameState.lockDamage >= 3) {
-                    feedback.textContent = 'âœ— 3 forsøk brukt. Neste-knappen er nå åpnet. Sjekk hint!';
+                    feedback.textContent = '✗ 3 forsøk brukt. Neste-knappen er nå åpnet. Sjekk hint!';
                 } else {
-                    feedback.textContent = `âœ— Ikke helt riktig. Prøv igjen! (${3 - gameState.lockDamage} forsøk igjen)`;
+                    feedback.textContent = `✗ Ikke helt riktig. Prøv igjen! (${3 - gameState.lockDamage} forsøk igjen)`;
                 }
             }
             
@@ -2507,6 +2954,7 @@
             gameState.currentTask++;
             gameState.lives = gameState.maxLives;
             gameState.lockDamage = 0;
+            updateLifeBar();
             loadTask();
         }
 
@@ -2517,7 +2965,7 @@
             
             nextBtn.classList.add('locked');
             nextBtn.disabled = true;
-            lockIcon.innerHTML = 'ðŸ”’';
+            lockIcon.innerHTML = '🔒';
             lockIcon.classList.remove('shake', 'unlock');
             
             const cracks = nextBtn.querySelectorAll('.lock-crack');
@@ -2555,7 +3003,7 @@
             const lockIcon = document.getElementById('lock-icon');
             
             lockIcon.classList.add('unlock');
-            lockIcon.innerHTML = 'ðŸ”“';
+            lockIcon.innerHTML = '🔓';
             
             setTimeout(() => {
                 nextBtn.classList.remove('locked');
@@ -2578,9 +3026,37 @@
             }
         }
 
+                function updateProgress() {
+            // Tell fullførte oppgaver per vanskelighetsgrad
+            const completed = {
+                easy: 0,
+                medium: 0,
+                hard: 0
+            };
+            
+            // Dette er en forenklet versjon - i production ville du lagre faktisk progress
+            // For nå viser vi bare current progress
+            if (gameState.taskList && gameState.currentTask < gameState.taskList.length) {
+                const task = gameState.taskList[gameState.currentTask];
+                if (task && task.difficulty) {
+                    completed[task.difficulty] = gameState.currentTask + 1;
+                }
+            }
+            
+            // Oppdater displays
+            const easyEl = document.getElementById('progress-easy');
+            const mediumEl = document.getElementById('progress-medium');
+            const hardEl = document.getElementById('progress-hard');
+            
+            if (easyEl) easyEl.textContent = `${Math.min(gameState.currentTask, 12)}/12`;
+            if (mediumEl) mediumEl.textContent = `0/12`;
+            if (hardEl) hardEl.textContent = `0/12`;
+        }
+
         function updateStats() {
             document.getElementById('score').textContent = gameState.score;
             updateLifeBar();
+            updateProgress();
         }
 
         // Achievements
@@ -2620,7 +3096,7 @@
             },
             {
                 title: 'Formler og kalkulator',
-                text: 'Du kan skrive formler som starter med = (f.eks. =20000*0.25), eller bruke kalkulatoren ved å klikke på ðŸ”¢ Kalkulator-knappen.'
+                text: 'Du kan skrive formler som starter med = (f.eks. =20000*0.25), eller bruke kalkulatoren ved å klikke på 🔢 Kalkulator-knappen.'
             },
             {
                 title: 'Liv-systemet',
@@ -2677,15 +3153,15 @@
             const workspace = document.querySelector('.workspace');
             workspace.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px;">
-                    <h1 style="font-size: 3em; color: #4ade80; margin-bottom: 20px;">ðŸŽ‰ Gratulerer!</h1>
+                    <h1 style="font-size: 3em; color: #4ade80; margin-bottom: 20px;">🎉 Gratulerer!</h1>
                     <p style="font-size: 1.5em; margin-bottom: 40px;">Du har fullført alle oppgavene!</p>
                     
                     <div style="background: #2d2d2d; border: 2px solid #4ade80; border-radius: 15px; padding: 40px; max-width: 500px; margin: 0 auto 40px;">
                         <h3 style="color: #4ade80; margin-bottom: 20px; font-size: 1.5em;">Din statistikk</h3>
                         <div style="font-size: 1.3em; line-height: 2;">
-                            <p>âœ… Riktige: ${gameState.correctCount}</p>
-                            <p>âœ— Feil: ${gameState.incorrectCount}</p>
-                            <p>â­ Totalt poeng: ${gameState.score}</p>
+                            <p>✅ Riktige: ${gameState.correctCount}</p>
+                            <p>✗ Feil: ${gameState.incorrectCount}</p>
+                            <p>⭐ Totalt poeng: ${gameState.score}</p>
                         </div>
                     </div>
                     
@@ -2698,8 +3174,13 @@
             saveProgress();
         }
 
-        // Initialize on load
+        function showSettings() {
+            alert('⚙️ Innstillinger\n\nDenne funksjonen kommer snart!\n\nHer kan du tilpasse:\n• Lyd effekter\n• Vanskelighetsgrad\n• Fargetema\n• og mer!');
+        }
+
+                // Initialize on load
         window.onload = function() {
+            console.log('✅ JavaScript lastet!');
             init();
             initCalculatorDrag();
         };
