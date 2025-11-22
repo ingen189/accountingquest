@@ -3,31 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AccountingQuest - Interaktiv Læring i Norsk Regnskap</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="alternate icon" href="/favicon.ico">
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Lær norsk bokføring, regnskapsanalyse og regnskap gjennom interaktive oppgaver. Basert på Bokføringsloven, Regnskapsloven, Skatteloven og MVA-loven.">
-    <meta name="keywords" content="regnskap, bokføring, regnskapsanalyse, quiz, læring, norsk, bokføringsloven, regnskapsloven">
-    <meta name="author" content="AccountingQuest">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://accountingquest.app/">
-    <meta property="og:title" content="AccountingQuest - Lær Norsk Regnskap">
-    <meta property="og:description" content="Interaktiv læringsplattform for norsk regnskap med 200+ oppgaver og quiz">
-    <meta property="og:image" content="https://accountingquest.app/og-image.png">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://accountingquest.app/">
-    <meta property="twitter:title" content="AccountingQuest - Lær Norsk Regnskap">
-    <meta property="twitter:description" content="Interaktiv læringsplattform for norsk regnskap">
-    <meta property="twitter:image" content="https://accountingquest.app/og-image.png"
+    <title>AccountingQuest - Norsk Bokføring & Regnskap</title>
     <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f3460;
+            --text-primary: #eaeaea;
+            --text-secondary: #a0a0a0;
+            --accent-primary: #4ade80;
+            --accent-secondary: #3b82f6;
+            --border-color: #404040;
+            --card-bg: #2d2d2d;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e5e5e5;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --accent-primary: #22c55e;
+            --accent-secondary: #2563eb;
+            --border-color: #d4d4d4;
+            --card-bg: #ffffff;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -36,17 +37,18 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            transition: all 0.3s ease;
         }
 
         /* Header */
         .header {
-            background: rgba(45, 45, 45, 0.95);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid #404040;
+            border-bottom: 2px solid var(--border-color);
             padding: 20px 40px;
             position: sticky;
             top: 0;
@@ -56,6 +58,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
         .logo {
@@ -66,48 +69,76 @@
 
         .logo-icon {
             font-size: 2.5em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
         .logo-text h1 {
             font-size: 1.8em;
-            background: linear-gradient(135deg, #4ade80, #3b82f6);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .logo-text p {
             font-size: 0.9em;
-            color: #9ca3af;
+            color: var(--text-secondary);
             margin-top: 5px;
         }
 
         .header-actions {
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .header-btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--border-color);
+            color: var(--text-primary);
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.95em;
         }
 
         .header-btn:hover {
-            background: #4ade80;
+            background: var(--accent-primary);
             color: #1e1e1e;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.3);
+        }
+
+        .header-btn.wiki {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+        }
+
+        .header-btn.wiki:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .header-btn.multiplayer {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        }
+
+        .header-btn.multiplayer:hover {
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+            color: white;
         }
 
         .header-btn.settings {
-            background: #3b82f6;
+            background: var(--accent-secondary);
         }
 
         .header-btn.settings:hover {
@@ -115,7 +146,7 @@
             color: white;
         }
 
-        /* Main Content */
+        /* Main Container */
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -126,22 +157,26 @@
         .welcome-section {
             text-align: center;
             margin-bottom: 60px;
-            padding: 40px 20px;
-            background: rgba(45, 45, 45, 0.5);
+            padding: 60px 30px;
+            background: var(--card-bg);
             border-radius: 20px;
             backdrop-filter: blur(10px);
-            border: 2px solid #404040;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
         .welcome-section h2 {
-            font-size: 2.5em;
+            font-size: 3em;
             margin-bottom: 20px;
-            color: #4ade80;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .welcome-section p {
             font-size: 1.2em;
-            color: #9ca3af;
+            color: var(--text-secondary);
             line-height: 1.8;
             max-width: 800px;
             margin: 0 auto 30px;
@@ -156,13 +191,20 @@
         }
 
         .feature-item {
-            background: #404040;
+            background: var(--border-color);
             padding: 15px 25px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             gap: 10px;
             font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .feature-item:hover {
+            transform: scale(1.05);
+            background: var(--accent-primary);
+            color: #1e1e1e;
         }
 
         .feature-icon {
@@ -178,8 +220,8 @@
         }
 
         .stat-card {
-            background: rgba(45, 45, 45, 0.8);
-            border: 2px solid #404040;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
             border-radius: 15px;
             padding: 25px;
             text-align: center;
@@ -188,7 +230,7 @@
 
         .stat-card:hover {
             transform: translateY(-5px);
-            border-color: #4ade80;
+            border-color: var(--accent-primary);
             box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
         }
 
@@ -200,25 +242,25 @@
         .stat-value {
             font-size: 2.5em;
             font-weight: bold;
-            color: #4ade80;
+            color: var(--accent-primary);
             margin-bottom: 5px;
         }
 
         .stat-label {
             font-size: 1.1em;
-            color: #9ca3af;
+            color: var(--text-secondary);
         }
 
         .stat-sublabel {
             font-size: 0.9em;
-            color: #6b7280;
+            color: var(--text-secondary);
             margin-top: 5px;
         }
 
-        /* Module Cards */
+        /* Modules Section */
         .modules-section h2 {
-            font-size: 2em;
-            color: #4ade80;
+            font-size: 2.5em;
+            color: var(--accent-primary);
             margin-bottom: 30px;
             text-align: center;
         }
@@ -231,8 +273,8 @@
         }
 
         .module-card {
-            background: rgba(45, 45, 45, 0.8);
-            border: 2px solid #404040;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
             border-radius: 20px;
             padding: 30px;
             cursor: pointer;
@@ -248,14 +290,14 @@
             left: 0;
             width: 100%;
             height: 5px;
-            background: linear-gradient(90deg, #4ade80, #3b82f6);
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
             transform: scaleX(0);
             transition: transform 0.4s;
         }
 
         .module-card:hover {
             transform: translateY(-10px);
-            border-color: #4ade80;
+            border-color: var(--accent-primary);
             box-shadow: 0 15px 40px rgba(74, 222, 128, 0.4);
         }
 
@@ -284,13 +326,6 @@
             font-size: 3.5em;
         }
 
-        .module-status {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
-        }
-
         .status-badge {
             padding: 6px 15px;
             border-radius: 20px;
@@ -300,7 +335,12 @@
 
         .status-badge.new {
             background: rgba(74, 222, 128, 0.2);
-            color: #4ade80;
+            color: var(--accent-primary);
+        }
+
+        .status-badge.beta {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
         }
 
         .status-badge.locked {
@@ -310,12 +350,12 @@
 
         .module-title {
             font-size: 1.8em;
-            color: #e0e0e0;
+            color: var(--text-primary);
             margin-bottom: 10px;
         }
 
         .module-description {
-            color: #9ca3af;
+            color: var(--text-secondary);
             line-height: 1.6;
             margin-bottom: 20px;
         }
@@ -327,15 +367,15 @@
 
         .module-features li {
             padding: 8px 0;
-            color: #9ca3af;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
         .module-features li::before {
-            content: 'âœ“';
-            color: #4ade80;
+            content: '✓';
+            color: var(--accent-primary);
             font-weight: bold;
             font-size: 1.2em;
         }
@@ -349,25 +389,25 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 0.9em;
-            color: #9ca3af;
+            color: var(--text-secondary);
         }
 
         .progress-bar {
             width: 100%;
             height: 10px;
-            background: #2d2d2d;
+            background: var(--bg-tertiary);
             border-radius: 5px;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4ade80, #22c55e);
+            background: linear-gradient(90deg, var(--accent-primary), #22c55e);
             transition: width 0.5s;
             border-radius: 5px;
         }
 
-        /* Settings Modal */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -392,8 +432,8 @@
         }
 
         .modal-content {
-            background: #2d2d2d;
-            border: 2px solid #4ade80;
+            background: var(--card-bg);
+            border: 2px solid var(--accent-primary);
             border-radius: 20px;
             padding: 40px;
             max-width: 600px;
@@ -417,7 +457,7 @@
 
         .modal-header h2 {
             font-size: 2em;
-            color: #4ade80;
+            color: var(--accent-primary);
         }
 
         .close-btn {
@@ -429,17 +469,22 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 1.2em;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #dc2626;
         }
 
         .setting-group {
-            background: #404040;
+            background: var(--border-color);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
         }
 
         .setting-group h3 {
-            color: #4ade80;
+            color: var(--accent-primary);
             margin-bottom: 15px;
         }
 
@@ -448,7 +493,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px 0;
-            border-bottom: 1px solid #555;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .setting-item:last-child {
@@ -459,9 +504,14 @@
             flex: 1;
         }
 
-        .setting-control {
-            display: flex;
-            gap: 10px;
+        .setting-label strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .setting-label small {
+            color: var(--text-secondary);
+            font-size: 0.85em;
         }
 
         .toggle {
@@ -475,7 +525,7 @@
         }
 
         .toggle.active {
-            background: #4ade80;
+            background: var(--accent-primary);
         }
 
         .toggle::after {
@@ -494,9 +544,30 @@
             transform: translateX(30px);
         }
 
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-group input {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
         .btn-group {
             display: flex;
             gap: 10px;
+            margin-top: 10px;
         }
 
         .btn {
@@ -508,6 +579,15 @@
             transition: all 0.3s;
         }
 
+        .btn-primary {
+            background: var(--accent-primary);
+            color: #1e1e1e;
+        }
+
+        .btn-primary:hover {
+            background: #22c55e;
+        }
+
         .btn-danger {
             background: #ef4444;
             color: white;
@@ -517,86 +597,17 @@
             background: #dc2626;
         }
 
-        .btn-primary {
-            background: #4ade80;
-            color: #1e1e1e;
-        }
-
-        .btn-primary:hover {
-            background: #22c55e;
-        }
-
-        /* Achievements */
-        .achievements-section {
-            margin-bottom: 60px;
-        }
-
-        .achievements-section h2 {
-            font-size: 2em;
-            color: #4ade80;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .achievements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .achievement-card {
-            background: rgba(45, 45, 45, 0.8);
-            border: 2px solid #404040;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .achievement-card.unlocked {
-            border-color: #4ade80;
-        }
-
-        .achievement-card.locked {
-            opacity: 0.5;
-        }
-
-        .achievement-card:hover {
-            transform: scale(1.05);
-        }
-
-        .achievement-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-            filter: grayscale(1);
-        }
-
-        .achievement-card.unlocked .achievement-icon {
-            filter: grayscale(0);
-        }
-
-        .achievement-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #e0e0e0;
-        }
-
-        .achievement-desc {
-            font-size: 0.85em;
-            color: #9ca3af;
-        }
-
         /* Footer */
         .footer {
-            background: rgba(45, 45, 45, 0.95);
-            border-top: 2px solid #404040;
+            background: var(--card-bg);
+            border-top: 2px solid var(--border-color);
             padding: 30px 40px;
             text-align: center;
             margin-top: 60px;
         }
 
         .footer p {
-            color: #9ca3af;
+            color: var(--text-secondary);
             margin-bottom: 15px;
         }
 
@@ -608,7 +619,7 @@
         }
 
         .footer-links a {
-            color: #4ade80;
+            color: var(--accent-primary);
             text-decoration: none;
             transition: all 0.3s;
         }
@@ -629,7 +640,7 @@
             }
 
             .welcome-section h2 {
-                font-size: 1.8em;
+                font-size: 2em;
             }
 
             .modules-grid {
@@ -639,6 +650,31 @@
             .stats-overview {
                 grid-template-columns: 1fr;
             }
+
+            .header-actions {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+
+        /* User Profile Badge */
+        .user-badge {
+            background: var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+
+        .user-badge .user-icon {
+            font-size: 1.5em;
         }
     </style>
 </head>
@@ -646,19 +682,31 @@
     <!-- Header -->
     <div class="header">
         <div class="logo">
-            <div class="logo-icon">ðŸ“š</div>
+            <div class="logo-icon">📚</div>
             <div class="logo-text">
-                <h1>Grunnleggende Regnskap</h1>
-                <p>Interaktiv læringsplattform</p>
+                <h1>AccountingQuest</h1>
+                <p>Interaktiv læring i norsk regnskap</p>
             </div>
         </div>
         <div class="header-actions">
+            <div class="user-badge" id="user-badge">
+                <span class="user-icon">👤</span>
+                <span id="username-display">Gjest</span>
+            </div>
+            <button class="header-btn wiki" onclick="openWiki()">
+                <span>📖</span>
+                <span>Wiki</span>
+            </button>
+            <button class="header-btn multiplayer" onclick="showMultiplayer()">
+                <span>🎮</span>
+                <span>Multiplayer</span>
+            </button>
             <button class="header-btn" onclick="showAchievements()">
-                <span>ðŸ†</span>
+                <span>🏆</span>
                 <span>Prestasjoner</span>
             </button>
             <button class="header-btn settings" onclick="showSettings()">
-                <span>âš™ï¸</span>
+                <span>⚙️</span>
                 <span>Innstillinger</span>
             </button>
         </div>
@@ -668,26 +716,26 @@
     <div class="main-container">
         <!-- Welcome Section -->
         <div class="welcome-section">
-            <h2>ðŸŽ“ Velkommen til Grunnleggende Regnskap</h2>
+            <h2>🎓 Velkommen til AccountingQuest</h2>
             <p>
                 Lær norsk bokføring, regnskapsanalyse og regnskap gjennom interaktive oppgaver, 
                 quiz og case-studier. Alle oppgaver er basert på norsk lovverk.
             </p>
             <div class="feature-list">
                 <div class="feature-item">
-                    <span class="feature-icon">âœ…</span>
+                    <span class="feature-icon">✅</span>
                     <span>Bokføringsloven</span>
                 </div>
                 <div class="feature-item">
-                    <span class="feature-icon">âœ…</span>
+                    <span class="feature-icon">✅</span>
                     <span>Regnskapsloven</span>
                 </div>
                 <div class="feature-item">
-                    <span class="feature-icon">âœ…</span>
+                    <span class="feature-icon">✅</span>
                     <span>Skatteloven</span>
                 </div>
                 <div class="feature-item">
-                    <span class="feature-icon">âœ…</span>
+                    <span class="feature-icon">✅</span>
                     <span>MVA-loven</span>
                 </div>
             </div>
@@ -696,24 +744,24 @@
         <!-- Stats Overview -->
         <div class="stats-overview">
             <div class="stat-card">
-                <div class="stat-icon">ðŸ“Š</div>
+                <div class="stat-icon">📊</div>
                 <div class="stat-value" id="total-progress">0%</div>
                 <div class="stat-label">Total progresjon</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">âœ…</div>
+                <div class="stat-icon">✅</div>
                 <div class="stat-value" id="completed-tasks">0</div>
                 <div class="stat-label">Oppgaver løst</div>
                 <div class="stat-sublabel" id="total-tasks">av 224 totalt</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">ðŸ†</div>
+                <div class="stat-icon">🏆</div>
                 <div class="stat-value" id="achievements">0</div>
                 <div class="stat-label">Achievements</div>
                 <div class="stat-sublabel">av 15 tilgjengelige</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">ðŸ”¥</div>
+                <div class="stat-icon">🔥</div>
                 <div class="stat-value" id="streak">0</div>
                 <div class="stat-label">Dager streak</div>
                 <div class="stat-sublabel">Fortsett å øve!</div>
@@ -722,15 +770,13 @@
 
         <!-- Modules Section -->
         <div class="modules-section">
-            <h2>ðŸ“– Velg modul</h2>
+            <h2>📖 Velg modul</h2>
             <div class="modules-grid">
                 <!-- Module 1: Bokføring -->
                 <div class="module-card" onclick="navigateToModule('bokforingsspill_excel.html')">
                     <div class="module-header">
-                        <div class="module-icon">ðŸ“–</div>
-                        <div class="module-status">
-                            <span class="status-badge new">Aktiv</span>
-                        </div>
+                        <div class="module-icon">📖</div>
+                        <span class="status-badge new">Aktiv</span>
                     </div>
                     <div class="module-title">Bokføring</div>
                     <div class="module-description">
@@ -757,10 +803,8 @@
                 <!-- Module 2: Quiz -->
                 <div class="module-card" onclick="navigateToModule('quiz.html')">
                     <div class="module-header">
-                        <div class="module-icon">â“</div>
-                        <div class="module-status">
-                            <span class="status-badge new">Aktiv</span>
-                        </div>
+                        <div class="module-icon">❓</div>
+                        <span class="status-badge new">Aktiv</span>
                     </div>
                     <div class="module-title">Quiz</div>
                     <div class="module-description">
@@ -787,10 +831,8 @@
                 <!-- Module 3: Regnskapsanalyse -->
                 <div class="module-card" onclick="navigateToModule('regnskapsanalyse.html')">
                     <div class="module-header">
-                        <div class="module-icon">ðŸ“Š</div>
-                        <div class="module-status">
-                            <span class="status-badge new">Aktiv</span>
-                        </div>
+                        <div class="module-icon">📊</div>
+                        <span class="status-badge new">Aktiv</span>
                     </div>
                     <div class="module-title">Regnskapsanalyse</div>
                     <div class="module-description">
@@ -817,10 +859,8 @@
                 <!-- Module 4: Avanserte Case -->
                 <div class="module-card" onclick="navigateToModule('case_studies.html')">
                     <div class="module-header">
-                        <div class="module-icon">ðŸ’¼</div>
-                        <div class="module-status">
-                            <span class="status-badge new">Beta</span>
-                        </div>
+                        <div class="module-icon">💼</div>
+                        <span class="status-badge beta">Beta</span>
                     </div>
                     <div class="module-title">Avanserte Case</div>
                     <div class="module-description">
@@ -847,10 +887,8 @@
                 <!-- Module 5: Hjernetrim (Locked) -->
                 <div class="module-card locked">
                     <div class="module-header">
-                        <div class="module-icon">ðŸ§ </div>
-                        <div class="module-status">
-                            <span class="status-badge locked">ðŸ”’ Låst</span>
-                        </div>
+                        <div class="module-icon">🧠</div>
+                        <span class="status-badge locked">🔒 Låst</span>
                     </div>
                     <div class="module-title">Hjernetrim</div>
                     <div class="module-description">
@@ -875,23 +913,16 @@
                 </div>
             </div>
         </div>
-
-        <!-- Achievements Preview -->
-        <div class="achievements-section">
-            <h2>ðŸ† Siste Achievements</h2>
-            <div class="achievements-grid" id="achievements-preview">
-                <!-- Will be populated by JavaScript -->
-            </div>
-        </div>
     </div>
 
     <!-- Footer -->
     <div class="footer">
-        <p>© 2024 Grunnleggende Regnskap - Læringsplattform</p>
+        <p>© 2024 AccountingQuest - Norsk regnskapslæring</p>
         <div class="footer-links">
             <a href="#" onclick="showAbout()">Om plattformen</a>
             <a href="#" onclick="showHelp()">Hjelp</a>
             <a href="#" onclick="showSettings()">Innstillinger</a>
+            <a href="#" onclick="openWiki()">Wiki</a>
         </div>
     </div>
 
@@ -899,56 +930,114 @@
     <div class="modal" id="settings-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>âš™ï¸ Innstillinger</h2>
-                <button class="close-btn" onclick="closeModal('settings-modal')">âœ•</button>
+                <h2>⚙️ Innstillinger</h2>
+                <button class="close-btn" onclick="closeModal('settings-modal')">✕</button>
             </div>
 
             <div class="setting-group">
-                <h3>ðŸ”Š Lyd</h3>
+                <h3>👤 Brukerprofil</h3>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <strong>Brukernavn / Kallenavn</strong>
+                        <small>Vises i leaderboards og multiplayer</small>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="username-input" placeholder="Ditt kallenavn" maxlength="20">
+                        <button class="btn btn-primary" onclick="saveUsername()">Lagre</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>🎨 Utseende</h3>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <strong>Mørk / Lys modus</strong>
+                        <small>Bytt mellom mørkt og lyst tema</small>
+                    </div>
+                    <div class="toggle" id="theme-toggle" onclick="toggleTheme()"></div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>🔊 Lyd</h3>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <strong>Bakgrunnsmusikk</strong>
+                        <small>Spill av rolig bakgrunnsmusikk</small>
+                    </div>
+                    <div class="toggle" id="music-toggle" onclick="toggleSetting('music')"></div>
+                </div>
                 <div class="setting-item">
                     <div class="setting-label">
                         <strong>Lydeffekter</strong>
-                        <div style="font-size: 0.85em; color: #9ca3af;">Spill av lyder ved riktige/gale svar</div>
+                        <small>Spill av lyder ved riktige/gale svar</small>
                     </div>
-                    <div class="setting-control">
-                        <div class="toggle" id="sound-toggle" onclick="toggleSetting('sound')"></div>
-                    </div>
+                    <div class="toggle" id="sound-toggle" onclick="toggleSetting('sound')"></div>
                 </div>
             </div>
 
             <div class="setting-group">
-                <h3>ðŸŽ¨ Utseende</h3>
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <strong>Mørk modus</strong>
-                        <div style="font-size: 0.85em; color: #9ca3af;">Alltid aktivert (standard)</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle active"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="setting-group">
-                <h3>ðŸ“Š Data</h3>
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <strong>Nullstill fremgang</strong>
-                        <div style="font-size: 0.85em; color: #ef4444;">Dette sletter all progresjon</div>
-                    </div>
-                    <div class="setting-control">
-                        <button class="btn btn-danger" onclick="resetProgress()">Nullstill</button>
-                    </div>
-                </div>
+                <h3>📊 Data</h3>
                 <div class="setting-item">
                     <div class="setting-label">
                         <strong>Eksporter data</strong>
-                        <div style="font-size: 0.85em; color: #9ca3af;">Last ned din progresjon</div>
+                        <small>Last ned din progresjon</small>
                     </div>
-                    <div class="setting-control">
-                        <button class="btn btn-primary" onclick="exportData()">Last ned</button>
-                    </div>
+                    <button class="btn btn-primary" onclick="exportData()">Last ned</button>
                 </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <strong>Nullstill fremgang</strong>
+                        <small style="color: #ef4444;">Dette sletter all progresjon</small>
+                    </div>
+                    <button class="btn btn-danger" onclick="resetProgress()">Nullstill</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multiplayer Modal -->
+    <div class="modal" id="multiplayer-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎮 Multiplayer</h2>
+                <button class="close-btn" onclick="closeModal('multiplayer-modal')">✕</button>
+            </div>
+
+            <div class="setting-group">
+                <h3>🎯 Peer-to-Peer Duell</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                    Utfordr en venn til duell! Del koden og konkurer om hvem som løser oppgaven raskest og best.
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="createDuel()">Opprett duell</button>
+                    <button class="btn btn-primary" onclick="joinDuel()">Bli med i duell</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>👨‍🏫 Klasserom-modus (Kahoot-stil)</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                    For lærere: Opprett et spill som studentene kan delta i med PIN-kode.
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="createClassroom()">Opprett klasserom</button>
+                    <button class="btn btn-primary" onclick="joinClassroom()">Bli med (PIN)</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>📊 Leaderboard</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                    Se de beste spillerne i hver kategori.
+                </p>
+                <button class="btn btn-primary" onclick="viewLeaderboard()">Se leaderboard</button>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(245, 158, 11, 0.2); border-radius: 10px;">
+                <strong style="color: #f59e0b;">⚠️ Kommer snart!</strong>
+                <p style="color: var(--text-secondary); margin-top: 10px;">Multiplayer-funksjoner er under utvikling og vil være tilgjengelig snart.</p>
             </div>
         </div>
     </div>
@@ -957,42 +1046,117 @@
     <div class="modal" id="achievements-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>ðŸ† Alle Achievements</h2>
-                <button class="close-btn" onclick="closeModal('achievements-modal')">âœ•</button>
+                <h2>🏆 Prestasjoner</h2>
+                <button class="close-btn" onclick="closeModal('achievements-modal')">✕</button>
             </div>
-            <div class="achievements-grid" id="achievements-full">
-                <!-- Will be populated by JavaScript -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;" id="achievements-grid">
+                <!-- Populated by JavaScript -->
             </div>
         </div>
     </div>
 
     <script>
-        // Achievement definitions
-        const achievements = [
-            { id: 'first_task', icon: 'ðŸŽ¯', title: 'Første dag', desc: 'Fullført første oppgave', unlocked: false },
-            { id: 'streak_5', icon: 'ðŸ”¥', title: 'På streak!', desc: '5 dager på rad', unlocked: false },
-            { id: 'student', icon: 'ðŸ“š', title: 'Student', desc: 'Fullført 10 oppgaver', unlocked: false },
-            { id: 'mva_expert', icon: 'ðŸ’°', title: 'MVA-ekspert', desc: '10 MVA-oppgaver uten feil', unlocked: false },
-            { id: 'perfect_10', icon: 'ðŸ’¯', title: 'Perfeksjonist', desc: '10 oppgaver uten feil', unlocked: false },
-            { id: 'speed_demon', icon: 'âš¡', title: 'Lynrask', desc: 'Løs oppgave under 30 sekunder', unlocked: false },
-            { id: 'candidate', icon: 'ðŸŽ“', title: 'Kandidat', desc: 'Fullført 25 oppgaver', unlocked: false },
-            { id: 'master', icon: 'ðŸ‘¨â€ðŸŽ“', title: 'Master', desc: 'Fullført 100 oppgaver', unlocked: false },
-            { id: 'quiz_master', icon: 'ðŸ“', title: 'Quiz-mester', desc: 'Besvart alle quiz-spørsmål', unlocked: false },
-            { id: 'analyst', icon: 'ðŸ“Š', title: 'Analytiker', desc: 'Fullført alle analyseoppgaver', unlocked: false },
-            { id: 'case_solver', icon: 'ðŸ’¼', title: 'Case-løser', desc: 'Fullført alle case-oppgaver', unlocked: false },
-            { id: 'brain_master', icon: 'ðŸ§ ', title: 'Hjernetrim-mester', desc: 'Låst opp hjernetrim', unlocked: false },
-            { id: 'completionist', icon: 'ðŸ†', title: 'Completionist', desc: '100% progresjon', unlocked: false },
-            { id: 'dedication', icon: 'ðŸ’«', title: 'Dedikert', desc: '30 dager streak', unlocked: false },
-            { id: 'perfection', icon: 'â­', title: 'Mesterverk', desc: '50 oppgaver uten feil', unlocked: false }
-        ];
-
         // Settings state
         let settings = {
-            sound: false,
-            darkMode: true
+            username: 'Gjest',
+            theme: 'dark',
+            music: false,
+            sound: false
         };
 
-        // Load all progress data
+        // Achievements
+        const achievements = [
+            { id: 'first_task', icon: '🎯', title: 'Første dag', desc: 'Fullført første oppgave', unlocked: false },
+            { id: 'streak_5', icon: '🔥', title: 'På streak!', desc: '5 dager på rad', unlocked: false },
+            { id: 'student', icon: '📚', title: 'Student', desc: 'Fullført 10 oppgaver', unlocked: false },
+            { id: 'mva_expert', icon: '💰', title: 'MVA-ekspert', desc: '10 MVA-oppgaver uten feil', unlocked: false },
+            { id: 'perfect_10', icon: '💯', title: 'Perfeksjonist', desc: '10 oppgaver uten feil', unlocked: false },
+            { id: 'speed_demon', icon: '⚡', title: 'Lynrask', desc: 'Løs oppgave under 30 sekunder', unlocked: false },
+            { id: 'candidate', icon: '🎓', title: 'Kandidat', desc: 'Fullført 25 oppgaver', unlocked: false },
+            { id: 'master', icon: '👨‍🎓', title: 'Master', desc: 'Fullført 100 oppgaver', unlocked: false },
+            { id: 'quiz_master', icon: '📝', title: 'Quiz-mester', desc: 'Besvart alle quiz-spørsmål', unlocked: false },
+            { id: 'analyst', icon: '📊', title: 'Analytiker', desc: 'Fullført alle analyseoppgaver', unlocked: false },
+            { id: 'case_solver', icon: '💼', title: 'Case-løser', desc: 'Fullført alle case-oppgaver', unlocked: false },
+            { id: 'brain_master', icon: '🧠', title: 'Hjernetrim-mester', desc: 'Låst opp hjernetrim', unlocked: false },
+            { id: 'completionist', icon: '🏆', title: 'Completionist', desc: '100% progresjon', unlocked: false },
+            { id: 'dedication', icon: '💫', title: 'Dedikert', desc: '30 dager streak', unlocked: false },
+            { id: 'perfection', icon: '⭐', title: 'Mesterverk', desc: '50 oppgaver uten feil', unlocked: false }
+        ];
+
+        // Initialize
+        function init() {
+            loadSettings();
+            loadAllProgress();
+            updateUserDisplay();
+        }
+
+        // Settings functions
+        function loadSettings() {
+            const saved = localStorage.getItem('accountingquest_settings');
+            if (saved) {
+                settings = JSON.parse(saved);
+                applySettings();
+            }
+        }
+
+        function applySettings() {
+            // Apply theme
+            if (settings.theme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                document.getElementById('theme-toggle').classList.add('active');
+            }
+
+            // Apply toggles
+            if (settings.music) document.getElementById('music-toggle').classList.add('active');
+            if (settings.sound) document.getElementById('sound-toggle').classList.add('active');
+
+            // Apply username
+            document.getElementById('username-input').value = settings.username;
+        }
+
+        function saveSettings() {
+            localStorage.setItem('accountingquest_settings', JSON.stringify(settings));
+        }
+
+        function toggleTheme() {
+            settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
+            if (settings.theme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                document.getElementById('theme-toggle').classList.add('active');
+            } else {
+                document.body.removeAttribute('data-theme');
+                document.getElementById('theme-toggle').classList.remove('active');
+            }
+            saveSettings();
+        }
+
+        function toggleSetting(setting) {
+            settings[setting] = !settings[setting];
+            const toggle = document.getElementById(setting + '-toggle');
+            toggle.classList.toggle('active');
+            saveSettings();
+
+            // Play sound if enabled
+            if (setting === 'sound' && settings.sound) {
+                playSound('toggle');
+            }
+        }
+
+        function saveUsername() {
+            const input = document.getElementById('username-input').value.trim();
+            if (input && input.length > 0) {
+                settings.username = input;
+                saveSettings();
+                updateUserDisplay();
+                alert('✅ Brukernavn lagret!');
+            }
+        }
+
+        function updateUserDisplay() {
+            document.getElementById('username-display').textContent = settings.username;
+        }
+
+        // Progress loading
         function loadAllProgress() {
             // Bokføring
             const bokforing = JSON.parse(localStorage.getItem('bokforingsspill_progress') || '{}');
@@ -1018,7 +1182,7 @@
             document.getElementById('analyse-progress').textContent = analysePercent + '%';
             document.getElementById('analyse-bar').style.width = analysePercent + '%';
 
-            // Case studies (simplified)
+            // Case studies
             const caseProgress = 0;
             const caseTotal = 15;
             const casePercent = Math.round((caseProgress / caseTotal) * 100);
@@ -1040,64 +1204,44 @@
             document.getElementById('unlock-bar').style.width = avgProgress + '%';
 
             // Check achievements
-            checkAchievements(totalCompleted, bokforingTasks, quizAnswered);
+            checkAchievements(totalCompleted);
 
             // Streak (placeholder)
             document.getElementById('streak').textContent = '0';
         }
 
-        function checkAchievements(total, bokforing, quiz) {
+        function checkAchievements(total) {
             let unlocked = 0;
 
-            // Check various achievements
             if (total >= 1) achievements[0].unlocked = true;
             if (total >= 10) achievements[2].unlocked = true;
             if (total >= 25) achievements[6].unlocked = true;
             if (total >= 100) achievements[7].unlocked = true;
-            if (quiz >= 90) achievements[8].unlocked = true;
 
-            // Count unlocked
             unlocked = achievements.filter(a => a.unlocked).length;
             document.getElementById('achievements').textContent = unlocked;
-
-            // Render preview
-            renderAchievementsPreview();
         }
 
-        function renderAchievementsPreview() {
-            const container = document.getElementById('achievements-preview');
-            const preview = achievements.slice(0, 6);
-
-            container.innerHTML = preview.map(a => `
-                <div class="achievement-card ${a.unlocked ? 'unlocked' : 'locked'}">
-                    <div class="achievement-icon">${a.icon}</div>
-                    <div class="achievement-title">${a.title}</div>
-                    <div class="achievement-desc">${a.desc}</div>
-                </div>
-            `).join('');
-        }
-
-        function renderAchievementsFull() {
-            const container = document.getElementById('achievements-full');
-            container.innerHTML = achievements.map(a => `
-                <div class="achievement-card ${a.unlocked ? 'unlocked' : 'locked'}">
-                    <div class="achievement-icon">${a.icon}</div>
-                    <div class="achievement-title">${a.title}</div>
-                    <div class="achievement-desc">${a.desc}</div>
-                </div>
-            `).join('');
-        }
-
+        // Navigation
         function navigateToModule(file) {
             window.location.href = file;
         }
 
+        function openWiki() {
+            alert('📖 Wiki\n\nWiki-siden er under utvikling!\n\nHer vil du finne:\n• Alle lovparagrafer\n• Forklaringer\n• Eksempler\n• Regnskapsstandarder (NRS)\n• Konsepter og prinsipper');
+        }
+
+        // Modals
         function showSettings() {
             document.getElementById('settings-modal').classList.add('show');
         }
 
+        function showMultiplayer() {
+            document.getElementById('multiplayer-modal').classList.add('show');
+        }
+
         function showAchievements() {
-            renderAchievementsFull();
+            renderAchievements();
             document.getElementById('achievements-modal').classList.add('show');
         }
 
@@ -1105,11 +1249,33 @@
             document.getElementById(id).classList.remove('show');
         }
 
-        function toggleSetting(setting) {
-            settings[setting] = !settings[setting];
-            const toggle = document.getElementById(setting + '-toggle');
-            toggle.classList.toggle('active');
-            localStorage.setItem('settings', JSON.stringify(settings));
+        function renderAchievements() {
+            const grid = document.getElementById('achievements-grid');
+            grid.innerHTML = achievements.map(a => `
+                <div style="background: var(--border-color); padding: 20px; border-radius: 15px; text-align: center; ${a.unlocked ? 'border: 2px solid var(--accent-primary);' : 'opacity: 0.5;'}">
+                    <div style="font-size: 3em; margin-bottom: 10px; ${a.unlocked ? '' : 'filter: grayscale(1);'}">${a.icon}</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">${a.title}</div>
+                    <div style="font-size: 0.85em; color: var(--text-secondary);">${a.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        // Data functions
+        function exportData() {
+            const data = {
+                settings: settings,
+                bokforing: localStorage.getItem('bokforingsspill_progress'),
+                quiz: localStorage.getItem('quiz_v2'),
+                analyse: localStorage.getItem('regnskapsanalyse_progress'),
+                exported: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'accountingquest-data-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
         }
 
         function resetProgress() {
@@ -1119,54 +1285,57 @@
             }
         }
 
-        function exportData() {
-            const data = {
-                bokforing: localStorage.getItem('bokforingsspill_progress'),
-                quiz: localStorage.getItem('quiz_v2'),
-                analyse: localStorage.getItem('regnskapsanalyse_progress'),
-                settings: localStorage.getItem('settings'),
-                exported: new Date().toISOString()
-            };
-
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'regnskap-progresjon-' + new Date().toISOString().split('T')[0] + '.json';
-            a.click();
+        // Multiplayer functions (placeholders)
+        function createDuel() {
+            alert('🎯 Opprett Duell\n\nKommer snart!\n\nDu vil kunne:\n• Velge oppgaver\n• Få delbar kode\n• Konkurrere i sanntid');
         }
 
-        function showAbout() {
-            alert('ðŸ“š Grunnleggende Regnskap\n\nVersjon: 1.0\n\nEn interaktiv læringsplattform for norsk bokføring og regnskap.\n\nBasert på:\nâ€¢ Bokføringsloven\nâ€¢ Regnskapsloven\nâ€¢ Skatteloven\nâ€¢ Merverdiavgiftsloven');
-        }
-
-        function showHelp() {
-            alert('â“ Hjelp\n\nSlik bruker du plattformen:\n\n1. Velg en modul fra hovedmenyen\n2. Løs oppgaver og quiz\n3. Se din progresjon i statistikk\n4. Lås opp achievements\n\nTips:\nâ€¢ Bruk kalkulatoren (ðŸ“¢-knappen)\nâ€¢ Bruk formler med = i cellene\nâ€¢ Klikk på hint-knappen ved behov\nâ€¢ Se lovhjemler etter svar');
-        }
-
-        // Load settings from localStorage
-        function loadSettings() {
-            const saved = localStorage.getItem('settings');
-            if (saved) {
-                settings = JSON.parse(saved);
-                if (settings.sound) {
-                    document.getElementById('sound-toggle').classList.add('active');
-                }
+        function joinDuel() {
+            const code = prompt('Skriv inn duell-koden:');
+            if (code) {
+                alert('Funksjonen kommer snart!');
             }
         }
 
-        // Initialize
-        window.onload = function() {
-            loadAllProgress();
-            loadSettings();
-        };
+        function createClassroom() {
+            alert('👨‍🏫 Opprett Klasserom\n\nKommer snart!\n\nFor lærere:\n• Velg oppgaver\n• Få PIN-kode\n• Se studentresultater i sanntid');
+        }
 
-        // Close modals when clicking outside
+        function joinClassroom() {
+            const pin = prompt('Skriv inn klasserom PIN:');
+            if (pin) {
+                alert('Funksjonen kommer snart!');
+            }
+        }
+
+        function viewLeaderboard() {
+            alert('📊 Leaderboard\n\nKommer snart!\n\nSe rangering basert på:\n• Totale poeng\n• Oppgaver løst\n• Streak\n• Hastighet');
+        }
+
+        // Helper functions
+        function showAbout() {
+            alert('📚 AccountingQuest\n\nVersjon: 1.0 Beta\n\nEn gamifisert læringsplattform for norsk bokføring og regnskap.\n\nBasert på:\n• Bokføringsloven\n• Regnskapsloven\n• Skatteloven\n• Merverdiavgiftsloven\n\nLaget med ❤️ for studenter');
+        }
+
+        function showHelp() {
+            alert('❓ Hjelp\n\nSlik bruker du plattformen:\n\n1. Velg en modul fra hovedmenyen\n2. Løs oppgaver og quiz\n3. Se din progresjon i statistikk\n4. Lås opp achievements\n\nTips:\n• Bruk kalkulatoren (🔢-knappen)\n• Bruk formler med = i cellene\n• Klikk på hint-knappen ved behov\n• Se lovhjemler etter svar\n• Sjekk Wiki for teorien');
+        }
+
+        function playSound(type) {
+            // Placeholder for sound effects
+            if (!settings.sound) return;
+            console.log('Playing sound:', type);
+        }
+
+        // Close modals on outside click
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.classList.remove('show');
             }
         };
+
+        // Initialize on load
+        window.onload = init;
     </script>
 </body>
 </html>
