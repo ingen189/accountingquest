@@ -3,32 +3,59 @@
 <head>
     <!-- Essential Meta Tags -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AccountingQuest - Interaktiv Læring i Norsk Regnskap</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="alternate icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Lær norsk bokføring, regnskapsanalyse og regnskap gjennom interaktive oppgaver. Basert på Bokføringsloven, Regnskapsloven, Skatteloven og MVA-loven.">
-    <meta name="keywords" content="regnskap, bokføring, regnskapsanalyse, quiz, læring, norsk, bokføringsloven, regnskapsloven">
+    <title>AccountingQuest - LÃ¦r Norsk BokfÃ¸ring og Regnskap</title>
+    <meta name="description" content="Gamifisert lÃ¦ringsplattform for norsk bokfÃ¸ring og regnskap. Interaktive oppgaver basert pÃ¥ BokfÃ¸ringsloven, Regnskapsloven, Skatteloven og MVA-loven.">
+    <meta name="keywords" content="bokfÃ¸ring, regnskap, regnskapsanalyse, norsk regnskap, bokfÃ¸ringsloven, regnskapsloven, MVA, accounting, lÃ¦ring">
     <meta name="author" content="AccountingQuest">
+    <meta name="robots" content="index, follow">
     
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://accountingquest.app/">
-    <meta property="og:title" content="AccountingQuest - Lær Norsk Regnskap">
-    <meta property="og:description" content="Interaktiv læringsplattform for norsk regnskap med 200+ oppgaver og quiz">
-    <meta property="og:image" content="https://accountingquest.app/og-image.png">
+    <meta property="og:title" content="AccountingQuest - LÃ¦r Norsk BokfÃ¸ring">
+    <meta property="og:description" content="Gamifisert lÃ¦ringsplattform for norsk bokfÃ¸ring og regnskap med interaktive oppgaver.">
+    <meta property="og:site_name" content="AccountingQuest">
     
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://accountingquest.app/">
-    <meta property="twitter:title" content="AccountingQuest - Lær Norsk Regnskap">
-    <meta property="twitter:description" content="Interaktiv læringsplattform for norsk regnskap">
-    <meta property="twitter:image" content="https://accountingquest.app/og-image.png"
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>ðŸ“š</text></svg>">
+    
+    <!-- Apple Touch Icon -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AccountingQuest">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="msapplication-navbutton-color" content="#1a1a2e">
+    
     <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f3460;
+            --text-primary: #eaeaea;
+            --text-secondary: #a0a0a0;
+            --accent-primary: #4ade80;
+            --accent-secondary: #3b82f6;
+            --border-color: #404040;
+            --card-bg: #2d2d2d;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e5e5e5;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --accent-primary: #22c55e;
+            --accent-secondary: #2563eb;
+            --border-color: #d4d4d4;
+            --card-bg: #ffffff;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -36,19 +63,23 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            transition: all 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Header */
         .header {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid #404040;
-            padding: 20px 40px;
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 20px;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -56,7 +87,8 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
         .logo {
@@ -66,46 +98,81 @@
         }
 
         .logo-icon {
-            font-size: 2.5em;
+            font-size: 2em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
         }
 
         .logo-text h1 {
-            font-size: 1.8em;
-            background: linear-gradient(135deg, #4ade80, #3b82f6);
+            font-size: 1.5em;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .logo-text p {
-            font-size: 0.9em;
-            color: #9ca3af;
-            margin-top: 5px;
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            margin-top: 3px;
+            display: none;
         }
 
         .header-actions {
             display: flex;
-            gap: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         .header-btn {
             background: var(--border-color);
             color: var(--text-primary);
             border: none;
-            padding: 10px 20px;
+            padding: 10px 18px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            font-size: 0.9em;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .header-btn:hover {
             background: var(--accent-primary);
             color: #1e1e1e;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.3);
+        }
+
+        .header-btn:active {
+            transform: translateY(0);
+        }
+
+        .header-btn.wiki {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+        }
+
+        .header-btn.wiki:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .header-btn.multiplayer {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        }
+
+        .header-btn.multiplayer:hover {
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+            color: white;
         }
 
         .header-btn.settings {
@@ -127,16 +194,18 @@
         /* Welcome Section */
         .welcome-section {
             text-align: center;
-            margin-bottom: 60px;
-            padding: 40px 20px;
-            background: rgba(45, 45, 45, 0.5);
+            margin-bottom: 50px;
+            padding: 50px 30px;
+            background: var(--card-bg);
             border-radius: 20px;
             backdrop-filter: blur(10px);
-            border: 2px solid #404040;
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
         .welcome-section h2 {
-            font-size: 3em;
+            font-size: 2.5em;
             margin-bottom: 20px;
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
@@ -145,8 +214,8 @@
         }
 
         .welcome-section p {
-            font-size: 1.2em;
-            color: #9ca3af;
+            font-size: 1.1em;
+            color: var(--text-secondary);
             line-height: 1.8;
             max-width: 700px;
             margin: 0 auto 25px;
@@ -161,13 +230,21 @@
         }
 
         .feature-item {
-            background: #404040;
-            padding: 15px 25px;
-            border-radius: 10px;
+            background: var(--border-color);
+            padding: 12px 20px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-weight: bold;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.95em;
+        }
+
+        .feature-item:hover {
+            transform: scale(1.05);
+            background: var(--accent-primary);
+            color: #1e1e1e;
         }
 
         .feature-icon {
@@ -210,20 +287,20 @@
         }
 
         .stat-label {
-            font-size: 1.1em;
-            color: #9ca3af;
+            font-size: 1em;
+            color: var(--text-secondary);
         }
 
         .stat-sublabel {
-            font-size: 0.9em;
-            color: #6b7280;
+            font-size: 0.85em;
+            color: var(--text-secondary);
             margin-top: 5px;
         }
 
         /* Modules Section */
         .modules-section h2 {
-            font-size: 2em;
-            color: #4ade80;
+            font-size: 2.2em;
+            color: var(--accent-primary);
             margin-bottom: 30px;
             text-align: center;
         }
@@ -261,8 +338,8 @@
         }
 
         .module-card:hover {
-            transform: translateY(-10px);
-            border-color: #4ade80;
+            transform: translateY(-8px);
+            border-color: var(--accent-primary);
             box-shadow: 0 15px 40px rgba(74, 222, 128, 0.4);
         }
 
@@ -292,14 +369,7 @@
         }
 
         .module-icon {
-            font-size: 3.5em;
-        }
-
-        .module-status {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
+            font-size: 3em;
         }
 
         .status-badge {
@@ -325,8 +395,8 @@
         }
 
         .module-title {
-            font-size: 1.8em;
-            color: #e0e0e0;
+            font-size: 1.6em;
+            color: var(--text-primary);
             margin-bottom: 10px;
         }
 
@@ -343,8 +413,8 @@
         }
 
         .module-features li {
-            padding: 8px 0;
-            color: #9ca3af;
+            padding: 7px 0;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -352,7 +422,7 @@
         }
 
         .module-features li::before {
-            content: '✓';
+            content: 'âœ“';
             color: var(--accent-primary);
             font-weight: bold;
             font-size: 1.2em;
@@ -366,8 +436,8 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
-            font-size: 0.9em;
-            color: #9ca3af;
+            font-size: 0.85em;
+            color: var(--text-secondary);
         }
 
         .progress-bar {
@@ -380,8 +450,8 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4ade80, #22c55e);
-            transition: width 0.5s;
+            background: linear-gradient(90deg, var(--accent-primary), #22c55e);
+            transition: width 0.5s ease;
             border-radius: 5px;
         }
 
@@ -437,8 +507,8 @@
         }
 
         .modal-header h2 {
-            font-size: 2em;
-            color: #4ade80;
+            font-size: 1.8em;
+            color: var(--accent-primary);
         }
 
         .close-btn {
@@ -450,6 +520,13 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 1.2em;
+            transition: all 0.3s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .close-btn:hover {
+            background: #dc2626;
         }
 
         .setting-group {
@@ -522,9 +599,31 @@
             transform: translateX(30px);
         }
 
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-group input {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 15px;
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
         .btn-group {
             display: flex;
             gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -547,101 +646,103 @@
             background: #22c55e;
         }
 
-        .btn-primary {
-            background: #4ade80;
-            color: #1e1e1e;
+        .btn-danger {
+            background: #ef4444;
+            color: white;
         }
 
-        .btn-primary:hover {
-            background: #22c55e;
-        }
-
-        /* Achievements */
-        .achievements-section {
-            margin-bottom: 60px;
-        }
-
-        .achievements-section h2 {
-            font-size: 2em;
-            color: #4ade80;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .achievements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .achievement-card {
-            background: rgba(45, 45, 45, 0.8);
-            border: 2px solid #404040;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .achievement-card.unlocked {
-            border-color: #4ade80;
-        }
-
-        .achievement-card.locked {
-            opacity: 0.5;
-        }
-
-        .achievement-card:hover {
-            transform: scale(1.05);
-        }
-
-        .achievement-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-            filter: grayscale(1);
-        }
-
-        .achievement-card.unlocked .achievement-icon {
-            filter: grayscale(0);
-        }
-
-        .achievement-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #e0e0e0;
-        }
-
-        .achievement-desc {
-            font-size: 0.85em;
-            color: #9ca3af;
+        .btn-danger:hover {
+            background: #dc2626;
         }
 
         /* Footer */
         .footer {
-            background: rgba(45, 45, 45, 0.95);
-            border-top: 2px solid #404040;
-            padding: 30px 40px;
+            background: var(--card-bg);
+            border-top: 2px solid var(--border-color);
+            padding: 30px 30px;
             text-align: center;
-            margin-top: 60px;
+            margin-top: 50px;
         }
 
         .footer p {
-            color: #9ca3af;
+            color: var(--text-secondary);
             margin-bottom: 15px;
+            font-size: 0.95em;
         }
 
         .footer-links {
             display: flex;
             justify-content: center;
-            gap: 30px;
+            gap: 25px;
             flex-wrap: wrap;
         }
 
         .footer-links a {
-            color: #4ade80;
+            color: var(--accent-primary);
             text-decoration: none;
             transition: all 0.3s;
+            font-size: 0.95em;
         }
+
+        .footer-links a:hover {
+            color: #22c55e;
+            text-decoration: underline;
+        }
+
+        /* User Profile Badge */
+        .user-badge {
+            background: var(--border-color);
+            padding: 8px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .user-badge .user-icon {
+            font-size: 1.3em;
+        }
+
+        /* Loading State */
+        .loading {
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        /* Desktop Specific */
+        @media (min-width: 769px) {
+            .logo-text p {
+                display: block;
+            }
+
+            .header {
+                padding: 20px 40px;
+            }
+
+            .welcome-section h2 {
+                font-size: 3em;
+            }
+
+            .stat-icon {
+                font-size: 3em;
+            }
+
+            .stat-value {
+                font-size: 2.5em;
+            }
+
+            .modules-section h2 {
+                font-size: 2.5em;
+            }
+        }
+
+        /* Tablet Specific */
+        @media (max-width: 768px) and (min-width: 481px) {
+            .modules-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
 
             .stats-overview {
                 grid-template-columns: repeat(2, 1fr);
@@ -676,7 +777,7 @@
             }
 
             .welcome-section h2 {
-                font-size: 2em;
+                font-size: 1.8em;
             }
 
             .welcome-section p {
@@ -802,31 +903,6 @@
             body:not([data-theme]) {
                 /* Users who prefer light mode will still start with dark, but they can toggle */
             }
-
-            .header-actions {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .header-btn {
-                flex: 1;
-                justify-content: center;
-            }
-        }
-
-        /* User Profile Badge */
-        .user-badge {
-            background: var(--border-color);
-            padding: 8px 16px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: bold;
-        }
-
-        .user-badge .user-icon {
-            font-size: 1.5em;
         }
     </style>
 </head>
@@ -834,19 +910,31 @@
     <!-- Header -->
     <header class="header" role="banner">
         <div class="logo">
-            <div class="logo-icon">ðŸ“š</div>
+            <div class="logo-icon" aria-hidden="true">ðŸ“š</div>
             <div class="logo-text">
                 <h1>AccountingQuest</h1>
-                <p>Interaktiv læring i norsk regnskap</p>
+                <p>Interaktiv lÃ¦ring i norsk regnskap</p>
             </div>
         </div>
-        <div class="header-actions">
-            <button class="header-btn" onclick="showAchievements()">
-                <span>ðŸ†</span>
+        <nav class="header-actions" role="navigation" aria-label="Hovednavigasjon">
+            <div class="user-badge" id="user-badge">
+                <span class="user-icon" aria-hidden="true">ðŸ‘¤</span>
+                <span id="username-display">Gjest</span>
+            </div>
+            <button class="header-btn wiki" onclick="openWiki()" aria-label="Ã…pne Wiki">
+                <span aria-hidden="true">ðŸ“–</span>
+                <span>Wiki</span>
+            </button>
+            <button class="header-btn multiplayer" onclick="showMultiplayer()" aria-label="Multiplayer">
+                <span aria-hidden="true">ðŸŽ®</span>
+                <span>Multiplayer</span>
+            </button>
+            <button class="header-btn" onclick="showAchievements()" aria-label="Prestasjoner">
+                <span aria-hidden="true">ðŸ†</span>
                 <span>Prestasjoner</span>
             </button>
-            <button class="header-btn settings" onclick="showSettings()">
-                <span>âš™ï¸</span>
+            <button class="header-btn settings" onclick="showSettings()" aria-label="Innstillinger">
+                <span aria-hidden="true">âš™ï¸</span>
                 <span>Innstillinger</span>
             </button>
         </nav>
@@ -855,79 +943,77 @@
     <!-- Main Content -->
     <main class="main-container" role="main">
         <!-- Welcome Section -->
-        <div class="welcome-section">
-            <h2>ðŸŽ“ Velkommen til Grunnleggende Regnskap</h2>
+        <section class="welcome-section" aria-labelledby="welcome-heading">
+            <h2 id="welcome-heading">ðŸŽ“ Velkommen til AccountingQuest</h2>
             <p>
-                Lær norsk bokføring, regnskapsanalyse og regnskap gjennom interaktive oppgaver, 
-                quiz og case-studier. Alle oppgaver er basert på norsk lovverk.
+                LÃ¦r norsk bokfÃ¸ring, regnskapsanalyse og regnskap gjennom interaktive oppgaver, 
+                quiz og case-studier. Alle oppgaver er basert pÃ¥ norsk lovverk.
             </p>
-            <div class="feature-list">
-                <div class="feature-item">
-                    <span class="feature-icon">âœ…</span>
-                    <span>Bokføringsloven</span>
+            <div class="feature-list" role="list">
+                <div class="feature-item" role="listitem">
+                    <span class="feature-icon" aria-hidden="true">âœ…</span>
+                    <span>BokfÃ¸ringsloven</span>
                 </div>
-                <div class="feature-item">
-                    <span class="feature-icon">âœ…</span>
+                <div class="feature-item" role="listitem">
+                    <span class="feature-icon" aria-hidden="true">âœ…</span>
                     <span>Regnskapsloven</span>
                 </div>
-                <div class="feature-item">
-                    <span class="feature-icon">âœ…</span>
+                <div class="feature-item" role="listitem">
+                    <span class="feature-icon" aria-hidden="true">âœ…</span>
                     <span>Skatteloven</span>
                 </div>
-                <div class="feature-item">
-                    <span class="feature-icon">âœ…</span>
+                <div class="feature-item" role="listitem">
+                    <span class="feature-icon" aria-hidden="true">âœ…</span>
                     <span>MVA-loven</span>
                 </div>
             </div>
         </section>
 
         <!-- Stats Overview -->
-        <div class="stats-overview">
-            <div class="stat-card">
-                <div class="stat-icon">ðŸ“Š</div>
-                <div class="stat-value" id="total-progress">0%</div>
+        <section class="stats-overview" aria-label="Statistikk oversikt">
+            <article class="stat-card">
+                <div class="stat-icon" aria-hidden="true">ðŸ“Š</div>
+                <div class="stat-value" id="total-progress" aria-label="Total progresjon">0%</div>
                 <div class="stat-label">Total progresjon</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">âœ…</div>
-                <div class="stat-value" id="completed-tasks">0</div>
-                <div class="stat-label">Oppgaver løst</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon" aria-hidden="true">âœ…</div>
+                <div class="stat-value" id="completed-tasks" aria-label="Antall oppgaver lÃ¸st">0</div>
+                <div class="stat-label">Oppgaver lÃ¸st</div>
                 <div class="stat-sublabel" id="total-tasks">av 224 totalt</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">ðŸ†</div>
-                <div class="stat-value" id="achievements">0</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon" aria-hidden="true">ðŸ†</div>
+                <div class="stat-value" id="achievements" aria-label="Antall achievements">0</div>
                 <div class="stat-label">Achievements</div>
                 <div class="stat-sublabel">av 15 tilgjengelige</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">ðŸ”¥</div>
-                <div class="stat-value" id="streak">0</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon" aria-hidden="true">ðŸ”¥</div>
+                <div class="stat-value" id="streak" aria-label="Dager pÃ¥ rad">0</div>
                 <div class="stat-label">Dager streak</div>
-                <div class="stat-sublabel">Fortsett å øve!</div>
+                <div class="stat-sublabel">Fortsett Ã¥ Ã¸ve!</div>
             </article>
         </section>
 
         <!-- Modules Section -->
-        <div class="modules-section">
-            <h2>ðŸ“– Velg modul</h2>
+        <section class="modules-section" aria-labelledby="modules-heading">
+            <h2 id="modules-heading">ðŸ“– Velg modul</h2>
             <div class="modules-grid">
-                <!-- Module 1: Bokføring -->
-                <article class="module-card" onclick="navigateToModule('bokforingsspill_excel.html')" role="button" tabindex="0" aria-label="Bokføring modul">
+                <!-- Module 1: BokfÃ¸ring -->
+                <article class="module-card" onclick="navigateToModule('bokforingsspill_excel.html')" role="button" tabindex="0" aria-label="BokfÃ¸ring modul">
                     <div class="module-header">
-                        <div class="module-icon">ðŸ“–</div>
-                        <div class="module-status">
-                            <span class="status-badge new">Aktiv</span>
-                        </div>
+                        <div class="module-icon" aria-hidden="true">ðŸ“–</div>
+                        <span class="status-badge new">Aktiv</span>
                     </div>
-                    <div class="module-title">Bokføring</div>
-                    <div class="module-description">
-                        Lær grunnleggende bokføring gjennom interaktive oppgaver i et Excel-lignende miljø.
+                    <h3 class="module-title">BokfÃ¸ring</h3>
+                    <p class="module-description">
+                        LÃ¦r grunnleggende bokfÃ¸ring gjennom interaktive oppgaver i et Excel-lignende miljÃ¸.
                     </p>
                     <ul class="module-features">
                         <li>36+ oppgaver (lett, middels, vanskelig)</li>
                         <li>Excel-stil interface med formler</li>
-                        <li>Randomiserte beløp</li>
+                        <li>Randomiserte belÃ¸p</li>
                         <li>Flyttbar kalkulator</li>
                         <li>3 liv per oppgave</li>
                     </ul>
@@ -945,18 +1031,16 @@
                 <!-- Module 2: Quiz -->
                 <article class="module-card" onclick="navigateToModule('quiz.html')" role="button" tabindex="0" aria-label="Quiz modul">
                     <div class="module-header">
-                        <div class="module-icon">â“</div>
-                        <div class="module-status">
-                            <span class="status-badge new">Aktiv</span>
-                        </div>
+                        <div class="module-icon" aria-hidden="true">â“</div>
+                        <span class="status-badge new">Aktiv</span>
                     </div>
-                    <div class="module-title">Quiz</div>
-                    <div class="module-description">
+                    <h3 class="module-title">Quiz</h3>
+                    <p class="module-description">
                         Test din kunnskap om regnskapsteori, lovverk og prinsipper.
                     </p>
                     <ul class="module-features">
-                        <li>90+ spørsmål fordelt på 5 temaer</li>
-                        <li>Paragraf-spørsmål</li>
+                        <li>90+ spÃ¸rsmÃ¥l fordelt pÃ¥ 5 temaer</li>
+                        <li>Paragraf-spÃ¸rsmÃ¥l</li>
                         <li>Flervalg og sant/usant</li>
                         <li>Dra & slipp oppgaver</li>
                         <li>Lovhjemler og forklaringer</li>
@@ -975,19 +1059,17 @@
                 <!-- Module 3: Regnskapsanalyse -->
                 <article class="module-card" onclick="navigateToModule('regnskapsanalyse.html')" role="button" tabindex="0" aria-label="Regnskapsanalyse modul">
                     <div class="module-header">
-                        <div class="module-icon">ðŸ“Š</div>
-                        <div class="module-status">
-                            <span class="status-badge new">Aktiv</span>
-                        </div>
+                        <div class="module-icon" aria-hidden="true">ðŸ“Š</div>
+                        <span class="status-badge new">Aktiv</span>
                     </div>
-                    <div class="module-title">Regnskapsanalyse</div>
-                    <div class="module-description">
-                        Analyser regnskap med nøkkeltall, horisontal og vertikal analyse.
+                    <h3 class="module-title">Regnskapsanalyse</h3>
+                    <p class="module-description">
+                        Analyser regnskap med nÃ¸kkeltall, horisontal og vertikal analyse.
                     </p>
                     <ul class="module-features">
                         <li>11 praktiske analyseoppgaver</li>
                         <li>Horisontal & vertikal analyse</li>
-                        <li>Beregning av nøkkeltall</li>
+                        <li>Beregning av nÃ¸kkeltall</li>
                         <li>Interaktive tabeller</li>
                         <li>Automatiske formler</li>
                     </ul>
@@ -1005,21 +1087,19 @@
                 <!-- Module 4: Avanserte Case -->
                 <article class="module-card" onclick="navigateToModule('case_studies.html')" role="button" tabindex="0" aria-label="Avanserte Case modul">
                     <div class="module-header">
-                        <div class="module-icon">ðŸ’¼</div>
-                        <div class="module-status">
-                            <span class="status-badge new">Beta</span>
-                        </div>
+                        <div class="module-icon" aria-hidden="true">ðŸ’¼</div>
+                        <span class="status-badge beta">Beta</span>
                     </div>
-                    <div class="module-title">Avanserte Case</div>
-                    <div class="module-description">
-                        Løs komplekse case-oppgaver med årsavslutning og resultatdisponering.
+                    <h3 class="module-title">Avanserte Case</h3>
+                    <p class="module-description">
+                        LÃ¸s komplekse case-oppgaver med Ã¥rsavslutning og resultatdisponering.
                     </p>
                     <ul class="module-features">
                         <li>15+ case-oppgaver</li>
                         <li>Resultatdisponering</li>
-                        <li>Årsavslutning</li>
+                        <li>Ã…rsavslutning</li>
                         <li>Tilleggsposteringer</li>
-                        <li>Feilsøking</li>
+                        <li>FeilsÃ¸king</li>
                     </ul>
                     <div class="module-progress">
                         <div class="progress-label">
@@ -1033,22 +1113,20 @@
                 </article>
 
                 <!-- Module 5: Hjernetrim (Locked) -->
-                <article class="module-card locked" role="button" tabindex="0" aria-label="Hjernetrim modul - låst" aria-disabled="true">
+                <article class="module-card locked" role="button" tabindex="0" aria-label="Hjernetrim modul - lÃ¥st" aria-disabled="true">
                     <div class="module-header">
-                        <div class="module-icon">ðŸ§ </div>
-                        <div class="module-status">
-                            <span class="status-badge locked">ðŸ”’ Låst</span>
-                        </div>
+                        <div class="module-icon" aria-hidden="true">ðŸ§ </div>
+                        <span class="status-badge locked">ðŸ”’ LÃ¥st</span>
                     </div>
-                    <div class="module-title">Hjernetrim</div>
-                    <div class="module-description">
+                    <h3 class="module-title">Hjernetrim</h3>
+                    <p class="module-description">
                         Ekstra vanskelige case for de mest dedikerte. Krever 80% fremgang i andre moduler.
                     </p>
                     <ul class="module-features">
                         <li>10+ avanserte oppgaver</li>
-                        <li>Manipulasjon og røde flagg</li>
+                        <li>Manipulasjon og rÃ¸de flagg</li>
                         <li>Skjulte reserver</li>
-                        <li>Multi-step problemløsning</li>
+                        <li>Multi-step problemlÃ¸sning</li>
                         <li>Master-level challenges</li>
                     </ul>
                     <div class="module-progress">
@@ -1060,83 +1138,134 @@
                             <div class="progress-fill" id="unlock-bar" style="width: 0%"></div>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
-        </div>
-
-        <!-- Achievements Preview -->
-        <div class="achievements-section">
-            <h2>ðŸ† Siste Achievements</h2>
-            <div class="achievements-grid" id="achievements-preview">
-                <!-- Will be populated by JavaScript -->
-            </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <!-- Footer -->
-    <div class="footer">
-        <p>© 2024 Grunnleggende Regnskap - Læringsplattform</p>
-        <div class="footer-links">
-            <a href="#" onclick="showAbout()">Om plattformen</a>
-            <a href="#" onclick="showHelp()">Hjelp</a>
-            <a href="#" onclick="showSettings()">Innstillinger</a>
-        </div>
-    </div>
+    <footer class="footer" role="contentinfo">
+        <p>Â© 2024 AccountingQuest - Norsk regnskapslÃ¦ring</p>
+        <nav class="footer-links" aria-label="Footer navigasjon">
+            <a href="#" onclick="showAbout(); return false;">Om plattformen</a>
+            <a href="#" onclick="showHelp(); return false;">Hjelp</a>
+            <a href="#" onclick="showSettings(); return false;">Innstillinger</a>
+            <a href="#" onclick="openWiki(); return false;">Wiki</a>
+        </nav>
+    </footer>
 
     <!-- Settings Modal -->
     <div class="modal" id="settings-modal" role="dialog" aria-labelledby="settings-title" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>âš™ï¸ Innstillinger</h2>
-                <button class="close-btn" onclick="closeModal('settings-modal')">âœ•</button>
+                <h2 id="settings-title">âš™ï¸ Innstillinger</h2>
+                <button class="close-btn" onclick="closeModal('settings-modal')" aria-label="Lukk">âœ•</button>
             </div>
 
             <div class="setting-group">
-                <h3>👤 Brukerprofil</h3>
+                <h3>ðŸ‘¤ Brukerprofil</h3>
                 <div class="setting-item">
                     <div class="setting-label">
                         <strong>Brukernavn / Kallenavn</strong>
                         <small>Vises i leaderboards og multiplayer</small>
                     </div>
-                    <div class="setting-control">
-                        <div class="toggle" id="sound-toggle" onclick="toggleSetting('sound')"></div>
+                    <div class="input-group">
+                        <input type="text" id="username-input" placeholder="Ditt kallenavn" maxlength="20" aria-label="Brukernavn">
+                        <button class="btn btn-primary" onclick="saveUsername()">Lagre</button>
                     </div>
                 </div>
             </div>
 
             <div class="setting-group">
-                <h3>🎨 Utseende</h3>
+                <h3>ðŸŽ¨ Utseende</h3>
                 <div class="setting-item">
                     <div class="setting-label">
-                        <strong>Mørk / Lys modus</strong>
-                        <small>Bytt mellom mørkt og lyst tema</small>
+                        <strong>MÃ¸rk / Lys modus</strong>
+                        <small>Bytt mellom mÃ¸rkt og lyst tema</small>
                     </div>
-                    <div class="setting-control">
-                        <div class="toggle active"></div>
-                    </div>
+                    <button class="toggle" id="theme-toggle" onclick="toggleTheme()" role="switch" aria-checked="false" aria-label="Tema toggle"></button>
                 </div>
             </div>
 
             <div class="setting-group">
-                <h3>🔊 Lyd</h3>
+                <h3>ðŸ”Š Lyd</h3>
                 <div class="setting-item">
                     <div class="setting-label">
                         <strong>Bakgrunnsmusikk</strong>
                         <small>Spill av rolig bakgrunnsmusikk</small>
                     </div>
-                    <div class="setting-control">
-                        <button class="btn btn-danger" onclick="resetProgress()">Nullstill</button>
-                    </div>
+                    <button class="toggle" id="music-toggle" onclick="toggleSetting('music')" role="switch" aria-checked="false" aria-label="Musikk toggle"></button>
                 </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <strong>Lydeffekter</strong>
+                        <small>Spill av lyder ved riktige/gale svar</small>
+                    </div>
+                    <button class="toggle" id="sound-toggle" onclick="toggleSetting('sound')" role="switch" aria-checked="false" aria-label="Lyd toggle"></button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>ðŸ“Š Data</h3>
                 <div class="setting-item">
                     <div class="setting-label">
                         <strong>Eksporter data</strong>
                         <small>Last ned din progresjon</small>
                     </div>
-                    <div class="setting-control">
-                        <button class="btn btn-primary" onclick="exportData()">Last ned</button>
-                    </div>
+                    <button class="btn btn-primary" onclick="exportData()">Last ned</button>
                 </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <strong>Nullstill fremgang</strong>
+                        <small style="color: #ef4444;">Dette sletter all progresjon</small>
+                    </div>
+                    <button class="btn btn-danger" onclick="resetProgress()">Nullstill</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multiplayer Modal -->
+    <div class="modal" id="multiplayer-modal" role="dialog" aria-labelledby="multiplayer-title" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="multiplayer-title">ðŸŽ® Multiplayer</h2>
+                <button class="close-btn" onclick="closeModal('multiplayer-modal')" aria-label="Lukk">âœ•</button>
+            </div>
+
+            <div class="setting-group">
+                <h3>ðŸŽ¯ Peer-to-Peer Duell</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                    Utfordr en venn til duell! Del koden og konkurer om hvem som lÃ¸ser oppgaven raskest og best.
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="createDuel()">Opprett duell</button>
+                    <button class="btn btn-primary" onclick="joinDuel()">Bli med i duell</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>ðŸ‘¨â€ðŸ« Klasserom-modus (Kahoot-stil)</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                    For lÃ¦rere: Opprett et spill som studentene kan delta i med PIN-kode.
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="createClassroom()">Opprett klasserom</button>
+                    <button class="btn btn-primary" onclick="joinClassroom()">Bli med (PIN)</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>ðŸ“Š Leaderboard</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                    Se de beste spillerne i hver kategori.
+                </p>
+                <button class="btn btn-primary" onclick="viewLeaderboard()">Se leaderboard</button>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(245, 158, 11, 0.2); border-radius: 10px;">
+                <strong style="color: #f59e0b;">âš ï¸ Kommer snart!</strong>
+                <p style="color: var(--text-secondary); margin-top: 10px;">Multiplayer-funksjoner er under utvikling og vil vÃ¦re tilgjengelig snart.</p>
             </div>
         </div>
     </div>
@@ -1145,11 +1274,11 @@
     <div class="modal" id="achievements-modal" role="dialog" aria-labelledby="achievements-title" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>ðŸ† Alle Achievements</h2>
-                <button class="close-btn" onclick="closeModal('achievements-modal')">âœ•</button>
+                <h2 id="achievements-title">ðŸ† Prestasjoner</h2>
+                <button class="close-btn" onclick="closeModal('achievements-modal')" aria-label="Lukk">âœ•</button>
             </div>
-            <div class="achievements-grid" id="achievements-full">
-                <!-- Will be populated by JavaScript -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;" id="achievements-grid" role="list">
+                <!-- Populated by JavaScript -->
             </div>
         </div>
     </div>
@@ -1165,27 +1294,160 @@
 
         // Achievements
         const achievements = [
-            { id: 'first_task', icon: '🎯', title: 'Første dag', desc: 'Fullført første oppgave', unlocked: false },
-            { id: 'streak_5', icon: '🔥', title: 'På streak!', desc: '5 dager på rad', unlocked: false },
-            { id: 'student', icon: '📚', title: 'Student', desc: 'Fullført 10 oppgaver', unlocked: false },
-            { id: 'mva_expert', icon: '💰', title: 'MVA-ekspert', desc: '10 MVA-oppgaver uten feil', unlocked: false },
-            { id: 'perfect_10', icon: '💯', title: 'Perfeksjonist', desc: '10 oppgaver uten feil', unlocked: false },
-            { id: 'speed_demon', icon: '⚡', title: 'Lynrask', desc: 'Løs oppgave under 30 sekunder', unlocked: false },
-            { id: 'candidate', icon: '🎓', title: 'Kandidat', desc: 'Fullført 25 oppgaver', unlocked: false },
-            { id: 'master', icon: '👨‍🎓', title: 'Master', desc: 'Fullført 100 oppgaver', unlocked: false },
-            { id: 'quiz_master', icon: '📝', title: 'Quiz-mester', desc: 'Besvart alle quiz-spørsmål', unlocked: false },
-            { id: 'analyst', icon: '📊', title: 'Analytiker', desc: 'Fullført alle analyseoppgaver', unlocked: false },
-            { id: 'case_solver', icon: '💼', title: 'Case-løser', desc: 'Fullført alle case-oppgaver', unlocked: false },
-            { id: 'brain_master', icon: '🧠', title: 'Hjernetrim-mester', desc: 'Låst opp hjernetrim', unlocked: false },
-            { id: 'completionist', icon: '🏆', title: 'Completionist', desc: '100% progresjon', unlocked: false },
-            { id: 'dedication', icon: '💫', title: 'Dedikert', desc: '30 dager streak', unlocked: false },
-            { id: 'perfection', icon: '⭐', title: 'Mesterverk', desc: '50 oppgaver uten feil', unlocked: false }
+            { id: 'first_task', icon: 'ðŸŽ¯', title: 'FÃ¸rste dag', desc: 'FullfÃ¸rt fÃ¸rste oppgave', unlocked: false },
+            { id: 'streak_5', icon: 'ðŸ”¥', title: 'PÃ¥ streak!', desc: '5 dager pÃ¥ rad', unlocked: false },
+            { id: 'student', icon: 'ðŸ“š', title: 'Student', desc: 'FullfÃ¸rt 10 oppgaver', unlocked: false },
+            { id: 'mva_expert', icon: 'ðŸ’°', title: 'MVA-ekspert', desc: '10 MVA-oppgaver uten feil', unlocked: false },
+            { id: 'perfect_10', icon: 'ðŸ’¯', title: 'Perfeksjonist', desc: '10 oppgaver uten feil', unlocked: false },
+            { id: 'speed_demon', icon: 'âš¡', title: 'Lynrask', desc: 'LÃ¸s oppgave under 30 sekunder', unlocked: false },
+            { id: 'candidate', icon: 'ðŸŽ“', title: 'Kandidat', desc: 'FullfÃ¸rt 25 oppgaver', unlocked: false },
+            { id: 'master', icon: 'ðŸ‘¨â€ðŸŽ“', title: 'Master', desc: 'FullfÃ¸rt 100 oppgaver', unlocked: false },
+            { id: 'quiz_master', icon: 'ðŸ“', title: 'Quiz-mester', desc: 'Besvart alle quiz-spÃ¸rsmÃ¥l', unlocked: false },
+            { id: 'analyst', icon: 'ðŸ“Š', title: 'Analytiker', desc: 'FullfÃ¸rt alle analyseoppgaver', unlocked: false },
+            { id: 'case_solver', icon: 'ðŸ’¼', title: 'Case-lÃ¸ser', desc: 'FullfÃ¸rt alle case-oppgaver', unlocked: false },
+            { id: 'brain_master', icon: 'ðŸ§ ', title: 'Hjernetrim-mester', desc: 'LÃ¥st opp hjernetrim', unlocked: false },
+            { id: 'completionist', icon: 'ðŸ†', title: 'Completionist', desc: '100% progresjon', unlocked: false },
+            { id: 'dedication', icon: 'ðŸ’«', title: 'Dedikert', desc: '30 dager streak', unlocked: false },
+            { id: 'perfection', icon: 'â­', title: 'Mesterverk', desc: '50 oppgaver uten feil', unlocked: false }
         ];
 
-        // Load all progress data
+        // Initialize
+        function init() {
+            loadSettings();
+            loadAllProgress();
+            updateUserDisplay();
+            
+            // Remove loading class after content is loaded
+            setTimeout(() => {
+                document.body.classList.remove('loading');
+            }, 100);
+
+            // Add keyboard support for module cards
+            document.querySelectorAll('.module-card').forEach(card => {
+                card.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        card.click();
+                    }
+                });
+            });
+        }
+
+        // Settings functions
+        function loadSettings() {
+            const saved = localStorage.getItem('accountingquest_settings');
+            if (saved) {
+                try {
+                    settings = JSON.parse(saved);
+                    applySettings();
+                } catch (e) {
+                    console.error('Error loading settings:', e);
+                }
+            }
+        }
+
+        function applySettings() {
+            // Apply theme
+            if (settings.theme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                const toggle = document.getElementById('theme-toggle');
+                if (toggle) {
+                    toggle.classList.add('active');
+                    toggle.setAttribute('aria-checked', 'true');
+                }
+            }
+
+            // Apply toggles
+            if (settings.music) {
+                const toggle = document.getElementById('music-toggle');
+                if (toggle) {
+                    toggle.classList.add('active');
+                    toggle.setAttribute('aria-checked', 'true');
+                }
+            }
+            if (settings.sound) {
+                const toggle = document.getElementById('sound-toggle');
+                if (toggle) {
+                    toggle.classList.add('active');
+                    toggle.setAttribute('aria-checked', 'true');
+                }
+            }
+
+            // Apply username
+            const input = document.getElementById('username-input');
+            if (input) {
+                input.value = settings.username;
+            }
+        }
+
+        function saveSettings() {
+            try {
+                localStorage.setItem('accountingquest_settings', JSON.stringify(settings));
+            } catch (e) {
+                console.error('Error saving settings:', e);
+                alert('Kunne ikke lagre innstillinger. Sjekk om localStorage er aktivert.');
+            }
+        }
+
+        function toggleTheme() {
+            settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
+            const toggle = document.getElementById('theme-toggle');
+            
+            if (settings.theme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                toggle.classList.add('active');
+                toggle.setAttribute('aria-checked', 'true');
+            } else {
+                document.body.removeAttribute('data-theme');
+                toggle.classList.remove('active');
+                toggle.setAttribute('aria-checked', 'false');
+            }
+            saveSettings();
+        }
+
+        function toggleSetting(setting) {
+            settings[setting] = !settings[setting];
+            const toggle = document.getElementById(setting + '-toggle');
+            
+            if (settings[setting]) {
+                toggle.classList.add('active');
+                toggle.setAttribute('aria-checked', 'true');
+            } else {
+                toggle.classList.remove('active');
+                toggle.setAttribute('aria-checked', 'false');
+            }
+            
+            saveSettings();
+
+            // Play sound if enabled
+            if (setting === 'sound' && settings.sound) {
+                playSound('toggle');
+            }
+        }
+
+        function saveUsername() {
+            const input = document.getElementById('username-input').value.trim();
+            if (input && input.length > 0) {
+                settings.username = input;
+                saveSettings();
+                updateUserDisplay();
+                alert('âœ… Brukernavn lagret!');
+            } else {
+                alert('âš ï¸ Vennligst skriv inn et brukernavn');
+            }
+        }
+
+        function updateUserDisplay() {
+            const display = document.getElementById('username-display');
+            if (display) {
+                display.textContent = settings.username;
+            }
+        }
+
+        // Progress loading
         function loadAllProgress() {
             try {
-                // Bokføring
+                // BokfÃ¸ring
                 const bokforing = JSON.parse(localStorage.getItem('bokforingsspill_progress') || '{}');
                 const bokforingTasks = bokforing.correctCount || 0;
                 const bokforingTotal = 36;
@@ -1203,12 +1465,10 @@
                 const analyseTotal = 11;
                 updateProgress('analyse', analyseTasks, analyseTotal);
 
-            // Case studies (simplified)
-            const caseProgress = 0;
-            const caseTotal = 15;
-            const casePercent = Math.round((caseProgress / caseTotal) * 100);
-            document.getElementById('case-progress').textContent = casePercent + '%';
-            document.getElementById('case-bar').style.width = casePercent + '%';
+                // Case studies
+                const caseProgress = 0;
+                const caseTotal = 15;
+                updateProgress('case', caseProgress, caseTotal);
 
                 // Total stats
                 const totalCompleted = bokforingTasks + quizAnswered + analyseTasks + caseProgress;
@@ -1228,8 +1488,8 @@
                 ) * 100);
                 updateProgress('unlock', avgProgress, 100);
 
-            // Check achievements
-            checkAchievements(totalCompleted, bokforingTasks, quizAnswered);
+                // Check achievements
+                checkAchievements(totalCompleted);
 
                 // Streak (placeholder)
                 updateElement('streak', '0');
@@ -1265,94 +1525,137 @@
             if (total >= 100) achievements[7].unlocked = true;
 
             unlocked = achievements.filter(a => a.unlocked).length;
-            document.getElementById('achievements').textContent = unlocked;
-
-            // Render preview
-            renderAchievementsPreview();
+            updateElement('achievements', unlocked);
         }
 
-        function renderAchievementsPreview() {
-            const container = document.getElementById('achievements-preview');
-            const preview = achievements.slice(0, 6);
-
-            container.innerHTML = preview.map(a => `
-                <div class="achievement-card ${a.unlocked ? 'unlocked' : 'locked'}">
-                    <div class="achievement-icon">${a.icon}</div>
-                    <div class="achievement-title">${a.title}</div>
-                    <div class="achievement-desc">${a.desc}</div>
-                </div>
-            `).join('');
-        }
-
-        function renderAchievementsFull() {
-            const container = document.getElementById('achievements-full');
-            container.innerHTML = achievements.map(a => `
-                <div class="achievement-card ${a.unlocked ? 'unlocked' : 'locked'}">
-                    <div class="achievement-icon">${a.icon}</div>
-                    <div class="achievement-title">${a.title}</div>
-                    <div class="achievement-desc">${a.desc}</div>
-                </div>
-            `).join('');
-        }
-
+        // Navigation
         function navigateToModule(file) {
             window.location.href = file;
         }
 
+        function openWiki() {
+            alert('ðŸ“– Wiki\n\nWiki-siden er under utvikling!\n\nHer vil du finne:\nâ€¢ Alle lovparagrafer\nâ€¢ Forklaringer\nâ€¢ Eksempler\nâ€¢ Regnskapsstandarder (NRS)\nâ€¢ Konsepter og prinsipper');
+        }
+
+        // Modals
         function showSettings() {
-            document.getElementById('settings-modal').classList.add('show');
-        }
-
-        function showMultiplayer() {
-            document.getElementById('multiplayer-modal').classList.add('show');
-        }
-
-        function showAchievements() {
-            renderAchievementsFull();
-            document.getElementById('achievements-modal').classList.add('show');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('show');
-        }
-
-        function toggleSetting(setting) {
-            settings[setting] = !settings[setting];
-            const toggle = document.getElementById(setting + '-toggle');
-            toggle.classList.toggle('active');
-            localStorage.setItem('settings', JSON.stringify(settings));
-        }
-
-        function resetProgress() {
-            if (confirm('Er du sikker på at du vil slette ALL progresjon? Dette kan ikke angres!')) {
-                localStorage.clear();
-                location.reload();
+            const modal = document.getElementById('settings-modal');
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
             }
         }
 
-        function exportData() {
-            const data = {
-                bokforing: localStorage.getItem('bokforingsspill_progress'),
-                quiz: localStorage.getItem('quiz_v2'),
-                analyse: localStorage.getItem('regnskapsanalyse_progress'),
-                settings: localStorage.getItem('settings'),
-                exported: new Date().toISOString()
-            };
-
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'regnskap-progresjon-' + new Date().toISOString().split('T')[0] + '.json';
-            a.click();
+        function showMultiplayer() {
+            const modal = document.getElementById('multiplayer-modal');
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
         }
 
+        function showAchievements() {
+            renderAchievements();
+            const modal = document.getElementById('achievements-modal');
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function renderAchievements() {
+            const grid = document.getElementById('achievements-grid');
+            if (!grid) return;
+            
+            grid.innerHTML = achievements.map(a => `
+                <article style="background: var(--border-color); padding: 20px; border-radius: 15px; text-align: center; ${a.unlocked ? 'border: 2px solid var(--accent-primary);' : 'opacity: 0.5;'}" role="listitem">
+                    <div style="font-size: 3em; margin-bottom: 10px; ${a.unlocked ? '' : 'filter: grayscale(1);'}" aria-hidden="true">${a.icon}</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">${a.title}</div>
+                    <div style="font-size: 0.85em; color: var(--text-secondary);">${a.desc}</div>
+                </article>
+            `).join('');
+        }
+
+        // Data functions
+        function exportData() {
+            try {
+                const data = {
+                    settings: settings,
+                    bokforing: localStorage.getItem('bokforingsspill_progress'),
+                    quiz: localStorage.getItem('quiz_v2'),
+                    analyse: localStorage.getItem('regnskapsanalyse_progress'),
+                    exported: new Date().toISOString()
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'accountingquest-data-' + new Date().toISOString().split('T')[0] + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                console.error('Error exporting data:', e);
+                alert('Kunne ikke eksportere data. PrÃ¸v igjen senere.');
+            }
+        }
+
+        function resetProgress() {
+            if (confirm('Er du sikker pÃ¥ at du vil slette ALL progresjon? Dette kan ikke angres!')) {
+                if (confirm('Siste sjanse! Er du helt sikker?')) {
+                    try {
+                        localStorage.clear();
+                        location.reload();
+                    } catch (e) {
+                        console.error('Error resetting progress:', e);
+                        alert('Kunne ikke nullstille progresjon.');
+                    }
+                }
+            }
+        }
+
+        // Multiplayer functions (placeholders)
+        function createDuel() {
+            alert('ðŸŽ¯ Opprett Duell\n\nKommer snart!\n\nDu vil kunne:\nâ€¢ Velge oppgaver\nâ€¢ FÃ¥ delbar kode\nâ€¢ Konkurrere i sanntid');
+        }
+
+        function joinDuel() {
+            const code = prompt('Skriv inn duell-koden:');
+            if (code) {
+                alert('Funksjonen kommer snart!');
+            }
+        }
+
+        function createClassroom() {
+            alert('ðŸ‘¨â€ðŸ« Opprett Klasserom\n\nKommer snart!\n\nFor lÃ¦rere:\nâ€¢ Velg oppgaver\nâ€¢ FÃ¥ PIN-kode\nâ€¢ Se studentresultater i sanntid');
+        }
+
+        function joinClassroom() {
+            const pin = prompt('Skriv inn klasserom PIN:');
+            if (pin) {
+                alert('Funksjonen kommer snart!');
+            }
+        }
+
+        function viewLeaderboard() {
+            alert('ðŸ“Š Leaderboard\n\nKommer snart!\n\nSe rangering basert pÃ¥:\nâ€¢ Totale poeng\nâ€¢ Oppgaver lÃ¸st\nâ€¢ Streak\nâ€¢ Hastighet');
+        }
+
+        // Helper functions
         function showAbout() {
-            alert('ðŸ“š Grunnleggende Regnskap\n\nVersjon: 1.0\n\nEn interaktiv læringsplattform for norsk bokføring og regnskap.\n\nBasert på:\nâ€¢ Bokføringsloven\nâ€¢ Regnskapsloven\nâ€¢ Skatteloven\nâ€¢ Merverdiavgiftsloven');
+            alert('ðŸ“š AccountingQuest\n\nVersjon: 1.0 Beta\n\nEn gamifisert lÃ¦ringsplattform for norsk bokfÃ¸ring og regnskap.\n\nBasert pÃ¥:\nâ€¢ BokfÃ¸ringsloven\nâ€¢ Regnskapsloven\nâ€¢ Skatteloven\nâ€¢ Merverdiavgiftsloven\n\nLaget med â¤ï¸ for studenter');
         }
 
         function showHelp() {
-            alert('❓ Hjelp\n\nSlik bruker du plattformen:\n\n1. Velg en modul fra hovedmenyen\n2. Løs oppgaver og quiz\n3. Se din progresjon i statistikk\n4. Lås opp achievements\n\nTips:\n• Bruk kalkulatoren (🔢-knappen)\n• Bruk formler med = i cellene\n• Klikk på hint-knappen ved behov\n• Se lovhjemler etter svar\n• Sjekk Wiki for teorien');
+            alert('â“ Hjelp\n\nSlik bruker du plattformen:\n\n1. Velg en modul fra hovedmenyen\n2. LÃ¸s oppgaver og quiz\n3. Se din progresjon i statistikk\n4. LÃ¥s opp achievements\n\nTips:\nâ€¢ Bruk kalkulatoren (ðŸ”¢-knappen)\nâ€¢ Bruk formler med = i cellene\nâ€¢ Klikk pÃ¥ hint-knappen ved behov\nâ€¢ Se lovhjemler etter svar\nâ€¢ Sjekk Wiki for teorien');
         }
 
         function playSound(type) {
@@ -1368,6 +1671,31 @@
                 document.body.style.overflow = '';
             }
         };
+
+        // Close modals on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.show').forEach(modal => {
+                    modal.classList.remove('show');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
+
+        // Initialize on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+        // Service Worker registration (for PWA support in future)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Uncomment when service worker is ready
+                // navigator.serviceWorker.register('/sw.js');
+            });
+        }
     </script>
 </body>
 </html>
