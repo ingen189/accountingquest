@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
     <!-- SEO Meta Tags -->
-    <title>AccountingQuest - LÃ¦r Norsk BokfÃ¸ring og Regnskap</title>
-    <meta name="description" content="Gamifisert lÃ¦ringsplattform for norsk bokfÃ¸ring og regnskap. Interaktive oppgaver basert pÃ¥ BokfÃ¸ringsloven, Regnskapsloven, Skatteloven og MVA-loven.">
-    <meta name="keywords" content="bokfÃ¸ring, regnskap, regnskapsanalyse, norsk regnskap, bokfÃ¸ringsloven, regnskapsloven, MVA, accounting, lÃ¦ring">
+    <title>AccountingQuest - Lær Norsk Bokføring og Regnskap</title>
+    <meta name="description" content="Gamifisert læringsplattform for norsk bokføring og regnskap. Interaktive oppgaver basert på Bokføringsloven, Regnskapsloven, Skatteloven og MVA-loven.">
+    <meta name="keywords" content="bokføring, regnskap, regnskapsanalyse, norsk regnskap, bokføringsloven, regnskapsloven, MVA, accounting, læring">
     <meta name="author" content="AccountingQuest">
     <meta name="robots" content="index, follow">
     
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="AccountingQuest - LÃ¦r Norsk BokfÃ¸ring">
-    <meta property="og:description" content="Gamifisert lÃ¦ringsplattform for norsk bokfÃ¸ring og regnskap med interaktive oppgaver.">
+    <meta property="og:title" content="AccountingQuest - Lær Norsk Bokføring">
+    <meta property="og:description" content="Gamifisert læringsplattform for norsk bokføring og regnskap med interaktive oppgaver.">
     <meta property="og:site_name" content="AccountingQuest">
     
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>ðŸ“š</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
     
     <!-- Apple Touch Icon -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -422,7 +422,7 @@
         }
 
         .module-features li::before {
-            content: 'âœ“';
+            content: '✓';
             color: var(--accent-primary);
             font-weight: bold;
             font-size: 1.2em;
@@ -910,31 +910,31 @@
     <!-- Header -->
     <header class="header" role="banner">
         <div class="logo">
-            <div class="logo-icon" aria-hidden="true">ðŸ“š</div>
+            <div class="logo-icon" aria-hidden="true">📚</div>
             <div class="logo-text">
                 <h1>AccountingQuest</h1>
-                <p>Interaktiv lÃ¦ring i norsk regnskap</p>
+                <p>Interaktiv læring i norsk regnskap</p>
             </div>
         </div>
         <nav class="header-actions" role="navigation" aria-label="Hovednavigasjon">
             <div class="user-badge" id="user-badge">
-                <span class="user-icon" aria-hidden="true">ðŸ‘¤</span>
+                <span class="user-icon" aria-hidden="true">👤 </span>
                 <span id="username-display">Gjest</span>
             </div>
-            <button class="header-btn wiki" onclick="openWiki()" aria-label="Ã…pne Wiki">
-                <span aria-hidden="true">ðŸ“–</span>
+            <button class="header-btn wiki" onclick="navigateToModule('wiki.html')" aria-label="Åpne Wiki">
+                <span aria-hidden="true">📖 </span>
                 <span>Wiki</span>
             </button>
-            <button class="header-btn multiplayer" onclick="showMultiplayer()" aria-label="Multiplayer">
-                <span aria-hidden="true">ðŸŽ®</span>
+            <button class="header-btn multiplayer" onclick="navigateToModule('multiplayer_index.html')" aria-label="Multiplayer">
+                <span aria-hidden="true">🎮 </span>
                 <span>Multiplayer</span>
             </button>
             <button class="header-btn" onclick="showAchievements()" aria-label="Prestasjoner">
-                <span aria-hidden="true">ðŸ†</span>
+                <span aria-hidden="true">🏆 </span>
                 <span>Prestasjoner</span>
             </button>
-            <button class="header-btn settings" onclick="showSettings()" aria-label="Innstillinger">
-                <span aria-hidden="true">âš™ï¸</span>
+            <button class="header-btn settings" onclick="navigateToModule('settings.html')" aria-label="Innstillinger">
+                <span aria-hidden="true">⚙️ </span>
                 <span>Innstillinger</span>
             </button>
         </nav>
@@ -944,26 +944,26 @@
     <main class="main-container" role="main">
         <!-- Welcome Section -->
         <section class="welcome-section" aria-labelledby="welcome-heading">
-            <h2 id="welcome-heading">ðŸŽ“ Velkommen til AccountingQuest</h2>
+            <h2 id="welcome-heading">🎓 Velkommen til AccountingQuest</h2>
             <p>
-                LÃ¦r norsk bokfÃ¸ring, regnskapsanalyse og regnskap gjennom interaktive oppgaver, 
-                quiz og case-studier. Alle oppgaver er basert pÃ¥ norsk lovverk.
+                Lær norsk bokføring, regnskapsanalyse og regnskap gjennom interaktive oppgaver, 
+                quiz og case-studier. Alle oppgaver er basert på norsk lovverk.
             </p>
             <div class="feature-list" role="list">
                 <div class="feature-item" role="listitem">
-                    <span class="feature-icon" aria-hidden="true">âœ…</span>
-                    <span>BokfÃ¸ringsloven</span>
+                    <span class="feature-icon" aria-hidden="true">✅ </span>
+                    <span>Bokføringsloven</span>
                 </div>
                 <div class="feature-item" role="listitem">
-                    <span class="feature-icon" aria-hidden="true">âœ…</span>
+                    <span class="feature-icon" aria-hidden="true">✅ </span>
                     <span>Regnskapsloven</span>
                 </div>
                 <div class="feature-item" role="listitem">
-                    <span class="feature-icon" aria-hidden="true">âœ…</span>
+                    <span class="feature-icon" aria-hidden="true">✅ </span>
                     <span>Skatteloven</span>
                 </div>
                 <div class="feature-item" role="listitem">
-                    <span class="feature-icon" aria-hidden="true">âœ…</span>
+                    <span class="feature-icon" aria-hidden="true">✅ </span>
                     <span>MVA-loven</span>
                 </div>
             </div>
@@ -972,48 +972,48 @@
         <!-- Stats Overview -->
         <section class="stats-overview" aria-label="Statistikk oversikt">
             <article class="stat-card">
-                <div class="stat-icon" aria-hidden="true">ðŸ“Š</div>
+                <div class="stat-icon" aria-hidden="true">📊</div>
                 <div class="stat-value" id="total-progress" aria-label="Total progresjon">0%</div>
                 <div class="stat-label">Total progresjon</div>
             </article>
             <article class="stat-card">
-                <div class="stat-icon" aria-hidden="true">âœ…</div>
-                <div class="stat-value" id="completed-tasks" aria-label="Antall oppgaver lÃ¸st">0</div>
-                <div class="stat-label">Oppgaver lÃ¸st</div>
+                <div class="stat-icon" aria-hidden="true">✅</div>
+                <div class="stat-value" id="completed-tasks" aria-label="Antall oppgaver løst">0</div>
+                <div class="stat-label">Oppgaver løst</div>
                 <div class="stat-sublabel" id="total-tasks">av 224 totalt</div>
             </article>
             <article class="stat-card">
-                <div class="stat-icon" aria-hidden="true">ðŸ†</div>
+                <div class="stat-icon" aria-hidden="true">🏆</div>
                 <div class="stat-value" id="achievements" aria-label="Antall achievements">0</div>
                 <div class="stat-label">Achievements</div>
                 <div class="stat-sublabel">av 15 tilgjengelige</div>
             </article>
             <article class="stat-card">
-                <div class="stat-icon" aria-hidden="true">ðŸ”¥</div>
-                <div class="stat-value" id="streak" aria-label="Dager pÃ¥ rad">0</div>
+                <div class="stat-icon" aria-hidden="true">🔥</div>
+                <div class="stat-value" id="streak" aria-label="Dager på rad">0</div>
                 <div class="stat-label">Dager streak</div>
-                <div class="stat-sublabel">Fortsett Ã¥ Ã¸ve!</div>
+                <div class="stat-sublabel">Fortsett å øve!</div>
             </article>
         </section>
 
         <!-- Modules Section -->
         <section class="modules-section" aria-labelledby="modules-heading">
-            <h2 id="modules-heading">ðŸ“– Velg modul</h2>
+            <h2 id="modules-heading">📖 Velg modul</h2>
             <div class="modules-grid">
-                <!-- Module 1: BokfÃ¸ring -->
-                <article class="module-card" onclick="navigateToModule('bokforingsspill_excel.html')" role="button" tabindex="0" aria-label="BokfÃ¸ring modul">
+                <!-- Module 1: Bokføring -->
+                <article class="module-card" onclick="navigateToModule('bokforingsspill_excel.html')" role="button" tabindex="0" aria-label="Bokføring modul">
                     <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">ðŸ“–</div>
-                        <span class="status-badge new">Aktiv</span>
+                        <div class="module-icon" aria-hidden="true">📖</div>
+                        <span class="status-badge beta">Beta</span>
                     </div>
-                    <h3 class="module-title">BokfÃ¸ring</h3>
+                    <h3 class="module-title">Bokføring</h3>
                     <p class="module-description">
-                        LÃ¦r grunnleggende bokfÃ¸ring gjennom interaktive oppgaver i et Excel-lignende miljÃ¸.
+                        Lær grunnleggende bokføring gjennom interaktive oppgaver i et Excel-lignende miljø.
                     </p>
                     <ul class="module-features">
                         <li>36+ oppgaver (lett, middels, vanskelig)</li>
-                        <li>Excel-stil interface med formler</li>
-                        <li>Randomiserte belÃ¸p</li>
+                        <li>Excel-lignende grensesnitt med formler</li>
+                        <li>Randomiserte beløp</li>
                         <li>Flyttbar kalkulator</li>
                         <li>3 liv per oppgave</li>
                     </ul>
@@ -1029,21 +1029,21 @@
                 </article>
 
                 <!-- Module 2: Quiz -->
-                <article class="module-card" onclick="navigateToModule('quiz.html')" role="button" tabindex="0" aria-label="Quiz modul">
+                <article class="module-card" onclick="navigateToModule('quiz_updated.html')" role="button" tabindex="0" aria-label="Quiz modul">
                     <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">â“</div>
-                        <span class="status-badge new">Aktiv</span>
+                        <div class="module-icon" aria-hidden="true">❓</div>
+                        <span class="status-badge beta">Beta</span>
                     </div>
                     <h3 class="module-title">Quiz</h3>
                     <p class="module-description">
                         Test din kunnskap om regnskapsteori, lovverk og prinsipper.
                     </p>
                     <ul class="module-features">
-                        <li>90+ spÃ¸rsmÃ¥l fordelt pÃ¥ 5 temaer</li>
-                        <li>Paragraf-spÃ¸rsmÃ¥l</li>
+                        <li>90+ spørsmål fordelt på 5 temaer</li>
+                        <li>Paragraf-spørsmål</li>
                         <li>Flervalg og sant/usant</li>
                         <li>Dra & slipp oppgaver</li>
-                        <li>Lovhjemler og forklaringer</li>
+                        <li>Lovhenvisninger og forklaringer</li>
                     </ul>
                     <div class="module-progress">
                         <div class="progress-label">
@@ -1059,17 +1059,17 @@
                 <!-- Module 3: Regnskapsanalyse -->
                 <article class="module-card" onclick="navigateToModule('regnskapsanalyse.html')" role="button" tabindex="0" aria-label="Regnskapsanalyse modul">
                     <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">ðŸ“Š</div>
-                        <span class="status-badge new">Aktiv</span>
+                        <div class="module-icon" aria-hidden="true">📊</div>
+                        <span class="status-badge beta">Beta</span>
                     </div>
                     <h3 class="module-title">Regnskapsanalyse</h3>
                     <p class="module-description">
-                        Analyser regnskap med nÃ¸kkeltall, horisontal og vertikal analyse.
+                        Analyser regnskap med nøkkeltall, horisontal og vertikal analyse.
                     </p>
                     <ul class="module-features">
                         <li>11 praktiske analyseoppgaver</li>
                         <li>Horisontal & vertikal analyse</li>
-                        <li>Beregning av nÃ¸kkeltall</li>
+                        <li>Beregning av nøkkeltall</li>
                         <li>Interaktive tabeller</li>
                         <li>Automatiske formler</li>
                     </ul>
@@ -1085,21 +1085,21 @@
                 </article>
 
                 <!-- Module 4: Avanserte Case -->
-                <article class="module-card" onclick="navigateToModule('case_studies.html')" role="button" tabindex="0" aria-label="Avanserte Case modul">
+                <article class="module-card" onclick="navigateToModule('case_studies_fixed.html')" role="button" tabindex="0" aria-label="Avanserte Case modul">
                     <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">ðŸ’¼</div>
+                        <div class="module-icon" aria-hidden="true">💼</div>
                         <span class="status-badge beta">Beta</span>
                     </div>
                     <h3 class="module-title">Avanserte Case</h3>
                     <p class="module-description">
-                        LÃ¸s komplekse case-oppgaver med Ã¥rsavslutning og resultatdisponering.
+                        Løs komplekse case-oppgaver med årsavslutning og resultatdisponering.
                     </p>
                     <ul class="module-features">
                         <li>15+ case-oppgaver</li>
                         <li>Resultatdisponering</li>
-                        <li>Ã…rsavslutning</li>
+                        <li>Årsavslutning</li>
                         <li>Tilleggsposteringer</li>
-                        <li>FeilsÃ¸king</li>
+                        <li>Feilsøking</li>
                     </ul>
                     <div class="module-progress">
                         <div class="progress-label">
@@ -1113,29 +1113,29 @@
                 </article>
 
                 <!-- Module 5: Hjernetrim (Locked) -->
-                <article class="module-card locked" role="button" tabindex="0" aria-label="Hjernetrim modul - lÃ¥st" aria-disabled="true">
+                <article class="module-card" onclick="navigateToModule('hjernetrim.html')" role="button" tabindex="0" aria-label="Hjernetrim modul">
                     <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">ðŸ§ </div>
-                        <span class="status-badge locked">ðŸ”’ LÃ¥st</span>
+                        <div class="module-icon" aria-hidden="true">🧠</div>
+                        <span class="status-badge beta">Beta</span>
                     </div>
                     <h3 class="module-title">Hjernetrim</h3>
                     <p class="module-description">
-                        Ekstra vanskelige case for de mest dedikerte. Krever 80% fremgang i andre moduler.
+                        Ekstra vanskelige case for de mest dedikerte regnskapsentusiastene.
                     </p>
                     <ul class="module-features">
                         <li>10+ avanserte oppgaver</li>
-                        <li>Manipulasjon og rÃ¸de flagg</li>
+                        <li>Manipulasjon og røde flagg</li>
                         <li>Skjulte reserver</li>
-                        <li>Multi-step problemlÃ¸sning</li>
+                        <li>Multi-step problemløsning</li>
                         <li>Master-level challenges</li>
                     </ul>
                     <div class="module-progress">
                         <div class="progress-label">
-                            <span>Krav: 80% i andre moduler</span>
-                            <span id="unlock-progress">0%</span>
+                            <span>Fremgang</span>
+                            <span id="hjernetrim-progress">0%</span>
                         </div>
                         <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-fill" id="unlock-bar" style="width: 0%"></div>
+                            <div class="progress-fill" id="hjernetrim-bar" style="width: 0%"></div>
                         </div>
                     </div>
                 </article>
@@ -1145,7 +1145,7 @@
 
     <!-- Footer -->
     <footer class="footer" role="contentinfo">
-        <p>Â© 2024 AccountingQuest - Norsk regnskapslÃ¦ring</p>
+        <p>© 2024 AccountingQuest - Norsk regnskapslæring</p>
         <nav class="footer-links" aria-label="Footer navigasjon">
             <a href="#" onclick="showAbout(); return false;">Om plattformen</a>
             <a href="#" onclick="showHelp(); return false;">Hjelp</a>
@@ -1158,12 +1158,12 @@
     <div class="modal" id="settings-modal" role="dialog" aria-labelledby="settings-title" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="settings-title">âš™ï¸ Innstillinger</h2>
-                <button class="close-btn" onclick="closeModal('settings-modal')" aria-label="Lukk">âœ•</button>
+                <h2 id="settings-title">⚙️ Innstillinger</h2>
+                <button class="close-btn" onclick="closeModal('settings-modal')" aria-label="Lukk">✕</button>
             </div>
 
             <div class="setting-group">
-                <h3>ðŸ‘¤ Brukerprofil</h3>
+                <h3>👤 Brukerprofil</h3>
                 <div class="setting-item">
                     <div class="setting-label">
                         <strong>Brukernavn / Kallenavn</strong>
@@ -1177,18 +1177,18 @@
             </div>
 
             <div class="setting-group">
-                <h3>ðŸŽ¨ Utseende</h3>
+                <h3>🎨 Utseende</h3>
                 <div class="setting-item">
                     <div class="setting-label">
-                        <strong>MÃ¸rk / Lys modus</strong>
-                        <small>Bytt mellom mÃ¸rkt og lyst tema</small>
+                        <strong>Mørk / Lys modus</strong>
+                        <small>Bytt mellom mørkt og lyst tema</small>
                     </div>
                     <button class="toggle" id="theme-toggle" onclick="toggleTheme()" role="switch" aria-checked="false" aria-label="Tema toggle"></button>
                 </div>
             </div>
 
             <div class="setting-group">
-                <h3>ðŸ”Š Lyd</h3>
+                <h3>🔊 Lyd</h3>
                 <div class="setting-item">
                     <div class="setting-label">
                         <strong>Bakgrunnsmusikk</strong>
@@ -1206,7 +1206,7 @@
             </div>
 
             <div class="setting-group">
-                <h3>ðŸ“Š Data</h3>
+                <h3>📊 Data</h3>
                 <div class="setting-item">
                     <div class="setting-label">
                         <strong>Eksporter data</strong>
@@ -1229,14 +1229,14 @@
     <div class="modal" id="multiplayer-modal" role="dialog" aria-labelledby="multiplayer-title" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="multiplayer-title">ðŸŽ® Multiplayer</h2>
-                <button class="close-btn" onclick="closeModal('multiplayer-modal')" aria-label="Lukk">âœ•</button>
+                <h2 id="multiplayer-title">🎮 Multiplayer</h2>
+                <button class="close-btn" onclick="closeModal('multiplayer-modal')" aria-label="Lukk">✕</button>
             </div>
 
             <div class="setting-group">
-                <h3>ðŸŽ¯ Peer-to-Peer Duell</h3>
+                <h3>🎯 Peer-to-Peer Duell</h3>
                 <p style="color: var(--text-secondary); margin-bottom: 15px;">
-                    Utfordr en venn til duell! Del koden og konkurer om hvem som lÃ¸ser oppgaven raskest og best.
+                    Utfordr en venn til duell! Del koden og konkurer om hvem som løser oppgaven raskest og best.
                 </p>
                 <div class="btn-group">
                     <button class="btn btn-primary" onclick="createDuel()">Opprett duell</button>
@@ -1245,9 +1245,9 @@
             </div>
 
             <div class="setting-group">
-                <h3>ðŸ‘¨â€ðŸ« Klasserom-modus (Kahoot-stil)</h3>
+                <h3>👨‍🏫 Klasserom-modus (Kahoot-stil)</h3>
                 <p style="color: var(--text-secondary); margin-bottom: 15px;">
-                    For lÃ¦rere: Opprett et spill som studentene kan delta i med PIN-kode.
+                    For lærere: Opprett et spill som studentene kan delta i med PIN-kode.
                 </p>
                 <div class="btn-group">
                     <button class="btn btn-primary" onclick="createClassroom()">Opprett klasserom</button>
@@ -1256,7 +1256,7 @@
             </div>
 
             <div class="setting-group">
-                <h3>ðŸ“Š Leaderboard</h3>
+                <h3>📊 Leaderboard</h3>
                 <p style="color: var(--text-secondary); margin-bottom: 15px;">
                     Se de beste spillerne i hver kategori.
                 </p>
@@ -1264,8 +1264,8 @@
             </div>
 
             <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(245, 158, 11, 0.2); border-radius: 10px;">
-                <strong style="color: #f59e0b;">âš ï¸ Kommer snart!</strong>
-                <p style="color: var(--text-secondary); margin-top: 10px;">Multiplayer-funksjoner er under utvikling og vil vÃ¦re tilgjengelig snart.</p>
+                <strong style="color: #f59e0b;">⚠️ Kommer snart!</strong>
+                <p style="color: var(--text-secondary); margin-top: 10px;">Multiplayer-funksjoner er under utvikling og vil være tilgjengelig snart.</p>
             </div>
         </div>
     </div>
@@ -1274,8 +1274,8 @@
     <div class="modal" id="achievements-modal" role="dialog" aria-labelledby="achievements-title" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="achievements-title">ðŸ† Prestasjoner</h2>
-                <button class="close-btn" onclick="closeModal('achievements-modal')" aria-label="Lukk">âœ•</button>
+                <h2 id="achievements-title">🏆 Prestasjoner</h2>
+                <button class="close-btn" onclick="closeModal('achievements-modal')" aria-label="Lukk">✕</button>
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;" id="achievements-grid" role="list">
                 <!-- Populated by JavaScript -->
@@ -1294,21 +1294,21 @@
 
         // Achievements
         const achievements = [
-            { id: 'first_task', icon: 'ðŸŽ¯', title: 'FÃ¸rste dag', desc: 'FullfÃ¸rt fÃ¸rste oppgave', unlocked: false },
-            { id: 'streak_5', icon: 'ðŸ”¥', title: 'PÃ¥ streak!', desc: '5 dager pÃ¥ rad', unlocked: false },
-            { id: 'student', icon: 'ðŸ“š', title: 'Student', desc: 'FullfÃ¸rt 10 oppgaver', unlocked: false },
-            { id: 'mva_expert', icon: 'ðŸ’°', title: 'MVA-ekspert', desc: '10 MVA-oppgaver uten feil', unlocked: false },
-            { id: 'perfect_10', icon: 'ðŸ’¯', title: 'Perfeksjonist', desc: '10 oppgaver uten feil', unlocked: false },
-            { id: 'speed_demon', icon: 'âš¡', title: 'Lynrask', desc: 'LÃ¸s oppgave under 30 sekunder', unlocked: false },
-            { id: 'candidate', icon: 'ðŸŽ“', title: 'Kandidat', desc: 'FullfÃ¸rt 25 oppgaver', unlocked: false },
-            { id: 'master', icon: 'ðŸ‘¨â€ðŸŽ“', title: 'Master', desc: 'FullfÃ¸rt 100 oppgaver', unlocked: false },
-            { id: 'quiz_master', icon: 'ðŸ“', title: 'Quiz-mester', desc: 'Besvart alle quiz-spÃ¸rsmÃ¥l', unlocked: false },
-            { id: 'analyst', icon: 'ðŸ“Š', title: 'Analytiker', desc: 'FullfÃ¸rt alle analyseoppgaver', unlocked: false },
-            { id: 'case_solver', icon: 'ðŸ’¼', title: 'Case-lÃ¸ser', desc: 'FullfÃ¸rt alle case-oppgaver', unlocked: false },
-            { id: 'brain_master', icon: 'ðŸ§ ', title: 'Hjernetrim-mester', desc: 'LÃ¥st opp hjernetrim', unlocked: false },
-            { id: 'completionist', icon: 'ðŸ†', title: 'Completionist', desc: '100% progresjon', unlocked: false },
-            { id: 'dedication', icon: 'ðŸ’«', title: 'Dedikert', desc: '30 dager streak', unlocked: false },
-            { id: 'perfection', icon: 'â­', title: 'Mesterverk', desc: '50 oppgaver uten feil', unlocked: false }
+            { id: 'first_task', icon: '🎯', title: 'Første dag', desc: 'Fullført første oppgave', unlocked: false },
+            { id: 'streak_5', icon: '🔥', title: 'På streak!', desc: '5 dager på rad', unlocked: false },
+            { id: 'student', icon: '📚', title: 'Student', desc: 'Fullført 10 oppgaver', unlocked: false },
+            { id: 'mva_expert', icon: '💰', title: 'MVA-ekspert', desc: '10 MVA-oppgaver uten feil', unlocked: false },
+            { id: 'perfect_10', icon: '💯', title: 'Perfeksjonist', desc: '10 oppgaver uten feil', unlocked: false },
+            { id: 'speed_demon', icon: '⚡', title: 'Lynrask', desc: 'Løs oppgave under 30 sekunder', unlocked: false },
+            { id: 'candidate', icon: '🎓', title: 'Kandidat', desc: 'Fullført 25 oppgaver', unlocked: false },
+            { id: 'master', icon: '👨‍🎓', title: 'Master', desc: 'Fullført 100 oppgaver', unlocked: false },
+            { id: 'quiz_master', icon: '📝', title: 'Quiz-mester', desc: 'Besvart alle quiz-spørsmål', unlocked: false },
+            { id: 'analyst', icon: '📊', title: 'Analytiker', desc: 'Fullført alle analyseoppgaver', unlocked: false },
+            { id: 'case_solver', icon: '💼', title: 'Case-løser', desc: 'Fullført alle case-oppgaver', unlocked: false },
+            { id: 'brain_master', icon: '🧠', title: 'Hjernetrim-mester', desc: 'Låst opp hjernetrim', unlocked: false },
+            { id: 'completionist', icon: '🏆', title: 'Fullføringsentusiast', desc: '100% progresjon', unlocked: false },
+            { id: 'dedication', icon: '💫', title: 'Dedikert', desc: '30 dager streak', unlocked: false },
+            { id: 'perfection', icon: '⭐', title: 'Mesterverk', desc: '50 oppgaver uten feil', unlocked: false }
         ];
 
         // Initialize
@@ -1431,9 +1431,9 @@
                 settings.username = input;
                 saveSettings();
                 updateUserDisplay();
-                alert('âœ… Brukernavn lagret!');
+                alert('✅ Brukernavn lagret!');
             } else {
-                alert('âš ï¸ Vennligst skriv inn et brukernavn');
+                alert('⚠️ Vennligst skriv inn et brukernavn');
             }
         }
 
@@ -1447,7 +1447,7 @@
         // Progress loading
         function loadAllProgress() {
             try {
-                // BokfÃ¸ring
+                // Bokføring
                 const bokforing = JSON.parse(localStorage.getItem('bokforingsspill_progress') || '{}');
                 const bokforingTasks = bokforing.correctCount || 0;
                 const bokforingTotal = 36;
@@ -1534,7 +1534,7 @@
         }
 
         function openWiki() {
-            alert('ðŸ“– Wiki\n\nWiki-siden er under utvikling!\n\nHer vil du finne:\nâ€¢ Alle lovparagrafer\nâ€¢ Forklaringer\nâ€¢ Eksempler\nâ€¢ Regnskapsstandarder (NRS)\nâ€¢ Konsepter og prinsipper');
+            navigateToModule('wiki.html');
         }
 
         // Modals
@@ -1604,12 +1604,12 @@
                 URL.revokeObjectURL(url);
             } catch (e) {
                 console.error('Error exporting data:', e);
-                alert('Kunne ikke eksportere data. PrÃ¸v igjen senere.');
+                alert('Kunne ikke eksportere data. Prøv igjen senere.');
             }
         }
 
         function resetProgress() {
-            if (confirm('Er du sikker pÃ¥ at du vil slette ALL progresjon? Dette kan ikke angres!')) {
+            if (confirm('Er du sikker på at du vil slette ALL progresjon? Dette kan ikke angres!')) {
                 if (confirm('Siste sjanse! Er du helt sikker?')) {
                     try {
                         localStorage.clear();
@@ -1624,7 +1624,7 @@
 
         // Multiplayer functions (placeholders)
         function createDuel() {
-            alert('ðŸŽ¯ Opprett Duell\n\nKommer snart!\n\nDu vil kunne:\nâ€¢ Velge oppgaver\nâ€¢ FÃ¥ delbar kode\nâ€¢ Konkurrere i sanntid');
+            alert('🎯 Opprett Duell\n\nKommer snart!\n\nDu vil kunne:\n• Velge oppgaver\n• Få delbar kode\n• Konkurrere i sanntid');
         }
 
         function joinDuel() {
@@ -1635,7 +1635,7 @@
         }
 
         function createClassroom() {
-            alert('ðŸ‘¨â€ðŸ« Opprett Klasserom\n\nKommer snart!\n\nFor lÃ¦rere:\nâ€¢ Velg oppgaver\nâ€¢ FÃ¥ PIN-kode\nâ€¢ Se studentresultater i sanntid');
+            alert('👨‍🏫 Opprett Klasserom\n\nKommer snart!\n\nFor lærere:\n• Velg oppgaver\n• Få PIN-kode\n• Se studentresultater i sanntid');
         }
 
         function joinClassroom() {
@@ -1646,16 +1646,16 @@
         }
 
         function viewLeaderboard() {
-            alert('ðŸ“Š Leaderboard\n\nKommer snart!\n\nSe rangering basert pÃ¥:\nâ€¢ Totale poeng\nâ€¢ Oppgaver lÃ¸st\nâ€¢ Streak\nâ€¢ Hastighet');
+            alert('📊 Leaderboard\n\nKommer snart!\n\nSe rangering basert på:\n• Totale poeng\n• Oppgaver løst\n• Streak\n• Hastighet');
         }
 
         // Helper functions
         function showAbout() {
-            alert('ðŸ“š AccountingQuest\n\nVersjon: 1.0 Beta\n\nEn gamifisert lÃ¦ringsplattform for norsk bokfÃ¸ring og regnskap.\n\nBasert pÃ¥:\nâ€¢ BokfÃ¸ringsloven\nâ€¢ Regnskapsloven\nâ€¢ Skatteloven\nâ€¢ Merverdiavgiftsloven\n\nLaget med â¤ï¸ for studenter');
+            alert('📚 AccountingQuest\n\nVersjon: 1.0 Beta\n\nEn gamifisert læringsplattform for norsk bokføring og regnskap.\n\nBasert på:\n• Bokføringsloven\n• Regnskapsloven\n• Skatteloven\n• Merverdiavgiftsloven\n\nLaget med ❤️ for studenter');
         }
 
         function showHelp() {
-            alert('â“ Hjelp\n\nSlik bruker du plattformen:\n\n1. Velg en modul fra hovedmenyen\n2. LÃ¸s oppgaver og quiz\n3. Se din progresjon i statistikk\n4. LÃ¥s opp achievements\n\nTips:\nâ€¢ Bruk kalkulatoren (ðŸ”¢-knappen)\nâ€¢ Bruk formler med = i cellene\nâ€¢ Klikk pÃ¥ hint-knappen ved behov\nâ€¢ Se lovhjemler etter svar\nâ€¢ Sjekk Wiki for teorien');
+            alert('❓ Hjelp\n\nSlik bruker du plattformen:\n\n1. Velg en modul fra hovedmenyen\n2. Løs oppgaver og quiz\n3. Se din progresjon i statistikk\n4. Lås opp achievements\n\nTips:\n• Bruk kalkulatoren (🔢-knappen)\n• Bruk formler med = i cellene\n• Klikk på hint-knappen ved behov\n• Se lovhenvisninger etter svar\n• Sjekk Wiki for teorien');
         }
 
         function playSound(type) {
