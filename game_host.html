@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spill i gang - AccountingQuest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Lobby Screen */
+        .lobby-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .pin-display {
+            background: #2d2d2d;
+            border: 4px solid #4ade80;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px auto;
+            max-width: 600px;
+        }
+
+        .pin-label {
+            font-size: 1.5em;
+            color: #9ca3af;
+            margin-bottom: 15px;
+        }
+
+        .pin-code {
+            font-size: 5em;
+            font-weight: bold;
+            color: #4ade80;
+            letter-spacing: 15px;
+            text-shadow: 0 0 30px rgba(74, 222, 128, 0.5);
+        }
+
+        .quiz-info {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 800px;
+        }
+
+        .quiz-title {
+            font-size: 2em;
+            color: #4ade80;
+            margin-bottom: 15px;
+        }
+
+        .quiz-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: #404040;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #9ca3af;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px auto;
+            max-width: 1200px;
+        }
+
+        .player-card {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .player-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
+        .start-btn {
+            background: #4ade80;
+            color: #1e1e1e;
+            border: none;
+            padding: 20px 60px;
+            border-radius: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s;
+        }
+
+        .start-btn:hover {
+            background: #22c55e;
+            transform: scale(1.05);
+        }
+
+        .start-btn:disabled {
+            background: #404040;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        /* Question Screen */
+        .question-screen {
+            display: none;
+        }
+
+        .question-header {
+            background: #2d2d2d;
+            border: 2px solid #4ade80;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .question-number {
+            font-size: 1.2em;
+            color: #9ca3af;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 2em;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            font-size: 3em;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .timer.warning {
+            color: #f59e0b;
+            animation: pulse 0.5s infinite;
+        }
+
+        .timer.danger {
+            color: #ef4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto 30px;
+        }
+
+        .answer-box {
+            background: #2d2d2d;
+            border: 3px solid #404040;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .answer-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .answer-box.answer-a::before { background: #ef4444; }
+        .answer-box.answer-b::before { background: #3b82f6; }
+        .answer-box.answer-c::before { background: #f59e0b; }
+        .answer-box.answer-d::before { background: #22c55e; }
+
+        .answer-label {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .answer-text {
+            font-size: 1.2em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .answer-count {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        /* Results Screen */
+        .results-screen {
+            display: none;
+        }
+
+        .leaderboard {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .leaderboard-title {
+            font-size: 2.5em;
+            color: #4ade80;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .leaderboard-item {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .rank {
+            width: 50px;
+            height: 50px;
+            background: #404040;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .rank.gold {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1e1e1e;
+        }
+
+        .rank.silver {
+            background: linear-gradient(135deg, #d1d5db, #9ca3af);
+            color: #1e1e1e;
+        }
+
+        .rank.bronze {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #1e1e1e;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name-lb {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .player-score {
+            font-size: 1.8em;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4ade80;
+            color: #1e1e1e;
+        }
+
+        .btn-secondary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .pin-code {
+                font-size: 3em;
+                letter-spacing: 8px;
+            }
+
+            .answers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Lobby Screen -->
+        <div class="lobby-screen" id="lobby-screen">
+            <h1 style="font-size: 3em; color: #4ade80; margin-bottom: 20px;">🎮 Vent på spillere</h1>
+            
+            <div class="pin-display">
+                <div class="pin-label">Gå til accountingquest.app og skriv inn PIN:</div>
+                <div class="pin-code" id="pin-display">000000</div>
+            </div>
+
+            <div class="quiz-info">
+                <div class="quiz-title" id="quiz-title">Quiz navn</div>
+                <div class="quiz-stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="player-count">0</div>
+                        <div class="stat-label">Spillere</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="question-count">0</div>
+                        <div class="stat-label">Spørsmål</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="time-per-question">30</div>
+                        <div class="stat-label">Sekunder per spørsmål</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="players-grid" id="players-grid">
+                <!-- Players will appear here -->
+            </div>
+
+            <button class="start-btn" id="start-btn" onclick="startQuiz()" disabled>
+                Start Quiz (minst 1 spiller kreves)
+            </button>
+        </div>
+
+        <!-- Question Screen -->
+        <div class="question-screen" id="question-screen">
+            <div class="question-header">
+                <div class="question-number" id="question-progress">Spørsmål 1 av 10</div>
+                <div class="question-text" id="question-text">Spørsmålet vises her</div>
+                <div class="timer" id="timer">30</div>
+            </div>
+
+            <div class="answers-grid" id="answers-grid">
+                <!-- Answers will appear here -->
+            </div>
+
+            <div style="text-align: center;">
+                <button class="btn btn-secondary" onclick="skipQuestion()">Hopp over →</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div class="results-screen" id="results-screen">
+            <div class="leaderboard">
+                <div class="leaderboard-title">🏆 Resultater</div>
+                <div id="leaderboard-list">
+                    <!-- Leaderboard items will appear here -->
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="newGame()">🔄 Nytt spill</button>
+                <button class="btn btn-secondary" onclick="backToPortal()">← Tilbake til portal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            pin: '',
+            quiz: null,
+            players: [],
+            currentQuestion: 0,
+            timer: null,
+            timeLeft: 0,
+            answers: {}
+        };
+
+        // Initialize
+        function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pin = urlParams.get('pin');
+            
+            if (!pin) {
+                alert('Ugyldig PIN');
+                window.location.href = 'teacher_portal.html';
+                return;
+            }
+
+            const session = JSON.parse(localStorage.getItem('game_session'));
+            if (!session || session.pin != pin) {
+                alert('Spilløkt ikke funnet');
+                window.location.href = 'teacher_portal.html';
+                return;
+            }
+
+            gameState.pin = pin;
+            gameState.quiz = session.quiz;
+
+            // Display game info
+            document.getElementById('pin-display').textContent = pin;
+            document.getElementById('quiz-title').textContent = gameState.quiz.name;
+            document.getElementById('question-count').textContent = gameState.quiz.questions.length;
+            document.getElementById('time-per-question').textContent = gameState.quiz.timePerQuestion;
+
+            // Start listening for players (simulate with localStorage for now)
+            pollForPlayers();
+        }
+
+        function pollForPlayers() {
+            setInterval(() => {
+                const players = JSON.parse(localStorage.getItem(`game_${gameState.pin}_players`) || '[]');
+                
+                if (players.length !== gameState.players.length) {
+                    gameState.players = players;
+                    updatePlayersList();
+                }
+            }, 500);
+        }
+
+        function updatePlayersList() {
+            const grid = document.getElementById('players-grid');
+            document.getElementById('player-count').textContent = gameState.players.length;
+
+            if (gameState.players.length === 0) {
+                grid.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 40px; grid-column: 1/-1;">Venter på spillere...</div>';
+            } else {
+                grid.innerHTML = gameState.players.map(player => `
+                    <div class="player-card">
+                        <div class="player-avatar">${player.avatar || '😊'}</div>
+                        <div class="player-name">${player.name}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Enable start button if at least one player
+            document.getElementById('start-btn').disabled = gameState.players.length === 0;
+            if (gameState.players.length > 0) {
+                document.getElementById('start-btn').textContent = `Start Quiz (${gameState.players.length} ${gameState.players.length === 1 ? 'spiller' : 'spillere'})`;
+            }
+        }
+
+        function startQuiz() {
+            document.getElementById('lobby-screen').style.display = 'none';
+            document.getElementById('question-screen').style.display = 'block';
+            
+            showQuestion(0);
+        }
+
+        function showQuestion(index) {
+            if (index >= gameState.quiz.questions.length) {
+                showResults();
+                return;
+            }
+
+            gameState.currentQuestion = index;
+            const question = gameState.quiz.questions[index];
+            gameState.answers = {};
+
+            // Update UI
+            document.getElementById('question-progress').textContent = `Spørsmål ${index + 1} av ${gameState.quiz.questions.length}`;
+            document.getElementById('question-text').textContent = question.text;
+            
+            // Show answers
+            const answersGrid = document.getElementById('answers-grid');
+            const labels = ['A', 'B', 'C', 'D'];
+            const classes = ['answer-a', 'answer-b', 'answer-c', 'answer-d'];
+            
+            answersGrid.innerHTML = question.answers.map((answer, i) => `
+                <div class="answer-box ${classes[i]}">
+                    <div class="answer-count" id="answer-count-${i}">0</div>
+                    <div class="answer-label">${labels[i]}</div>
+                    <div class="answer-text">${answer}</div>
+                </div>
+            `).join('');
+
+            // Start timer
+            startTimer();
+            
+            // Notify players
+            localStorage.setItem(`game_${gameState.pin}_question`, JSON.stringify({
+                index,
+                question: question.text,
+                answers: question.answers,
+                time: gameState.quiz.timePerQuestion
+            }));
+
+            // Poll for answers
+            pollForAnswers();
+        }
+
+        function startTimer() {
+            gameState.timeLeft = gameState.quiz.timePerQuestion;
+            const timerEl = document.getElementById('timer');
+            timerEl.textContent = gameState.timeLeft;
+            timerEl.className = 'timer';
+
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                timerEl.textContent = gameState.timeLeft;
+
+                if (gameState.timeLeft <= 10) {
+                    timerEl.classList.add('warning');
+                }
+                if (gameState.timeLeft <= 5) {
+                    timerEl.classList.add('danger');
+                }
+
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    setTimeout(() => {
+                        showQuestionResult();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        function pollForAnswers() {
+            const pollInterval = setInterval(() => {
+                const answers = JSON.parse(localStorage.getItem(`game_${gameState.pin}_answers`) || '{}');
+                
+                // Count answers per option
+                const counts = [0, 0, 0, 0];
+                Object.values(answers).forEach(answer => {
+                    if (answer.questionIndex === gameState.currentQuestion) {
+                        counts[answer.answer]++;
+                    }
+                });
+
+                // Update display
+                counts.forEach((count, i) => {
+                    const el = document.getElementById(`answer-count-${i}`);
+                    if (el) el.textContent = count;
+                });
+
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(pollInterval);
+                }
+            }, 200);
+        }
+
+        function showQuestionResult() {
+            // TODO: Show which answer was correct
+            // For now, just move to next question
+            setTimeout(() => {
+                showQuestion(gameState.currentQuestion + 1);
+            }, 3000);
+        }
+
+        function skipQuestion() {
+            clearInterval(gameState.timer);
+            showQuestion(gameState.currentQuestion + 1);
+        }
+
+        function showResults() {
+            document.getElementById('question-screen').style.display = 'none';
+            document.getElementById('results-screen').style.display = 'block';
+
+            // Calculate scores
+            const answers = JSON.parse(localStorage.getItem(`game_${gameState.pin}_answers`) || '{}');
+            const scores = {};
+
+            gameState.players.forEach(player => {
+                scores[player.name] = 0;
+            });
+
+            gameState.quiz.questions.forEach((question, qIndex) => {
+                Object.entries(answers).forEach(([playerName, answerData]) => {
+                    if (answerData.questionIndex === qIndex && answerData.answer === question.correct) {
+                        // Award points based on speed (max 1000 points)
+                        const timeBonus = Math.max(0, answerData.timeLeft || 0);
+                        const points = 500 + Math.floor((timeBonus / gameState.quiz.timePerQuestion) * 500);
+                        scores[playerName] = (scores[playerName] || 0) + points;
+                    }
+                });
+            });
+
+            // Sort by score
+            const sortedPlayers = Object.entries(scores)
+                .sort((a, b) => b[1] - a[1])
+                .map(([name, score], index) => ({ name, score, rank: index + 1 }));
+
+            // Display leaderboard
+            const leaderboard = document.getElementById('leaderboard-list');
+            leaderboard.innerHTML = sortedPlayers.map(player => {
+                let rankClass = '';
+                if (player.rank === 1) rankClass = 'gold';
+                else if (player.rank === 2) rankClass = 'silver';
+                else if (player.rank === 3) rankClass = 'bronze';
+
+                return `
+                    <div class="leaderboard-item">
+                        <div class="rank ${rankClass}">${player.rank}</div>
+                        <div class="player-info">
+                            <div class="player-name-lb">${player.name}</div>
+                        </div>
+                        <div class="player-score">${player.score}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function newGame() {
+            // Reset game state
+            localStorage.removeItem(`game_${gameState.pin}_players`);
+            localStorage.removeItem(`game_${gameState.pin}_answers`);
+            localStorage.removeItem(`game_${gameState.pin}_question`);
+            location.reload();
+        }
+
+        function backToPortal() {
+            localStorage.removeItem(`game_${gameState.pin}_players`);
+            localStorage.removeItem(`game_${gameState.pin}_answers`);
+            localStorage.removeItem(`game_${gameState.pin}_question`);
+            window.location.href = 'teacher_portal.html';
+        }
+
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Hjernetrim - Ekstra Vanskelige Case</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #404040;
+            --text-primary: #e0e0e0;
+            --text-secondary: #9ca3af;
+            --border-color: #404040;
+            --accent: #4ade80;
+            --accent-hover: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #d1d5db;
+            --accent: #10b981;
+            --accent-hover: #059669;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s;
+        }
+
+        .game-header {
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+
+        .back-btn, .theme-toggle {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover, .theme-toggle:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .stat-item {
+            background: var(--bg-tertiary);
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        .stat-value { color: var(--accent); font-weight: bold; }
+
+        .lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .lock-content {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            background: var(--bg-secondary);
+            border: 3px solid var(--warning);
+            border-radius: 20px;
+        }
+
+        .lock-icon { font-size: 5em; margin-bottom: 20px; }
+        .lock-title { font-size: 2em; color: var(--accent); margin-bottom: 20px; }
+
+        .requirements-box {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .requirement-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            background: var(--bg-primary);
+            border-radius: 5px;
+        }
+
+        .requirement-met { color: var(--accent); }
+        .requirement-not-met { color: var(--error); }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s;
+        }
+
+        .game-content { display: flex; min-height: calc(100vh - 100px); }
+
+        .sidebar {
+            width: 320px;
+            background: var(--bg-secondary);
+            border-right: 2px solid var(--border-color);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .sidebar h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .difficulty-master { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .difficulty-expert { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+
+        .task-item {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            margin-bottom: 12px;
+        }
+
+        .task-item:hover {
+            background: var(--bg-secondary);
+            border-left-color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .task-item.active { background: rgba(74, 222, 128, 0.2); border-left-color: var(--accent); }
+        .task-item.completed { border-left-color: var(--accent-hover); opacity: 0.7; }
+
+        .task-item-title { font-weight: bold; color: var(--text-primary); margin-bottom: 5px; }
+        .task-item-desc { font-size: 0.85em; color: var(--text-secondary); line-height: 1.4; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.75em;
+            margin-top: 8px;
+        }
+
+        .status-badge.completed { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .status-badge.not-started { background: rgba(107, 114, 128, 0.2); color: var(--text-secondary); }
+
+        .workspace { flex: 1; padding: 30px; overflow-y: auto; }
+
+        .task-header {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .task-title {
+            font-size: 1.8em;
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .task-description {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.8;
+            border-left: 4px solid var(--accent);
+        }
+
+        .task-description h4 { color: var(--accent); margin-top: 15px; margin-bottom: 10px; }
+        .task-description ul { margin-left: 20px; margin-top: 10px; }
+        .task-description strong { color: var(--warning); }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid var(--error);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid var(--info);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .excel-grid {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+
+        .grid-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .grid-btn:hover { background: var(--accent); color: var(--bg-primary); }
+
+        .spreadsheet {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-primary);
+        }
+
+        .spreadsheet th {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 10px;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .spreadsheet td { border: 1px solid var(--border-color); padding: 0; }
+
+        .cell {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 10px;
+            font-size: 0.95em;
+            font-family: 'Consolas', 'Courier New', monospace;
+            text-align: right;
+        }
+
+        .cell:focus { outline: 2px solid var(--accent); background: var(--bg-secondary); }
+        .cell.readonly { background: var(--bg-tertiary); color: var(--text-secondary); cursor: not-allowed; }
+        .cell.text-cell { text-align: left; }
+        .cell.formula { color: var(--accent); font-weight: bold; }
+
+        .cell.selecting-mode {
+            cursor: crosshair !important;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .cell.selected-for-formula {
+            outline: 3px solid #3b82f6 !important;
+            background: rgba(59, 130, 246, 0.2) !important;
+            animation: cellPulse 0.5s;
+        }
+
+        @keyframes cellPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .cell-label {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+        }
+
+        .action-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+
+        .action-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn.check { background: var(--accent); color: white; }
+        .action-btn.check:hover { background: var(--accent-hover); transform: translateY(-2px); }
+        .action-btn.hint { background: var(--warning); color: white; }
+        .action-btn.reset { background: var(--info); color: white; }
+
+        .feedback {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.show { display: block; }
+        .feedback.correct { border-color: var(--accent); color: var(--accent); background: rgba(74, 222, 128, 0.1); }
+        .feedback.incorrect { border-color: var(--error); color: var(--error); background: rgba(239, 68, 68, 0.1); }
+
+        .hint-box {
+            background: var(--bg-secondary);
+            border: 2px solid var(--warning);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .hint-box.show { display: block; }
+        .hint-title { color: var(--warning); font-weight: bold; margin-bottom: 10px; font-size: 1.1em; }
+
+        @media (max-width: 768px) {
+            .game-content { flex-direction: column; }
+            .sidebar { width: 100%; max-height: 200px; }
+            .workspace { padding: 15px; }
+            .task-title { font-size: 1.4em; }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="lock-screen" id="lock-screen" style="display: none;">
+        <div class="lock-content">
+            <div class="lock-icon">🔒</div>
+            <div class="lock-title">Hjernetrim er låst</div>
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                For å låse opp Hjernetrim må du først fullføre 80% av de andre modulene.
+            </p>
+            
+            <div class="requirements-box">
+                <h4 style="margin-bottom: 15px; color: var(--accent);">📋 Krav:</h4>
+                <div class="requirement-item">
+                    <span>📖 Bokføring (30/36)</span>
+                    <span id="req-bokforing" class="requirement-not-met">❌</span>
+                </div>
+                <div class="requirement-item">
+                    <span>❓ Quiz (120/162)</span>
+                    <span id="req-quiz" class="requirement-not-met">❌</span>
+                </div>
+                <div class="requirement-item">
+                    <span>📊 Analyse (8/11)</span>
+                    <span id="req-analyse" class="requirement-not-met">❌</span>
+                </div>
+                <div class="requirement-item">
+                    <span>💼 Case (3/5)</span>
+                    <span id="req-case" class="requirement-not-met">❌</span>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="unlock-progress" style="width: 0%">0%</div>
+            </div>
+
+            <button class="back-btn" style="margin-top: 30px;" onclick="backToMenu()">Tilbake</button>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--border-color);">
+                <button class="action-btn check" onclick="forceUnlock()" style="padding: 12px 30px;">
+                    🚀 Bypass (Testing)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-header">
+        <div class="header-left">
+            <button class="back-btn" onclick="backToMenu()">← Tilbake</button>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+            <div class="stat-item">
+                <span class="stat-label">Modul:</span>
+                <span class="stat-value">🧠 Hjernetrim</span>
+            </div>
+        </div>
+        
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="stat-label">Oppgave:</span>
+                <span class="stat-value"><span id="current-task">1</span>/<span id="total-tasks">10</span></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Fullført:</span>
+                <span class="stat-value" id="completed-count">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Poeng:</span>
+                <span class="stat-value" id="score">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-content">
+        <div class="sidebar">
+            <h3>🧠 Ekstra Vanskelige Case</h3>
+            <div class="task-list" id="task-list"></div>
+        </div>
+
+        <div class="workspace">
+            <div id="task-content"></div>
+
+            <div class="action-buttons">
+                <button class="action-btn hint" onclick="showHint()">💡 Hint</button>
+                <button class="action-btn reset" onclick="resetTask()">🔄 Reset</button>
+                <button class="action-btn check" onclick="checkAnswer()">✓ Sjekk</button>
+            </div>
+
+            <div class="hint-box" id="hint-box">
+                <div class="hint-title">💡 Hint:</div>
+                <div id="hint-content"></div>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+
+    <script>
+        const tasks = [
+            {
+                id: 1,
+                title: "🕵️ Case 1: Manipulasjonsdetektiv - TechCorp AS",
+                difficulty: "master",
+                shortDesc: "Finn røde flagg i regnskapet",
+                description: `
+                    <div class="warning-box"><strong>⚠️ MASTER LEVEL:</strong> Krever dyp analyse og kritisk tenkning</div>
+                    
+                    <h4>Situasjon:</h4>
+                    <p>Du er revisor for TechCorp AS. Ved gjennomgang oppdager du:</p>
+                    <ul>
+                        <li>Kundefordringer: ↑70% mens salg kun ↑5%</li>
+                        <li>Varelager: ↑45% uten omsetningsøkning</li>
+                        <li>Tre revisorskift på fem år</li>
+                        <li>Totalkapital: ↑40% uten forklaring</li>
+                        <li>Avskrivninger: Redusert fra 20% til 10%</li>
+                    </ul>
+                    
+                    <h4>📊 Oppgave:</h4>
+                    <ol>
+                        <li>Antall røde flagg (minimum 5)</li>
+                        <li>Korrigert resultat (kr)</li>
+                        <li>Alvorlighetsgrad (1-10)</li>
+                    </ol>
+                `,
+                solution: { rodeFlags: 5, korrigertResultat: 3200000, alvorlighetsgrad: 8 },
+                hint: "Røde flagg: Fordringer vs salg, varelager, revisorskift, totalkapital, avskrivningspolitikk. Korrigert resultat må justeres.",
+                explanation: "5 røde flagg identifisert. Manipulering gjennom: fordringer↑, varelager↑, revisorskift, uklar kapitaløkning, endret avskrivning."
+            },
+            {
+                id: 2,
+                title: "🚨 Case 2: Krise - RetailMax AS",
+                difficulty: "master",
+                shortDesc: "Redde konkursrammet bedrift",
+                description: `
+                    <div class="warning-box"><strong>⚠️ AKUTT:</strong> Selskapet er på konkursens rand!</div>
+                    
+                    <h4>Situasjon:</h4>
+                    <ul>
+                        <li>Likviditetsgrad 1: 0,4 (kritisk!)</li>
+                        <li>Arbeidskapital: -3 000 000 kr</li>
+                        <li>Brudd på lånebetingelser</li>
+                        <li>8M forfaller om 2 uker</li>
+                    </ul>
+                    
+                    <h4>📊 Oppgave:</h4>
+                    <ol>
+                        <li>Nødvendig kapitalinnhenting (kr)</li>
+                        <li>Ny likviditetsgrad (desimaltall)</li>
+                        <li>Tiltak-prioritet (1-5)</li>
+                    </ol>
+                `,
+                solution: { nodvendigKapital: 8000000, nyLikviditetsgrad: 1.24, prioritet: 2 },
+                hint: "8M forfaller. Faktoring + salg AM ≈ 8,6M. LG1 = (Omløpsmidler + Tiltak) / Kortsiktig gjeld",
+                explanation: "Kombinasjon av faktoring og anleggsmiddel-salg gir 8,6M likviditet raskt."
+            },
+            {
+                id: 3,
+                title: "🤝 Case 3: Fusjon - Alpha kjøper Beta AS",
+                difficulty: "expert",
+                shortDesc: "Verdsett og beregn goodwill",
+                description: `
+                    <h4>Beta AS data:</h4>
+                    <ul>
+                        <li>EK bokført: 10 000 000 kr</li>
+                        <li>Årsresultat (snitt 3 år): 2 000 000 kr</li>
+                        <li>Bransje-multiplikator: 6x EBIT</li>
+                        <li>Skjulte reserver: 3 000 000 kr</li>
+                    </ul>
+                    
+                    <h4>📊 Oppgave (kjøpesum 13M):</h4>
+                    <ol>
+                        <li>Verdi med multiplikator (kr)</li>
+                        <li>Korrigert EK (kr)</li>
+                        <li>Goodwill (kr)</li>
+                    </ol>
+                `,
+                solution: { verdiMultiplikator: 12000000, korrigertEK: 13000000, goodwill: 0 },
+                hint: "Verdi = Årsresultat × 6. Korrigert EK = Bokført + Skjulte. Goodwill = Kjøpesum - Korrigert EK",
+                explanation: "Verdi: 2M×6=12M. Korrigert EK: 10M+3M=13M. Goodwill: 13M-13M=0"
+            },
+            {
+                id: 4,
+                title: "🧾 Case 4: Kompleks MVA - ImportExport AS",
+                difficulty: "master",
+                shortDesc: "Internasjonal handel med MVA",
+                description: `
+                    <h4>Transaksjoner denne måneden:</h4>
+                    <ul>
+                        <li>Import EU: 100k + import-MVA 25k (omvendt)</li>
+                        <li>Eksport Norge: 200k (0% MVA)</li>
+                        <li>Innenlands salg: 150k + MVA 37,5k</li>
+                        <li>Representasjon (50% ikke fradrag): 10k + MVA 2,5k</li>
+                        <li>Firmabil (20% privat): 40k + MVA 10k</li>
+                    </ul>
+                    
+                    <h4>📊 Oppgave:</h4>
+                    <ol>
+                        <li>Utgående MVA (kr)</li>
+                        <li>Inngående MVA (kr)</li>
+                        <li>MVA til betaling (kr)</li>
+                    </ol>
+                `,
+                solution: { utgaendeMVA: 62500, inngaendeMVA: 34750, mvaTilBetaling: 27750 },
+                hint: "Utgående = Import(omvendt) + Innenlands. Inngående = Import + (Rep×50%) + (Bil×80%). Oppgjør = Utgående - Inngående",
+                explanation: "Utgående: 25k+37,5k=62,5k. Inngående: 25k+1,25k+8k=34,25k. Oppgjør: 28,25k"
+            },
+            {
+                id: 5,
+                title: "💰 Case 5: Skatt-puslespill - MegaCorp AS",
+                difficulty: "master",
+                shortDesc: "Kompleks skattesituasjon",
+                description: `
+                    <h4>Data:</h4>
+                    <ul>
+                        <li>Regnskap resultat før skatt: 10 000 000 kr</li>
+                        <li>Representasjon (ikke fradrag): 500 000 kr</li>
+                        <li>Bøter: 200 000 kr</li>
+                        <li>Avskr. diff. (regnskap - skatt): 500 000 kr</li>
+                        <li>Fremførbart underskudd: 2 000 000 kr</li>
+                        <li>Skattesats: 22%</li>
+                    </ul>
+                    
+                    <h4>📊 Oppgave:</h4>
+                    <ol>
+                        <li>Skattemessig resultat (kr)</li>
+                        <li>Betalbar skatt (kr)</li>
+                        <li>Total skattekostnad (kr)</li>
+                    </ol>
+                `,
+                solution: { skattemessigResultat: 8200000, betalbarSkatt: 1804000, skattekostnad: 1694000 },
+                hint: "Skatt.res = Regn.res + Permanente + Midlertidige - Fremførbart. Betalbar = Skatt.res × 22%. Utsatt skatt = Midlertidig × 22%",
+                explanation: "8,2M × 22% = 1,804M betalbar. Endring utsatt: -500k×22%=-110k. Total: 1,694M"
+            },
+            {
+                id: 6,
+                title: "⚖️ Case 6: Regnskapspolitikk-dilemma",
+                difficulty: "expert",
+                shortDesc: "Etisk vurdering",
+                description: `
+                    <h4>Ledelsen foreslår:</h4>
+                    <ul>
+                        <li>Aktivere FoU: +2M</li>
+                        <li>Øke avskrivningstid 5→10 år: +500k</li>
+                        <li>Redusere tap-avsetning 5%→1%: +400k</li>
+                        <li>Endre inntektsføring: +1M</li>
+                    </ul>
+                    
+                    <h4>📊 Oppgave:</h4>
+                    <ol>
+                        <li>Akseptable tiltak (0-4)</li>
+                        <li>Total effekt hvis alle (kr)</li>
+                        <li>Risiko (1-10)</li>
+                    </ol>
+                `,
+                solution: { akseptableTiltak: 1, totalEffekt: 3900000, risiko: 8 },
+                hint: "Kun tiltak 2 kan være akseptabelt hvis økonomisk levetid er reell. Andre = manipulering.",
+                explanation: "Kun avskrivningstid kan forsvares. Andre tiltak = resultatstyring. Høy risiko."
+            },
+            {
+                id: 7,
+                title: "💸 Case 7: Gjeldsforhandling - DebtCo AS",
+                difficulty: "master",
+                shortDesc: "Konkursnær bedrift",
+                description: `
+                    <h4>Situasjon (EK: -16M!):</h4>
+                    <ul>
+                        <li>Bygninger (marked): 18M (bok: 20M)</li>
+                        <li>Varelager (marked): 3M (bok: 5M)</li>
+                        <li>Fordringer (90% innkrevd): 8M</li>
+                        <li>Bank: 1M</li>
+                        <li>Total gjeld: 50M</li>
+                        <li>Prioritert (lønn+skatt+sikret): 25M</li>
+                    </ul>
+                    
+                    <h4>📊 Oppgave:</h4>
+                    <ol>
+                        <li>Reell verdi eiendeler (kr)</li>
+                        <li>Dekningsgrad usikret (0-100%)</li>
+                        <li>Forslag kr/kr gjeld (desimal)</li>
+                    </ol>
+                `,
+                solution: { reellVerdi: 30200000, dekningsgradUsikret: 20, forslag: 0.20 },
+                hint: "Reell = Markedsverdier. Etter prioritert, hva gjenstår? Dekningsgrad = Rest / Usikret gjeld",
+                explanation: "30,2M - 25M prioritert = 5,2M. Usikret 25M → dekningsgrad 20,8% ≈ 20%"
+            },
+            {
+                id: 8,
+                title: "🏢 Case 8: Konsernregnskap Light",
+                difficulty: "expert",
+                shortDesc: "Konsolidering mor/datter",
+                description: `
+                    <h4>Parent AS eier 80% av Child AS:</h4>
+                    <ul>
+                        <li>Salg Parent→Child: 5M (elimineres)</li>
+                        <li>Lån Parent→Child: 2M (elimineres)</li>
+                        <li>Rente internt: 100k (elimineres)</li>
+                        <li>Parent resultat: 8M</li>
+                        <li>Child resultat: 2M</li>
+                    </ul>
+                    
+                    <h4>📊 Oppgave:</h4>
+                    <ol>
+                        <li>Konsolidert resultat (kr)</li>
+                        <li>Minoritetsandel 20% (kr)</li>
+                        <li>Majoritetens andel (kr)</li>
+                    </ol>
+                `,
+                solution: { konsolidertResultat: 9900000, minoritet: 400000, majoritet: 9500000 },
+                hint: "Konsol = Sum - Rente. Minoritet = 20% av Child. Majoritet = Rest",
+                explanation: "9,9M konsolidert. Minoritet 400k. Majoritet 9,5M"
+            },
+            {
+                id: 9,
+                title: "📉 Case 9: Budsjettavvik - PlanCorp AS",
+                difficulty: "expert",
+                shortDesc: "Analyser store avvik",
+                description: `
+                    <h4>Budsjett 2024 vs Faktisk:</h4>
+                    <ul>
+                        <li>Omsetning: 100M → 85M</li>
+                        <li>Resultat: 10M → -2M</li>
+                    </ul>
+                    
+                    <h4>📊 Oppgave:</h4>
+                    <ol>
+                        <li>Avvik omsetning (kr, negativt tall)</li>
+                        <li>Avvik resultat (kr, negativt tall)</li>
+                        <li>Budsjettkvalitet (1-10, 10=bra)</li>
+                    </ol>
+                `,
+                solution: { avvikOmsetning: -15000000, avvikResultat: -12000000, budsjettkvalitet: 3 },
+                hint: "Avvik = Faktisk - Budsjett. Negativt = dårligere. Budsjett var urealistisk.",
+                explanation: "Avvik: -15M omsetning, -12M resultat. Budsjettkvalitet 3/10 (urealistisk)"
+            },
+            {
+                id: 10,
+                title: "📦 Case 10: Kompleks Varekostnad",
+                difficulty: "master",
+                shortDesc: "FIFO vs gjennomsnitt",
+                description: `
+                    <h4>Innkjøp (kronologisk):</h4>
+                    <ul>
+                        <li>100 stk à 1000 kr = 100k</li>
+                        <li>150 stk à 1200 kr = 180k</li>
+                        <li>200 stk à 1100 kr = 220k</li>
+                        <li>Produsert: 400 stk, Solgt: 350 stk</li>
+                    </ul>
+                    
+                    <h4>📊 Oppgave:</h4>
+                    <ol>
+                        <li>Varekostnad FIFO (kr)</li>
+                        <li>Gjennomsnittspris (kr per stk)</li>
+                        <li>Varekostnad gjennomsnitt (kr)</li>
+                    </ol>
+                `,
+                solution: { varekostnadFIFO: 385000, gjennomsnittspris: 1111, varekostnadGjennomsnitt: 388889 },
+                hint: "FIFO: Først inn først ut. Gjennomsnitt = Total / Antall. Kostnad = Solgt × Pris",
+                explanation: "FIFO: 100×1000+150×1200+100×1100=385k. Snitt: 500k/450=1111. Kostnad: 388,9k"
+            }
+        ];
+
+        let gameState = {
+            currentTask: 0,
+            completedTasks: [],
+            score: 0,
+            theme: 'dark',
+            unlocked: false
+        };
+
+        function init() {
+            loadProgress();
+            checkUnlockStatus();
+            loadTaskList();
+            if (gameState.unlocked) loadTask(0);
+        }
+
+        function checkUnlockStatus() {
+            const bProgress = JSON.parse(localStorage.getItem('bokforing_progress') || '{"completedTasks":[]}');
+            const qProgress = JSON.parse(localStorage.getItem('quiz_progress') || '{"completedCount":0}');
+            const aProgress = JSON.parse(localStorage.getItem('regnskapsanalyse_progress') || '{"completedTasks":[]}');
+            const cProgress = JSON.parse(localStorage.getItem('case_progress') || '{"completedTasks":[]}');
+
+            const total = (
+                ((bProgress.completedTasks || []).length / 30) * 0.25 +
+                ((qProgress.completedCount || 0) / 120) * 0.25 +
+                ((aProgress.completedTasks || []).length / 8) * 0.25 +
+                ((cProgress.completedTasks || []).length / 3) * 0.25
+            ) * 100;
+
+            document.getElementById('unlock-progress').style.width = total + '%';
+            document.getElementById('unlock-progress').textContent = Math.round(total) + '%';
+
+            gameState.unlocked = total >= 80;
+            document.getElementById('lock-screen').style.display = gameState.unlocked ? 'none' : 'flex';
+        }
+
+        function loadTaskList() {
+            const list = document.getElementById('task-list');
+            list.innerHTML = tasks.map((t, i) => `
+                <div class="task-item ${i === gameState.currentTask ? 'active' : ''} ${gameState.completedTasks.includes(t.id) ? 'completed' : ''}" onclick="loadTask(${i})">
+                    <div class="difficulty-badge difficulty-${t.difficulty}">${t.difficulty === 'master' ? '🔥 MASTER' : '⚡ EXPERT'}</div>
+                    <div class="task-item-title">${t.title}</div>
+                    <div class="task-item-desc">${t.shortDesc}</div>
+                    <span class="status-badge ${gameState.completedTasks.includes(t.id) ? 'completed' : 'not-started'}">
+                        ${gameState.completedTasks.includes(t.id) ? '✓ Fullført' : 'Ikke startet'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function loadTask(index) {
+            if (!gameState.unlocked) return;
+            gameState.currentTask = index;
+            const task = tasks[index];
+
+            document.getElementById('current-task').textContent = index + 1;
+            document.getElementById('total-tasks').textContent = tasks.length;
+
+            document.getElementById('task-content').innerHTML = `
+                <div class="task-header">
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-description">${task.description}</div>
+                </div>
+                
+                <div class="excel-grid">
+                    <table class="spreadsheet">
+                        <thead><tr><th>#</th><th>Spørsmål</th><th>Svar</th></tr></thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+            `;
+
+            const tbody = document.getElementById('tbody');
+            Object.keys(task.solution).forEach((key, i) => {
+                const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim();
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="cell-label">${i+1}</td>
+                        <td><input type="text" class="cell text-cell readonly" value="${label}" readonly></td>
+                        <td><input type="text" class="cell" data-key="${key}" placeholder="Svar eller =formel" 
+                                   onkeydown="handleCellNav(event)" 
+                                   oninput="handleFormula(this)"
+                                   onfocus="handleCellFocus(this)"
+                                   onblur="handleCellBlur(this)"></td>
+                    </tr>
+                `;
+            });
+
+            setTimeout(() => tbody.querySelector('.cell:not(.readonly)').focus(), 100);
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('hint-box').classList.remove('show');
+            loadTaskList();
+        }
+
+        let selectingCell = false;
+        let selectingForCell = null;
+
+        function handleCellNav(e) {
+            const cell = e.target;
+            const row = cell.parentElement.parentElement;
+            const idx = Array.from(row.children).indexOf(cell.parentElement);
+            
+            // ESC to cancel cell selection
+            if (e.key === 'Escape' && selectingCell) {
+                endCellSelection();
+                return;
+            }
+            
+            // Enter in selection mode selects the cell
+            if (e.key === 'Enter' && selectingCell) {
+                e.preventDefault();
+                if (cell === selectingForCell) {
+                    endCellSelection();
+                } else {
+                    selectCellForFormula(cell);
+                }
+                return;
+            }
+            
+            // Allow typing operators to restart selection
+            if ((e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/' || e.key === '(' || e.key === ')') && cell.value.startsWith('=')) {
+                // Let the operator be typed
+                setTimeout(() => {
+                    // Only restart selection if we're not already selecting
+                    if (!selectingCell) {
+                        startCellSelection(cell);
+                    }
+                }, 50);
+                return;
+            }
+            
+            // Normal Enter - move down
+            if (e.key === 'Enter' && !selectingCell) {
+                e.preventDefault();
+                const next = row.nextElementSibling;
+                if (next) next.children[idx]?.querySelector('.cell:not(.readonly)')?.focus();
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const next = row.nextElementSibling;
+                if (next) next.children[idx]?.querySelector('.cell:not(.readonly)')?.focus();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prev = row.previousElementSibling;
+                if (prev) prev.children[idx]?.querySelector('.cell:not(.readonly)')?.focus();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                const prev = cell.parentElement.previousElementSibling;
+                if (prev) prev.querySelector('.cell:not(.readonly)')?.focus();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                const next = cell.parentElement.nextElementSibling;
+                if (next) next.querySelector('.cell:not(.readonly)')?.focus();
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                const next = e.shiftKey ? 
+                    cell.parentElement.previousElementSibling :
+                    cell.parentElement.nextElementSibling;
+                if (next) next.querySelector('.cell:not(.readonly)')?.focus();
+            } else if (e.key === '=' && !cell.classList.contains('text-cell')) {
+                setTimeout(() => startCellSelection(cell), 10);
+            }
+        }
+
+        function handleFormula(cell) {
+            const value = cell.value.trim();
+            
+            if (value.startsWith('=')) {
+                cell.classList.add('formula');
+                
+                // Check if formula looks complete (doesn't end with operator)
+                const endsWithOperator = /[\+\-\*\/\(]$/.test(value);
+                
+                if (endsWithOperator) {
+                    // Formula is incomplete, don't evaluate yet
+                    cell.dataset.result = 0;
+                    cell.title = 'Ufullstendig formel...';
+                    return;
+                }
+                
+                try {
+                    const formula = value.substring(1);
+                    const result = evaluateFormula(formula);
+                    
+                    if (result !== undefined && !isNaN(result) && isFinite(result)) {
+                        cell.dataset.result = result;
+                        cell.dataset.formula = value;
+                        cell.title = `Formel: ${value}\nResultat: ${result.toLocaleString('nb-NO')}`;
+                    } else {
+                        cell.dataset.result = 0;
+                        cell.title = 'Ugyldig formel';
+                    }
+                } catch (e) {
+                    cell.dataset.result = 0;
+                    cell.title = 'Feil: ' + e.message;
+                }
+            } else {
+                cell.classList.remove('formula');
+                delete cell.dataset.result;
+                delete cell.dataset.formula;
+                cell.title = '';
+            }
+        }
+
+        function evaluateFormula(formula) {
+            console.log('Evaluating formula:', formula);
+            
+            // Replace cell references (B1, B2, B3)
+            // In our table: col 0 = #, col 1 = Label (A), col 2 = Input (B)
+            formula = formula.replace(/([A-Z]+)(\d+)/gi, (match, col, row) => {
+                const colLetter = col.toUpperCase();
+                const rowIndex = parseInt(row) - 1; // B1 → row 0
+                const tbody = document.getElementById('tbody');
+                const targetRow = tbody.children[rowIndex];
+                
+                if (!targetRow) {
+                    console.log(`${match} → 0 (row not found)`);
+                    return 0;
+                }
+                
+                // Map column letters to DOM indices
+                // A = column 1 (label), B = column 2 (input), C = column 3, etc.
+                const colIndex = colLetter.charCodeAt(0) - 64; // A=1, B=2, C=3
+                
+                const cell = targetRow.children[colIndex]?.querySelector('.cell');
+                if (cell) {
+                    const value = getCellValue(cell);
+                    console.log(`${match} (row ${rowIndex}, col ${colIndex}) → ${value}`);
+                    return value || 0;
+                }
+                
+                console.log(`${match} → 0 (cell not found at col ${colIndex})`);
+                return 0;
+            });
+            
+            console.log('After replacement:', formula);
+            
+            try {
+                const result = eval(formula.replace(/×/g, '*').replace(/÷/g, '/'));
+                console.log('Result:', result);
+                return result;
+            } catch (e) {
+                console.error('Formula error:', e);
+                return 0;
+            }
+        }
+
+        function getCellValue(cell) {
+            // If cell has a calculated result from a formula, use that
+            if (cell.dataset.result !== undefined && cell.dataset.result !== 'undefined') {
+                const result = parseFloat(cell.dataset.result);
+                if (!isNaN(result) && isFinite(result)) {
+                    console.log(`  Getting formula result: ${result}`);
+                    return result;
+                }
+            }
+            
+            // Otherwise parse the cell value directly
+            // Remove spaces and commas (thousand separators), keep dots (decimal)
+            const value = cell.value.replace(/\s/g, '').replace(/,/g, '');
+            const parsed = parseFloat(value);
+            const result = isNaN(parsed) ? 0 : parsed;
+            console.log(`  Getting direct value: ${cell.value} → ${result}`);
+            return result;
+        }
+
+        function startCellSelection(sourceCell) {
+            selectingCell = true;
+            selectingForCell = sourceCell;
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                if (cell !== sourceCell && !cell.classList.contains('text-cell') && !cell.classList.contains('readonly')) {
+                    cell.classList.add('selecting-mode');
+                    cell.style.cursor = 'crosshair';
+                    
+                    // Add click handler
+                    cell.onclick = () => {
+                        if (selectingCell) selectCellForFormula(cell);
+                    };
+                }
+            });
+            
+            showCellSelectorHint();
+        }
+
+        function endCellSelection() {
+            selectingCell = false;
+            selectingForCell = null;
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('selecting-mode', 'selected-for-formula');
+                cell.style.cursor = '';
+                cell.onclick = null;
+            });
+            
+            hideCellSelectorHint();
+        }
+
+        function selectCellForFormula(targetCell) {
+            if (!selectingCell || !selectingForCell) return;
+            
+            const cellRef = getCellReference(targetCell);
+            const sourceCell = selectingForCell;
+            
+            if (cellRef) {
+                const cursorPos = sourceCell.selectionStart || sourceCell.value.length;
+                const currentValue = sourceCell.value;
+                sourceCell.value = currentValue.slice(0, cursorPos) + cellRef + currentValue.slice(cursorPos);
+                
+                handleFormula(sourceCell);
+                
+                targetCell.classList.add('selected-for-formula');
+                setTimeout(() => {
+                    targetCell.classList.remove('selected-for-formula');
+                }, 500);
+            }
+            
+            // END selection immediately after selecting one cell
+            endCellSelection();
+            
+            if (sourceCell && document.body.contains(sourceCell)) {
+                setTimeout(() => {
+                    sourceCell.focus();
+                    sourceCell.setSelectionRange(sourceCell.value.length, sourceCell.value.length);
+                }, 10);
+            }
+        }
+
+        function getCellReference(cell) {
+            const row = cell.parentElement.parentElement;
+            const tbody = document.getElementById('tbody');
+            const rowIndex = Array.from(tbody.children).indexOf(row) + 1;
+            const cellIndex = Array.from(row.children).indexOf(cell.parentElement);
+            
+            const columnLetter = String.fromCharCode(64 + cellIndex);
+            return columnLetter + rowIndex;
+        }
+
+        function showCellSelectorHint() {
+            const hint = document.createElement('div');
+            hint.id = 'cell-selector-hint';
+            hint.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#3b82f6;color:white;padding:15px 20px;border-radius:10px;font-weight:bold;z-index:1000;box-shadow:0 5px 20px rgba(0,0,0,0.5);animation:slideUp 0.3s';
+            hint.innerHTML = '🎯 Klikk på celler for å legge til i formelen<br><small>ESC for å avslutte</small>';
+            document.body.appendChild(hint);
+        }
+
+        function hideCellSelectorHint() {
+            const hint = document.getElementById('cell-selector-hint');
+            if (hint) hint.remove();
+        }
+
+        function handleCellFocus(cell) {
+            // When focusing, show the formula if it exists
+            if (cell.dataset.formula) {
+                cell.value = cell.dataset.formula;
+                cell.classList.add('formula');
+            }
+        }
+
+        function handleCellBlur(cell) {
+            // When leaving cell, show the result if it's a formula
+            if (cell.dataset.formula && cell.dataset.result) {
+                const result = parseFloat(cell.dataset.result);
+                if (!isNaN(result) && isFinite(result)) {
+                    // Format the result nicely
+                    cell.value = result.toLocaleString('nb-NO', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                    });
+                    cell.classList.remove('formula');
+                } else {
+                    cell.value = '0';
+                }
+            }
+        }
+
+        function checkAnswer() {
+            const task = tasks[gameState.currentTask];
+            const inputs = document.querySelectorAll('.cell[data-key]');
+            let correct = 0, total = inputs.length;
+
+            inputs.forEach(input => {
+                // Get value from formula result or direct input
+                let val = 0;
+                if (input.dataset.result) {
+                    val = parseFloat(input.dataset.result);
+                } else {
+                    val = parseFloat(input.value) || 0;
+                }
+                
+                const exp = task.solution[input.dataset.key];
+                const tol = Math.abs(exp) * 0.05;
+                
+                if (Math.abs(val - exp) <= tol || Math.abs(val - exp) <= 1) {
+                    correct++;
+                    input.parentElement.style.background = 'rgba(74, 222, 128, 0.2)';
+                } else {
+                    input.parentElement.style.background = 'rgba(239, 68, 68, 0.2)';
+                }
+            });
+
+            const fb = document.getElementById('feedback');
+            if (correct === total) {
+                gameState.score += 20;
+                if (!gameState.completedTasks.includes(task.id)) {
+                    gameState.completedTasks.push(task.id);
+                }
+                fb.className = 'feedback correct show';
+                fb.innerHTML = `🎉 PERFEKT!<br><small>${task.explanation}</small>`;
+            } else {
+                fb.className = 'feedback incorrect show';
+                fb.textContent = `✗ ${correct}/${total} riktige`;
+            }
+
+            updateStats();
+            loadTaskList();
+            saveProgress();
+        }
+
+        function showHint() {
+            document.getElementById('hint-content').innerHTML = tasks[gameState.currentTask].hint;
+            document.getElementById('hint-box').classList.add('show');
+        }
+
+        function resetTask() {
+            document.querySelectorAll('.cell[data-key]').forEach(c => {
+                c.value = '';
+                c.parentElement.style.background = '';
+            });
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('hint-box').classList.remove('show');
+        }
+
+        function updateStats() {
+            document.getElementById('completed-count').textContent = gameState.completedTasks.length;
+            document.getElementById('score').textContent = gameState.score;
+        }
+
+        function saveProgress() {
+            localStorage.setItem('hjernetrim_progress', JSON.stringify(gameState));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('hjernetrim_progress');
+            if (saved) {
+                const p = JSON.parse(saved);
+                gameState.completedTasks = p.completedTasks || [];
+                gameState.score = p.score || 0;
+                gameState.theme = p.theme || 'dark';
+                document.body.setAttribute('data-theme', gameState.theme);
+                updateStats();
+            }
+        }
+
+        function toggleTheme() {
+            gameState.theme = gameState.theme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', gameState.theme);
+            saveProgress();
+        }
+
+        function backToMenu() {
+            saveProgress();
+            window.location.href = 'index.html';
+        }
+
+        function forceUnlock() {
+            gameState.unlocked = true;
+            document.getElementById('lock-screen').style.display = 'none';
+            loadTask(0);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lærerportal - AccountingQuest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #2d2d2d;
+            border-bottom: 2px solid #404040;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #4ade80;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            background: #404040;
+            color: #e0e0e0;
+            border: 2px solid #555;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #4a4a4a;
+            border-color: #4ade80;
+        }
+
+        .btn.primary {
+            background: #4ade80;
+            border-color: #4ade80;
+            color: #1e1e1e;
+        }
+
+        .btn.primary:hover {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .welcome-section {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .welcome-section h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #4ade80;
+        }
+
+        .welcome-section p {
+            font-size: 1.2em;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .module-card {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            background: #353535;
+            border-color: #4ade80;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .module-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .module-title {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #4ade80;
+        }
+
+        .module-description {
+            font-size: 1em;
+            color: #e0e0e0;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .module-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .module-features li {
+            padding: 8px 0;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .module-features li::before {
+            content: "✓";
+            color: #4ade80;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #2d2d2d;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            background: #1e1e1e;
+            padding: 30px;
+            border-bottom: 2px solid #404040;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-header h2 {
+            font-size: 2em;
+            color: #4ade80;
+            margin-bottom: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .modal-body {
+            padding: 30px;
+            color: #e0e0e0;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #4ade80;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: #404040;
+            border: 2px solid #555;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4ade80;
+        }
+
+        /* Excel Table Builder */
+        .excel-builder {
+            background: #1e1e1e;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .excel-builder h3 {
+            color: #4ade80;
+            margin-bottom: 15px;
+        }
+
+        .excel-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .excel-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .excel-btn:hover {
+            background: #2563eb;
+        }
+
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .excel-table th,
+        .excel-table td {
+            border: 1px solid #555;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .excel-table th {
+            background: #404040;
+            color: #9ca3af;
+            font-weight: bold;
+        }
+
+        .excel-table input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            padding: 5px;
+        }
+
+        .excel-table input:focus {
+            outline: 2px solid #4ade80;
+            background: #2d2d2d;
+        }
+
+        .excel-row-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .excel-row-controls button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        /* Cell Type Selector */
+        .cell-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .cell-type-btn {
+            background: #404040;
+            color: #e0e0e0;
+            border: 2px solid #555;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .cell-type-btn.active {
+            background: #4ade80;
+            border-color: #4ade80;
+            color: #1e1e1e;
+        }
+
+        /* Options Checkbox Style */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #404040;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .option-item input[type="checkbox"] {
+            width: auto;
+        }
+
+        /* Save Actions */
+        .save-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #404040;
+        }
+
+        .save-btn {
+            background: #4ade80;
+            color: #1e1e1e;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .save-btn:hover {
+            background: #22c55e;
+        }
+
+        .cancel-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cancel-btn:hover {
+            background: #4b5563;
+        }
+
+        /* Quiz List */
+        .quiz-list {
+            display: grid;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .quiz-item {
+            background: #404040;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #4ade80;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quiz-info h3 {
+            color: #4ade80;
+            margin-bottom: 10px;
+        }
+
+        .quiz-meta {
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+
+        .quiz-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .quiz-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .edit-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .deploy-btn {
+            background: #4ade80;
+            color: #1e1e1e;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            📚 AccountingQuest - Lærerportal
+        </div>
+        <div class="header-actions">
+            <button class="btn" onclick="viewMyQuizzes()">Mine Quiz</button>
+            <button class="btn primary" onclick="createNewQuiz()">+ Lag Ny Oppgave</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h1>👋 Velkommen, Lærer!</h1>
+            <p>
+                Lag egendefinerte oppgaver med <strong>full Excel-funksjonalitet</strong> for dine studenter. 
+                Du har full kontroll over oppgavetyper, vanskelighetsgrad og formler.
+            </p>
+        </div>
+
+        <div class="modules-grid">
+            <!-- Bokføring Module -->
+            <div class="module-card" onclick="openModuleBuilder('bokforing')">
+                <div class="module-icon">📖</div>
+                <div class="module-title">Bokføring</div>
+                <div class="module-description">
+                    Lag interaktive bokføringsoppgaver med Excel-tabeller, formler og T-kontoer
+                </div>
+                <ul class="module-features">
+                    <li>Excel-stil regnearker</li>
+                    <li>Støtte for formler (=B1+B2)</li>
+                    <li>Cellereferanser og låsing</li>
+                    <li>Automatisk validering</li>
+                    <li>Drag-and-drop kontoplan</li>
+                </ul>
+            </div>
+
+            <!-- Quiz Module -->
+            <div class="module-card" onclick="openModuleBuilder('quiz')">
+                <div class="module-icon">❓</div>
+                <div class="module-title">Quiz & Teori</div>
+                <div class="module-description">
+                    Lag flervalgsoppgaver og teorispørsmål med Excel-baserte beregninger
+                </div>
+                <ul class="module-features">
+                    <li>Flervalg (A/B/C/D)</li>
+                    <li>Åpne spørsmål</li>
+                    <li>Excel-regneoppgaver</li>
+                    <li>Lovhjemlreferanser</li>
+                    <li>Forklaringer og hint</li>
+                </ul>
+            </div>
+
+            <!-- Regnskapsanalyse Module -->
+            <div class="module-card" onclick="openModuleBuilder('analyse')">
+                <div class="module-icon">📊</div>
+                <div class="module-title">Regnskapsanalyse</div>
+                <div class="module-description">
+                    Lag analyseoppgaver med nøkkeltall, horisontal og vertikal analyse
+                </div>
+                <ul class="module-features">
+                    <li>Horisontal analyse</li>
+                    <li>Vertikal analyse</li>
+                    <li>Nøkkeltallberegninger</li>
+                    <li>Excel-formler for %</li>
+                    <li>Grafisk fremstilling</li>
+                </ul>
+            </div>
+
+            <!-- Beregningsoppgaver Module -->
+            <div class="module-card" onclick="openModuleBuilder('beregning')">
+                <div class="module-icon">🔢</div>
+                <div class="module-title">Beregningsoppgaver</div>
+                <div class="module-description">
+                    Lag matematiske beregningsoppgaver med Excel-funksjoner
+                </div>
+                <ul class="module-features">
+                    <li>ROE, ROA, likviditet</li>
+                    <li>Soliditet og gjeldsgrad</li>
+                    <li>Excel-formler</li>
+                    <li>Steg-for-steg løsninger</li>
+                    <li>Randomiserte tall</li>
+                </ul>
+            </div>
+
+            <!-- Case Studies Module -->
+            <div class="module-card" onclick="openModuleBuilder('case')">
+                <div class="module-icon">💼</div>
+                <div class="module-title">Case Studies</div>
+                <div class="module-description">
+                    Lag komplekse case-oppgaver med resultatdisponering og årsavslutning
+                </div>
+                <ul class="module-features">
+                    <li>Resultatdisponering</li>
+                    <li>Tilleggsposteringer</li>
+                    <li>Årsavslutning</li>
+                    <li>Flerstegs oppgaver</li>
+                    <li>Excel-tabeller</li>
+                </ul>
+            </div>
+
+            <!-- Multiplayer Module -->
+            <div class="module-card" onclick="openMultiplayer()">
+                <div class="module-icon">🎮</div>
+                <div class="module-title">Multiplayer Quiz</div>
+                <div class="module-description">
+                    Lag Kahoot-stil klasseromsquiz med live konkurranse
+                </div>
+                <ul class="module-features">
+                    <li>Kahoot-stil spillmodus</li>
+                    <li>PIN-kode for studenter</li>
+                    <li>Live leaderboard</li>
+                    <li>1v1 Battles</li>
+                    <li>Blandet oppgavetyper</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Builder Modal -->
+    <div class="modal" id="builderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Lag Oppgave</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentModule = null;
+        let editingTaskId = null;
+        let savedTasks = JSON.parse(localStorage.getItem('teacher_tasks') || '{}');
+        
+        // Excel table state
+        let excelState = {
+            rows: [],
+            headers: ['#', 'Beskrivelse', 'Debet', 'Kredit'],
+            currentRowId: 0
+        };
+
+        function openModuleBuilder(module) {
+            currentModule = module;
+            const modal = document.getElementById('builderModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            const moduleNames = {
+                'bokforing': 'Bokføring',
+                'quiz': 'Quiz & Teori',
+                'analyse': 'Regnskapsanalyse',
+                'beregning': 'Beregningsoppgaver',
+                'case': 'Case Studies'
+            };
+            
+            title.textContent = `Lag ${moduleNames[module]} Oppgave`;
+            body.innerHTML = getBuilderHTML(module);
+            modal.classList.add('active');
+        }
+
+        function getBuilderHTML(module) {
+            const commonFields = `
+                <div class="form-group">
+                    <label>Oppgavetittel</label>
+                    <input type="text" id="taskTitle" placeholder="F.eks. 'Kontantsalg med MVA'">
+                </div>
+
+                <div class="form-group">
+                    <label>Beskrivelse/Oppgavetekst</label>
+                    <textarea id="taskDescription" placeholder="Beskriv oppgaven..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Vanskelighetsgrad</label>
+                    <select id="taskDifficulty">
+                        <option value="easy">Lett</option>
+                        <option value="medium">Middels</option>
+                        <option value="hard">Vanskelig</option>
+                    </select>
+                </div>
+            `;
+
+            let specificFields = '';
+
+            if (module === 'bokforing') {
+                specificFields = `
+                    <div class="excel-builder">
+                        <h3>📊 Excel-tabell for bokføring</h3>
+                        <p style="color: #9ca3af; margin-bottom: 15px;">
+                            Lag en Excel-lignende tabell hvor studentene skal fylle inn posteringer.
+                            Du kan definere hvilke celler som skal være input-felter.
+                        </p>
+                        
+                        <div class="excel-controls">
+                            <button class="excel-btn" onclick="addExcelRow()">+ Legg til rad</button>
+                            <button class="excel-btn" onclick="addExcelColumn()">+ Legg til kolonne</button>
+                        </div>
+
+                        <table class="excel-table" id="excelTable">
+                            <thead>
+                                <tr id="excelHeaders"></tr>
+                            </thead>
+                            <tbody id="excelBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kontoplan (valgfri)</label>
+                        <textarea id="kontoplan" placeholder="F.eks: 1920 Bankinnskudd, 3000 Salgsinntekt, ..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hint</label>
+                        <textarea id="taskHint" placeholder="Tips til studenten..."></textarea>
+                    </div>
+                `;
+            } else if (module === 'quiz') {
+                specificFields = `
+                    <div class="form-group">
+                        <label>Spørsmålstype</label>
+                        <select id="quizType" onchange="updateQuizFields()">
+                            <option value="multiple">Flervalg</option>
+                            <option value="open">Åpent svar</option>
+                            <option value="excel">Excel-beregning</option>
+                        </select>
+                    </div>
+
+                    <div id="quizFieldsContainer"></div>
+                `;
+            } else if (module === 'analyse' || module === 'beregning') {
+                specificFields = `
+                    <div class="excel-builder">
+                        <h3>📊 Excel-tabell for ${module === 'analyse' ? 'analyse' : 'beregning'}</h3>
+                        <p style="color: #9ca3af; margin-bottom: 15px;">
+                            Studentene skal fylle inn analyser/beregninger i Excel-format.
+                        </p>
+                        
+                        <div class="excel-controls">
+                            <button class="excel-btn" onclick="addExcelRow()">+ Legg til rad</button>
+                            <button class="excel-btn" onclick="addExcelColumn()">+ Legg til kolonne</button>
+                        </div>
+
+                        <table class="excel-table" id="excelTable">
+                            <thead>
+                                <tr id="excelHeaders"></tr>
+                            </thead>
+                            <tbody id="excelBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Formel/Utregning</label>
+                        <textarea id="taskFormula" placeholder="F.eks: ROE = (Årsresultat / Egenkapital) × 100"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hint</label>
+                        <textarea id="taskHint" placeholder="Tips til studenten..."></textarea>
+                    </div>
+                `;
+            } else if (module === 'case') {
+                specificFields = `
+                    <div class="excel-builder">
+                        <h3>💼 Case-oppgave med Excel</h3>
+                        <p style="color: #9ca3af; margin-bottom: 15px;">
+                            Kompleks case med flere steg og Excel-tabeller.
+                        </p>
+                        
+                        <div class="excel-controls">
+                            <button class="excel-btn" onclick="addExcelRow()">+ Legg til rad</button>
+                            <button class="excel-btn" onclick="addExcelColumn()">+ Legg til kolonne</button>
+                        </div>
+
+                        <table class="excel-table" id="excelTable">
+                            <thead>
+                                <tr id="excelHeaders"></tr>
+                            </thead>
+                            <tbody id="excelBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Løsningsforklaring</label>
+                        <textarea id="taskExplanation" placeholder="Forklar løsningen steg-for-steg..."></textarea>
+                    </div>
+                `;
+            }
+
+            return commonFields + specificFields + `
+                <div class="save-actions">
+                    <button class="cancel-btn" onclick="closeModal()">Avbryt</button>
+                    <button class="save-btn" onclick="saveTask()">💾 Lagre Oppgave</button>
+                </div>
+            `;
+        }
+
+        // Excel table functions
+        function initExcelTable() {
+            excelState = {
+                rows: [],
+                headers: ['#', 'Beskrivelse', 'Debet', 'Kredit'],
+                currentRowId: 0
+            };
+            renderExcelHeaders();
+            addExcelRow();
+        }
+
+        function renderExcelHeaders() {
+            const headersRow = document.getElementById('excelHeaders');
+            if (!headersRow) return;
+            
+            headersRow.innerHTML = excelState.headers.map((h, i) => 
+                `<th contenteditable="true" data-col="${i}" onblur="updateHeader(${i}, this.innerText)">${h}</th>`
+            ).join('');
+        }
+
+        function updateHeader(colIndex, newText) {
+            excelState.headers[colIndex] = newText;
+        }
+
+        function addExcelRow() {
+            const tbody = document.getElementById('excelBody');
+            if (!tbody) return;
+            
+            const rowId = excelState.currentRowId++;
+            const row = {
+                id: rowId,
+                cells: excelState.headers.map(() => ({ value: '', type: 'input', formula: '' }))
+            };
+            
+            excelState.rows.push(row);
+            
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-row-id', rowId);
+            tr.innerHTML = excelState.headers.map((h, colIndex) => `
+                <td>
+                    ${colIndex === 0 ? rowId + 1 : 
+                        `<div style="display: flex; gap: 5px;">
+                            <input type="text" placeholder="${h}" data-row="${rowId}" data-col="${colIndex}" style="flex: 1;">
+                            <select data-row="${rowId}" data-col="${colIndex}" style="width: 80px;" onchange="updateCellType(${rowId}, ${colIndex}, this.value)">
+                                <option value="input">Input</option>
+                                <option value="readonly">Fast</option>
+                                <option value="formula">Formel</option>
+                            </select>
+                        </div>`
+                    }
+                </td>
+            `).join('');
+            
+            tbody.appendChild(tr);
+        }
+
+        function addExcelColumn() {
+            const newHeader = `Kolonne ${excelState.headers.length}`;
+            excelState.headers.push(newHeader);
+            
+            // Update header row
+            renderExcelHeaders();
+            
+            // Add cell to each existing row in state
+            excelState.rows.forEach(row => {
+                row.cells.push({ value: '', type: 'input', formula: '' });
+            });
+            
+            // Update all existing rows in DOM
+            const tbody = document.getElementById('excelBody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach((tr, index) => {
+                const rowId = parseInt(tr.getAttribute('data-row-id'));
+                const newCell = document.createElement('td');
+                newCell.innerHTML = `
+                    <div style="display: flex; gap: 5px;">
+                        <input type="text" placeholder="${newHeader}" data-row="${rowId}" data-col="${excelState.headers.length - 1}" style="flex: 1;">
+                        <select data-row="${rowId}" data-col="${excelState.headers.length - 1}" style="width: 80px;" onchange="updateCellType(${rowId}, ${excelState.headers.length - 1}, this.value)">
+                            <option value="input">Input</option>
+                            <option value="readonly">Fast</option>
+                            <option value="formula">Formel</option>
+                        </select>
+                    </div>
+                `;
+                tr.appendChild(newCell);
+            });
+        }
+
+        function updateCellType(rowId, colIndex, type) {
+            const row = excelState.rows.find(r => r.id === rowId);
+            if (row) {
+                row.cells[colIndex].type = type;
+            }
+        }
+
+        function updateQuizFields() {
+            const type = document.getElementById('quizType').value;
+            const container = document.getElementById('quizFieldsContainer');
+            
+            if (type === 'multiple') {
+                container.innerHTML = `
+                    <div class="form-group">
+                        <label>Alternativer (minimum 2)</label>
+                        <div id="optionsList">
+                            <div class="option-item">
+                                <input type="checkbox" id="opt1correct">
+                                <input type="text" placeholder="Alternativ 1" id="opt1">
+                            </div>
+                            <div class="option-item">
+                                <input type="checkbox" id="opt2correct">
+                                <input type="text" placeholder="Alternativ 2" id="opt2">
+                            </div>
+                        </div>
+                        <button class="excel-btn" onclick="addOption()" style="margin-top: 10px;">+ Legg til alternativ</button>
+                    </div>
+                `;
+            } else if (type === 'open') {
+                container.innerHTML = `
+                    <div class="form-group">
+                        <label>Forventet svar / Nøkkelord</label>
+                        <textarea id="expectedAnswer" placeholder="Hva er riktig svar?"></textarea>
+                    </div>
+                `;
+            } else if (type === 'excel') {
+                container.innerHTML = `
+                    <div class="excel-builder">
+                        <h3>📊 Excel-tabell for quiz</h3>
+                        <div class="excel-controls">
+                            <button class="excel-btn" onclick="addExcelRow()">+ Legg til rad</button>
+                        </div>
+                        <table class="excel-table" id="excelTable">
+                            <thead>
+                                <tr id="excelHeaders"></tr>
+                            </thead>
+                            <tbody id="excelBody"></tbody>
+                        </table>
+                    </div>
+                `;
+                setTimeout(initExcelTable, 100);
+            }
+        }
+
+        let optionCount = 2;
+        function addOption() {
+            optionCount++;
+            const list = document.getElementById('optionsList');
+            const div = document.createElement('div');
+            div.className = 'option-item';
+            div.innerHTML = `
+                <input type="checkbox" id="opt${optionCount}correct">
+                <input type="text" placeholder="Alternativ ${optionCount}" id="opt${optionCount}">
+            `;
+            list.appendChild(div);
+        }
+
+        function saveTask() {
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const difficulty = document.getElementById('taskDifficulty').value;
+            
+            if (!title || !description) {
+                alert('Vennligst fyll inn tittel og beskrivelse!');
+                return;
+            }
+
+            const task = {
+                id: editingTaskId || Date.now(),
+                module: currentModule,
+                title,
+                description,
+                difficulty,
+                created: new Date().toISOString(),
+                excelData: null
+            };
+
+            // Save Excel data if applicable
+            if (currentModule === 'bokforing' || currentModule === 'analyse' || 
+                currentModule === 'beregning' || currentModule === 'case') {
+                task.excelData = {
+                    headers: excelState.headers,
+                    rows: excelState.rows
+                };
+            }
+
+            // Save quiz-specific data
+            if (currentModule === 'quiz') {
+                const type = document.getElementById('quizType').value;
+                task.quizType = type;
+                
+                if (type === 'multiple') {
+                    task.options = [];
+                    let i = 1;
+                    while (document.getElementById(`opt${i}`)) {
+                        const optText = document.getElementById(`opt${i}`).value;
+                        const isCorrect = document.getElementById(`opt${i}correct`).checked;
+                        if (optText) {
+                            task.options.push({ text: optText, correct: isCorrect });
+                        }
+                        i++;
+                    }
+                } else if (type === 'open') {
+                    task.expectedAnswer = document.getElementById('expectedAnswer').value;
+                } else if (type === 'excel') {
+                    task.excelData = {
+                        headers: excelState.headers,
+                        rows: excelState.rows
+                    };
+                }
+            }
+
+            // Save to localStorage
+            if (!savedTasks[currentModule]) {
+                savedTasks[currentModule] = [];
+            }
+            
+            const existingIndex = savedTasks[currentModule].findIndex(t => t.id === task.id);
+            if (existingIndex >= 0) {
+                savedTasks[currentModule][existingIndex] = task;
+            } else {
+                savedTasks[currentModule].push(task);
+            }
+            
+            localStorage.setItem('teacher_tasks', JSON.stringify(savedTasks));
+            
+            alert('✅ Oppgave lagret!');
+            closeModal();
+            viewMyQuizzes();
+        }
+
+        function closeModal() {
+            document.getElementById('builderModal').classList.remove('active');
+            excelState = {
+                rows: [],
+                headers: ['#', 'Beskrivelse', 'Debet', 'Kredit'],
+                currentRowId: 0
+            };
+        }
+
+        function viewMyQuizzes() {
+            const modal = document.getElementById('builderModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = '📚 Mine Oppgaver';
+            
+            let html = '<div class="quiz-list">';
+            
+            Object.keys(savedTasks).forEach(module => {
+                savedTasks[module].forEach(task => {
+                    html += `
+                        <div class="quiz-item">
+                            <div class="quiz-info">
+                                <h3>${task.title}</h3>
+                                <div class="quiz-meta">
+                                    Modul: ${module} | Vanskelighetsgrad: ${task.difficulty} | 
+                                    Opprettet: ${new Date(task.created).toLocaleDateString('no')}
+                                </div>
+                            </div>
+                            <div class="quiz-actions">
+                                <button class="edit-btn" onclick="editTask('${module}', ${task.id})">✏️ Rediger</button>
+                                <button class="deploy-btn" onclick="deployTask('${module}', ${task.id})">🚀 Publiser</button>
+                                <button class="delete-btn" onclick="deleteTask('${module}', ${task.id})">🗑️ Slett</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+            
+            html += '</div>';
+            
+            if (Object.keys(savedTasks).every(k => savedTasks[k].length === 0)) {
+                html = '<p style="text-align: center; padding: 40px; color: #9ca3af;">Du har ingen lagrede oppgaver ennå. Klikk "Lag Ny Oppgave" for å komme i gang!</p>';
+            }
+            
+            body.innerHTML = html;
+            modal.classList.add('active');
+        }
+
+        function editTask(module, taskId) {
+            const task = savedTasks[module].find(t => t.id === taskId);
+            if (!task) return;
+            
+            editingTaskId = taskId;
+            closeModal();
+            setTimeout(() => {
+                openModuleBuilder(module);
+                // Pre-fill form with task data
+                document.getElementById('taskTitle').value = task.title;
+                document.getElementById('taskDescription').value = task.description;
+                document.getElementById('taskDifficulty').value = task.difficulty;
+                
+                if (task.excelData) {
+                    excelState = {
+                        headers: task.excelData.headers,
+                        rows: task.excelData.rows,
+                        currentRowId: task.excelData.rows.length
+                    };
+                    renderExcelHeaders();
+                    // Re-render rows...
+                }
+            }, 100);
+        }
+
+        function deleteTask(module, taskId) {
+            if (confirm('Er du sikker på at du vil slette denne oppgaven?')) {
+                savedTasks[module] = savedTasks[module].filter(t => t.id !== taskId);
+                localStorage.setItem('teacher_tasks', JSON.stringify(savedTasks));
+                viewMyQuizzes();
+            }
+        }
+
+        function deployTask(module, taskId) {
+            alert('🚀 Oppgave publisert! Studentene kan nå se og løse denne oppgaven.');
+            // Here you would typically send the task to a backend/Firebase
+        }
+
+        function createNewQuiz() {
+            const modules = ['bokforing', 'quiz', 'analyse', 'beregning', 'case'];
+            const choice = prompt('Velg modul:\n1. Bokføring\n2. Quiz\n3. Analyse\n4. Beregning\n5. Case');
+            
+            if (choice && choice >= 1 && choice <= 5) {
+                openModuleBuilder(modules[choice - 1]);
+            }
+        }
+
+        function openMultiplayer() {
+            alert('🎮 Multiplayer-modul kommer snart! Her kan du lage Kahoot-stil klasseromsquiz.');
+        }
+
+        // Initialize Excel table when needed
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto-init if Excel table exists
+            setTimeout(() => {
+                if (document.getElementById('excelTable')) {
+                    initExcelTable();
+                }
+            }, 200);
+        });
+    </script>
+</body>
+</html>

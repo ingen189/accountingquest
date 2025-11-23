@@ -1,0 +1,4154 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - AccountingQuest</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f3460;
+            --text-primary: #eaeaea;
+            --text-secondary: #a0a0a0;
+            --accent-primary: #4ade80;
+            --accent-secondary: #3b82f6;
+            --border-color: #404040;
+            --card-bg: #2d2d2d;
+            --hover-bg: rgba(74, 222, 128, 0.2);
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e5e5e5;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --accent-primary: #22c55e;
+            --accent-secondary: #2563eb;
+            --border-color: #d4d4d4;
+            --card-bg: #ffffff;
+            --hover-bg: rgba(34, 197, 94, 0.1);
+            --error-color: #dc2626;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            background: var(--border-color);
+            color: var(--text-primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: var(--accent-primary);
+            color: #1e1e1e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.3);
+        }
+
+        .wiki-btn {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .wiki-btn:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: var(--border-color);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-right: 5px;
+        }
+
+        .stat-value {
+            color: var(--accent-primary);
+            font-weight: bold;
+        }
+
+        /* Content Layout */
+        .content {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--card-bg);
+            border-right: 2px solid var(--border-color);
+            overflow-y: auto;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .sidebar h3 {
+            color: var(--accent-primary);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-card {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-left: 4px solid transparent;
+            border-radius: 10px;
+            padding: 18px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .category-card:hover {
+            background: var(--hover-bg);
+            border-left-color: var(--accent-primary);
+            transform: translateX(5px);
+        }
+
+        .category-card.active {
+            background: var(--hover-bg);
+            border-left-color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .category-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .category-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .category-correct {
+            color: var(--accent-primary);
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        /* Workspace */
+        .workspace {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .question-box {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .question-number {
+            color: var(--accent-primary);
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        .question-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-secondary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            line-height: 1.6;
+            margin: 25px 0;
+            font-weight: 500;
+        }
+
+        /* Question Types */
+        .para-input {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px 20px;
+            color: var(--text-primary);
+            font-size: 1.2em;
+            width: 100%;
+            max-width: 400px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            transition: all 0.3s;
+        }
+
+        .para-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+        }
+
+        .para-hint {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .mc-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .mc-option {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.05em;
+        }
+
+        .mc-option:hover {
+            background: var(--hover-bg);
+            border-color: var(--accent-primary);
+            transform: translateX(5px);
+        }
+
+        .mc-option input[type="radio"],
+        .mc-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+
+        .mc-option.correct {
+            background: rgba(74, 222, 128, 0.15);
+            border-color: var(--accent-primary);
+        }
+
+        .mc-option.incorrect {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--error-color);
+        }
+
+        .tf-buttons {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .tf-btn {
+            flex: 1;
+            min-width: 150px;
+            background: var(--bg-primary);
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .tf-btn:hover {
+            background: var(--hover-bg);
+            border-color: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
+        .tf-btn.selected {
+            background: var(--hover-bg);
+            border-color: var(--accent-primary);
+        }
+
+        .tf-btn.correct {
+            background: rgba(74, 222, 128, 0.15);
+            border-color: var(--accent-primary);
+        }
+
+        .tf-btn.incorrect {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--error-color);
+        }
+
+        /* Drag and Drop */
+        .dnd-container {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .dnd-items {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .dnd-items h4 {
+            color: var(--accent-primary);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .dnd-item {
+            background: var(--accent-secondary);
+            color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: move;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .dnd-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .dnd-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .dnd-targets {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .dnd-target-label {
+            color: var(--accent-primary);
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .dnd-target {
+            min-height: 150px;
+            background: var(--bg-primary);
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .dnd-target.drag-over {
+            background: var(--hover-bg);
+            border-color: var(--accent-primary);
+            border-style: solid;
+        }
+
+        .dnd-target.filled {
+            border-style: solid;
+            border-color: var(--accent-primary);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: var(--accent-primary);
+            color: #1e1e1e;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.05em;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(74, 222, 128, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--text-secondary);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Feedback Box */
+        .feedback {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 25px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.5s;
+        }
+
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feedback.correct {
+            border-color: var(--accent-primary);
+            background: rgba(74, 222, 128, 0.05);
+        }
+
+        .feedback.incorrect {
+            border-color: var(--error-color);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .feedback-icon {
+            font-size: 3em;
+        }
+
+        .feedback-text {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .feedback.correct .feedback-text {
+            color: var(--accent-primary);
+        }
+
+        .feedback.incorrect .feedback-text {
+            color: var(--error-color);
+        }
+
+        .law-reference {
+            background: var(--bg-primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .law-reference strong {
+            color: var(--accent-primary);
+        }
+
+        .law-reference a {
+            color: var(--accent-secondary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .law-reference a:hover {
+            text-decoration: underline;
+        }
+
+        .explanation {
+            font-size: 1.05em;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-top: 15px;
+        }
+
+        /* Completion Screen */
+        .completion-screen {
+            text-align: center;
+            padding: 60px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .completion-screen h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .completion-screen p {
+            font-size: 1.4em;
+            margin-bottom: 40px;
+            color: var(--text-secondary);
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            border: 3px solid var(--accent-primary);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 15px 50px rgba(74, 222, 128, 0.2);
+        }
+
+        .stats-card h3 {
+            color: var(--accent-primary);
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            font-size: 1.2em;
+            line-height: 2;
+        }
+
+        .stat-row {
+            background: var(--bg-primary);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .stat-emoji {
+            font-size: 1.5em;
+            margin-right: 8px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 2px solid var(--border-color);
+                max-height: 300px;
+            }
+
+            .content {
+                flex-direction: column;
+            }
+
+            .workspace {
+                padding: 20px;
+            }
+
+            .question-box {
+                padding: 25px;
+            }
+
+            .question-text {
+                font-size: 1.2em;
+            }
+
+            .tf-buttons {
+                flex-direction: column;
+            }
+
+            .tf-btn {
+                min-width: 100%;
+            }
+
+            .dnd-container {
+                flex-direction: column;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .completion-screen h1 {
+                font-size: 2.5em;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <button class="back-btn" onclick="location.href='index.html'">
+                <span>←</span>
+                <span>Tilbake</span>
+            </button>
+            <button class="wiki-btn" onclick="location.href='wiki.html'">
+                <span>📖</span>
+                <span>Wiki</span>
+            </button>
+        </div>
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="stat-label">Spørsmål:</span>
+                <span class="stat-value" id="curr">1</span>/<span id="qnum-total">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">📊 Totalt:</span>
+                <span class="stat-value" id="tot">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">✅ Besvart:</span>
+                <span class="stat-value" id="ans">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">✓ Riktige:</span>
+                <span class="stat-value" id="corr">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <h3>📚 Kategorier</h3>
+            <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Workspace -->
+        <div class="workspace">
+            <div class="question-box">
+                <div class="question-header">
+                    <div class="question-number" id="qnum">Spørsmål 1 av 0</div>
+                    <div class="question-type" id="qtype">📘 Type</div>
+                </div>
+                <div class="question-text" id="qtext">Laster spørsmål...</div>
+                <div id="qcontent">
+                    <!-- Question content populated by JavaScript -->
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="checkA()">
+                        <span>✓</span>
+                        <span>Sjekk svar</span>
+                    </button>
+                    <button class="action-btn secondary" onclick="skipQ()">
+                        <span>→</span>
+                        <span>Hopp over</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feedback Box -->
+            <div class="feedback" id="feedback">
+                <div class="feedback-header">
+                    <div class="feedback-icon" id="feedicon">🎉</div>
+                    <div class="feedback-text" id="feedtext">Riktig!</div>
+                </div>
+                <div class="law-reference" id="lawref">
+                    <strong>📜 Lovhjemmel:</strong> <a href="#" target="_blank">§ X-X (LOV)</a>
+                </div>
+                <div class="explanation" id="explain">
+                    Forklaring kommer her...
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn" id="nextbtn" onclick="nextQ()">
+                        <span>→</span>
+                        <span>Neste spørsmål</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Database
+        const DB = {
+            "Grunnleggende Regnskap": [
+                {
+                    type: "para",
+                    q: "I hvilken paragraf i regnskapsloven finner du definisjonen av årsregnskap?",
+                    a: "§ 1-2 (RGL)",
+                    variations: ["§1-2", "§ 1-2", "1-2", "§1-2 RGL", "§ 1-2 RGL"],
+                    l: "§ 1-2 (RGL)",
+                    w: "#wiki/rgl-1-2",
+                    exp: "§ 1-2 i regnskapsloven definerer årsregnskap og regnskapsplikt."
+                },
+                {
+                    type: "mc",
+                    q: "Hva består årsregnskapet av?",
+                    opts: [
+                        "Kun resultatregnskap og balanse",
+                        "Resultatregnskap, balanse og noter",
+                        "Resultatregnskap, balanse, kontantstrømoppstilling og noter",
+                        "Kun balansen"
+                    ],
+                    a: 2,
+                    l: "§ 3-2 (RGL)",
+                    w: "#wiki/rgl-3-2",
+                    exp: "Årsregnskapet består av resultatregnskap, balanse, kontantstrømoppstilling (for større foretak) og noter."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Balanselikningen er Eiendeler = Egenkapital + Gjeld",
+                    a: true,
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/balanselikningen",
+                    exp: "Dette er korrekt. Balanselikningen viser at totale eiendeler alltid er lik sum av egenkapital og gjeld."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke av følgende er omløpsmidler? (Velg alle som passer)",
+                    opts: ["Varelager", "Kundefordringer", "Bygninger", "Kontanter", "Maskiner"],
+                    a: [0, 1, 3],
+                    l: "§ 5-1 (RGL)",
+                    w: "#wiki/omlop",
+                    exp: "Omløpsmidler inkluderer varer, fordringer og kontanter. Bygninger og maskiner er anleggsmidler."
+                },
+                {
+                    type: "dnd",
+                    q: "Dra begrepene til riktig side av T-kontoen:",
+                    items: [
+                        "Eiendeler øker",
+                        "Kostnader",
+                        "Gjeld reduseres",
+                        "Inntekter",
+                        "Egenkapital reduseres"
+                    ],
+                    targets: [
+                        { label: "DEBET (venstre)", correct: [0, 1, 2] },
+                        { label: "KREDIT (høyre)", correct: [3, 4] }
+                    ],
+                    l: "God bokføringsskikk",
+                    w: "#wiki/debet-kredit",
+                    exp: "Debet: Eiendeler øker, kostnader, gjeld reduseres. Kredit: Inntekter, gjeld øker, egenkapital øker."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er formålet med årsregnskapet?",
+                    opts: [
+                        "Kun å beregne skatt",
+                        "Å gi informasjon om foretakets økonomiske stilling og resultat",
+                        "Å tilfredsstille bankens krav",
+                        "Kun å dokumentere transaksjoner"
+                    ],
+                    a: 1,
+                    l: "§ 3-1 (RGL)",
+                    w: "#wiki/formal",
+                    exp: "Årsregnskapet skal gi informasjon om foretakets økonomiske stilling og resultat, og er grunnlag for beslutninger."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Alle regnskapspliktige skal føre årsregnskap etter regnskapsloven",
+                    a: true,
+                    l: "§ 1-2 (RGL)",
+                    w: "#wiki/plikt",
+                    exp: "Alle regnskapspliktige må føre årsregnskap i samsvar med regnskapsloven, god regnskapsskikk og bestemmelser."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf omhandler god regnskapsskikk?",
+                    a: "§ 4-1 (RGL)",
+                    variations: ["§4-1", "§ 4-1", "4-1", "§4-1 RGL", "§ 4-1 RGL"],
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/god-skikk",
+                    exp: "§ 4-1 fastslår at årsregnskapet skal utarbeides i samsvar med god regnskapsskikk."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke av følgende er anleggsmidler? (Velg alle)",
+                    opts: ["Bygninger", "Maskiner", "Varelager", "Goodwill", "Kundefordringer"],
+                    a: [0, 1, 3],
+                    l: "§ 5-1 (RGL)",
+                    w: "#wiki/anlegg",
+                    exp: "Anleggsmidler er eiendeler bestemt til varig eie eller bruk: bygninger, maskiner, goodwill. Varelager og kundefordringer er omløpsmidler."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er egenkapital?",
+                    opts: [
+                        "Foretakets gjeld til banker",
+                        "Differansen mellom eiendeler og gjeld",
+                        "Summen av alle eiendeler",
+                        "Årets resultat"
+                    ],
+                    a: 1,
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/egenkapital",
+                    exp: "Egenkapital er differansen mellom eiendeler og gjeld, og representerer eiernes kapital i virksomheten."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Resultatregnskapet viser foretakets inntekter og kostnader for en periode",
+                    a: true,
+                    l: "§ 6-1 (RGL)",
+                    w: "#wiki/resultat",
+                    exp: "Resultatregnskapet viser inntekter, kostnader og resultatet for regnskapsperioden."
+                },
+                {
+                    type: "para",
+                    q: "I hvilken paragraf finner du kravene til balansen?",
+                    a: "§ 6-2 (RGL)",
+                    variations: ["§6-2", "§ 6-2", "6-2", "§6-2 RGL", "§ 6-2 RGL"],
+                    l: "§ 6-2 (RGL)",
+                    w: "#wiki/balanse",
+                    exp: "§ 6-2 regulerer oppstilling og innhold i balansen."
+                },
+                {
+                    type: "multi",
+                    q: "Hva skal være med i årsberetningen? (Velg alle)",
+                    opts: [
+                        "Redegjørelse for virksomheten",
+                        "Fortsatt drift forutsetning",
+                        "Kundeliste",
+                        "Arbeidsmiljø",
+                        "Konkurransesituasjon"
+                    ],
+                    a: [0, 1, 3],
+                    l: "§ 3-3 (RGL)",
+                    w: "#wiki/arsberetning",
+                    exp: "Årsberetningen skal bl.a. inneholde redegjørelse for virksomheten, fortsatt drift og arbeidsmiljø."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter postene i riktig del av balansen:",
+                    items: ["Varelager", "Bygninger", "Leverandørgjeld", "Egenkapital", "Bankinnskudd"],
+                    targets: [
+                        { label: "Eiendeler", correct: [0, 1, 4] },
+                        { label: "Egenkapital og gjeld", correct: [2, 3] }
+                    ],
+                    l: "§ 6-2 (RGL)",
+                    w: "#wiki/balanse-oppstilling",
+                    exp: "Balansen viser eiendeler på venstre side, egenkapital og gjeld på høyre side."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er regnskapsåret for de fleste foretak?",
+                    opts: ["1. januar - 31. desember", "1. juli - 30. juni", "1. april - 31. mars", "Fritt valg"],
+                    a: 0,
+                    l: "§ 1-7 (RGL)",
+                    w: "#wiki/regnskapsaar",
+                    exp: "Regnskapsåret er normalt kalenderåret, men kan avvike for enkelte typer virksomheter."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Små foretak kan unnlate å utarbeide kontantstrømoppstilling",
+                    a: true,
+                    l: "§ 3-2 (RGL)",
+                    w: "#wiki/kontantstrom",
+                    exp: "Små foretak er fritatt fra plikten til å utarbeide kontantstrømoppstilling."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf definerer små foretak?",
+                    a: "§ 1-6 (RGL)",
+                    variations: ["§1-6", "§ 1-6", "1-6", "§1-6 RGL", "§ 1-6 RGL"],
+                    l: "§ 1-6 (RGL)",
+                    w: "#wiki/sma-foretak",
+                    exp: "§ 1-6 definerer små foretak basert på grenser for salgsinntekt, balansesum og antall ansatte."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke prinsipper inngår i god regnskapsskikk? (Velg alle)",
+                    opts: [
+                        "Transaksjonsprinsippet",
+                        "Opptjeningsprinsippet",
+                        "Kreativitetsprinsippet",
+                        "Sammenstillingsprinsippet",
+                        "Forsiktighetsprinsippet"
+                    ],
+                    a: [0, 1, 3, 4],
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/prinsipper",
+                    exp: "God regnskapsskikk omfatter bl.a. transaksjons-, opptjenings-, sammenstillings- og forsiktighetsprinsippet."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er transaksjonsprinsippet?",
+                    opts: [
+                        "Alle transaksjoner skal betales kontant",
+                        "Regnskapet skal bygge på faktiske transaksjoner",
+                        "Transaksjoner skal godkjennes av revisor",
+                        "Kun store transaksjoner skal bokføres"
+                    ],
+                    a: 1,
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/transaksjon",
+                    exp: "Transaksjonsprinsippet sier at regnskapet skal bygge på faktiske transaksjoner og hendelser."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Goodwill er et immaterielt eiendel",
+                    a: true,
+                    l: "§ 5-3 (RGL)",
+                    w: "#wiki/goodwill",
+                    exp: "Goodwill er en immateriell eiendel som oppstår ved oppkjøp av virksomhet."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf regulerer vurdering av eiendeler?",
+                    a: "§ 5-2 (RGL)",
+                    variations: ["§5-2", "§ 5-2", "5-2", "§5-2 RGL", "§ 5-2 RGL"],
+                    l: "§ 5-2 (RGL)",
+                    w: "#wiki/vurdering",
+                    exp: "§ 5-2 regulerer hvordan eiendeler skal vurderes i balansen."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke noter er obligatoriske? (Velg alle)",
+                    opts: [
+                        "Regnskapsprinsipper",
+                        "Ansattes fødselsdager",
+                        "Lønnskostnader",
+                        "Markedsføringskostnader",
+                        "Revisorhonorarer"
+                    ],
+                    a: [0, 2, 4],
+                    l: "§ 7-1 (RGL)",
+                    w: "#wiki/noter",
+                    exp: "Notene skal bl.a. inneholde regnskapsprinsipper, lønnskostnader og revisorhonorarer."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser regnskapsdokumentene:",
+                    items: ["Faktura", "Kontrakt", "E-post", "Bankkontoutskrift", "Kvittering"],
+                    targets: [
+                        { label: "Primærdokumenter", correct: [0, 3, 4] },
+                        { label: "Støttedokumenter", correct: [1, 2] }
+                    ],
+                    l: "§ 2-1 (BFL)",
+                    w: "#wiki/dokumenter",
+                    exp: "Primærdokumenter er grunnlag for bokføring. Støttedokumenter gir tilleggsinformasjon."
+                },
+                {
+                    type: "mc",
+                    q: "Hvor lenge skal regnskapsmateriale oppbevares?",
+                    opts: ["3 år", "5 år", "7 år", "10 år"],
+                    a: 1,
+                    l: "§ 13-1 (BFL)",
+                    w: "#wiki/oppbevaring",
+                    exp: "Regnskapsmateriale skal oppbevares i 5 år etter regnskapsårets slutt."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er forskjellen på finansregnskap og årsregnskap?",
+                    opts: [
+                        "Det er ingen forskjell",
+                        "Finansregnskap kan dekke kortere perioder, årsregnskap er alltid 12 måneder",
+                        "Finansregnskap er kun for børsnoterte",
+                        "Årsregnskap er kun for små bedrifter"
+                    ],
+                    a: 1,
+                    l: "§ 1-2 (RGL)",
+                    w: "#wiki/finans-vs-ars",
+                    exp: "Finansregnskap kan dekke kvartaler eller andre perioder. Årsregnskap er alltid for 12 måneder."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Revisor er ansvarlig for å utarbeide regnskapet",
+                    a: false,
+                    l: "Revisorloven",
+                    w: "#wiki/revisor-ansvar",
+                    exp: "Ledelsen er ansvarlig for regnskapet. Revisor kontrollerer og bekrefter det."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf definerer hvem som er regnskapsbrukere?",
+                    a: "§ 3-1 (RGL)",
+                    variations: ["§3-1", "§ 3-1", "3-1", "§3-1 RGL", "§ 3-1 RGL"],
+                    l: "§ 3-1 (RGL)",
+                    w: "#wiki/brukere",
+                    exp: "§ 3-1 beskriver at regnskapet skal gi informasjon til ulike interessenter."
+                },
+                {
+                    type: "multi",
+                    q: "Hvem er regnskapsbrukere? (Velg alle)",
+                    opts: [
+                        "Eiere/aksjonærer",
+                        "Kreditorer/banker",
+                        "Kun revisor",
+                        "Ansatte",
+                        "Skatteetaten"
+                    ],
+                    a: [0, 1, 3, 4],
+                    l: "§ 3-1 (RGL)",
+                    w: "#wiki/interessenter",
+                    exp: "Regnskapsbrukere: eiere, kreditorer, ansatte, myndigheter, kunder, leverandører."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er formålet med dobbelt bokføring?",
+                    opts: [
+                        "Å bokføre to ganger for sikkerhet",
+                        "Å sikre balanse mellom debet og kredit",
+                        "Å ha to separate regnskaper",
+                        "Å dele arbeidet mellom to personer"
+                    ],
+                    a: 1,
+                    l: "§ 4-1 (BFL)",
+                    w: "#wiki/dobbelt-formal",
+                    exp: "Dobbelt bokføring sikrer at debet = kredit og gir kontroll og oversikt."
+                }
+            ],
+            "Regnskapsførsel": [
+                {
+                    type: "mc",
+                    q: "Hva sier opptjeningsprinsippet?",
+                    opts: [
+                        "Inntekt resultatføres når faktura sendes",
+                        "Inntekt resultatføres når betaling mottas",
+                        "Inntekt resultatføres når den er opptjent (vare levert/tjeneste utført)",
+                        "Inntekt resultatføres ved årsslutt"
+                    ],
+                    a: 2,
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/opptjening",
+                    exp: "Opptjeningsprinsippet sier at inntekt skal resultatføres når den er opptjent, uavhengig av betalingstidspunkt."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Sammenstillingsprinsippet betyr at kostnader føres i samme periode som tilhørende inntekter",
+                    a: true,
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/sammenstilling",
+                    exp: "Dette er korrekt. Matching av inntekter og kostnader sikrer riktig periodisering."
+                },
+                {
+                    type: "para",
+                    q: "I hvilken paragraf finner du forsiktighetsprinsippet?",
+                    a: "§ 4-2 (RGL)",
+                    variations: ["§4-2", "§ 4-2", "4-2"],
+                    l: "§ 4-2 (RGL)",
+                    w: "#wiki/forsiktighet",
+                    exp: "§ 4-2 sier at urealiserte tap skal resultatføres, mens urealiserte gevinster ikke skal resultatføres."
+                },
+                {
+                    type: "multi",
+                    q: "Hva inkluderes i lønnskostnad? (Velg alle)",
+                    opts: ["Bruttolønn", "Arbeidsgiveravgift (AGA)", "Feriepenger", "Kun nettolønn"],
+                    a: [0, 1, 2],
+                    l: "§ 6-1 (RGL)",
+                    w: "#wiki/lonn",
+                    exp: "Lønnskostnad inkluderer bruttolønn, AGA, feriepenger og pensjonskostnader."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter kostnadene i riktig kategori:",
+                    items: [
+                        "Råvarer til produksjon",
+                        "Lønn til produksjonsarbeidere",
+                        "Husleie for fabrikk",
+                        "Reklame",
+                        "Administrasjon"
+                    ],
+                    targets: [
+                        { label: "Direkte kostnader", correct: [0, 1] },
+                        { label: "Indirekte kostnader", correct: [2, 3, 4] }
+                    ],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/kostnader",
+                    exp: "Direkte kostnader kan knyttes direkte til produktet. Indirekte kostnader må fordeles."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er en avsetning?",
+                    opts: [
+                        "Penger satt til side på bankkonto",
+                        "Forventet fremtidig forpliktelse som er usikker med hensyn til beløp eller tidspunkt",
+                        "Egenkapital som ikke kan deles ut",
+                        "Periodisert inntekt"
+                    ],
+                    a: 1,
+                    l: "§ 5-9 (RGL)",
+                    w: "#wiki/avsetning",
+                    exp: "Avsetning er en forpliktelse som er usikker med hensyn til beløp eller forfallstidspunkt."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Avskrivninger er utgifter som påvirker kontantstrømmen",
+                    a: false,
+                    l: "§ 5-3 (RGL)",
+                    w: "#wiki/avskrivning",
+                    exp: "Avskrivninger er kostnader, ikke utgifter. De påvirker resultatet, men ikke kontantstrømmen direkte."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf regulerer periodisering av inntekter og kostnader?",
+                    a: "§ 4-1 (RGL)",
+                    variations: ["§4-1", "§ 4-1", "4-1", "§4-1 RGL", "§ 4-1 RGL"],
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/periodisering",
+                    exp: "§ 4-1 fastslår prinsippene for periodisering av inntekter og kostnader."
+                },
+                {
+                    type: "multi",
+                    q: "Hva skal resultatføres umiddelbart? (Velg alle)",
+                    opts: [
+                        "Forskuddsbetalt husleie",
+                        "Urealiserte tap",
+                        "Påløpte kostnader",
+                        "Forskuddsbetalte forsikringer",
+                        "Tap på fordringer"
+                    ],
+                    a: [1, 2, 4],
+                    l: "§ 4-2 (RGL)",
+                    w: "#wiki/resultatforing",
+                    exp: "Urealiserte tap, påløpte kostnader og realiserte tap skal resultatføres. Forskuddsbetalinger balanseres."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er påløpte kostnader?",
+                    opts: [
+                        "Kostnader som er betalt, men ikke opptjent",
+                        "Kostnader som er opptjent, men ikke betalt",
+                        "Alle kostnader i perioden",
+                        "Kun variable kostnader"
+                    ],
+                    a: 1,
+                    l: "§ 5-7 (RGL)",
+                    w: "#wiki/palopt",
+                    exp: "Påløpte kostnader er kostnader som tilhører perioden, men som ikke er betalt ennå."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Forskuddsbetalte kostnader er en eiendel",
+                    a: true,
+                    l: "§ 5-1 (RGL)",
+                    w: "#wiki/forskudd",
+                    exp: "Forskuddsbetalte kostnader (f.eks. forskuddsbetalt husleie) er en eiendel som skal balanseføres."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf omhandler vurdering av varelager?",
+                    a: "§ 5-2 (RGL)",
+                    variations: ["§5-2", "§ 5-2", "5-2", "§5-2 RGL", "§ 5-2 RGL"],
+                    l: "§ 5-2 (RGL)",
+                    w: "#wiki/varelager",
+                    exp: "§ 5-2 regulerer vurdering av varelager til laveste verdi av anskaffelseskost og virkelig verdi."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke metoder kan brukes for avskrivning? (Velg alle)",
+                    opts: [
+                        "Lineær avskrivning",
+                        "Saldoavskrivning",
+                        "Tilfeldig avskrivning",
+                        "Produksjonsavskrivning",
+                        "Dobbel avskrivning"
+                    ],
+                    a: [0, 1, 3],
+                    l: "§ 5-3 (RGL)",
+                    w: "#wiki/avskrivningsmetoder",
+                    exp: "Tillatte metoder inkluderer lineær, saldo og produksjonsavskrivning."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser transaksjonene:",
+                    items: [
+                        "Salg av varer på kreditt",
+                        "Kjøp av kontormøbler",
+                        "Betaling av husleie",
+                        "Mottatt faktura ikke betalt",
+                        "Utbetaling av lønn"
+                    ],
+                    targets: [
+                        { label: "Påvirker kontantstrømmen", correct: [2, 4] },
+                        { label: "Påvirker ikke kontantstrømmen", correct: [0, 1, 3] }
+                    ],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/kontantstrom",
+                    exp: "Kun betalinger påvirker kontantstrømmen. Kredittransaksjoner påvirker balansen."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er virkelig verdi?",
+                    opts: [
+                        "Opprinnelig kjøpspris",
+                        "Verdien eiendelen kan omsettes for mellom uavhengige parter",
+                        "Alltid markedspris",
+                        "Bokført verdi"
+                    ],
+                    a: 1,
+                    l: "§ 5-2 (RGL)",
+                    w: "#wiki/virkelig-verdi",
+                    exp: "Virkelig verdi er det beløp en eiendel kan omsettes for i en transaksjon mellom uavhengige parter."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Nedskrivninger kan reverseres i senere perioder",
+                    a: true,
+                    l: "§ 5-3 (RGL)",
+                    w: "#wiki/nedskrivning",
+                    exp: "Nedskrivninger kan reverseres dersom grunnlaget for nedskrivningen ikke lenger er til stede."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf regulerer tap på fordringer?",
+                    a: "§ 5-2 (RGL)",
+                    variations: ["§5-2", "§ 5-2", "5-2", "§5-2 RGL", "§ 5-2 RGL"],
+                    l: "§ 5-2 (RGL)",
+                    w: "#wiki/tap-fordring",
+                    exp: "§ 5-2 regulerer vurdering og nedskrivning av fordringer ved tap."
+                },
+                {
+                    type: "multi",
+                    q: "Hva inngår i anskaffelseskost? (Velg alle)",
+                    opts: [
+                        "Kjøpspris",
+                        "Importavgifter",
+                        "Fraktkostnader",
+                        "Fremtidige vedlikeholdskostnader",
+                        "Installasjonskostnader"
+                    ],
+                    a: [0, 1, 2, 4],
+                    l: "§ 5-3 (RGL)",
+                    w: "#wiki/anskaffelseskost",
+                    exp: "Anskaffelseskost inkluderer kjøpspris, avgifter, frakt og installasjon. Ikke fremtidige kostnader."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er forskjellen mellom kostnad og utgift?",
+                    opts: [
+                        "Det er ingen forskjell",
+                        "Kostnad påvirker resultatet, utgift påvirker kontantstrømmen",
+                        "Utgift er alltid større enn kostnad",
+                        "Kostnad er kun for varekjøp"
+                    ],
+                    a: 1,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/kostnad-utgift",
+                    exp: "Kostnad resultatføres og påvirker resultatet. Utgift er en betaling som påvirker kontantstrømmen."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Alle varige driftsmidler skal avskrives",
+                    a: false,
+                    l: "§ 5-3 (RGL)",
+                    w: "#wiki/avskriving-unntak",
+                    exp: "Tomt avskrives ikke, da den normalt ikke har begrenset levetid. Andre varige driftsmidler avskrives."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf omhandler vurdering av finansielle instrumenter?",
+                    a: "§ 5-8 (RGL)",
+                    variations: ["§5-8", "§ 5-8", "5-8", "§5-8 RGL", "§ 5-8 RGL"],
+                    l: "§ 5-8 (RGL)",
+                    w: "#wiki/finansielle",
+                    exp: "§ 5-8 regulerer vurdering av finansielle instrumenter som aksjer og obligasjoner."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke poster inngår i driftsinntekter? (Velg alle)",
+                    opts: [
+                        "Salgsinntekt",
+                        "Annen driftsinntekt",
+                        "Renteinntekter",
+                        "Tilskudd",
+                        "Gevinst ved salg av anleggsmidler"
+                    ],
+                    a: [0, 1],
+                    l: "§ 6-1 (RGL)",
+                    w: "#wiki/drift",
+                    exp: "Driftsinntekter er salgsinntekt og annen driftsinntekt. Renter og gevinster er finansposter."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter postene i riktig resultatregnskapskategori:",
+                    items: [
+                        "Varekostnad",
+                        "Renteinntekt",
+                        "Avskrivninger",
+                        "Skattekostnad",
+                        "Lønnskostnad"
+                    ],
+                    targets: [
+                        { label: "Driftskostnader", correct: [0, 2, 4] },
+                        { label: "Finansposter", correct: [1] },
+                        { label: "Skatt", correct: [3] }
+                    ],
+                    l: "§ 6-1 (RGL)",
+                    w: "#wiki/resultat-oppstilling",
+                    exp: "Resultatregnskapet deles i drift, finans og skatt."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er kundefordringer?",
+                    opts: [
+                        "Penger vi skylder kunder",
+                        "Penger kunder skylder oss for levert vare/tjeneste",
+                        "Forskuddsbetaling fra kunder",
+                        "Tapte fordringer"
+                    ],
+                    a: 1,
+                    l: "§ 5-2 (RGL)",
+                    w: "#wiki/kundefordringer",
+                    exp: "Kundefordringer er beløp kunder skylder for leverte varer/tjenester på kreditt."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er transaksjonsprinsippet?",
+                    opts: [
+                        "Alle transaksjoner må godkjennes",
+                        "Regnskapet skal bygge på faktiske transaksjoner",
+                        "Transaksjoner må betales kontant",
+                        "Kun store transaksjoner bokføres"
+                    ],
+                    a: 1,
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/transaksjons",
+                    exp: "Transaksjonsprinsippet krever at alle regnskapsposter bygger på faktiske hendelser."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Kreditnota reduserer kundens gjeld til oss",
+                    a: true,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/kreditnota",
+                    exp: "Kreditnota utstedes ved retur eller rabatt og reduserer kundefordringen."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles prinsippet om å vurdere til laveste verdi?",
+                    a: "Laveste verdis prinsipp",
+                    variations: ["laveste verdi", "laveste verdis prinsipp", "lower of cost or market"],
+                    l: "§ 5-2 (RGL)",
+                    w: "#wiki/laveste-verdi",
+                    exp: "Eiendeler vurderes til laveste av anskaffelseskost og virkelig verdi."
+                },
+                {
+                    type: "multi",
+                    q: "Hva påvirker virkelig verdi? (Velg alle)",
+                    opts: [
+                        "Markedsforhold",
+                        "Tilstand på eiendelen",
+                        "Historisk kostpris",
+                        "Forventet salgsverdi",
+                        "Opprinnelig kjøpspris"
+                    ],
+                    a: [0, 1, 3],
+                    l: "§ 5-2 (RGL)",
+                    w: "#wiki/virkelig-faktorer",
+                    exp: "Virkelig verdi påvirkes av marked, tilstand og forventet salg. Ikke historisk kostpris."
+                }
+            ],
+            "Merverdiavgift": [
+                {
+                    type: "mc",
+                    q: "Hva er normal MVA-sats i Norge?",
+                    opts: ["15%", "20%", "25%", "30%"],
+                    a: 2,
+                    l: "§ 5-1 (MVAL)",
+                    w: "#wiki/mva-sats",
+                    exp: "Normal MVA-sats i Norge er 25%. Det finnes også 15% og 12% for spesielle varer/tjenester."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Utgående MVA er avgiften virksomheten beregner på sitt salg",
+                    a: true,
+                    l: "§ 4-1 (MVAL)",
+                    w: "#wiki/utgaende",
+                    exp: "Korrekt. Utgående MVA er avgift på salg som skal betales til staten."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke MVA-satser finnes i Norge? (Velg alle)",
+                    opts: ["25%", "15%", "12%", "10%", "0% (fritatt)"],
+                    a: [0, 1, 2, 4],
+                    l: "§ 5-1 (MVAL)",
+                    w: "#wiki/satser",
+                    exp: "Norge har 25%, 15%, 12% og 0% (fritatt). Det finnes ikke 10% sats."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf regulerer fradragsrett for inngående MVA?",
+                    a: "§ 8-1 (MVAL)",
+                    variations: ["§8-1", "§ 8-1", "8-1"],
+                    l: "§ 8-1 (MVAL)",
+                    w: "#wiki/fradrag",
+                    exp: "§ 8-1 MVAL regulerer når virksomheten har rett til fradrag for inngående MVA."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter eksemplene i riktig MVA-kategori:",
+                    items: [
+                        "Eksport av varer",
+                        "Helsetjenester",
+                        "Vanlig varesalg",
+                        "Finansielle tjenester"
+                    ],
+                    targets: [
+                        { label: "Fritatt (0% - med fradragsrett)", correct: [0] },
+                        { label: "Unntatt (uten fradragsrett)", correct: [1, 3] },
+                        { label: "Avgiftspliktig (25%)", correct: [2] }
+                    ],
+                    l: "MVAL",
+                    w: "#wiki/kategorier",
+                    exp: "Eksport er fritatt. Helse og finans er unntatt. Vanlig varesalg er avgiftspliktig."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er MVA-grunnlaget?",
+                    opts: [
+                        "Kun salgsprisen uten MVA",
+                        "Vederlaget inklusive MVA",
+                        "Vederlaget eksklusive MVA",
+                        "Varelageret"
+                    ],
+                    a: 2,
+                    l: "§ 4-1 (MVAL)",
+                    w: "#wiki/grunnlag",
+                    exp: "MVA-grunnlaget er vederlaget eksklusive merverdiavgift."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Alle virksomheter må være registrert i MVA-registeret",
+                    a: false,
+                    l: "§ 2-1 (MVAL)",
+                    w: "#wiki/registrering",
+                    exp: "Bare virksomheter med omsetning over 50 000 kr på 12 måneder må registreres."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf definerer når MVA skal beregnes?",
+                    a: "§ 11-1 (MVAL)",
+                    variations: ["§11-1", "§ 11-1", "11-1", "§11-1 MVAL", "§ 11-1 MVAL"],
+                    l: "§ 11-1 (MVAL)",
+                    w: "#wiki/tidspunkt",
+                    exp: "§ 11-1 fastslår når merverdiavgiften skal beregnes og oppstå."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke varer/tjenester har 15% MVA? (Velg alle)",
+                    opts: [
+                        "Næringsmidler",
+                        "Persontransport",
+                        "Overnatting i hotell",
+                        "Bøker",
+                        "Kino og museer"
+                    ],
+                    a: [0, 2],
+                    l: "§ 5-2 (MVAL)",
+                    w: "#wiki/15prosent",
+                    exp: "15% MVA gjelder bl.a. for næringsmidler og overnatting. Persontransport har 12%, bøker 0%."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er inngående MVA?",
+                    opts: [
+                        "MVA virksomheten beregner på salg",
+                        "MVA virksomheten betaler på innkjøp",
+                        "MVA som skal betales til staten",
+                        "MVA-refusjon fra staten"
+                    ],
+                    a: 1,
+                    l: "§ 8-1 (MVAL)",
+                    w: "#wiki/ingaende",
+                    exp: "Inngående MVA er avgift virksomheten betaler på innkjøp og kan trekke fra."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Alle innkjøp gir rett til fradrag for inngående MVA",
+                    a: false,
+                    l: "§ 8-1 (MVAL)",
+                    w: "#wiki/fradragsbegrensning",
+                    exp: "Fradragsrett gjelder kun for avgiftspliktig virksomhet. Privatforbruk gir ikke fradrag."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf omhandler justeringsreglene for MVA?",
+                    a: "§ 9-1 (MVAL)",
+                    variations: ["§9-1", "§ 9-1", "9-1", "§9-1 MVAL", "§ 9-1 MVAL"],
+                    l: "§ 9-1 (MVAL)",
+                    w: "#wiki/justering",
+                    exp: "§ 9-1 regulerer justering av fradragsført inngående avgift."
+                },
+                {
+                    type: "multi",
+                    q: "Når skal MVA-oppgave leveres? (Velg alle korrekte terminer)",
+                    opts: [
+                        "Månedlig",
+                        "To-månedlig",
+                        "Kvartalsvis",
+                        "Årlig",
+                        "Ukentlig"
+                    ],
+                    a: [0, 1],
+                    l: "§ 15-1 (MVAL)",
+                    w: "#wiki/termin",
+                    exp: "MVA-oppgave kan leveres månedlig eller to-månedlig avhengig av omsetning."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser varene etter MVA-sats:",
+                    items: [
+                        "Melk og brød",
+                        "Klær",
+                        "Buss og tog",
+                        "Personbil",
+                        "Hotellovernatting"
+                    ],
+                    targets: [
+                        { label: "25% MVA", correct: [1, 3] },
+                        { label: "15% MVA", correct: [0, 4] },
+                        { label: "12% MVA", correct: [2] }
+                    ],
+                    l: "§ 5-1, 5-2, 5-3 (MVAL)",
+                    w: "#wiki/satser-oversikt",
+                    exp: "25%: Klær, bil. 15%: Mat, hotell. 12%: Kollektivtransport."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er omvendt avgiftsplikt?",
+                    opts: [
+                        "Selger beregner negativ MVA",
+                        "Kjøper beregner og betaler MVA",
+                        "MVA betales etter levering",
+                        "Staten betaler MVA"
+                    ],
+                    a: 1,
+                    l: "§ 11-1 (MVAL)",
+                    w: "#wiki/omvendt",
+                    exp: "Ved omvendt avgiftsplikt er det kjøper som skal beregne og betale MVA, ikke selger."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: MVA på representasjon er fradragsberettiget",
+                    a: false,
+                    l: "§ 8-3 (MVAL)",
+                    w: "#wiki/representasjon",
+                    exp: "MVA på representasjon er ikke fradragsberettiget, selv om virksomheten ellers har fradragsrett."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf definerer hvem som er næringsdrivende i MVA-loven?",
+                    a: "§ 1-3 (MVAL)",
+                    variations: ["§1-3", "§ 1-3", "1-3", "§1-3 MVAL", "§ 1-3 MVAL"],
+                    l: "§ 1-3 (MVAL)",
+                    w: "#wiki/naringsdrivende",
+                    exp: "§ 1-3 definerer hvem som regnes som næringsdrivende etter merverdiavgiftsloven."
+                },
+                {
+                    type: "multi",
+                    q: "Hva gir ikke fradragsrett for inngående MVA? (Velg alle)",
+                    opts: [
+                        "Personbil til daglig bruk",
+                        "Firmabil kun til næring",
+                        "Representasjon",
+                        "Kontorrekvisita",
+                        "Arbeidsklær som er uniform"
+                    ],
+                    a: [0, 2],
+                    l: "§ 8-3 (MVAL)",
+                    w: "#wiki/ingen-fradrag",
+                    exp: "Personbil til daglig bruk og representasjon gir ikke fradragsrett."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er MVA-kompensasjonsordningen?",
+                    opts: [
+                        "Rabatt på MVA for store bedrifter",
+                        "Kompensasjon til kommuner og fylker for MVA-kostnader",
+                        "Refusjon for tapte MVA-inntekter",
+                        "Forsikring mot MVA-feil"
+                    ],
+                    a: 1,
+                    l: "§ 1 Kompensasjonsloven",
+                    w: "#wiki/kompensasjon",
+                    exp: "MVA-kompensasjonsordningen gir kommuner og fylker kompensasjon for MVA på kjøp."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Elektroniske tjenester fra utlandet er alltid MVA-fritatt",
+                    a: false,
+                    l: "§ 3-30 (MVAL)",
+                    w: "#wiki/elektroniske",
+                    exp: "Elektroniske tjenester fra utlandet er avgiftspliktige. Kjøper må ofte beregne MVA."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf regulerer nullsatsen (0%) for eksport?",
+                    a: "§ 6-1 (MVAL)",
+                    variations: ["§6-1", "§ 6-1", "6-1", "§6-1 MVAL", "§ 6-1 MVAL"],
+                    l: "§ 6-1 (MVAL)",
+                    w: "#wiki/eksport",
+                    exp: "§ 6-1 regulerer at utførsel av varer utenfor merverdiavgiftsområdet skal beregnes med 0%."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke dokumenter kreves for MVA-fradrag? (Velg alle)",
+                    opts: [
+                        "Salgsdokument med MVA spesifisert",
+                        "E-post fra leverandør",
+                        "Faktura med org.nr.",
+                        "Kassalapp uten MVA",
+                        "Importdokument"
+                    ],
+                    a: [0, 2, 4],
+                    l: "§ 15-10 (MVAL)",
+                    w: "#wiki/dokumentasjon",
+                    exp: "Krav til dokumentasjon: salgsdokument med MVA, org.nr., og korrekt dokumentasjon."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter transaksjonene etter MVA-behandling:",
+                    items: [
+                        "Salg til Sverige (eksport)",
+                        "Tannlegetjenester",
+                        "Salg av klær i butikk",
+                        "Banktjenester",
+                        "Frisørtjenester"
+                    ],
+                    targets: [
+                        { label: "Avgiftspliktig", correct: [2, 4] },
+                        { label: "Fritatt (0%)", correct: [0] },
+                        { label: "Unntatt", correct: [1, 3] }
+                    ],
+                    l: "MVAL",
+                    w: "#wiki/oversikt",
+                    exp: "Avgiftspliktig: klær, frisør. Fritatt: eksport. Unntatt: helse, finans."
+                },
+                {
+                    type: "mc",
+                    q: "Når må virksomheten betale inn MVA til staten?",
+                    opts: [
+                        "Samme dag som innbetaling fra kunde",
+                        "Innen 6 uker etter terminens slutt",
+                        "Innen terminfristens utløp",
+                        "Ved årsslutt"
+                    ],
+                    a: 2,
+                    l: "§ 15-3 (MVAL)",
+                    w: "#wiki/betaling",
+                    exp: "MVA skal innbetales innen terminfristens utløp, vanligvis før levering av MVA-melding."
+                }
+            ],
+            "Skatt": [
+                {
+                    type: "mc",
+                    q: "Hva er selskapsskattesatsen i Norge?",
+                    opts: ["22%", "25%", "28%", "30%"],
+                    a: 0,
+                    l: "§ 5-1 (SKTL)",
+                    w: "#wiki/sats",
+                    exp: "Selskapsskattesatsen er 22% på alminnelig inntekt."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Regnskapsmessig resultat er alltid det samme som skattemessig resultat",
+                    a: false,
+                    l: "Skatteloven",
+                    w: "#wiki/forskjell",
+                    exp: "Feil. Regnskapsmessig og skattemessig resultat er ofte forskjellig pga. ulike regler."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf definerer alminnelig inntekt?",
+                    a: "§ 5-1 (SKTL)",
+                    variations: ["§5-1", "§ 5-1", "5-1"],
+                    l: "§ 5-1 (SKTL)",
+                    w: "#wiki/alminelig",
+                    exp: "§ 5-1 i skatteloven definerer skattepliktig alminnelig inntekt."
+                },
+                {
+                    type: "multi",
+                    q: "Hva inkluderes i skattekostnad i resultatregnskapet? (Velg alle)",
+                    opts: [
+                        "Betalbar skatt",
+                        "Endring utsatt skatt",
+                        "Skattetrekk for ansatte",
+                        "Kun betalbar skatt"
+                    ],
+                    a: [0, 1],
+                    l: "§ 6-1 (RGL)",
+                    w: "#wiki/kostnad",
+                    exp: "Skattekostnad = Betalbar skatt +/- Endring utsatt skatt. Skattetrekk er ikke skattekostnad for selskapet."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser forskjellene:",
+                    items: [
+                        "Avskrivning (regnskap vs skatt)",
+                        "50% ikke-fradragsberettiget representasjon",
+                        "Gevinst på aksjer"
+                    ],
+                    targets: [
+                        { label: "Midlertidige forskjeller", correct: [0] },
+                        { label: "Permanente forskjeller", correct: [1, 2] }
+                    ],
+                    l: "§ 5-14 (RGL)",
+                    w: "#wiki/forskjeller",
+                    exp: "Midlertidige forskjeller reverserer over tid. Permanente forskjeller reverserer aldri."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er utsatt skatt?",
+                    opts: [
+                        "Skatt som betales neste år",
+                        "Skatt knyttet til midlertidige forskjeller mellom regnskapsmessig og skattemessig verdi",
+                        "Skatt man slipper å betale",
+                        "Forskuddsskatt"
+                    ],
+                    a: 1,
+                    l: "§ 5-14 (RGL)",
+                    w: "#wiki/utsatt",
+                    exp: "Utsatt skatt er beregnet skatt på midlertidige forskjeller som vil reversere i fremtiden."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Selskapsskatten beregnes av årets regnskapsmessige resultat",
+                    a: false,
+                    l: "§ 5-1 (SKTL)",
+                    w: "#wiki/grunnlag",
+                    exp: "Selskapsskatten beregnes av skattemessig resultat, ikke regnskapsmessig resultat."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf definerer skattemessige avskrivninger?",
+                    a: "§ 14-40 (SKTL)",
+                    variations: ["§14-40", "§ 14-40", "14-40", "§14-40 SKTL", "§ 14-40 SKTL"],
+                    l: "§ 14-40 (SKTL)",
+                    w: "#wiki/saldoavskrivning",
+                    exp: "§ 14-40 regulerer saldoavskrivning for skatteformål."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke inntekter er skattefrie? (Velg alle)",
+                    opts: [
+                        "Aksjeutbytte mellom norske selskaper",
+                        "Lotterigevinst over 10 000 kr",
+                        "Lønnsinntekt",
+                        "Arv",
+                        "Gavesalg av aksjer"
+                    ],
+                    a: [0, 3],
+                    l: "§ 2-38 (SKTL)",
+                    w: "#wiki/skattefri",
+                    exp: "Fritaksmetoden gjør aksjeutbytte skattefritt. Arv er skattefri. Lønn og lotterigevinst er skattepliktig."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er fritaksmetoden?",
+                    opts: [
+                        "Metode for å beregne fradrag",
+                        "Aksjeinntekter og gevinster er skattefrie for selskaper",
+                        "Skattefritak for små bedrifter",
+                        "Metode for MVA-beregning"
+                    ],
+                    a: 1,
+                    l: "§ 2-38 (SKTL)",
+                    w: "#wiki/fritaksmetoden",
+                    exp: "Fritaksmetoden gjør aksjeinntekter og aksjegevinster skattefrie for selskaper som eier minst 10%."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Representasjon er 100% fradragsberettiget i skattemessig resultat",
+                    a: false,
+                    l: "§ 6-21 (SKTL)",
+                    w: "#wiki/representasjon-skatt",
+                    exp: "Kun 50% av representasjonskostnader er fradragsberettiget skattemessig."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf regulerer gevinst og tap på aksjer?",
+                    a: "§ 10-31 (SKTL)",
+                    variations: ["§10-31", "§ 10-31", "10-31", "§10-31 SKTL", "§ 10-31 SKTL"],
+                    l: "§ 10-31 (SKTL)",
+                    w: "#wiki/aksjegevinst",
+                    exp: "§ 10-31 regulerer beskatning av gevinst og tap ved realisasjon av aksjer."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke fradrag kan ikke gjøres skattemessig? (Velg alle)",
+                    opts: [
+                        "Bot og straff",
+                        "Kontingent til bedriftsforbund",
+                        "Gaver til veldedighet over 15 000 kr",
+                        "Normalavskrivninger",
+                        "Delt ut utbytte"
+                    ],
+                    a: [0, 4],
+                    l: "§ 6-1 (SKTL)",
+                    w: "#wiki/ikke-fradrag",
+                    exp: "Bot/straff og utbytte er ikke fradragsberettiget. Kontingent og gaver (begrenset) er fradragsberettiget."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser kostnadene etter skattemessig behandling:",
+                    items: [
+                        "Normallønn til ansatte",
+                        "Gave til politisk parti",
+                        "Driftsutgifter",
+                        "Parkeringsbot",
+                        "Forsikringspremie"
+                    ],
+                    targets: [
+                        { label: "Fullt fradragsberettiget", correct: [0, 2, 4] },
+                        { label: "Ikke fradragsberettiget", correct: [1, 3] }
+                    ],
+                    l: "§ 6-1 (SKTL)",
+                    w: "#wiki/fradrag-oversikt",
+                    exp: "Lønn, drift og forsikring er fradragsberettiget. Politiske gaver og bot er ikke fradragsberettiget."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er negativt saldo?",
+                    opts: [
+                        "Gjeld i balansen",
+                        "Når salgssum på driftsmiddel er høyere enn saldoverdi",
+                        "Tap på fordringer",
+                        "Negativ egenkapital"
+                    ],
+                    a: 1,
+                    l: "§ 14-45 (SKTL)",
+                    w: "#wiki/negativ-saldo",
+                    exp: "Negativ saldo oppstår når salgssum overstiger saldoverdi, og inntektsføres."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Forskuddsskatt betales basert på fjorårets inntekt",
+                    a: true,
+                    l: "§ 10-40 (SKTL)",
+                    w: "#wiki/forskudd",
+                    exp: "Forskuddsskatt beregnes som hovedregel basert på forrige års alminnelige inntekt."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf definerer når kostnader er fradragsberettiget?",
+                    a: "§ 6-1 (SKTL)",
+                    variations: ["§6-1", "§ 6-1", "6-1", "§6-1 SKTL", "§ 6-1 SKTL"],
+                    l: "§ 6-1 (SKTL)",
+                    w: "#wiki/fradrag-vilkar",
+                    exp: "§ 6-1 fastsetter at kostnader må være pådratt for å erverve inntekt for å være fradragsberettiget."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke avskrivningsgrupper finnes? (Velg alle)",
+                    opts: [
+                        "Saldogruppe a (bygninger - 2%)",
+                        "Saldogruppe b (fast teknisk installasjon - 6%)",
+                        "Saldogruppe d (personbiler, maskiner - 20%)",
+                        "Saldogruppe e (skip, rigger - 14%)",
+                        "Saldogruppe f (møbler - 50%)"
+                    ],
+                    a: [0, 2, 3],
+                    l: "§ 14-41 (SKTL)",
+                    w: "#wiki/saldogrupper",
+                    exp: "Hovedgrupper: a (2%), b (6% ikke lenger i bruk), d (20%), e (14%). Gruppe f eksisterer ikke."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er gevinst- og tapskonto?",
+                    opts: [
+                        "Bankkonto for skatt",
+                        "Konto som viser resultat ved salg av aksjer",
+                        "Midlertidig konto for gevinst ved salg av driftsmidler",
+                        "Skatteoppgjørskonto"
+                    ],
+                    a: 2,
+                    l: "§ 14-44 (SKTL)",
+                    w: "#wiki/gev-tap",
+                    exp: "Gevinst- og tapskonto brukes til å utsette beskatning av gevinst ved salg av driftsmidler."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Alle gaver er skattemessig fradragsberettiget",
+                    a: false,
+                    l: "§ 6-1 (SKTL)",
+                    w: "#wiki/gaver",
+                    exp: "Kun visse gaver til frivillige organisasjoner er fradragsberettiget, og med begrensninger."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf omhandler skatteplikt for selskaper?",
+                    a: "§ 2-2 (SKTL)",
+                    variations: ["§2-2", "§ 2-2", "2-2", "§2-2 SKTL", "§ 2-2 SKTL"],
+                    l: "§ 2-2 (SKTL)",
+                    w: "#wiki/skatteplikt",
+                    exp: "§ 2-2 definerer at aksjeselskaper er skattesubjekter med begrenset skatteplikt."
+                },
+                {
+                    type: "multi",
+                    q: "Hva inngår i skattemessig resultat? (Velg alle)",
+                    opts: [
+                        "Regnskapsmessig resultat før skatt",
+                        "+ Permanente forskjeller",
+                        "- Skattefrie inntekter",
+                        "+ Ikke fradragsberettigede kostnader",
+                        "+/- Endring i utsatt skatt"
+                    ],
+                    a: [0, 1, 2, 3],
+                    l: "§ 5-1 (SKTL)",
+                    w: "#wiki/skattemessig-resultat",
+                    exp: "Skattemessig resultat = Regnskapsmessig +/- permanente forskjeller. Utsatt skatt er ikke relevant."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser etter skattemessig behandling:",
+                    items: [
+                        "Aksjeutbytte fra datterselskap",
+                        "Renteinntekter",
+                        "Mottatt gave fra kunde",
+                        "Tap på aksjer i datterselskap",
+                        "Salgsinntekt"
+                    ],
+                    targets: [
+                        { label: "Skattepliktig", correct: [1, 2, 4] },
+                        { label: "Skattefri (fritaksmetoden)", correct: [0, 3] }
+                    ],
+                    l: "§ 2-38 (SKTL)",
+                    w: "#wiki/fritaksmetoden-oversikt",
+                    exp: "Fritaksmetoden: aksjeutbytte og tap på aksjer. Renter, gaver og salg er skattepliktig."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er NOKUS-beskatning?",
+                    opts: [
+                        "Beskatning av norske skip",
+                        "Beskatning av norsk eiet utenlandsk selskap",
+                        "Beskatning av utenlandske arbeidere",
+                        "Kommuneskatt"
+                    ],
+                    a: 1,
+                    l: "§ 10-60 (SKTL)",
+                    w: "#wiki/nokus",
+                    exp: "NOKUS-reglene sikrer beskatning av norskeid lavskatteland-selskaper som om inntekten tilflyter norsk eier."
+                }
+            ],
+            "Bokføring": [
+                {
+                    type: "para",
+                    q: "Hvilken lov regulerer bokføringsplikten i Norge?",
+                    a: "Bokføringsloven",
+                    variations: ["bokføringsloven", "bfl", "BFL", "bokføringslova"],
+                    l: "Bokføringsloven",
+                    w: "#wiki/bfl",
+                    exp: "Bokføringsloven regulerer hvem som er bokføringspliktig og hvordan bokføring skal utføres."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er hovedformålet med bokføring?",
+                    opts: [
+                        "Kun å beregne skatt",
+                        "Å gi oversikt over virksomhetens økonomi",
+                        "Å imponere bankene",
+                        "Å unngå revisor"
+                    ],
+                    a: 1,
+                    l: "§ 1-1 (BFL)",
+                    w: "#wiki/formal-bokforing",
+                    exp: "Bokføring skal gi oversikt over virksomhetens eiendeler, gjeld, egenkapital, inntekter og kostnader."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Alle transaksjoner må bokføres kronologisk",
+                    a: true,
+                    l: "§ 5-1 (BFL)",
+                    w: "#wiki/kronologisk",
+                    exp: "Bokføring skal være løpende og kronologisk, slik at man kan følge transaksjonene i tidsrekkefølge."
+                },
+                {
+                    type: "multi",
+                    q: "Hva skal alltid fremgå av en bilagsbokføring? (Velg alle)",
+                    opts: [
+                        "Bilagsnummer",
+                        "Dato",
+                        "Kundens personnummer",
+                        "Beløp",
+                        "Kontonummer"
+                    ],
+                    a: [0, 1, 3, 4],
+                    l: "§ 5-1 (BFL)",
+                    w: "#wiki/bilag",
+                    exp: "Bokføring skal inneholde bilagsnummer, dato, beløp og kontonummer. Ikke personnummer."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter transaksjonene i riktig dokumenttype:",
+                    items: [
+                        "Salgsfaktura til kunde",
+                        "Innkjøpsfaktura fra leverandør",
+                        "Lønnsutbetaling",
+                        "Uttak til privat",
+                        "Bankinnskudd"
+                    ],
+                    targets: [
+                        { label: "Utgående bilag", correct: [0, 3] },
+                        { label: "Inngående bilag", correct: [1] },
+                        { label: "Interne bilag", correct: [2, 4] }
+                    ],
+                    l: "§ 5-1 (BFL)",
+                    w: "#wiki/bilagstyper",
+                    exp: "Utgående: salg og uttak. Inngående: kjøp. Interne: lønn og bank."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er et konteringsbilag?",
+                    opts: [
+                        "Original faktura",
+                        "Dokument som viser hvordan bilag skal bokføres",
+                        "Skattemelding",
+                        "Kassabon"
+                    ],
+                    a: 1,
+                    l: "§ 5-1 (BFL)",
+                    w: "#wiki/kontering",
+                    exp: "Et konteringsbilag viser hvordan et bilag skal fordeles på ulike konti i regnskapet."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Man kan bruke blyant i kassebok",
+                    a: false,
+                    l: "§ 5-6 (BFL)",
+                    w: "#wiki/endring",
+                    exp: "Bokføring skal være bestandig og ikke kunne endres uten at det fremgår. Blyant er ikke tillatt."
+                },
+                {
+                    type: "para",
+                    q: "Innen når skal bokføring være à jour?",
+                    a: "To måneder",
+                    variations: ["2 måneder", "to mnd", "2 mnd", "to månedar", "2 månedar"],
+                    l: "§ 5-3 (BFL)",
+                    w: "#wiki/a-jour",
+                    exp: "Bokføringen skal være à jour innen to måneder etter regnskapsperiodens utløp."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke grunnleggende bokføringsprinsipper finnes? (Velg alle)",
+                    opts: [
+                        "Dobbelt bokføring",
+                        "Enkel bokføring",
+                        "Bruttoprinsipper",
+                        "Nettoprinsipper",
+                        "Kontantprinsippet"
+                    ],
+                    a: [0, 2, 4],
+                    l: "§ 4-1 (BFL)",
+                    w: "#wiki/prinsipper-bokforing",
+                    exp: "Hovedprinsipper: dobbelt bokføring, bruttoprinsipper og kontantprinsippet."
+                },
+                {
+                    type: "mc",
+                    q: "Hva betyr dobbelt bokføring?",
+                    opts: [
+                        "Man fører to separate regnskaper",
+                        "Hver transaksjon bokføres to ganger med forskjellige beløp",
+                        "Hver transaksjon bokføres i både debet og kredit",
+                        "Man bruker to kontoer for alt"
+                    ],
+                    a: 2,
+                    l: "§ 4-1 (BFL)",
+                    w: "#wiki/dobbelt",
+                    exp: "Dobbelt bokføring betyr at hver transaksjon påvirker minst to konti - en i debet og en i kredit."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Bilag kan kastes etter at de er bokført",
+                    a: false,
+                    l: "§ 13-1 (BFL)",
+                    w: "#wiki/oppbevaring-bilag",
+                    exp: "Bilag må oppbevares i 5 år sammen med bokføringsmaterialet."
+                },
+                {
+                    type: "para",
+                    q: "Hva heter den norske standarden for kontoplan?",
+                    a: "NS 4102",
+                    variations: ["ns 4102", "NS4102", "ns4102", "4102"],
+                    l: "NS 4102",
+                    w: "#wiki/kontoplan",
+                    exp: "NS 4102 er den norske standarden for kontoplan som de fleste virksomheter bruker."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke hovedgrupper har kontoplanen? (Velg alle)",
+                    opts: [
+                        "Klasse 1: Eiendeler",
+                        "Klasse 2: Gjeld og egenkapital",
+                        "Klasse 3: Inntekter",
+                        "Klasse 4: Varekjøp",
+                        "Klasse 5: Lønnskostnader"
+                    ],
+                    a: [0, 1, 4],
+                    l: "NS 4102",
+                    w: "#wiki/hovedgrupper",
+                    exp: "Hovedgrupper: 1=Eiendeler, 2=Gjeld/EK, 3=Inntekt, 4=Varekostnad, 5=Lønnskostnad, 6-7=Annen drift, 8=Finans."
+                },
+                {
+                    type: "dnd",
+                    q: "Match kontotypen med kontokode:",
+                    items: [
+                        "1920 Bankinnskudd",
+                        "2400 Leverandørgjeld",
+                        "3000 Salgsinntekt",
+                        "5000 Lønnskostnad",
+                        "8050 Renteinntekt"
+                    ],
+                    targets: [
+                        { label: "Balansekonto", correct: [0, 1] },
+                        { label: "Driftskonto", correct: [2, 3] },
+                        { label: "Finanskonto", correct: [4] }
+                    ],
+                    l: "NS 4102",
+                    w: "#wiki/kontotyper",
+                    exp: "1-2: Balanse. 3-7: Drift. 8: Finans. 0: Memo."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er kassadifferanse?",
+                    opts: [
+                        "Forskjell mellom to kasser",
+                        "Forskjell mellom telling og bokført beløp i kassen",
+                        "Rabatt til kunder",
+                        "Valutadifferanse"
+                    ],
+                    a: 1,
+                    l: "God bokføringsskikk",
+                    w: "#wiki/kassadiff",
+                    exp: "Kassadifferanse er avviket mellom fysisk telling og bokført saldo i kassen."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Alle virksomheter må bruke reskontro",
+                    a: true,
+                    l: "§ 5-4 (BFL)",
+                    w: "#wiki/reskontro",
+                    exp: "Virksomheter skal føre spesifikasjon av kunde- og leverandørfordringer (reskontro)."
+                },
+                {
+                    type: "para",
+                    q: "Hva heter oversikten som viser saldo på alle konti?",
+                    a: "Hovedbok",
+                    variations: ["hovedboka", "hovedboken", "Hovedboka", "Hovedboken"],
+                    l: "§ 5-2 (BFL)",
+                    w: "#wiki/hovedbok",
+                    exp: "Hovedboken viser systematisk oversikt over alle konti med posteringer og saldoer."
+                },
+                {
+                    type: "multi",
+                    q: "Hva skal avstemmes regelmessig? (Velg alle)",
+                    opts: [
+                        "Bankkonto",
+                        "Kundefordringer",
+                        "Leverandørgjeld",
+                        "Lønnskostnad",
+                        "Varelager"
+                    ],
+                    a: [0, 1, 2, 4],
+                    l: "§ 5-5 (BFL)",
+                    w: "#wiki/avstemming",
+                    exp: "Bank, fordringer, gjeld og varelager må avstemmes. Lønnskostnad er en resultatkonto."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er en memokonto?",
+                    opts: [
+                        "Konto for notater",
+                        "Konto for poster utenfor balansen (klasse 0)",
+                        "Privatkonto",
+                        "Midlertidig konto"
+                    ],
+                    a: 1,
+                    l: "NS 4102",
+                    w: "#wiki/memo",
+                    exp: "Memokonti (klasse 0) brukes for poster utenfor balansen, som garantier og pantstillelser."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Man kan slette feilbokførte posteringer",
+                    a: false,
+                    l: "§ 5-6 (BFL)",
+                    w: "#wiki/rettelser",
+                    exp: "Feil må rettes med omvendte posteringer eller tilleggsbilag. Sletting er ikke tillatt."
+                },
+                {
+                    type: "para",
+                    q: "Hva heter prosessen med å avslutte regnskapsåret?",
+                    a: "Årsavslutning",
+                    variations: ["årsavslutninga", "års-avslutning", "arsavslutning", "Årsavslutninga"],
+                    l: "§ 5-7 (BFL)",
+                    w: "#wiki/arsavslutning",
+                    exp: "Årsavslutning er prosessen med å avslutte alle konti og overføre saldoer til nytt regnskapsår."
+                },
+                {
+                    type: "multi",
+                    q: "Hva skal gjøres ved årsavslutning? (Velg alle)",
+                    opts: [
+                        "Periodisere inntekter og kostnader",
+                        "Beregne avskrivninger",
+                        "Telle varelager",
+                        "Slette alle konti",
+                        "Vurdere fordringer"
+                    ],
+                    a: [0, 1, 2, 4],
+                    l: "§ 5-7 (BFL)",
+                    w: "#wiki/avslutning-rutiner",
+                    exp: "Ved årsavslutning: periodisering, avskrivninger, varetelling, fordringsvurdering. Ikke sletting."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter arbeidsoppgavene i riktig rekkefølge:",
+                    items: [
+                        "1. Motta og registrere bilag",
+                        "2. Kontere bilag",
+                        "3. Bokføre i reskontro og hovedbok",
+                        "4. Avstemme konti",
+                        "5. Utarbeide rapporter"
+                    ],
+                    targets: [
+                        { label: "Løpende bokføring", correct: [0, 1, 2] },
+                        { label: "Kontroll og rapportering", correct: [3, 4] }
+                    ],
+                    l: "God bokføringsskikk",
+                    w: "#wiki/bokforing-prosess",
+                    exp: "Bokføringsprosessen: Motta → Kontere → Bokføre → Avstemme → Rapportere."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er forskjellen på kassebok og kontantbok?",
+                    opts: [
+                        "Kassebok er for kontanter, kontantbok for bank",
+                        "Det er ingen forskjell",
+                        "Kassebok er digital, kontantbok er papir",
+                        "Kontantbok brukes av små bedrifter"
+                    ],
+                    a: 1,
+                    l: "§ 5-1 (BFL)",
+                    w: "#wiki/kassebok",
+                    exp: "Begrepene brukes ofte om hverandre, men betyr det samme - en bok for kontanttransaksjoner."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Elektronisk bokføring må ha sikkerhetskopi",
+                    a: true,
+                    l: "§ 6-1 (BFL)",
+                    w: "#wiki/datasikkerhet",
+                    exp: "Elektroniske regnskaper må sikkerhetskoperes for å unngå tap av data."
+                }
+            ],
+            "Revisjon og Kontroll": [
+                {
+                    type: "mc",
+                    q: "Hva er hovedformålet med revisjon?",
+                    opts: [
+                        "Å finne feil i regnskapet",
+                        "Å bekrefte at regnskapet gir et rettvisende bilde",
+                        "Å lage regnskapet for bedriften",
+                        "Å betale skatt"
+                    ],
+                    a: 1,
+                    l: "Revisorloven",
+                    w: "#wiki/revisjon",
+                    exp: "Revisjon skal bekrefte at årsregnskapet er utarbeidet i samsvar med lov og gir et rettvisende bilde."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Alle foretak må ha revisor",
+                    a: false,
+                    l: "§ 7-1 (RGL)",
+                    w: "#wiki/revisjonsplikt",
+                    exp: "Små foretak kan velge bort revisjonsplikt hvis de oppfyller visse kriterier."
+                },
+                {
+                    type: "para",
+                    q: "Hva heter dokumentet revisoren utsteder etter revisjonen?",
+                    a: "Revisjonsberetning",
+                    variations: ["revisjonsberetningen", "revisjonsberetninga", "beretning", "beretningen"],
+                    l: "§ 5-2 (Revisorloven)",
+                    w: "#wiki/beretning",
+                    exp: "Revisjonsberetningen er revisorens konklusjon om årsregnskapet er rettvisende."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke typer revisjonskonklusjoner finnes? (Velg alle)",
+                    opts: [
+                        "Uten forbehold",
+                        "Med forbehold",
+                        "Avkreftet konklusjon",
+                        "Manglende konklusjon",
+                        "Konklusjon med presiseringer"
+                    ],
+                    a: [0, 1, 3, 4],
+                    l: "ISA 700",
+                    w: "#wiki/konklusjoner",
+                    exp: "Revisor kan gi: Uten forbehold, med forbehold, manglende konklusjon, eller konklusjon med presiseringer."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser kontrollhandlingene:",
+                    items: [
+                        "Dokumentinspeksjon",
+                        "Bankbekreftelse",
+                        "Varetelling",
+                        "Kundebekreftelse",
+                        "Analyse av nøkkeltall"
+                    ],
+                    targets: [
+                        { label: "Substanshandlinger", correct: [0, 1, 2, 3] },
+                        { label: "Analytiske handlinger", correct: [4] }
+                    ],
+                    l: "ISA 500",
+                    w: "#wiki/revisjonshandlinger",
+                    exp: "Substanshandlinger tester faktiske tall. Analytiske handlinger sammenligner og analyserer."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er vesentlighet i revisjon?",
+                    opts: [
+                        "Hvor viktig regnskapet er",
+                        "Grensen for når feil kan påvirke brukernes beslutninger",
+                        "Revisorhonorar",
+                        "Antall feil funnet"
+                    ],
+                    a: 1,
+                    l: "ISA 320",
+                    w: "#wiki/vesentlighet",
+                    exp: "Vesentlighet er grensen for når feil eller mangler kan påvirke regnskapsbrukernes beslutninger."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Revisor er ansvarlig for å oppdage alle feil",
+                    a: false,
+                    l: "ISA 200",
+                    w: "#wiki/ansvar",
+                    exp: "Revisor skal gi rimelig sikkerhet, ikke absolutt sikkerhet. Ledelsen har ansvar for regnskapet."
+                },
+                {
+                    type: "para",
+                    q: "Hva heter standarden for revisjonshandlinger?",
+                    a: "ISA",
+                    variations: ["isa", "International Standards on Auditing", "international standards on auditing"],
+                    l: "ISA",
+                    w: "#wiki/isa",
+                    exp: "ISA (International Standards on Auditing) er de internasjonale revisjonsstandardene."
+                },
+                {
+                    type: "multi",
+                    q: "Hva inngår i intern kontroll? (Velg alle)",
+                    opts: [
+                        "Kontrollmiljø",
+                        "Risikovurdering",
+                        "Kontrollaktiviteter",
+                        "Ekstern revisjon",
+                        "Informasjon og kommunikasjon"
+                    ],
+                    a: [0, 1, 2, 4],
+                    l: "COSO",
+                    w: "#wiki/intern-kontroll",
+                    exp: "Intern kontroll består av: kontrollmiljø, risikovurdering, kontrollaktiviteter, informasjon/kommunikasjon, og oppfølging."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er arbeidsdelinger i intern kontroll?",
+                    opts: [
+                        "Fordeling av arbeidstimer",
+                        "Ulike personer utfører og kontrollerer samme oppgave",
+                        "Turnusordning",
+                        "Outsourcing"
+                    ],
+                    a: 1,
+                    l: "God kontrollskikk",
+                    w: "#wiki/arbeidsdeling",
+                    exp: "Arbeidsdeling betyr at ulike personer utfører og kontrollerer for å unngå feil og misligheter."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Revisor må være uavhengig av klienten",
+                    a: true,
+                    l: "Revisorloven § 4-1",
+                    w: "#wiki/uavhengighet",
+                    exp: "Uavhengighet er grunnleggende for revisorens troverdighet og objektivitet."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles systematisk undersøkelse av prosesser?",
+                    a: "Internrevisjon",
+                    variations: ["intern revisjon", "internrevisjonen", "intern revisjonen"],
+                    l: "IIA Standards",
+                    w: "#wiki/internrevisjon",
+                    exp: "Internrevisjon er uavhengig undersøkelse av organisasjonens prosesser, risikostyring og intern kontroll."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke risikoer vurderer revisor? (Velg alle)",
+                    opts: [
+                        "Iboende risiko",
+                        "Kontrollrisiko",
+                        "Oppdagelsesrisiko",
+                        "Markedsrisiko",
+                        "Valutarisiko"
+                    ],
+                    a: [0, 1, 2],
+                    l: "ISA 315",
+                    w: "#wiki/revisjonsrisiko",
+                    exp: "Revisjonsrisiko består av: iboende risiko, kontrollrisiko og oppdagelsesrisiko."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter kontrollene etter type:",
+                    items: [
+                        "Godkjenning av fakturaer",
+                        "Månedlig avstemming",
+                        "Tilgangskontroll til system",
+                        "Varetelling",
+                        "Signatur på utbetalinger"
+                    ],
+                    targets: [
+                        { label: "Forebyggende kontroller", correct: [0, 2, 4] },
+                        { label: "Oppdagende kontroller", correct: [1, 3] }
+                    ],
+                    l: "God kontrollskikk",
+                    w: "#wiki/kontrolltyper",
+                    exp: "Forebyggende kontroller forhindrer feil. Oppdagende kontroller finner feil som har skjedd."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er fraud (misligheter)?",
+                    opts: [
+                        "Ubevisste feil",
+                        "Bevisste handlinger for å villede",
+                        "Normale regnskapsfeil",
+                        "Estimatavvik"
+                    ],
+                    a: 1,
+                    l: "ISA 240",
+                    w: "#wiki/misligheter",
+                    exp: "Fraud er bevisste handlinger for å villede, som underslag, forfalskning eller manipulering av regnskap."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Åpenhetsrapport må publiseres av alle revisjonsselskaper",
+                    a: false,
+                    l: "Revisorloven § 5-2",
+                    w: "#wiki/apenhet",
+                    exp: "Kun større revisjonsselskaper som reviderer børsnoterte selskaper må publisere åpenhetsrapport."
+                },
+                {
+                    type: "mc",
+                    q: "Hvor lang er taushetsplikt for revisorer?",
+                    opts: [
+                        "5 år etter oppdrag",
+                        "10 år etter oppdrag",
+                        "Evig",
+                        "Kun mens oppdraget pågår"
+                    ],
+                    a: 2,
+                    l: "Revisorloven § 6-1",
+                    w: "#wiki/taushet",
+                    exp: "Revisor har evig taushetsplikt om forhold de får kjennskap til under revisjon."
+                }
+            ],
+            "Årsregnskap og Noter": [
+                {
+                    type: "mc",
+                    q: "Hva er formålet med noter til regnskapet?",
+                    opts: [
+                        "Å gjøre regnskapet lengre",
+                        "Å gi tilleggsinformasjon som ikke fremgår av tall alene",
+                        "Å skjule informasjon",
+                        "Å erstatte balansen"
+                    ],
+                    a: 1,
+                    l: "§ 7-1 (RGL)",
+                    w: "#wiki/noter-formal",
+                    exp: "Noter skal gi tilleggsinformasjon som er nødvendig for å forstå regnskapet."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Alle foretak må utarbeide årsberetning",
+                    a: false,
+                    l: "§ 3-3 (RGL)",
+                    w: "#wiki/arsberetning-plikt",
+                    exp: "Små foretak kan unnlate årsberetning hvis visse opplysninger tas med i notene."
+                },
+                {
+                    type: "para",
+                    q: "I hvilken paragraf finner du krav til innhold i notene?",
+                    a: "§ 7-1 (RGL)",
+                    variations: ["§7-1", "§ 7-1", "7-1", "§7-1 RGL", "§ 7-1 RGL"],
+                    l: "§ 7-1 (RGL)",
+                    w: "#wiki/noter-innhold",
+                    exp: "§ 7-1 spesifiserer hvilket innhold notene skal ha."
+                },
+                {
+                    type: "multi",
+                    q: "Hva skal alltid fremgå av noter? (Velg alle)",
+                    opts: [
+                        "Regnskapsprinsipper",
+                        "Ansattes fødselsdager",
+                        "Revisorhonorarer",
+                        "Ukens meny",
+                        "Pantstillelser"
+                    ],
+                    a: [0, 2, 4],
+                    l: "§ 7-1 (RGL)",
+                    w: "#wiki/noter-krav",
+                    exp: "Noter skal inneholde regnskapsprinsipper, revisorhonorarer, pantstillelser og mye annet relevant."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter informasjonen i riktig dokument:",
+                    items: [
+                        "Fortsatt drift forutsetning",
+                        "Spesifikasjon av varelager",
+                        "Redegjørelse for resultat",
+                        "Avskrivningsplan",
+                        "Forventet utvikling"
+                    ],
+                    targets: [
+                        { label: "Årsberetning", correct: [0, 2, 4] },
+                        { label: "Noter", correct: [1, 3] }
+                    ],
+                    l: "§ 3-3, § 7-1 (RGL)",
+                    w: "#wiki/fordeling",
+                    exp: "Årsberetning: Vurderinger og fremtid. Noter: Tall og spesifikasjoner."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er kontantstrømoppstillingen?",
+                    opts: [
+                        "Oversikt over bankkonto",
+                        "Oversikt over inn- og utbetalinger fordelt på aktiviteter",
+                        "Liste over kunder",
+                        "Budsjett"
+                    ],
+                    a: 1,
+                    l: "§ 6-3 (RGL)",
+                    w: "#wiki/kontantstrom",
+                    exp: "Kontantstrømoppstilling viser inn- og utbetalinger fordelt på drift, investering og finansiering."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Kontantstrømoppstilling kan utarbeides etter direkte eller indirekte metode",
+                    a: true,
+                    l: "§ 6-3 (RGL)",
+                    w: "#wiki/metoder",
+                    exp: "Både direkte metode (faktiske inn/utbetalinger) og indirekte metode (fra resultat) er tillatt."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf regulerer egenkapitaloppstillingen?",
+                    a: "§ 6-2 (RGL)",
+                    variations: ["§6-2", "§ 6-2", "6-2", "§6-2 RGL", "§ 6-2 RGL"],
+                    l: "§ 6-2 (RGL)",
+                    w: "#wiki/egenkapital-oppstilling",
+                    exp: "§ 6-2 krever at endringer i egenkapitalen vises, enten i balansen eller egen oppstilling."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke aktiviteter vises i kontantstrømoppstilling? (Velg alle)",
+                    opts: [
+                        "Driftsaktiviteter",
+                        "Investeringsaktiviteter",
+                        "Finansieringsaktiviteter",
+                        "Markedsføringsaktiviteter",
+                        "Sosiale aktiviteter"
+                    ],
+                    a: [0, 1, 2],
+                    l: "§ 6-3 (RGL)",
+                    w: "#wiki/aktiviteter",
+                    exp: "Kontantstrøm deles i drift, investering og finansiering."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er hendelser etter balansedagen?",
+                    opts: [
+                        "Feil i regnskapet",
+                        "Hendelser mellom balansedagen og godkjenning av regnskapet",
+                        "Fremtidige budsjetter",
+                        "Fjorårets hendelser"
+                    ],
+                    a: 1,
+                    l: "§ 7-3 (RGL)",
+                    w: "#wiki/etterfølgende",
+                    exp: "Hendelser etter balansedagen som gir ny informasjon må hensyntas i regnskapet."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Sammenligningstall for foregående år må alltid vises",
+                    a: true,
+                    l: "§ 6-1 (RGL)",
+                    w: "#wiki/sammenligning",
+                    exp: "Årsregnskapet skal vise sammenligningstall fra foregående år for alle poster."
+                },
+                {
+                    type: "para",
+                    q: "Hvilken paragraf omhandler konsernregnskap?",
+                    a: "§ 3-2 (RGL)",
+                    variations: ["§3-2", "§ 3-2", "3-2", "§3-2 RGL", "§ 3-2 RGL"],
+                    l: "§ 3-2 (RGL)",
+                    w: "#wiki/konsern",
+                    exp: "§ 3-2 fastslår at morselskap skal utarbeide konsernregnskap."
+                },
+                {
+                    type: "multi",
+                    q: "Hva elimineres i konsernregnskapet? (Velg alle)",
+                    opts: [
+                        "Interne transaksjoner",
+                        "Intern gjeld",
+                        "Eksterne salg",
+                        "Intern fortjeneste i varelager",
+                        "Kundefordringer til eksterne"
+                    ],
+                    a: [0, 1, 3],
+                    l: "§ 3-7 (RGL)",
+                    w: "#wiki/konsolidering",
+                    exp: "Interne transaksjoner, gjeld og urealisert intern fortjeneste må elimineres."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser kontantstrømmene:",
+                    items: [
+                        "Betalt lønn",
+                        "Kjøp av maskiner",
+                        "Mottatt utbytte",
+                        "Opptak av lån",
+                        "Salg av varer"
+                    ],
+                    targets: [
+                        { label: "Driftsaktiviteter", correct: [0, 4] },
+                        { label: "Investeringsaktiviteter", correct: [1, 2] },
+                        { label: "Finansieringsaktiviteter", correct: [3] }
+                    ],
+                    l: "§ 6-3 (RGL)",
+                    w: "#wiki/klassifisering",
+                    exp: "Drift: løpende drift. Investering: anleggsmidler og utbytte. Finansiering: lån og egenkapital."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er nøkkeltallsanalyse?",
+                    opts: [
+                        "Telling av nøkler",
+                        "Bruk av forholdstall for å vurdere virksomheten",
+                        "Budsjettarbeid",
+                        "Revisjon"
+                    ],
+                    a: 1,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/nokkeltall",
+                    exp: "Nøkkeltall som likviditetsgrad, egenkapitalandel og lønnsomhet brukes til analyse."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Årsregnskapet må godkjennes av styret før signering",
+                    a: true,
+                    l: "§ 3-4 (RGL)",
+                    w: "#wiki/godkjenning",
+                    exp: "Styret skal godkjenne og signere årsregnskapet før det fremlegges for generalforsamling."
+                },
+                {
+                    type: "para",
+                    q: "Når er fristen for å levere årsregnskapet til Regnskapsregisteret?",
+                    a: "7 måneder",
+                    variations: ["7 mnd", "sju måneder", "sju mnd", "7 månedar", "sju månedar"],
+                    l: "§ 3-4 (RGL)",
+                    w: "#wiki/frist",
+                    exp: "Årsregnskapet må sendes til Regnskapsregisteret innen 7 måneder etter regnskapsårets slutt."
+                },
+                {
+                    type: "multi",
+                    q: "Hva er kjennetegn på god regnskapsskikk? (Velg alle)",
+                    opts: [
+                        "Pålitelighet",
+                        "Relevans",
+                        "Kreativitet",
+                        "Sammenlignbarhet",
+                        "Forståelighet"
+                    ],
+                    a: [0, 1, 3, 4],
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/kvalitet",
+                    exp: "Regnskapsinformasjon skal være pålitelig, relevant, sammenlignbar og forståelig."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er goodwill i konsernregnskap?",
+                    opts: [
+                        "Gavesalg",
+                        "Merkostnad ved oppkjøp over virkelig verdi av netto eiendeler",
+                        "Kundetilfredshet",
+                        "Omdømme"
+                    ],
+                    a: 1,
+                    l: "§ 3-9 (RGL)",
+                    w: "#wiki/konsern-goodwill",
+                    exp: "Goodwill oppstår når kjøpesum overstiger virkelig verdi av ervervede eiendeler minus gjeld."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Minoritetsinteresser skal vises som gjeld i konsernbalansen",
+                    a: false,
+                    l: "§ 3-8 (RGL)",
+                    w: "#wiki/minoritet",
+                    exp: "Minoritetsinteresser vises som egen post i egenkapitalen, ikke som gjeld."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles metoden der morselskap eier 20-50% av et selskap?",
+                    a: "Egenkapitalmetoden",
+                    variations: ["egenkapitalmetoden", "egenkapital metoden", "equity method"],
+                    l: "§ 3-11 (RGL)",
+                    w: "#wiki/tilknyttet",
+                    exp: "Ved egenkapitalmetoden (tilknyttet selskap) innregnes forholdsmessig andel av resultat."
+                },
+                {
+                    type: "multi",
+                    q: "Hva må opplyses om transaksjoner med nærstående? (Velg alle)",
+                    opts: [
+                        "Art av relasjon",
+                        "Beskrivelse av transaksjon",
+                        "Personlige telefonnummer",
+                        "Beløp",
+                        "Prinsipp for prisfastsettelse"
+                    ],
+                    a: [0, 1, 3, 4],
+                    l: "§ 7-30 (RGL)",
+                    w: "#wiki/narstaaende",
+                    exp: "Transaksjoner med nærstående må opplyses med art, beskrivelse, beløp og prinsipp."
+                },
+                {
+                    type: "dnd",
+                    q: "Match regnskapspostene med riktig oppstilling:",
+                    items: [
+                        "Varekostnad",
+                        "Anleggsmidler",
+                        "Kortsiktig gjeld",
+                        "Salgsinntekt",
+                        "Endring i bankinnskudd"
+                    ],
+                    targets: [
+                        { label: "Resultatregnskap", correct: [0, 3] },
+                        { label: "Balanse", correct: [1, 2] },
+                        { label: "Kontantstrømoppstilling", correct: [4] }
+                    ],
+                    l: "§ 6-1, § 6-2, § 6-3 (RGL)",
+                    w: "#wiki/oppstillinger",
+                    exp: "Resultat: Inntekt/kostnad. Balanse: Eiendeler/gjeld/EK. Kontantstrøm: Betalinger."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er årsregnskapets målgruppe?",
+                    opts: [
+                        "Kun revisor",
+                        "Kun eiere",
+                        "Alle interessenter: eiere, kreditorer, ansatte, myndigheter",
+                        "Kun Skatteetaten"
+                    ],
+                    a: 2,
+                    l: "§ 3-1 (RGL)",
+                    w: "#wiki/malgruppe",
+                    exp: "Årsregnskapet er offentlig og skal gi informasjon til alle interessenter."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Resultatregnskap kan settes opp etter art eller funksjon",
+                    a: true,
+                    l: "§ 6-1 (RGL)",
+                    w: "#wiki/oppstilling-type",
+                    exp: "Artsinndeling: Lønn, avskrivning, etc. Funksjonsinndeling: Produksjon, salg, administrasjon."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er likviditetsgrad 1?",
+                    opts: [
+                        "Omløpsmidler / Kortsiktig gjeld",
+                        "Kontanter / Gjeld",
+                        "Egenkapital / Totalkapital",
+                        "Resultat / Inntekter"
+                    ],
+                    a: 0,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/likviditet",
+                    exp: "Likviditetsgrad 1 viser foretakets evne til å betale kortsiktig gjeld med omløpsmidler. Bør være over 2."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Egenkapitalandel beregnes som Egenkapital / Totalkapital",
+                    a: true,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/egenkapitalandel",
+                    exp: "Egenkapitalandel viser soliditet. Jo høyere andel, jo mer solid er virksomheten."
+                }
+            ],
+            "Regnskapsanalyse": [
+                {
+                    type: "mc",
+                    q: "Hva er formålet med regnskapsanalyse?",
+                    opts: [
+                        "Å finne feil i regnskapet",
+                        "Å vurdere virksomhetens økonomiske stilling og utvikling",
+                        "Å beregne skatt",
+                        "Å lage budsjett"
+                    ],
+                    a: 1,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/analyse-formal",
+                    exp: "Regnskapsanalyse brukes til å vurdere lønnsomhet, likviditet, soliditet og utvikling over tid."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Horisontal analyse sammenligner tall over flere perioder",
+                    a: true,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/horisontal",
+                    exp: "Horisontal analyse viser utviklingen i regnskapstall over tid (år 1, år 2, år 3)."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles analyse som viser hver post som prosent av totalsum?",
+                    a: "Vertikal analyse",
+                    variations: ["vertikal", "vertikalanalyse", "common size"],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/vertikal",
+                    exp: "Vertikal analyse viser hver post som prosent av f.eks. totale inntekter eller totale eiendeler."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke hovedområder analyseres i regnskapsanalyse? (Velg alle)",
+                    opts: [
+                        "Lønnsomhet (rentabilitet)",
+                        "Likviditet",
+                        "Soliditet",
+                        "Aksjekurs",
+                        "Effektivitet"
+                    ],
+                    a: [0, 1, 2, 4],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/omrader",
+                    exp: "Hovedområder: Lønnsomhet, likviditet, soliditet og effektivitet. Aksjekurs er markedsverdi."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser nøkkeltallene:",
+                    items: [
+                        "Egenkapitalrentabilitet (ROE)",
+                        "Likviditetsgrad 1",
+                        "Egenkapitalandel",
+                        "Totalrentabilitet (ROA)",
+                        "Gjeldsgrad"
+                    ],
+                    targets: [
+                        { label: "Lønnsomhet", correct: [0, 3] },
+                        { label: "Likviditet", correct: [1] },
+                        { label: "Soliditet", correct: [2, 4] }
+                    ],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/klassifisering-nokkeltall",
+                    exp: "Lønnsomhet: Rentabilitet. Likviditet: Betalingsevne. Soliditet: Egenkapital vs gjeld."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er ROE (Return on Equity)?",
+                    opts: [
+                        "Resultat / Totalkapital",
+                        "Årsresultat / Gjennomsnittlig egenkapital",
+                        "Omsetning / Egenkapital",
+                        "EBIT / Egenkapital"
+                    ],
+                    a: 1,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/roe",
+                    exp: "ROE = Årsresultat / Gjennomsnittlig egenkapital. Viser avkastning på eiernes investering."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Høy likviditetsgrad er alltid positivt",
+                    a: false,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/likviditet-tolkning",
+                    exp: "Svært høy likviditetsgrad kan tyde på ineffektiv bruk av kapital (for mye kontanter)."
+                },
+                {
+                    type: "para",
+                    q: "Hva er formelen for totalrentabilitet (ROA)?",
+                    a: "Resultat før finanskostnader / Totalkapital",
+                    variations: ["resultat / totalkapital", "(resultat + rentekostnad) / totalkapital", "EBIT / totalkapital"],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/roa",
+                    exp: "ROA viser avkastning på all investert kapital, uavhengig av finansiering."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke røde flagg kan indikere regnskapsmanipulasjon? (Velg alle)",
+                    opts: [
+                        "Plutselig endring i regnskapsprinsipper",
+                        "Unormalt høy varelagerutvikling",
+                        "Jevn resultatatvikling",
+                        "Mange transaksjoner med nærstående",
+                        "Høy kundefordringer relativt til salg"
+                    ],
+                    a: [0, 1, 3, 4],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/rode-flagg",
+                    exp: "Røde flagg inkluderer endringer i prinsipper, unormal utvikling, nærstående og høye fordringer."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er DuPont-modellen?",
+                    opts: [
+                        "Modell for å beregne MVA",
+                        "Dekomponering av ROE i fortjenestemargin, omløpshastighet og finansiering",
+                        "Budsjettmodell",
+                        "Skatteberegningsmodell"
+                    ],
+                    a: 1,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/dupont",
+                    exp: "DuPont dekomponerer ROE: (Resultat/Omsetning) × (Omsetning/Totalkapital) × (Totalkapital/EK)."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Gjeldsgrad over 1 betyr at gjeld er større enn egenkapital",
+                    a: true,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/gjeldsgrad",
+                    exp: "Gjeldsgrad = Gjeld / Egenkapital. Verdi over 1 betyr mer gjeld enn egenkapital."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles tidsrommet fra kjøp til salg og inn betaling?",
+                    a: "Kontantsyklusen",
+                    variations: ["kontantsyklus", "cash conversion cycle", "kontantsyklus"],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/kontantsyklus",
+                    exp: "Kontantsyklusen viser hvor lenge kapitalen er bundet fra innkjøp til betaling mottas."
+                },
+                {
+                    type: "multi",
+                    q: "Hva kan forårsake dårlig likviditet? (Velg alle)",
+                    opts: [
+                        "Høyt varelager",
+                        "Lange kredittider til kunder",
+                        "Høy egenkapital",
+                        "Lav omløpshastighet",
+                        "Store investeringer"
+                    ],
+                    a: [0, 1, 3, 4],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/likviditet-arsaker",
+                    exp: "Dårlig likviditet: høyt lager, lange kreditter, lav omløp, store investeringer."
+                },
+                {
+                    type: "dnd",
+                    q: "Match nøkkeltallet med hva det måler:",
+                    items: [
+                        "Fortjenestemargin",
+                        "Omløpshastighet totalkapital",
+                        "Arbeidskapital",
+                        "Quick ratio",
+                        "Gearinggrad"
+                    ],
+                    targets: [
+                        { label: "Lønnsomhet per krone solgt", correct: [0] },
+                        { label: "Effektivitet i bruk av kapital", correct: [1] },
+                        { label: "Likviditet (arbeidskapital)", correct: [2, 3] },
+                        { label: "Finansiering/Gearing", correct: [4] }
+                    ],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/nokkeltall-matching",
+                    exp: "Fortjeneste: Margin. Effektivitet: Omløp. Likviditet: Arbeidskapital. Finansiering: Gearing."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er EBITDA?",
+                    opts: [
+                        "Earnings Before Interest, Taxes, Depreciation and Amortization",
+                        "Årsresultat",
+                        "Kontantstrøm fra drift",
+                        "Totalkapital"
+                    ],
+                    a: 0,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/ebitda",
+                    exp: "EBITDA viser driftsresultat før renter, skatt, avskrivninger - brukes til sammenligning."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Z-score brukes til å vurdere konkursrisiko",
+                    a: true,
+                    l: "Altman Z-score",
+                    w: "#wiki/z-score",
+                    exp: "Altman Z-score kombinerer flere nøkkeltall for å predikere sannsynlighet for konkurs."
+                },
+                {
+                    type: "para",
+                    q: "Hva heter analysen av hvordan kostnader endres med aktivitet?",
+                    a: "Break-even analyse",
+                    variations: ["break-even", "breakeven", "nullpunktsanalyse"],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/breakeven",
+                    exp: "Break-even analyse finner punktet der inntekter = kostnader (nullpunkt)."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke forhold påvirker arbeidskapital? (Velg alle)",
+                    opts: [
+                        "Varelager",
+                        "Kundefordringer",
+                        "Anleggsmidler",
+                        "Leverandørgjeld",
+                        "Kontanter"
+                    ],
+                    a: [0, 1, 3, 4],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/arbeidskapital",
+                    exp: "Arbeidskapital = Omløpsmidler - Kortsiktig gjeld. Ikke anleggsmidler."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er common-size analyse?",
+                    opts: [
+                        "Sammenligning av like store bedrifter",
+                        "Vertikal analyse der poster vises som prosent",
+                        "Analyse av vanlige størrelser",
+                        "Horisontal analyse"
+                    ],
+                    a: 1,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/common-size",
+                    exp: "Common-size setter alle poster som prosent av basis (100%) for sammenligning."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Negativ egenkapital betyr at virksomheten er konkurs",
+                    a: false,
+                    l: "§ 3-4 (ASL)",
+                    w: "#wiki/negativ-ek",
+                    exp: "Negativ egenkapital krever tiltak (kapitalforhøyelse), men betyr ikke automatisk konkurs."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles forholdet mellom gjeld og totalkapital?",
+                    a: "Gjeldsandel",
+                    variations: ["gjeldsandel", "debt ratio", "debt to assets"],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/gjeldsandel",
+                    exp: "Gjeldsandel = Gjeld / Totalkapital. Komplementær til egenkapitalandel."
+                },
+                {
+                    type: "multi",
+                    q: "Hva kan skjulte reserver være? (Velg alle)",
+                    opts: [
+                        "Undervurdert varelager",
+                        "For høye avskrivninger",
+                        "Ikke balanseførte eiendeler",
+                        "Overvurderte eiendeler",
+                        "For lave avsetninger"
+                    ],
+                    a: [0, 1, 2],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/skjulte-reserver",
+                    exp: "Skjulte reserver: Undervurderte eiendeler eller overvurderte forpliktelser."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter trendene etter hva de indikerer:",
+                    items: [
+                        "Økende kundefordringer vs salg",
+                        "Synkende fortjenestemargin",
+                        "Økende gjeldsgrad",
+                        "Synkende varelageromløp",
+                        "Økende kontanter"
+                    ],
+                    targets: [
+                        { label: "Potensielle problemer", correct: [0, 1, 2, 3] },
+                        { label: "Positiv utvikling", correct: [4] }
+                    ],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/trendanalyse",
+                    exp: "Problemer: Økt binding, lavere margin, mer gjeld, tregere omløp. Positivt: Bedre likviditet."
+                },
+                {
+                    type: "mc",
+                    q: "Hva måler rentedekningsgraden?",
+                    opts: [
+                        "Hvor mange ganger EBIT dekker rentekostnader",
+                        "Hvor mye renter virksomheten betaler",
+                        "Egenkapitalens størrelse",
+                        "Likviditet"
+                    ],
+                    a: 0,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/rentedekning",
+                    exp: "Rentedekningsgrad = EBIT / Rentekostnader. Viser evne til å betjene gjeld."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Høy omløpshastighet på varelager er alltid positivt",
+                    a: false,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/varelageromløp",
+                    exp: "Svært høy omløp kan tyde på for lavt lager og risiko for mangel/tapte salg."
+                },
+                {
+                    type: "para",
+                    q: "Hva heter perioden fra betaling til leverandør til mottak fra kunde?",
+                    a: "Cash-to-cash syklus",
+                    variations: ["cash to cash", "kontant til kontant", "c2c"],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/c2c",
+                    exp: "Måler hvor lenge kapitalen er bundet i driften."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke faktorer påvirker fortjenestemargin? (Velg alle)",
+                    opts: [
+                        "Prising",
+                        "Kostnadseffektivitet",
+                        "Produktmix",
+                        "Egenkapitalandel",
+                        "Rabatter"
+                    ],
+                    a: [0, 1, 2, 4],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/margin-faktorer",
+                    exp: "Margin påvirkes av pris, kostnader, produktmix og rabatter. Ikke egenkapital."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er ROIC (Return on Invested Capital)?",
+                    opts: [
+                        "Avkastning kun på egenkapital",
+                        "Avkastning på investert kapital (EK + rentebærende gjeld)",
+                        "Avkastning på totalkapital",
+                        "Renteinntekter"
+                    ],
+                    a: 1,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/roic",
+                    exp: "ROIC måler avkastning på kapitalen investert i virksomhetens drift."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Earnings quality handler om hvor pålitelige resultatene er",
+                    a: true,
+                    l: "God regnskapsskikk",
+                    w: "#wiki/earnings-quality",
+                    exp: "Earnings quality vurderer om resultatet er bærekraftig og ikke manipulert."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles analyse av kontantstrøm vs resultat?",
+                    a: "Kvalitetsanalyse",
+                    variations: ["kvalitet", "earnings quality", "resultatskvalitet"],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/kvalitetsanalyse",
+                    exp: "Sammenligner kontantstrøm med resultat for å avdekke potensielle regnskapsmessige justeringer."
+                },
+                {
+                    type: "multi",
+                    q: "Hva kan indikere earnings management? (Velg alle)",
+                    opts: [
+                        "Resultat like under/over viktige terskler",
+                        "Unormale periodiseringer",
+                        "Jevn vekst i mange år",
+                        "Hyppige endringer i estimater",
+                        "Store avskrivninger"
+                    ],
+                    a: [0, 1, 3],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/earnings-management",
+                    exp: "Earnings management: Resultat nær terskler, unormale periodiseringer, hyppige estimatendringer."
+                },
+                {
+                    type: "dnd",
+                    q: "Match begrepet med forklaringen:",
+                    items: [
+                        "Window dressing",
+                        "Big bath accounting",
+                        "Cookie jar reserves",
+                        "Channel stuffing",
+                        "Bill and hold"
+                    ],
+                    targets: [
+                        { label: "Kortsiktig pynting før rapportering", correct: [0] },
+                        { label: "Ekstra store tap nå for bedre fremtid", correct: [1] },
+                        { label: "Spare opp reserver til dårlige tider", correct: [2] },
+                        { label: "Presse salg til distributører", correct: [3, 4] }
+                    ],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/manipulasjonsteknikker",
+                    exp: "Ulike teknikker for å manipulere timing og størrelse på inntekter og kostnader."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er Beneish M-Score?",
+                    opts: [
+                        "Mål på markedsverdi",
+                        "Modell for å oppdage earnings manipulation",
+                        "Kredittrating",
+                        "Budsjettscore"
+                    ],
+                    a: 1,
+                    l: "Beneish modell",
+                    w: "#wiki/beneish",
+                    exp: "Beneish M-Score bruker 8 finansielle indikatorer for å oppdage sannsynlig manipulasjon."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Piotroski F-Score brukes til å finne finansielt sterke selskaper",
+                    a: true,
+                    l: "Piotroski modell",
+                    w: "#wiki/piotroski",
+                    exp: "Piotroski F-Score (0-9) vurderer lønnsomhet, likviditet, effektivitet og finansiering."
+                }
+            ],
+            "Økonomistyring": [
+                {
+                    type: "mc",
+                    q: "Hva er hovedforskjellen mellom finansregnskap og driftsregnskap?",
+                    opts: [
+                        "Finansregnskap er eksternt, driftsregnskap er internt",
+                        "Driftsregnskap er lovpålagt",
+                        "Det er ingen forskjell",
+                        "Finansregnskap brukes kun til skatt"
+                    ],
+                    a: 0,
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/finansvsdrift",
+                    exp: "Finansregnskap er eksternt og lovpålagt. Driftsregnskap er internt styringsverktøy."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Direkte kostnader kan knyttes direkte til produktet",
+                    a: true,
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/direkte",
+                    exp: "Direkte kostnader som råvarer og direkte lønn kan knyttes direkte til hver enhet."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles kostnader som ikke endres med produksjonsvolum?",
+                    a: "Faste kostnader",
+                    variations: ["fast kostnad", "faste", "fixed costs"],
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/faste",
+                    exp: "Faste kostnader (husleie, lønn) er uavhengig av produksjonsvolum på kort sikt."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke er eksempler på variable kostnader? (Velg alle)",
+                    opts: [
+                        "Råvarer",
+                        "Strøm til produksjon",
+                        "Husleie",
+                        "Provisjon",
+                        "Forsikring"
+                    ],
+                    a: [0, 1, 3],
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/variable",
+                    exp: "Variable kostnader endres proporsjonalt med aktivitet: råvarer, energi, provisjon."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser kostnadene:",
+                    items: [
+                        "Stål til produksjon av sykler",
+                        "Fabrikkleder lønn",
+                        "Provisjon til selgere",
+                        "Husleie produksjonslokale",
+                        "Emballasje"
+                    ],
+                    targets: [
+                        { label: "Direkte variable", correct: [0, 4] },
+                        { label: "Direkte faste", correct: [1] },
+                        { label: "Indirekte variable", correct: [2] },
+                        { label: "Indirekte faste", correct: [3] }
+                    ],
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/kostnadskategorier",
+                    exp: "Materialer: Direkte variable. Lønn produksjon: Direkte fast. Provisjon: Indirekte variabel."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er dekningsbidrag?",
+                    opts: [
+                        "Total inntekt - Totale kostnader",
+                        "Salgsinntekt - Variable kostnader",
+                        "Resultat før skatt",
+                        "Bruttofortjeneste"
+                    ],
+                    a: 1,
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/dekningsbidrag",
+                    exp: "Dekningsbidrag = Salgsinntekt - Variable kostnader. Bidrar til å dekke faste kostnader."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Selvkostkalkyle inkluderer både variable og faste kostnader",
+                    a: true,
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/selvkost",
+                    exp: "Selvkostkalkyle fordeler alle kostnader (variable + faste) på produktene."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles kostnaden ved å velge ett alternativ fremfor et annet?",
+                    a: "Alternativkostnad",
+                    variations: ["alternativkostnad", "opportunity cost", "opportunitetskostnad"],
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/alternativkostnad",
+                    exp: "Alternativkostnad er verdien av beste alternativ man gir opp."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke kalkyler brukes i økonomistyring? (Velg alle)",
+                    opts: [
+                        "Selvkostkalkyle",
+                        "Bidragskalkyle",
+                        "Målkostnadskalkyle",
+                        "MVA-kalkyle",
+                        "ABC-kalkyle"
+                    ],
+                    a: [0, 1, 2, 4],
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/kalkyler",
+                    exp: "Kalkyler: Selvkost, bidrag, målkostnad, ABC. MVA-kalkyle er ikke en kostnadsfordelingsmetode."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er ABC (Activity Based Costing)?",
+                    opts: [
+                        "Alfabetisk kostnadsfordeling",
+                        "Aktivitetsbasert kostnadsfordeling",
+                        "Automatisk beregning av kostnader",
+                        "Avansert budsjettcontrol"
+                    ],
+                    a: 1,
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/abc",
+                    exp: "ABC fordeler indirekte kostnader basert på aktiviteter som driver kostnadene."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Kalkulatoriske kostnader er faktiske utgifter",
+                    a: false,
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/kalkulatorisk",
+                    exp: "Kalkulatoriske kostnader (f.eks. kalkulatorisk rente) er ikke faktiske utgifter, men beregnes for beslutningsformål."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles punktet der inntekter = kostnader?",
+                    a: "Break-even",
+                    variations: ["breakeven", "break even", "nullpunkt"],
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/breakeven-punkt",
+                    exp: "Break-even er nullpunktet der totale inntekter = totale kostnader."
+                },
+                {
+                    type: "multi",
+                    q: "Hva brukes i beslutningsanalyse? (Velg alle)",
+                    opts: [
+                        "Relevante kostnader",
+                        "Sunk costs (tapte kostnader)",
+                        "Marginalkostnader",
+                        "Alternativkostnader",
+                        "Historiske kostnader"
+                    ],
+                    a: [0, 2, 3],
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/beslutning",
+                    exp: "Beslutninger baseres på relevante, marginal- og alternativkostnader. Ikke sunk/historiske."
+                },
+                {
+                    type: "dnd",
+                    q: "Match kalkylen med anvendelse:",
+                    items: [
+                        "Selvkostkalkyle",
+                        "Bidragskalkyle",
+                        "Målkostnadskalkyle",
+                        "Timesatskalkyle",
+                        "Prosjektkalkyle"
+                    ],
+                    targets: [
+                        { label: "Prisfastsettelse langsiktig", correct: [0] },
+                        { label: "Kortsiktige beslutninger", correct: [1] },
+                        { label: "Produktutvikling", correct: [2] },
+                        { label: "Tjenesteyting", correct: [3, 4] }
+                    ],
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/kalkyle-bruk",
+                    exp: "Selvkost: Langsiktig pris. Bidrag: Kortsiktig. Målkost: Utvikling. Time/Prosjekt: Tjenester."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er kontributionsgrad?",
+                    opts: [
+                        "Andel av inntekt som er dekningsbidrag",
+                        "Andel faste kostnader",
+                        "Profittmargin",
+                        "Kostnadsandel"
+                    ],
+                    a: 0,
+                    l: "God økonomistyringsskikk",
+                    w: "#wiki/kontribusjon",
+                    exp: "Kontributionsgrad = Dekningsbidrag / Salgsinntekt. Viser hvor mye som dekker faste kostnader."
+                }
+            ],
+            "Regnskapsavslutning": [
+                {
+                    type: "mc",
+                    q: "Hva er hovedformålet med regnskapsavslutning?",
+                    opts: [
+                        "Å starte nytt år",
+                        "Å sikre at regnskapet gir rettvisende bilde på balansedagen",
+                        "Å betale skatt",
+                        "Å få ferie"
+                    ],
+                    a: 1,
+                    l: "§ 3-2 (RGL)",
+                    w: "#wiki/avslutning-formal",
+                    exp: "Regnskapsavslutning skal sikre at regnskapet er korrekt og rettvisende per balansedagen."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Periodisering er en viktig del av regnskapsavslutningen",
+                    a: true,
+                    l: "§ 4-1 (RGL)",
+                    w: "#wiki/periodisering-avslutning",
+                    exp: "Periodisering sikrer at inntekter og kostnader henføres til riktig periode."
+                },
+                {
+                    type: "para",
+                    q: "Hva heter vurderingen av om virksomheten kan fortsette driften?",
+                    a: "Fortsatt drift",
+                    variations: ["fortsatt drift", "going concern", "going-concern"],
+                    l: "§ 3-3 (RGL)",
+                    w: "#wiki/fortsatt-drift",
+                    exp: "Fortsatt drift-forutsetningen må vurderes ved regnskapsavslutning og i årsberetning."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke posteringer gjøres typisk ved årsavslutning? (Velg alle)",
+                    opts: [
+                        "Periodisering av inntekter og kostnader",
+                        "Beregning av avskrivninger",
+                        "Varetelling og justering",
+                        "Løpende bokføring",
+                        "Vurdering av fordringer"
+                    ],
+                    a: [0, 1, 2, 4],
+                    l: "§ 5-7 (BFL)",
+                    w: "#wiki/avslutningsposteringer",
+                    exp: "Årsavslutning: Periodisering, avskrivninger, varetelling, fordringsvurdering. Ikke løpende."
+                },
+                {
+                    type: "dnd",
+                    q: "Klassifiser periodiseringene:",
+                    items: [
+                        "Påløpt lønn ikke utbetalt",
+                        "Forskuddsbetalt forsikring",
+                        "Mottatt forskudd fra kunde",
+                        "Opptjent inntekt ikke fakturert",
+                        "Påløpte rentekostnader"
+                    ],
+                    targets: [
+                        { label: "Påløpte kostnader (gjeld)", correct: [0, 4] },
+                        { label: "Forskuddsbetalte kostnader (eiendel)", correct: [1] },
+                        { label: "Forskuddsinntekter (gjeld)", correct: [2] },
+                        { label: "Opptjente inntekter (eiendel)", correct: [3] }
+                    ],
+                    l: "§ 5-7 (RGL)",
+                    w: "#wiki/periodisering-typer",
+                    exp: "Påløpt: Gjeld. Forskuddsbetalt: Eiendel. Forskuddsinntekt: Gjeld. Opptjent: Eiendel."
+                },
+                {
+                    type: "mc",
+                    q: "Hvordan vurderes varelager ved årsavslutning?",
+                    opts: [
+                        "Alltid til anskaffelseskost",
+                        "Alltid til salgspris",
+                        "Til laveste verdi av anskaffelseskost og netto salgsverdi",
+                        "Til markedsverdi"
+                    ],
+                    a: 2,
+                    l: "§ 5-2 (RGL)",
+                    w: "#wiki/varevurdering",
+                    exp: "Laveste verdis prinsipp: Varelager vurderes til laveste av kost og netto salgsverdi."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Tap på kundefordringer må estimeres ved årsavslutning",
+                    a: true,
+                    l: "§ 5-2 (RGL)",
+                    w: "#wiki/tapsavsetning",
+                    exp: "Forventet tap på fordringer skal vurderes og nedskrives ved årsavslutning."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles justeringer for hendelser etter balansedagen?",
+                    a: "Etterfølgende hendelser",
+                    variations: ["etterfølgende", "subsequent events", "events after"],
+                    l: "§ 7-3 (RGL)",
+                    w: "#wiki/etterfølgende-hendelser",
+                    exp: "Hendelser mellom balansedagen og fastsettelse av regnskap kan kreve justeringer."
+                },
+                {
+                    type: "multi",
+                    q: "Hva inngår i resultatdisponering? (Velg alle)",
+                    opts: [
+                        "Forslag til utbytte",
+                        "Overføring til/fra fond",
+                        "Kundefordringer",
+                        "Konsernbidrag",
+                        "Avsatt til annen egenkapital"
+                    ],
+                    a: [0, 1, 3, 4],
+                    l: "§ 3-3 (RGL)",
+                    w: "#wiki/disponering",
+                    exp: "Resultatdisponering: Utbytte, fond, konsernbidrag, andre EK-overføringer."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er maksimalt utbytte som kan deles ut?",
+                    opts: [
+                        "Alt resultat",
+                        "Resultat etter at bundne fond er dekket",
+                        "Fritt egenkapital etter utdeling",
+                        "50% av resultat"
+                    ],
+                    a: 2,
+                    l: "§ 8-1 (ASL)",
+                    w: "#wiki/utbytte-grense",
+                    exp: "Utbytte kan ikke overstige fritt egenkapital etter utdelingen (forsvarlighetsvurdering)."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Avskrivninger beregnes fra første dag i måneden etter anskaffelse",
+                    a: false,
+                    l: "§ 5-3 (RGL)",
+                    w: "#wiki/avskrivning-start",
+                    exp: "Avskrivning starter når eiendelen tas i bruk, ikke ved anskaffelse."
+                },
+                {
+                    type: "para",
+                    q: "Hva heter oppstillingen som viser endringer i egenkapitalen?",
+                    a: "Egenkapitaloppstilling",
+                    variations: ["egenkapitaloppstilling", "oppstilling egenkapital", "statement of equity"],
+                    l: "§ 6-2 (RGL)",
+                    w: "#wiki/ek-oppstilling",
+                    exp: "Egenkapitaloppstilling viser åpningsbalanse, endringer og sluttbalanse for EK-komponenter."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke avsetninger kan gjøres ved årsavslutning? (Velg alle)",
+                    opts: [
+                        "Avsetning for garantiforpliktelser",
+                        "Avsetning for omstrukturering",
+                        "Avsetning for fremtidig markedsføring",
+                        "Avsetning for pensjoner",
+                        "Avsetning for generelle risikoer"
+                    ],
+                    a: [0, 1, 3],
+                    l: "§ 5-9 (RGL)",
+                    w: "#wiki/avsetninger",
+                    exp: "Avsetninger for spesifikke forpliktelser: garantier, omstrukturering, pensjoner. Ikke generelt."
+                },
+                {
+                    type: "dnd",
+                    q: "Sorter aktivitetene i riktig rekkefølge:",
+                    items: [
+                        "1. Avslutte løpende bokføring",
+                        "2. Avstemme balanseposter",
+                        "3. Foreta periodiseringer",
+                        "4. Beregne avskrivninger",
+                        "5. Utarbeide årsregnskap"
+                    ],
+                    targets: [
+                        { label: "Forberedelse", correct: [0, 1] },
+                        { label: "Justeringer", correct: [2, 3] },
+                        { label: "Ferdigstillelse", correct: [4] }
+                    ],
+                    l: "God regnskapsskikk",
+                    w: "#wiki/avslutningsprosess",
+                    exp: "Prosess: Forberedelse → Justeringer → Ferdigstillelse."
+                },
+                {
+                    type: "mc",
+                    q: "Hva er en betinget forpliktelse?",
+                    opts: [
+                        "Forpliktelse som skal betales neste måned",
+                        "Mulig forpliktelse avhengig av fremtidige hendelser",
+                        "Leverandørgjeld",
+                        "Lån fra bank"
+                    ],
+                    a: 1,
+                    l: "§ 5-10 (RGL)",
+                    w: "#wiki/betinget",
+                    exp: "Betingede forpliktelser (f.eks. garantier, rettssaker) opplyses i noter."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Alle anleggsmidler må avskrives",
+                    a: false,
+                    l: "§ 5-3 (RGL)",
+                    w: "#wiki/avskrivningsunntak",
+                    exp: "Tomt og kunst avskrives vanligvis ikke da de ikke har begrenset levetid."
+                },
+                {
+                    type: "para",
+                    q: "Hva kalles kontroller av at bokførte tall stemmer med faktisk?",
+                    a: "Avstemming",
+                    variations: ["avstemming", "avstemminger", "reconciliation"],
+                    l: "§ 5-5 (BFL)",
+                    w: "#wiki/avstemming-prosess",
+                    exp: "Avstemming sikrer at bokførte tall (bank, fordringer, gjeld) stemmer med virkeligheten."
+                },
+                {
+                    type: "multi",
+                    q: "Hvilke konti må avstemmes ved årsavslutning? (Velg alle)",
+                    opts: [
+                        "Bankkonto",
+                        "Kundefordringer",
+                        "Varelager",
+                        "Salgsinntekt",
+                        "Leverandørgjeld"
+                    ],
+                    a: [0, 1, 2, 4],
+                    l: "§ 5-5 (BFL)",
+                    w: "#wiki/avstemming-konti",
+                    exp: "Balanseposter må avstemmes: bank, fordringer, lager, gjeld. Resultatkonti avstemmes ikke."
+                },
+                {
+                    type: "mc",
+                    q: "Når må konsernbidrag gis for å få skattefradrag?",
+                    opts: [
+                        "Når som helst",
+                        "Senest ved innlevering av skattemelding",
+                        "Senest to måneder etter regnskapsårets slutt",
+                        "Innen 31. desember"
+                    ],
+                    a: 2,
+                    l: "§ 10-2 (SKTL)",
+                    w: "#wiki/konsernbidrag",
+                    exp: "Konsernbidrag må gis senest to måneder etter regnskapsårets slutt for skattefradrag."
+                },
+                {
+                    type: "tf",
+                    q: "Påstand: Regnskapet kan endres etter at det er godkjent av generalforsamling",
+                    a: false,
+                    l: "§ 3-5 (RGL)",
+                    w: "#wiki/endring-regnskap",
+                    exp: "Etter godkjenning kan regnskap kun endres ved vesentlige feil og krever ny godkjenning."
+                }
+            ]
+        };
+
+        // State
+        let S = {
+            cat: "Grunnleggende Regnskap",
+            qi: 0,
+            ans: {},
+            userAnswers: {}
+        };
+
+        let draggedItem = null;
+        let draggedFrom = null;
+
+        // Initialize
+        function init() {
+            loadSettings();
+            loadCats();
+            loadQ();
+            updateStats();
+            loadProg();
+        }
+
+        // Settings (theme support)
+        function loadSettings() {
+            const saved = localStorage.getItem('accountingquest_settings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                if (settings.theme === 'light') {
+                    document.body.setAttribute('data-theme', 'light');
+                }
+            }
+        }
+
+        // Load Categories
+        function loadCats() {
+            let sb = document.getElementById('sidebar');
+            let h = '<h3>📚 Kategorier</h3>';
+            
+            for (let [cat, qs] of Object.entries(DB)) {
+                let answered = qs.filter((q, i) => S.ans[cat + '_' + i] !== undefined).length;
+                let correct = qs.filter((q, i) => S.ans[cat + '_' + i] === true).length;
+                let progress = Math.round((answered / qs.length) * 100);
+                
+                h += `
+                    <div class="category-card ${cat === S.cat ? 'active' : ''}" onclick="loadCat('${cat}')">
+                        <div class="category-name">${cat}</div>
+                        <div class="category-stats">
+                            <span>${answered}/${qs.length} besvart</span>
+                            <span class="category-correct">${correct} ✓</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            sb.innerHTML = h;
+        }
+
+        // Load Category
+        function loadCat(c) {
+            S.cat = c;
+            S.qi = 0;
+            loadCats();
+            loadQ();
+        }
+
+        // Load Question
+        function loadQ() {
+            let qs = DB[S.cat];
+            let q = qs[S.qi];
+            
+            document.getElementById('qnum').textContent = `Spørsmål ${S.qi + 1} av ${qs.length}`;
+            document.getElementById('qnum-total').textContent = qs.length;
+            document.getElementById('qtext').textContent = q.q;
+            document.getElementById('curr').textContent = S.qi + 1;
+            
+            let types = {
+                'para': '📝 Paragraf',
+                'mc': '📘 Flervalg',
+                'multi': '☑️ Velg flere',
+                'tf': '✓✗ Sant/Usant',
+                'dnd': '🎯 Dra & Slipp'
+            };
+            document.getElementById('qtype').textContent = types[q.type];
+            
+            let qc = document.getElementById('qcontent');
+            qc.innerHTML = '';
+            
+            if (q.type === 'para') {
+                qc.innerHTML = `
+                    <input type="text" class="para-input" id="parain" placeholder="§ X-X (LOV)">
+                    <div class="para-hint">Eksempel: § 4-2 (RGL)</div>
+                `;
+            } else if (q.type === 'mc') {
+                let h = '<div class="mc-options">';
+                q.opts.forEach((o, i) => {
+                    h += `
+                        <label class="mc-option">
+                            <input type="radio" name="mc" value="${i}">
+                            ${o}
+                        </label>
+                    `;
+                });
+                qc.innerHTML = h + '</div>';
+            } else if (q.type === 'multi') {
+                let h = '<div class="mc-options">';
+                q.opts.forEach((o, i) => {
+                    h += `
+                        <label class="mc-option">
+                            <input type="checkbox" value="${i}">
+                            ${o}
+                        </label>
+                    `;
+                });
+                qc.innerHTML = h + '</div>';
+            } else if (q.type === 'tf') {
+                qc.innerHTML = `
+                    <div class="tf-buttons">
+                        <div class="tf-btn" onclick="selectTF(true)">✓ SANT</div>
+                        <div class="tf-btn" onclick="selectTF(false)">✗ USANT</div>
+                    </div>
+                `;
+            } else if (q.type === 'dnd') {
+                let h = '<div class="dnd-container">';
+                h += '<div class="dnd-items"><h4>Dra disse:</h4>';
+                q.items.forEach((it, i) => {
+                    h += `
+                        <div class="dnd-item" draggable="true" data-item="${i}" 
+                             ondragstart="dragStart(event)" ondragend="dragEnd(event)">
+                            ${it}
+                        </div>
+                    `;
+                });
+                h += '</div><div class="dnd-targets">';
+                q.targets.forEach((t, i) => {
+                    h += `
+                        <div>
+                            <div class="dnd-target-label">${t.label}</div>
+                            <div class="dnd-target" data-target="${i}" 
+                                 ondragover="dragOver(event)" 
+                                 ondragleave="dragLeave(event)" 
+                                 ondrop="drop(event)">
+                            </div>
+                        </div>
+                    `;
+                });
+                qc.innerHTML = h + '</div></div>';
+            }
+            
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            document.getElementById('nextbtn').style.display = 'none';
+            updateStats();
+        }
+
+        // True/False Selection
+        function selectTF(val) {
+            document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('selected'));
+            event.target.classList.add('selected');
+            S.userAnswers[S.cat + '_' + S.qi] = val;
+        }
+
+        // Drag and Drop Functions
+        function dragStart(e) {
+            draggedItem = e.target;
+            draggedFrom = e.target.parentElement;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function dragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            let tgt = e.currentTarget;
+            tgt.classList.remove('drag-over');
+            
+            if (draggedItem) {
+                if (tgt.children.length > 0 && tgt.classList.contains('dnd-target')) {
+                    draggedFrom.appendChild(tgt.children[0]);
+                }
+                tgt.appendChild(draggedItem);
+                tgt.classList.add('filled');
+                draggedItem = null;
+            }
+        }
+
+        // Check Answer
+        function checkA() {
+            let k = S.cat + '_' + S.qi;
+            let q = DB[S.cat][S.qi];
+            let correct = false;
+            let userAns = S.userAnswers[k];
+            
+            if (q.type === 'para') {
+                let inp = document.getElementById('parain').value.trim().toLowerCase();
+                correct = inp === q.a.toLowerCase() || 
+                         (q.variations && q.variations.some(v => inp === v.toLowerCase()));
+            } else if (q.type === 'mc') {
+                let sel = document.querySelector('input[name="mc"]:checked');
+                if (sel) {
+                    userAns = parseInt(sel.value);
+                    S.userAnswers[k] = userAns;
+                    correct = userAns === q.a;
+                    
+                    document.querySelectorAll('.mc-option').forEach((o, i) => {
+                        o.classList.remove('correct', 'incorrect');
+                        if (i === q.a) o.classList.add('correct');
+                        else if (i === userAns && !correct) o.classList.add('incorrect');
+                    });
+                }
+            } else if (q.type === 'multi') {
+                let checks = [...document.querySelectorAll('input[type="checkbox"]:checked')]
+                    .map(c => parseInt(c.value));
+                userAns = checks;
+                S.userAnswers[k] = userAns;
+                correct = checks.length === q.a.length && 
+                         checks.every(c => q.a.includes(c));
+                
+                document.querySelectorAll('.mc-option').forEach((o, i) => {
+                    o.classList.remove('correct', 'incorrect');
+                    if (q.a.includes(i)) o.classList.add('correct');
+                    else if (checks.includes(i)) o.classList.add('incorrect');
+                });
+            } else if (q.type === 'tf') {
+                correct = userAns === q.a;
+                document.querySelectorAll('.tf-btn').forEach(b => {
+                    b.classList.remove('correct', 'incorrect');
+                    let isTrue = b.textContent.includes('SANT');
+                    if ((isTrue && q.a) || (!isTrue && !q.a)) 
+                        b.classList.add('correct');
+                    else if ((isTrue && userAns === true) || (!isTrue && userAns === false)) 
+                        b.classList.add('incorrect');
+                });
+            } else if (q.type === 'dnd') {
+                let placement = {};
+                document.querySelectorAll('.dnd-target').forEach(t => {
+                    let ti = parseInt(t.dataset.target);
+                    let items = [...t.children].map(c => parseInt(c.dataset.item));
+                    placement[ti] = items;
+                });
+                
+                correct = q.targets.every((t, i) => {
+                    let pl = placement[i] || [];
+                    return pl.length === t.correct.length && 
+                           pl.every(p => t.correct.includes(p));
+                });
+            }
+            
+            S.ans[k] = correct;
+            
+            let fb = document.getElementById('feedback');
+            fb.className = 'feedback show ' + (correct ? 'correct' : 'incorrect');
+            document.getElementById('feedicon').textContent = correct ? '🎉' : '😞';
+            document.getElementById('feedtext').textContent = correct ? 
+                'Riktig! Flott jobbet!' : 'Ikke helt riktig. Se forklaring under:';
+            document.getElementById('lawref').innerHTML = `
+                <strong>📜 Lovhjemmel:</strong> 
+                <a href="${q.w}" target="_blank">${q.l}</a>
+            `;
+            document.getElementById('explain').textContent = q.exp;
+            document.getElementById('nextbtn').style.display = 'inline-block';
+            
+            saveProg();
+            loadCats();
+            updateStats();
+        }
+
+        // Skip Question
+        function skipQ() {
+            nextQ();
+        }
+
+        // Next Question
+        function nextQ() {
+            let qs = DB[S.cat];
+            if (S.qi < qs.length - 1) {
+                S.qi++;
+            } else {
+                let cats = Object.keys(DB);
+                let ci = cats.indexOf(S.cat);
+                if (ci < cats.length - 1) {
+                    S.cat = cats[ci + 1];
+                    S.qi = 0;
+                } else {
+                    showDone();
+                    return;
+                }
+            }
+            loadCat(S.cat);
+        }
+
+        // Update Stats
+        function updateStats() {
+            let tot = 0, an = 0, co = 0;
+            for (let [cat, qs] of Object.entries(DB)) {
+                tot += qs.length;
+                qs.forEach((q, i) => {
+                    let k = cat + '_' + i;
+                    if (S.ans[k] !== undefined) {
+                        an++;
+                        if (S.ans[k]) co++;
+                    }
+                });
+            }
+            document.getElementById('tot').textContent = tot;
+            document.getElementById('ans').textContent = an;
+            document.getElementById('corr').textContent = co;
+        }
+
+        // Save Progress
+        function saveProg() {
+            localStorage.setItem('quiz_v2', JSON.stringify(S));
+        }
+
+        // Load Progress
+        function loadProg() {
+            let sv = localStorage.getItem('quiz_v2');
+            if (sv) {
+                S = JSON.parse(sv);
+                loadCats();
+                updateStats();
+            }
+        }
+
+        // Show Completion
+        function showDone() {
+            let ws = document.querySelector('.workspace');
+            let tot = 0, an = 0, co = 0;
+            
+            for (let [cat, qs] of Object.entries(DB)) {
+                tot += qs.length;
+                qs.forEach((q, i) => {
+                    if (S.ans[cat + '_' + i] !== undefined) {
+                        an++;
+                        if (S.ans[cat + '_' + i]) co++;
+                    }
+                });
+            }
+            
+            ws.innerHTML = `
+                <div class="completion-screen">
+                    <h1>🎉 Gratulerer!</h1>
+                    <p>Du har fullført alle quiz-spørsmål!</p>
+                    <div class="stats-card">
+                        <h3>📊 Din statistikk</h3>
+                        <div class="stats-grid">
+                            <div class="stat-row">
+                                <span class="stat-emoji">📝</span> Totalt: ${tot}
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-emoji">✅</span> Besvart: ${an}
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-emoji">✓</span> Riktige: ${co}
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-emoji">⭐</span> Score: ${Math.round((co/tot)*100)}%
+                            </div>
+                        </div>
+                    </div>
+                    <button class="action-btn" onclick="location.href='index.html'" 
+                            style="font-size: 1.2em; padding: 20px 50px;">
+                        <span>←</span>
+                        <span>Tilbake til meny</span>
+                    </button>
+                </div>
+            `;
+            saveProg();
+        }
+
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>

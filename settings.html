@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innstillinger - AccountingQuest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Dark mode (default) */
+        body.dark-mode {
+            background: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        /* Light mode */
+        body.light-mode {
+            background: #f5f5f5;
+            color: #1e1e1e;
+        }
+
+        .header {
+            padding: 20px 40px;
+            border-bottom: 2px solid;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        body.dark-mode .header {
+            background: #2d2d2d;
+            border-bottom-color: #4ade80;
+        }
+
+        body.light-mode .header {
+            background: #ffffff;
+            border-bottom-color: #22c55e;
+        }
+
+        .header-title {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        body.dark-mode .header-title {
+            color: #4ade80;
+        }
+
+        body.light-mode .header-title {
+            color: #22c55e;
+        }
+
+        .back-btn {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        body.dark-mode .back-btn {
+            background: #404040;
+            color: #e0e0e0;
+        }
+
+        body.light-mode .back-btn {
+            background: #e0e0e0;
+            color: #1e1e1e;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        body.dark-mode .back-btn:hover {
+            background: #4ade80;
+            color: #1e1e1e;
+        }
+
+        body.light-mode .back-btn:hover {
+            background: #22c55e;
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .settings-section {
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode .settings-section {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+        }
+
+        body.light-mode .settings-section {
+            background: white;
+            border: 2px solid #e0e0e0;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        body.dark-mode .section-title {
+            color: #4ade80;
+        }
+
+        body.light-mode .section-title {
+            color: #22c55e;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid;
+        }
+
+        body.dark-mode .setting-item {
+            border-bottom-color: #404040;
+        }
+
+        body.light-mode .setting-item {
+            border-bottom-color: #e0e0e0;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-label {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .setting-description {
+            font-size: 0.9em;
+        }
+
+        body.dark-mode .setting-description {
+            color: #9ca3af;
+        }
+
+        body.light-mode .setting-description {
+            color: #6b7280;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            margin-left: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #404040;
+            transition: 0.3s;
+            border-radius: 30px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #4ade80;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        /* Select dropdown */
+        .setting-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: 20px;
+        }
+
+        body.dark-mode .setting-select {
+            background: #1e1e1e;
+            color: #e0e0e0;
+            border-color: #404040;
+        }
+
+        body.light-mode .setting-select {
+            background: #f5f5f5;
+            color: #1e1e1e;
+            border-color: #d1d5db;
+        }
+
+        .setting-select:focus {
+            outline: none;
+            border-color: #4ade80;
+        }
+
+        /* Preview box */
+        .preview-box {
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode .preview-box {
+            background: #1e1e1e;
+            border: 2px solid #404040;
+        }
+
+        body.light-mode .preview-box {
+            background: #f9fafb;
+            border: 2px solid #d1d5db;
+        }
+
+        .preview-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .preview-title {
+            color: #4ade80;
+        }
+
+        body.light-mode .preview-title {
+            color: #22c55e;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4ade80;
+            color: #1e1e1e;
+        }
+
+        .btn-primary:hover {
+            background: #22c55e;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #2563eb;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Success message */
+        .success-message {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        body.dark-mode .success-message {
+            background: rgba(74, 222, 128, 0.2);
+            border: 2px solid #4ade80;
+            color: #4ade80;
+        }
+
+        body.light-mode .success-message {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+            color: #22c55e;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .toggle-switch,
+            .setting-select {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="header">
+        <div class="header-title">⚙️ Innstillinger</div>
+        <button class="back-btn" onclick="goBack()">← Tilbake</button>
+    </div>
+
+    <div class="container">
+        <!-- Utseende -->
+        <div class="settings-section">
+            <div class="section-title">🎨 Utseende</div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Mørk modus</div>
+                    <div class="setting-description">Bruk mørkt tema for bedre lesbarhet i mørke rom</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="dark-mode-toggle" checked onchange="toggleDarkMode()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Tema-farge</div>
+                    <div class="setting-description">Velg hovedfarge for applikasjonen</div>
+                </div>
+                <select class="setting-select" id="theme-color" onchange="changeThemeColor()">
+                    <option value="green">Grønn (Standard)</option>
+                    <option value="blue">Blå</option>
+                    <option value="purple">Lilla</option>
+                    <option value="orange">Oransje</option>
+                </select>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Animasjoner</div>
+                    <div class="setting-description">Aktiver smooth overganger og animasjoner</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="animations-toggle" checked onchange="toggleAnimations()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Spill-innstillinger -->
+        <div class="settings-section">
+            <div class="section-title">🎮 Spill-innstillinger</div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Lydeffekter</div>
+                    <div class="setting-description">Spill lyder ved svar og resultater</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="sound-toggle" checked onchange="toggleSound()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Vis forklaringer automatisk</div>
+                    <div class="setting-description">Vis forklaring etter hvert spørsmål (anbefalt)</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="auto-explanation-toggle" checked onchange="toggleAutoExplanation()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Standard quiz-tid</div>
+                    <div class="setting-description">Standard tid per spørsmål for nye quiz</div>
+                </div>
+                <select class="setting-select" id="default-time" onchange="changeDefaultTime()">
+                    <option value="15">15 sekunder</option>
+                    <option value="20">20 sekunder</option>
+                    <option value="30" selected>30 sekunder</option>
+                    <option value="45">45 sekunder</option>
+                    <option value="60">60 sekunder</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Excel/Bokføring-innstillinger -->
+        <div class="settings-section">
+            <div class="section-title">📊 Bokføring & Excel</div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Excel-stil interface</div>
+                    <div class="setting-description">Bruk Excel-lignende celler i bokføringsoppgaver</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="excel-mode-toggle" checked onchange="toggleExcelMode()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Vis kalkulator</div>
+                    <div class="setting-description">Vis flyttbar kalkulator i bokføringsoppgaver</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="calculator-toggle" checked onchange="toggleCalculator()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Celle-navigering</div>
+                    <div class="setting-description">Bruk piltaster for å navigere mellom celler</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="cell-nav-toggle" checked onchange="toggleCellNav()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Formel-støtte</div>
+                    <div class="setting-description">Aktiver Excel-formler (=B1+C1, =SUM(), etc.)</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="formula-toggle" checked onchange="toggleFormulas()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Auto-formatering</div>
+                    <div class="setting-description">Formater tall automatisk (1000 → 1 000)</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="auto-format-toggle" checked onchange="toggleAutoFormat()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Quiz-opplevelse -->
+        <div class="settings-section">
+            <div class="section-title">❓ Quiz-opplevelse</div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Quiz-type for solo-spill</div>
+                    <div class="setting-description">Velg stil for quiz uten multiplayer</div>
+                </div>
+                <select class="setting-select" id="quiz-style" onchange="changeQuizStyle()">
+                    <option value="kahoot">Kahoot-stil (4 fargeknapper)</option>
+                    <option value="traditional">Tradisjonell (enkle knapper)</option>
+                    <option value="excel">Excel-stil (skriv svar)</option>
+                </select>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Vis fremgang under quiz</div>
+                    <div class="setting-description">Vis fremdriftsbalk og spørsmål-nummer</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="progress-toggle" checked onchange="toggleProgress()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Tillat hoppe over</div>
+                    <div class="setting-description">La brukere hoppe over vanskelige spørsmål</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="skip-toggle" onchange="toggleSkip()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Hint-system</div>
+                    <div class="setting-description">Vis hint-knapp på spørsmål</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="hints-toggle" checked onchange="toggleHints()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Data & Lagring -->
+        <div class="settings-section">
+            <div class="section-title">💾 Data & Lagring</div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Auto-lagre fremgang</div>
+                    <div class="setting-description">Lagre fremgang automatisk under spill</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autosave-toggle" checked onchange="toggleAutosave()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="preview-box">
+                <div class="preview-title">📊 Lagringsplasss brukt</div>
+                <div id="storage-info">Beregner...</div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="exportData()">📥 Eksporter data</button>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ Slett all data</button>
+            </div>
+        </div>
+
+        <!-- Lagre-knapp -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="saveSettings()">💾 Lagre innstillinger</button>
+        </div>
+
+        <div class="success-message" id="success-message">
+            ✅ Innstillinger lagret!
+        </div>
+    </div>
+
+    <script>
+        // Settings object
+        let settings = {
+            darkMode: true,
+            themeColor: 'green',
+            animations: true,
+            sound: true,
+            autoExplanation: true,
+            defaultTime: 30,
+            excelMode: true,
+            calculator: true,
+            cellNav: true,
+            formulas: true,
+            autoFormat: true,
+            quizStyle: 'kahoot',
+            showProgress: true,
+            allowSkip: false,
+            hints: true,
+            autosave: true
+        };
+
+        // Load settings on startup
+        function init() {
+            loadSettings();
+            applySettings();
+            updateStorageInfo();
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('user_settings');
+            if (saved) {
+                settings = { ...settings, ...JSON.parse(saved) };
+            }
+            
+            // Update UI
+            document.getElementById('dark-mode-toggle').checked = settings.darkMode;
+            document.getElementById('theme-color').value = settings.themeColor;
+            document.getElementById('animations-toggle').checked = settings.animations;
+            document.getElementById('sound-toggle').checked = settings.sound;
+            document.getElementById('auto-explanation-toggle').checked = settings.autoExplanation;
+            document.getElementById('default-time').value = settings.defaultTime;
+            document.getElementById('excel-mode-toggle').checked = settings.excelMode;
+            document.getElementById('calculator-toggle').checked = settings.calculator;
+            document.getElementById('cell-nav-toggle').checked = settings.cellNav;
+            document.getElementById('formula-toggle').checked = settings.formulas;
+            document.getElementById('auto-format-toggle').checked = settings.autoFormat;
+            document.getElementById('quiz-style').value = settings.quizStyle;
+            document.getElementById('progress-toggle').checked = settings.showProgress;
+            document.getElementById('skip-toggle').checked = settings.allowSkip;
+            document.getElementById('hints-toggle').checked = settings.hints;
+            document.getElementById('autosave-toggle').checked = settings.autosave;
+        }
+
+        function applySettings() {
+            document.body.className = settings.darkMode ? 'dark-mode' : 'light-mode';
+            
+            // Apply theme color
+            const root = document.documentElement;
+            const colors = {
+                green: '#4ade80',
+                blue: '#3b82f6',
+                purple: '#a855f7',
+                orange: '#f59e0b'
+            };
+            root.style.setProperty('--theme-color', colors[settings.themeColor] || colors.green);
+        }
+
+        function toggleDarkMode() {
+            settings.darkMode = document.getElementById('dark-mode-toggle').checked;
+            applySettings();
+        }
+
+        function changeThemeColor() {
+            settings.themeColor = document.getElementById('theme-color').value;
+            applySettings();
+        }
+
+        function toggleAnimations() {
+            settings.animations = document.getElementById('animations-toggle').checked;
+        }
+
+        function toggleSound() {
+            settings.sound = document.getElementById('sound-toggle').checked;
+        }
+
+        function toggleAutoExplanation() {
+            settings.autoExplanation = document.getElementById('auto-explanation-toggle').checked;
+        }
+
+        function changeDefaultTime() {
+            settings.defaultTime = parseInt(document.getElementById('default-time').value);
+        }
+
+        function toggleExcelMode() {
+            settings.excelMode = document.getElementById('excel-mode-toggle').checked;
+        }
+
+        function toggleCalculator() {
+            settings.calculator = document.getElementById('calculator-toggle').checked;
+        }
+
+        function toggleCellNav() {
+            settings.cellNav = document.getElementById('cell-nav-toggle').checked;
+        }
+
+        function toggleFormulas() {
+            settings.formulas = document.getElementById('formula-toggle').checked;
+        }
+
+        function toggleAutoFormat() {
+            settings.autoFormat = document.getElementById('auto-format-toggle').checked;
+        }
+
+        function changeQuizStyle() {
+            settings.quizStyle = document.getElementById('quiz-style').value;
+        }
+
+        function toggleProgress() {
+            settings.showProgress = document.getElementById('progress-toggle').checked;
+        }
+
+        function toggleSkip() {
+            settings.allowSkip = document.getElementById('skip-toggle').checked;
+        }
+
+        function toggleHints() {
+            settings.hints = document.getElementById('hints-toggle').checked;
+        }
+
+        function toggleAutosave() {
+            settings.autosave = document.getElementById('autosave-toggle').checked;
+        }
+
+        function saveSettings() {
+            localStorage.setItem('user_settings', JSON.stringify(settings));
+            
+            // Show success message
+            const msg = document.getElementById('success-message');
+            msg.classList.add('show');
+            setTimeout(() => {
+                msg.classList.remove('show');
+            }, 3000);
+        }
+
+        function updateStorageInfo() {
+            let totalSize = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    totalSize += localStorage[key].length + key.length;
+                }
+            }
+            
+            const sizeKB = (totalSize / 1024).toFixed(2);
+            const maxSize = 5120; // ~5MB for most browsers
+            const percentUsed = ((totalSize / 1024) / maxSize * 100).toFixed(1);
+            
+            document.getElementById('storage-info').innerHTML = `
+                Brukt: ${sizeKB} KB av ~5 MB (${percentUsed}%)
+                <br><small>localStorage inneholder ${Object.keys(localStorage).length} nøkler</small>
+            `;
+        }
+
+        function exportData() {
+            const data = {
+                settings: settings,
+                quizzes: localStorage.getItem('teacher_quizzes'),
+                progress: localStorage.getItem('bokforing_progress'),
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `accountingquest_backup_${Date.now()}.json`;
+            a.click();
+        }
+
+        function clearAllData() {
+            if (confirm('Er du SIKKER på at du vil slette ALL data? Dette kan ikke angres!')) {
+                if (confirm('Siste sjanse! Alt vil bli slettet permanent.')) {
+                    localStorage.clear();
+                    alert('All data er slettet. Siden vil nå lastes på nytt.');
+                    location.reload();
+                }
+            }
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>

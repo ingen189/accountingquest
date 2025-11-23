@@ -1,0 +1,269 @@
+[
+  {
+    "id": 1700000001,
+    "name": "Grunnleggende Bokføring - Demo",
+    "description": "En demo-quiz med 10 spørsmål om grunnleggende regnskapskonsepter. Perfekt for å komme i gang!",
+    "timePerQuestion": 30,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Hva bokføres på debet ved kontantsalg?",
+        "answers": [
+          "Bankinnskudd (1920)",
+          "Salgsinntekt (3000)",
+          "Kundefordringer (1500)",
+          "Kasse (1900)"
+        ],
+        "correct": 0,
+        "explanation": "Ved kontantsalg kommer pengene direkte inn på bankkontoen, derfor debiteres 1920 Bankinnskudd. Salgsinntekt (3000) krediteres."
+      },
+      {
+        "id": 2,
+        "text": "Hvilken kontoklasse brukes for egenkapital?",
+        "answers": [
+          "Kontoklasse 1",
+          "Kontoklasse 2",
+          "Kontoklasse 3",
+          "Kontoklasse 8"
+        ],
+        "correct": 1,
+        "explanation": "Kontoklasse 2 inneholder både egenkapital og gjeld. Kontoklasse 1 er eiendeler, 3 er driftsinntekter, og 8 er finans og disponering."
+      },
+      {
+        "id": 3,
+        "text": "Hva er standard MVA-sats i Norge?",
+        "answers": [
+          "15%",
+          "20%",
+          "25%",
+          "30%"
+        ],
+        "correct": 2,
+        "explanation": "Standard merverdiavgift (MVA) i Norge er 25%. Det finnes også reduserte satser på 15% (mat) og 12% (persontransport)."
+      },
+      {
+        "id": 4,
+        "text": "Når en faktura sendes til kunde, hva debiteres?",
+        "answers": [
+          "Leverandørgjeld",
+          "Kundefordringer",
+          "Bankinnskudd",
+          "Kontanter"
+        ],
+        "correct": 1,
+        "explanation": "Når du fakturerer en kunde oppstår det en fordring (du har krav på penger). Dette debiteres på konto 1500 Kundefordringer."
+      },
+      {
+        "id": 5,
+        "text": "Hva er formelen for egenkapitalrentabilitet (ROE)?",
+        "answers": [
+          "Årsresultat / Totalkapital × 100",
+          "Årsresultat / Egenkapital × 100",
+          "Driftsresultat / Egenkapital × 100",
+          "EBIT / Totalkapital × 100"
+        ],
+        "correct": 1,
+        "explanation": "ROE (Return on Equity) = (Årsresultat / Gjennomsnittlig egenkapital) × 100. Dette viser avkastningen på eiernes investering."
+      },
+      {
+        "id": 6,
+        "text": "Hva klassifiseres som et omløpsmiddel?",
+        "answers": [
+          "Bygninger",
+          "Maskiner",
+          "Varelager",
+          "Goodwill"
+        ],
+        "correct": 2,
+        "explanation": "Omløpsmidler er eiendeler som omsettes eller forbrukes i løpet av ett år. Varelager er typisk omløpsmiddel. Bygninger og maskiner er anleggsmidler."
+      },
+      {
+        "id": 7,
+        "text": "Hva er arbeidsgiveravgift (AGA)?",
+        "answers": [
+          "Skatt arbeidstaker betaler",
+          "Avgift arbeidsgiver betaler på lønn",
+          "Feriepenger",
+          "Pensjonsinnskudd"
+        ],
+        "correct": 1,
+        "explanation": "AGA er en avgift arbeidsgiver må betale på lønn til ansatte. Satsen varierer med geografi, men er typisk 14,1% av brutto lønn."
+      },
+      {
+        "id": 8,
+        "text": "Hva er transaksjonsbasert regnskapsføring?",
+        "answers": [
+          "Estimerte fremtidige transaksjoner",
+          "Kun faktiske, dokumenterte hendelser",
+          "Bare interne overføringer",
+          "Planlagte budsjetter"
+        ],
+        "correct": 1,
+        "explanation": "Transaksjonsbasert regnskapsføring betyr at kun faktiske, dokumenterte hendelser (fakturaer, kvitteringer, etc.) føres i regnskapet."
+      },
+      {
+        "id": 9,
+        "text": "Hva betyr 'Fortsatt drift' prinsippet?",
+        "answers": [
+          "Selskapet skal drive videre",
+          "Selskapet skal avvikles",
+          "Selskapet er konkurstruet",
+          "Selskapet fusjonerer"
+        ],
+        "correct": 0,
+        "explanation": "Fortsatt drift prinsippet (going concern) betyr at regnskapet føres under forutsetning at selskapet fortsetter å drive i overskuelig fremtid."
+      },
+      {
+        "id": 10,
+        "text": "Når avskrives anleggsmidler?",
+        "answers": [
+          "Aldri",
+          "Når de selges",
+          "Systematisk over levetiden",
+          "Bare ved tap"
+        ],
+        "correct": 2,
+        "explanation": "Anleggsmidler avskrives systematisk over forventet økonomisk levetid. Dette fordeler anskaffelseskostnaden over bruksperioden."
+      }
+    ],
+    "created": "2024-01-15T10:00:00.000Z"
+  },
+  {
+    "id": 1700000002,
+    "name": "MVA-kunnskap - Demo",
+    "description": "Test din kunnskap om merverdiavgift (MVA) i Norge",
+    "timePerQuestion": 25,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Hva er utgående MVA?",
+        "answers": [
+          "MVA du betaler ved kjøp",
+          "MVA du krever inn ved salg",
+          "MVA du får refundert",
+          "MVA på import"
+        ],
+        "correct": 1,
+        "explanation": "Utgående MVA er den merverdiavgiften du krever inn fra kunder når du selger avgiftspliktige varer eller tjenester."
+      },
+      {
+        "id": 2,
+        "text": "Hva er inngående MVA?",
+        "answers": [
+          "MVA ved salg",
+          "MVA du betaler ved innkjøp",
+          "MVA på eksport",
+          "MVA på gaver"
+        ],
+        "correct": 1,
+        "explanation": "Inngående MVA er den avgiften du betaler når du kjøper varer og tjenester til virksomheten. Dette kan du få fradrag for."
+      },
+      {
+        "id": 3,
+        "text": "Når har du rett til fradrag for inngående MVA?",
+        "answers": [
+          "Alltid",
+          "Aldri",
+          "Når kjøpet brukes til avgiftspliktig virksomhet",
+          "Bare ved eksport"
+        ],
+        "correct": 2,
+        "explanation": "Du har fradragsrett for inngående MVA når kjøpet er til bruk i avgiftspliktig virksomhet. Kjøp til privat bruk gir ikke fradrag."
+      },
+      {
+        "id": 4,
+        "text": "Hva er MVA-satsen på matvarer?",
+        "answers": [
+          "0%",
+          "12%",
+          "15%",
+          "25%"
+        ],
+        "correct": 2,
+        "explanation": "Næringsmidler (matvarer) har en redusert MVA-sats på 15% i Norge."
+      },
+      {
+        "id": 5,
+        "text": "Hva gjør du hvis utgående MVA > inngående MVA?",
+        "answers": [
+          "Betaler differansen til staten",
+          "Får refusjon fra staten",
+          "Ingenting",
+          "Overfører til neste termin"
+        ],
+        "correct": 0,
+        "explanation": "Hvis utgående MVA (det du har krevd inn) er større enn inngående MVA (det du har betalt), skal du betale differansen til staten."
+      }
+    ],
+    "created": "2024-01-15T11:00:00.000Z"
+  },
+  {
+    "id": 1700000003,
+    "name": "Regnskapsanalyse - Demo",
+    "description": "Nøkkeltall og analyseteknikker i regnskap",
+    "timePerQuestion": 35,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Hva viser likviditetsgrad 1?",
+        "answers": [
+          "Evnen til å betale kortsiktig gjeld",
+          "Lønnsomhet",
+          "Egenkapitalandel",
+          "Vekstrate"
+        ],
+        "correct": 0,
+        "explanation": "Likviditetsgrad 1 = Omløpsmidler / Kortsiktig gjeld. Dette viser om bedriften kan betale sine kortsiktige forpliktelser. Anbefalt verdi: > 2."
+      },
+      {
+        "id": 2,
+        "text": "Hva er formelen for totalkapitalrentabilitet (ROA)?",
+        "answers": [
+          "Årsresultat / Totalkapital × 100",
+          "(Resultat før skatt + Finanskostnader) / Totalkapital × 100",
+          "EBIT / Egenkapital × 100",
+          "Driftsresultat / Omsetning × 100"
+        ],
+        "correct": 1,
+        "explanation": "ROA = ((Resultat før skatt + Finanskostnader) / Gjennomsnittlig totalkapital) × 100. Dette viser avkastning på all kapital."
+      },
+      {
+        "id": 3,
+        "text": "Hva er soliditet?",
+        "answers": [
+          "Evne til å betale kortsiktig gjeld",
+          "Andel egenkapital av totalkapitalen",
+          "Lønnsomhet",
+          "Kontantbeholdning"
+        ],
+        "correct": 1,
+        "explanation": "Soliditet = Egenkapital / Totalkapital × 100. Dette viser finansiell styrke på lang sikt. Høy soliditet = lav gjeldsgrad."
+      },
+      {
+        "id": 4,
+        "text": "Hva er horisontal analyse?",
+        "answers": [
+          "Sammenligning mellom ulike bedrifter",
+          "Sammenligning over tid (år til år)",
+          "Prosentandel av omsetning",
+          "Budsjettkontroll"
+        ],
+        "correct": 1,
+        "explanation": "Horisontal analyse sammenligner tall over tid (f.eks. 2024 vs 2023). Man ser på endringer i absolutte tall og prosent."
+      },
+      {
+        "id": 5,
+        "text": "Hva er vertikal analyse?",
+        "answers": [
+          "Analyse over tid",
+          "Hver post som andel av omsetning/totalkapital",
+          "Budsjettering",
+          "Kontantstrømanalyse"
+        ],
+        "correct": 1,
+        "explanation": "Vertikal analyse viser hver post som en prosentandel av en basisstørrelse (f.eks. omsetning for resultatposter, totalkapital for balansekonti)."
+      }
+    ],
+    "created": "2024-01-15T12:00:00.000Z"
+  }
+]

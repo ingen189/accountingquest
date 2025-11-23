@@ -2,9 +2,49 @@
 <html lang="no">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Regnskapsanalyse - Excel Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Regnskapsanalyse - AccountingQuest</title>
+    
+    <!-- SEO -->
+    <meta name="description" content="Interaktive regnskapsanalyse-oppgaver med Excel-lignende grensesnitt. Lær nøkkeltall, rentabilitet, likviditet og soliditet.">
+    <meta name="theme-color" content="#1a1a2e">
+    
     <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f3460;
+            --text-primary: #eaeaea;
+            --text-secondary: #a0a0a0;
+            --accent-primary: #4ade80;
+            --accent-secondary: #3b82f6;
+            --border-color: #404040;
+            --card-bg: #2d2d2d;
+            --cell-bg: #1e1e1e;
+            --cell-hover: #2d2d2d;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --success: #4ade80;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e5e5e5;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --accent-primary: #22c55e;
+            --accent-secondary: #2563eb;
+            --border-color: #d4d4d4;
+            --card-bg: #ffffff;
+            --cell-bg: #f9f9f9;
+            --cell-hover: #f0f0f0;
+            --error: #dc2626;
+            --warning: #d97706;
+            --success: #16a34a;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,23 +52,32 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1e1e1e;
-            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            transition: all 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Header */
         .game-header {
-            background: #2d2d2d;
-            border-bottom: 2px solid #404040;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--border-color);
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
         .header-left {
@@ -38,19 +87,40 @@
         }
 
         .back-btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--border-color);
+            color: var(--text-primary);
             border: none;
             padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .back-btn:hover {
-            background: #4ade80;
+            background: var(--accent-primary);
             color: #1e1e1e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.3);
+        }
+
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
+        .wiki-btn {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: white;
+        }
+
+        .wiki-btn:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
         }
 
         .header-stats {
@@ -60,20 +130,45 @@
         }
 
         .stat-item {
-            background: #404040;
+            background: var(--border-color);
             padding: 8px 15px;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .stat-label {
-            color: #9ca3af;
-            margin-right: 5px;
+            color: var(--text-secondary);
         }
 
         .stat-value {
-            color: #4ade80;
+            color: var(--accent-primary);
             font-weight: bold;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle-btn {
+            background: var(--border-color);
+            color: var(--text-primary);
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            touch-action: manipulation;
+        }
+
+        .theme-toggle-btn:hover {
+            background: var(--accent-primary);
+            transform: scale(1.1);
         }
 
         /* Main Content */
@@ -85,17 +180,18 @@
         /* Sidebar */
         .sidebar {
             width: 300px;
-            background: #2d2d2d;
-            border-right: 2px solid #404040;
+            background: var(--card-bg);
+            border-right: 2px solid var(--border-color);
             overflow-y: auto;
             padding: 20px;
+            transition: all 0.3s;
         }
 
         .sidebar h3 {
-            color: #4ade80;
+            color: var(--accent-primary);
             margin-bottom: 15px;
             font-size: 1.2em;
-            border-bottom: 2px solid #404040;
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
         }
 
@@ -106,37 +202,42 @@
         }
 
         .task-item {
-            background: #404040;
+            background: var(--border-color);
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
             border-left: 3px solid transparent;
         }
 
         .task-item:hover {
-            background: #4a4a4a;
-            border-left-color: #4ade80;
+            background: var(--cell-hover);
+            border-left-color: var(--accent-primary);
+            transform: translateX(3px);
         }
 
         .task-item.active {
             background: rgba(74, 222, 128, 0.2);
-            border-left-color: #4ade80;
+            border-left-color: var(--accent-primary);
+        }
+
+        [data-theme="light"] .task-item.active {
+            background: rgba(34, 197, 94, 0.15);
         }
 
         .task-item.completed {
-            border-left-color: #22c55e;
+            border-left-color: var(--success);
         }
 
         .task-item-title {
             font-weight: bold;
-            color: #e0e0e0;
+            color: var(--text-primary);
             margin-bottom: 5px;
         }
 
         .task-item-desc {
             font-size: 0.85em;
-            color: #9ca3af;
+            color: var(--text-secondary);
         }
 
         .status-badge {
@@ -150,12 +251,12 @@
 
         .status-badge.completed {
             background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
+            color: var(--success);
         }
 
         .status-badge.not-started {
             background: rgba(107, 114, 128, 0.2);
-            color: #9ca3af;
+            color: var(--text-secondary);
         }
 
         /* Workspace */
@@ -166,29 +267,30 @@
         }
 
         .task-header {
-            background: #2d2d2d;
-            border: 2px solid #404040;
-            border-radius: 10px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
 
         .task-title {
             font-size: 1.8em;
-            color: #4ade80;
+            color: var(--accent-primary);
             margin-bottom: 15px;
         }
 
         .task-description {
-            background: #404040;
+            background: var(--border-color);
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             line-height: 1.8;
-            border-left: 4px solid #4ade80;
+            border-left: 4px solid var(--accent-primary);
         }
 
         .task-description h4 {
-            color: #4ade80;
+            color: var(--accent-primary);
             margin-top: 15px;
             margin-bottom: 10px;
         }
@@ -199,71 +301,85 @@
         }
 
         .task-description code {
-            background: #2d2d2d;
+            background: var(--cell-bg);
             padding: 2px 6px;
-            border-radius: 3px;
-            color: #3b82f6;
-            font-family: 'Consolas', monospace;
+            border-radius: 4px;
+            color: var(--accent-secondary);
+            font-family: 'Consolas', 'Monaco', monospace;
         }
 
         /* Excel Grid */
         .excel-grid {
-            background: #2d2d2d;
-            border: 2px solid #404040;
-            border-radius: 10px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
 
         .grid-controls {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .grid-btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--border-color);
+            color: var(--text-primary);
             border: none;
             padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .grid-btn:hover {
-            background: #4ade80;
+            background: var(--accent-primary);
             color: #1e1e1e;
+            transform: translateY(-2px);
         }
 
         .grid-btn.calc-btn {
-            background: #3b82f6;
+            background: var(--accent-secondary);
+            color: white;
         }
 
         .grid-btn.calc-btn:hover {
             background: #2563eb;
-            color: white;
+        }
+
+        .spreadsheet-container {
+            overflow-x: auto;
+            border-radius: 8px;
         }
 
         .spreadsheet {
             width: 100%;
             border-collapse: collapse;
-            background: #1e1e1e;
+            background: var(--cell-bg);
         }
 
         .spreadsheet th {
-            background: #404040;
-            color: #9ca3af;
+            background: var(--border-color);
+            color: var(--text-secondary);
             padding: 10px;
-            font-weight: bold;
-            border: 1px solid #555;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
             text-align: center;
             font-size: 0.9em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .spreadsheet td {
-            border: 1px solid #555;
+            border: 1px solid var(--border-color);
             padding: 0;
             position: relative;
         }
@@ -273,46 +389,50 @@
             height: 100%;
             background: transparent;
             border: none;
-            color: #e0e0e0;
+            color: var(--text-primary);
             padding: 10px;
             font-size: 0.95em;
-            font-family: 'Consolas', 'Courier New', monospace;
+            font-family: 'Consolas', 'Monaco', monospace;
             text-align: right;
+            transition: all 0.2s;
         }
 
         .cell:focus {
-            outline: 2px solid #4ade80;
-            background: #2d2d2d;
+            outline: 2px solid var(--accent-primary);
+            background: var(--cell-hover);
+            z-index: 5;
         }
 
         .cell.formula {
-            color: #4ade80;
+            color: var(--accent-primary);
         }
         
         .cell.formula::placeholder {
-            color: #3b82f6;
+            color: var(--accent-secondary);
         }
 
         .cell.readonly {
-            background: #2d2d2d;
-            color: #9ca3af;
+            background: var(--border-color);
+            color: var(--text-secondary);
+            cursor: not-allowed;
         }
 
         .cell.text-cell {
             text-align: left;
+            font-weight: 600;
         }
 
         .cell-label {
-            background: #404040;
-            color: #9ca3af;
+            background: var(--border-color);
+            color: var(--text-secondary);
             padding: 10px;
             text-align: center;
             font-weight: bold;
-            border: 1px solid #555;
+            border: 1px solid var(--border-color);
         }
 
         .cell.selected-for-formula {
-            outline: 3px solid #3b82f6 !important;
+            outline: 3px solid var(--accent-secondary) !important;
             background: rgba(59, 130, 246, 0.2) !important;
             animation: cellPulse 1s infinite;
         }
@@ -330,13 +450,13 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: #3b82f6;
+            background: var(--accent-secondary);
             color: white;
             padding: 15px 20px;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: bold;
             z-index: 1000;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             animation: slideUp 0.3s;
         }
 
@@ -350,18 +470,24 @@
             position: fixed;
             top: 100px;
             right: 30px;
-            background: #2d2d2d;
-            border: 2px solid #4ade80;
+            background: var(--card-bg);
+            border: 2px solid var(--accent-primary);
             border-radius: 15px;
             padding: 20px;
             z-index: 1000;
             display: none;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             cursor: move;
         }
 
         .calculator-popup.show {
             display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .calculator-popup.dragging {
@@ -373,35 +499,42 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            cursor: move;
         }
 
         .calc-title {
-            color: #4ade80;
+            color: var(--accent-primary);
             font-weight: bold;
             font-size: 1.2em;
         }
 
         .calc-close {
-            background: #ef4444;
+            background: var(--error);
             color: white;
             border: none;
             padding: 5px 15px;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .calc-close:hover {
+            background: #dc2626;
         }
 
         .calc-display {
-            background: #1e1e1e;
-            border: 2px solid #404040;
-            border-radius: 5px;
+            background: var(--cell-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
             padding: 15px;
             text-align: right;
             font-size: 1.8em;
-            color: #4ade80;
+            color: var(--accent-primary);
             margin-bottom: 15px;
             font-family: 'Consolas', monospace;
             min-height: 50px;
+            word-break: break-all;
         }
 
         .calc-buttons {
@@ -411,23 +544,29 @@
         }
 
         .calc-btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--border-color);
+            color: var(--text-primary);
             border: none;
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 1.2em;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.2s;
+            touch-action: manipulation;
         }
 
         .calc-btn:hover {
-            background: #4a4a4a;
+            background: var(--cell-hover);
+            transform: scale(1.05);
+        }
+
+        .calc-btn:active {
+            transform: scale(0.95);
         }
 
         .calc-btn.operator {
-            background: #3b82f6;
+            background: var(--accent-secondary);
             color: white;
         }
 
@@ -436,17 +575,18 @@
         }
 
         .calc-btn.equals {
-            background: #4ade80;
+            background: var(--accent-primary);
             color: #1e1e1e;
             grid-column: span 2;
+            font-weight: bold;
         }
 
         .calc-btn.equals:hover {
-            background: #22c55e;
+            background: var(--success);
         }
 
         .calc-btn.clear {
-            background: #ef4444;
+            background: var(--error);
             color: white;
         }
 
@@ -460,57 +600,71 @@
             gap: 15px;
             justify-content: center;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .action-btn {
             padding: 15px 40px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            touch-action: manipulation;
         }
 
         .action-btn.check {
-            background: #4ade80;
+            background: var(--accent-primary);
             color: #1e1e1e;
         }
 
         .action-btn.check:hover {
-            background: #22c55e;
+            background: var(--success);
             transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(74, 222, 128, 0.4);
         }
 
         .action-btn.hint {
-            background: #f59e0b;
+            background: var(--warning);
             color: white;
         }
 
         .action-btn.hint:hover {
             background: #d97706;
+            transform: translateY(-2px);
         }
 
         .action-btn.next {
-            background: #3b82f6;
+            background: var(--accent-secondary);
             color: white;
         }
 
         .action-btn.next:hover {
             background: #2563eb;
+            transform: translateY(-2px);
         }
 
         /* Feedback */
         .feedback {
-            background: #2d2d2d;
-            border: 2px solid #404040;
-            border-radius: 10px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
             padding: 20px;
             margin-top: 20px;
             text-align: center;
             font-size: 1.2em;
             font-weight: bold;
             display: none;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .feedback.show {
@@ -518,24 +672,33 @@
         }
 
         .feedback.correct {
-            border-color: #4ade80;
-            color: #4ade80;
+            border-color: var(--success);
+            color: var(--success);
             background: rgba(74, 222, 128, 0.1);
         }
 
+        [data-theme="light"] .feedback.correct {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
         .feedback.incorrect {
-            border-color: #ef4444;
-            color: #ef4444;
+            border-color: var(--error);
+            color: var(--error);
             background: rgba(239, 68, 68, 0.1);
         }
 
+        [data-theme="light"] .feedback.incorrect {
+            background: rgba(220, 38, 38, 0.1);
+        }
+
         .hint-box {
-            background: #2d2d2d;
-            border: 2px solid #f59e0b;
-            border-radius: 10px;
+            background: var(--card-bg);
+            border: 2px solid var(--warning);
+            border-radius: 12px;
             padding: 20px;
             margin-top: 20px;
             display: none;
+            animation: slideDown 0.3s;
         }
 
         .hint-box.show {
@@ -543,40 +706,41 @@
         }
 
         .hint-title {
-            color: #f59e0b;
+            color: var(--warning);
             font-weight: bold;
             margin-bottom: 10px;
             font-size: 1.1em;
         }
 
         .hint-box code {
-            background: #1e1e1e;
+            background: var(--cell-bg);
             padding: 2px 6px;
-            border-radius: 3px;
-            color: #3b82f6;
+            border-radius: 4px;
+            color: var(--accent-secondary);
             font-family: 'Consolas', monospace;
         }
 
         /* Progress */
         .progress-container {
-            background: #2d2d2d;
-            border: 2px solid #404040;
-            border-radius: 10px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
             padding: 15px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
 
         .progress-bar-wrapper {
             width: 100%;
             height: 30px;
-            background: #1e1e1e;
+            background: var(--cell-bg);
             border-radius: 15px;
             overflow: hidden;
         }
 
         .progress-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4ade80, #22c55e);
+            background: linear-gradient(90deg, var(--accent-primary), var(--success));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -585,8 +749,45 @@
             transition: width 0.5s;
         }
 
-        /* Responsive */
+        /* Mobile Responsive */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            /* Tablet */
+            .header-left {
+                gap: 15px;
+            }
+
+            .back-btn, .wiki-btn {
+                padding: 9px 18px;
+                font-size: 0.95em;
+            }
+
+            .sidebar {
+                width: 250px;
+            }
+        }
+
         @media (max-width: 768px) {
+            .game-header {
+                padding: 12px 15px;
+            }
+
+            .header-left {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .back-btn, .wiki-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+                flex: 1;
+                max-width: 48%;
+            }
+
+            .stat-item {
+                font-size: 0.85em;
+                padding: 6px 10px;
+            }
+
             .game-content {
                 flex-direction: column;
             }
@@ -594,10 +795,81 @@
             .sidebar {
                 width: 100%;
                 max-height: 200px;
+                border-right: none;
+                border-bottom: 2px solid var(--border-color);
             }
 
             .workspace {
                 padding: 15px;
+            }
+
+            .task-title {
+                font-size: 1.4em;
+            }
+
+            .calculator-popup {
+                right: 10px;
+                left: 10px;
+                width: auto;
+            }
+
+            .action-btn {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            .spreadsheet {
+                font-size: 0.85em;
+            }
+
+            .cell {
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Extra small screens */
+            .back-btn, .wiki-btn {
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+
+            .task-title {
+                font-size: 1.2em;
+            }
+
+            .action-btn {
+                padding: 10px 20px;
+                font-size: 0.95em;
+            }
+
+            .calc-btn {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            .spreadsheet {
+                font-size: 0.75em;
+            }
+
+            .cell {
+                padding: 6px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .game-header, .sidebar, .action-buttons, .calculator-popup {
+                display: none;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            .workspace {
+                padding: 0;
             }
         }
     </style>
@@ -606,7 +878,12 @@
     <!-- Header -->
     <div class="game-header">
         <div class="header-left">
-            <button class="back-btn" onclick="backToMenu()">â† Tilbake</button>
+            <button class="back-btn" onclick="backToMenu()">
+                ← Tilbake
+            </button>
+            <button class="back-btn wiki-btn" onclick="openWiki()" title="Åpne wiki">
+                📚 Wiki
+            </button>
             <div class="stat-item">
                 <span class="stat-label">Modul:</span>
                 <span class="stat-value">Regnskapsanalyse</span>
@@ -616,7 +893,7 @@
         <div class="header-stats">
             <div class="stat-item">
                 <span class="stat-label">Oppgave:</span>
-                <span class="stat-value"><span id="current-task">1</span>/<span id="total-tasks">2</span></span>
+                <span class="stat-value"><span id="current-task">1</span>/<span id="total-tasks">11</span></span>
             </div>
             <div class="stat-item">
                 <span class="stat-label">Fullført:</span>
@@ -626,6 +903,9 @@
                 <span class="stat-label">Poeng:</span>
                 <span class="stat-value" id="score">0</span>
             </div>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" title="Bytt tema">
+                <span id="theme-icon">🌙</span>
+            </button>
         </div>
     </div>
 
@@ -633,7 +913,7 @@
     <div class="game-content">
         <!-- Sidebar -->
         <div class="sidebar">
-            <h3>ðŸ“Š Oppgaver</h3>
+            <h3>📊 Oppgaver</h3>
             <div class="task-list" id="task-list"></div>
         </div>
 
@@ -651,14 +931,14 @@
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="action-btn hint" onclick="showHint()">ðŸ’¡ Hint</button>
-                <button class="action-btn check" onclick="checkAnswer()">âœ“ Sjekk svar</button>
-                <button class="action-btn next" id="next-btn" onclick="nextTask()" style="display: none;">Neste â†’</button>
+                <button class="action-btn hint" onclick="showHint()">💡 Hint</button>
+                <button class="action-btn check" onclick="checkAnswer()">✓ Sjekk svar</button>
+                <button class="action-btn next" id="next-btn" onclick="nextTask()" style="display: none;">Neste →</button>
             </div>
 
             <!-- Hint Box -->
             <div class="hint-box" id="hint-box">
-                <div class="hint-title">ðŸ’¡ Hint:</div>
+                <div class="hint-title">💡 Hint:</div>
                 <div id="hint-content"></div>
             </div>
 
@@ -670,14 +950,14 @@
     <!-- Calculator Popup -->
     <div class="calculator-popup" id="calculator">
         <div class="calc-header">
-            <div class="calc-title">ðŸ”¢ Kalkulator</div>
-            <button class="calc-close" onclick="toggleCalculator()">âœ•</button>
+            <div class="calc-title">🔢 Kalkulator</div>
+            <button class="calc-close" onclick="toggleCalculator()">✕</button>
         </div>
         <div class="calc-display" id="calc-display">0</div>
         <div class="calc-buttons">
             <button class="calc-btn clear" onclick="calcClear()">C</button>
             <button class="calc-btn operator" onclick="calcInput('/')">/</button>
-            <button class="calc-btn operator" onclick="calcInput('*')">×—</button>
+            <button class="calc-btn operator" onclick="calcInput('*')">×</button>
             <button class="calc-btn operator" onclick="calcInput('-')">-</button>
             
             <button class="calc-btn" onclick="calcInput('7')">7</button>
@@ -702,7 +982,7 @@
     </div>
 
     <script>
-        // Task definitions - alle 11 oppgaver
+        // Task definitions
         const tasks = [
             {
                 id: 1,
@@ -712,23 +992,17 @@
                     <h4>Mohair Handel AS - Resultatregnskap</h4>
                     <p>Analyser utviklingen i resultatregnskapet fra 20x4 til 20x5.</p>
                     <p><strong>Oppgave:</strong> Fyll inn endring i kr og prosentvis endring for hver post.</p>
-                    <p><strong>Tips:</strong> Du kan bruke formler! Eksempel:</p>
-                    <ul>
-                        <li><code>=B2-C2</code> for å beregne endring i kr (kolonne D)</li>
-                        <li><code>=(D2/ABS(C2))*100</code> for å beregne endring i % (kolonne E)</li>
-                        <li>Klikk på en celle, skriv <code>=</code> og klikk så på cellene du vil referere til</li>
-                    </ul>
                 `,
                 type: "table",
                 headers: ["", "20x5 (B)", "20x4 (C)", "Endring kr (D)", "Endring % (E)"],
                 rows: [
-                    { label: "Driftsinntekter", given: [30000, 27000], calculate: 2 },
-                    { label: "Varekostnad", given: [-15000, -14000], calculate: 2 },
-                    { label: "Lønnskostnad", given: [-5000, -4200], calculate: 2 },
-                    { label: "Andre driftskostnader", given: [-3000, -2800], calculate: 2 },
-                    { label: "Driftsresultat", given: [7000, 6000], calculate: 2 },
-                    { label: "Finanskostnader", given: [-500, -400], calculate: 2 },
-                    { label: "Resultat før skatt", given: [6500, 5600], calculate: 2 }
+                    { label: "Driftsinntekter", given: [30000, 27000, null, null] },
+                    { label: "Varekostnad", given: [-15000, -14000, null, null] },
+                    { label: "Lønnskostnad", given: [-5000, -4200, null, null] },
+                    { label: "Andre driftskostnader", given: [-3000, -2800, null, null] },
+                    { label: "Driftsresultat", given: [7000, 6000, null, null] },
+                    { label: "Finanskostnader", given: [-500, -400, null, null] },
+                    { label: "Resultat før skatt", given: [6500, 5600, null, null] }
                 ],
                 solution: [
                     [3000, 11.11],
@@ -739,7 +1013,7 @@
                     [-100, 25.00],
                     [900, 16.07]
                 ],
-                hint: "Endring i kr = 20x5 - 20x4, altså <code>=B2-C2</code><br>Endring i % = (Endring kr / ABS(20x4)) ×— 100, altså <code>=(D2/ABS(C2))*100</code>",
+                hint: "Endring i kr = 20x5 - 20x4, altså <code>=B1-C1</code> (for rad 1)<br>Endring i % = (Endring kr / ABS(20x4)) × 100, altså <code>=(D1/ABS(C1))*100</code><br><br>Tips: Skriv <code>=</code> og klikk på cellene for å lage formelen automatisk!",
                 explanation: "Horisontal analyse viser utviklingen over tid. Vi beregner absolutt og relativ endring mellom årene."
             },
             {
@@ -750,22 +1024,15 @@
                     <h4>Mohair Handel AS - Vertikal analyse</h4>
                     <p>Beregn hver posts andel av omsetningen (driftsinntekter).</p>
                     <p><strong>Oppgave:</strong> Fyll inn prosent av omsetning for begge år.</p>
-                    <p><strong>Tips:</strong> Bruk formler! Eksempel:</p>
-                    <ul>
-                        <li><code>=ABS(B2)/B$1*100</code> for % av omsetning 20x5 (kolonne C)</li>
-                        <li><code>=ABS(D2)/D$1*100</code> for % av omsetning 20x4 (kolonne E)</li>
-                        <li><code>B$1</code> låser rad 1, så formelen kan kopieres ned</li>
-                        <li><code>ABS()</code> gir absoluttverdien (positiv verdi av negative tall)</li>
-                    </ul>
                 `,
                 type: "table",
                 headers: ["", "20x5 (B)", "% av oms. (C)", "20x4 (D)", "% av oms. (E)"],
                 rows: [
-                    { label: "Driftsinntekter", given: [30000, null, 27000, null], calculate: 2 },
-                    { label: "Varekostnad", given: [-15000, null, -14000, null], calculate: 2 },
-                    { label: "Lønnskostnad", given: [-5000, null, -4200, null], calculate: 2 },
-                    { label: "Andre driftskostnader", given: [-3000, null, -2800, null], calculate: 2 },
-                    { label: "Driftsresultat", given: [7000, null, 6000, null], calculate: 2 }
+                    { label: "Driftsinntekter", given: [30000, null, 27000, null] },
+                    { label: "Varekostnad", given: [-15000, null, -14000, null] },
+                    { label: "Lønnskostnad", given: [-5000, null, -4200, null] },
+                    { label: "Andre driftskostnader", given: [-3000, null, -2800, null] },
+                    { label: "Driftsresultat", given: [7000, null, 6000, null] }
                 ],
                 solution: [
                     [100, 100],
@@ -774,7 +1041,7 @@
                     [10, 10.37],
                     [23.33, 22.22]
                 ],
-                hint: "% av omsetning = (ABS(Beløp) / Driftsinntekter) ×— 100<br>F.eks. <code>=ABS(B2)/B$1*100</code> for 20x5<br>F.eks. <code>=ABS(D2)/D$1*100</code> for 20x4",
+                hint: "% av omsetning = (ABS(Beløp) / Driftsinntekter) × 100<br>F.eks. <code>=ABS(B2)/B1*100</code> for rad 2 i 20x5<br>F.eks. <code>=ABS(D2)/D1*100</code> for rad 2 i 20x4<br><br>Tips: <code>B1</code> og <code>D1</code> er alltid driftsinntekter (første rad)",
                 explanation: "Vertikal analyse viser hver posts relative betydning i forhold til omsetningen."
             },
             {
@@ -789,18 +1056,16 @@
                         <li>Gjennomsnittlig egenkapital: kr 500 000</li>
                     </ul>
                     <p><strong>Oppgave:</strong> Beregn egenkapitalrentabiliteten (ROE) i %.</p>
-                    <p><strong>Formel:</strong> <code>ROE = (Årsresultat / Gjennomsnittlig egenkapital) ×— 100</code></p>
-                    <p><strong>Tips:</strong> Skriv formelen i celle B2, f.eks. <code>=(80000/500000)*100</code></p>
                 `,
                 type: "table",
                 headers: ["", "Verdi (B)"],
                 rows: [
-                    { label: "Årsresultat", given: [80000], calculate: 0 },
-                    { label: "Gj.snitt egenkapital", given: [500000], calculate: 0 },
-                    { label: "ROE (%)", given: [null], calculate: 1 }
+                    { label: "Årsresultat", given: [80000] },
+                    { label: "Gj.snitt egenkapital", given: [500000] },
+                    { label: "ROE (%)", given: [null] }
                 ],
                 solution: [[16]],
-                hint: "ROE % = (Årsresultat / Gjennomsnittlig egenkapital) ×— 100<br>Bruk formel: <code>=(B1/B2)*100</code>",
+                hint: "ROE % = (Årsresultat / Gjennomsnittlig egenkapital) × 100<br>Bruk formel: <code>=(B1/B2)*100</code>",
                 explanation: "Egenkapitalrentabilitet viser avkastningen på eiernes investering."
             },
             {
@@ -816,19 +1081,17 @@
                         <li>Gjennomsnittlig totalkapital: kr 1 000 000</li>
                     </ul>
                     <p><strong>Oppgave:</strong> Beregn totalkapitalrentabiliteten (ROA) i %.</p>
-                    <p><strong>Formel:</strong> <code>ROA = ((Resultat før skatt + Finanskostnader) / Totalkapital) ×— 100</code></p>
-                    <p><strong>Tips:</strong> <code>=((B1+B2)/B3)*100</code></p>
                 `,
                 type: "table",
                 headers: ["", "Verdi (B)"],
                 rows: [
-                    { label: "Resultat før skatt", given: [100000], calculate: 0 },
-                    { label: "Finanskostnader", given: [20000], calculate: 0 },
-                    { label: "Gj.snitt totalkapital", given: [1000000], calculate: 0 },
-                    { label: "ROA (%)", given: [null], calculate: 1 }
+                    { label: "Resultat før skatt", given: [100000] },
+                    { label: "Finanskostnader", given: [20000] },
+                    { label: "Gj.snitt totalkapital", given: [1000000] },
+                    { label: "ROA (%)", given: [null] }
                 ],
                 solution: [[12]],
-                hint: "ROA % = ((Resultat før skatt + Finanskostnader) / Gjennomsnittlig totalkapital) ×— 100<br>Bruk formel: <code>=((B1+B2)/B3)*100</code>",
+                hint: "ROA % = ((Resultat før skatt + Finanskostnader) / Gjennomsnittlig totalkapital) × 100<br>Bruk formel: <code>=((B1+B2)/B3)*100</code>",
                 explanation: "Totalkapitalrentabilitet viser avkastningen på all kapital i selskapet."
             },
             {
@@ -843,15 +1106,13 @@
                         <li>Kortsiktig gjeld: kr 500 000</li>
                     </ul>
                     <p><strong>Oppgave:</strong> Beregn likviditetsgrad 1.</p>
-                    <p><strong>Formel:</strong> <code>Likviditetsgrad 1 = Omløpsmidler / Kortsiktig gjeld</code></p>
-                    <p><strong>Tips:</strong> <code>=B1/B2</code></p>
                 `,
                 type: "table",
                 headers: ["", "Verdi (B)"],
                 rows: [
-                    { label: "Omløpsmidler", given: [800000], calculate: 0 },
-                    { label: "Kortsiktig gjeld", given: [500000], calculate: 0 },
-                    { label: "Likviditetsgrad 1", given: [null], calculate: 1 }
+                    { label: "Omløpsmidler", given: [800000] },
+                    { label: "Kortsiktig gjeld", given: [500000] },
+                    { label: "Likviditetsgrad 1", given: [null] }
                 ],
                 solution: [[1.6]],
                 hint: "Likviditetsgrad 1 = Omløpsmidler / Kortsiktig gjeld<br>Bruk formel: <code>=B1/B2</code>",
@@ -869,17 +1130,15 @@
                         <li>Varelager: kr 400 000</li>
                         <li>Kortsiktig gjeld: kr 600 000</li>
                     </ul>
-                    <p><strong>Oppgave:</strong> Beregn likviditetsgrad 2 (Likviditetsgrad 1 minus varelager).</p>
-                    <p><strong>Formel:</strong> <code>Likviditetsgrad 2 = (Omløpsmidler - Varelager) / Kortsiktig gjeld</code></p>
-                    <p><strong>Tips:</strong> <code>=(B1-B2)/B3</code></p>
+                    <p><strong>Oppgave:</strong> Beregn likviditetsgrad 2 (quick ratio).</p>
                 `,
                 type: "table",
                 headers: ["", "Verdi (B)"],
                 rows: [
-                    { label: "Omløpsmidler", given: [900000], calculate: 0 },
-                    { label: "Varelager", given: [400000], calculate: 0 },
-                    { label: "Kortsiktig gjeld", given: [600000], calculate: 0 },
-                    { label: "Likviditetsgrad 2", given: [null], calculate: 1 }
+                    { label: "Omløpsmidler", given: [900000] },
+                    { label: "Varelager", given: [400000] },
+                    { label: "Kortsiktig gjeld", given: [600000] },
+                    { label: "Likviditetsgrad 2", given: [null] }
                 ],
                 solution: [[0.83]],
                 hint: "Likviditetsgrad 2 = (Omløpsmidler - Varelager) / Kortsiktig gjeld<br>Bruk formel: <code>=(B1-B2)/B3</code>",
@@ -897,18 +1156,16 @@
                         <li>Totalkapital: kr 1 200 000</li>
                     </ul>
                     <p><strong>Oppgave:</strong> Beregn egenkapitalandelen (soliditet) i %.</p>
-                    <p><strong>Formel:</strong> <code>Egenkapitalandel % = (Egenkapital / Totalkapital) ×— 100</code></p>
-                    <p><strong>Tips:</strong> <code>=(B1/B2)*100</code></p>
                 `,
                 type: "table",
                 headers: ["", "Verdi (B)"],
                 rows: [
-                    { label: "Egenkapital", given: [600000], calculate: 0 },
-                    { label: "Totalkapital", given: [1200000], calculate: 0 },
-                    { label: "Egenkapitalandel (%)", given: [null], calculate: 1 }
+                    { label: "Egenkapital", given: [600000] },
+                    { label: "Totalkapital", given: [1200000] },
+                    { label: "Egenkapitalandel (%)", given: [null] }
                 ],
                 solution: [[50]],
-                hint: "Egenkapitalandel % = (Egenkapital / Totalkapital) ×— 100<br>Bruk formel: <code>=(B1/B2)*100</code>",
+                hint: "Egenkapitalandel % = (Egenkapital / Totalkapital) × 100<br>Bruk formel: <code>=(B1/B2)*100</code>",
                 explanation: "Soliditet viser hvor stor andel av kapitalen som er egenkapital. Høyere verdi = bedre soliditet."
             },
             {
@@ -923,15 +1180,13 @@
                         <li>Kortsiktig gjeld: kr 700 000</li>
                     </ul>
                     <p><strong>Oppgave:</strong> Beregn arbeidskapitalen.</p>
-                    <p><strong>Formel:</strong> <code>Arbeidskapital = Omløpsmidler - Kortsiktig gjeld</code></p>
-                    <p><strong>Tips:</strong> <code>=B1-B2</code></p>
                 `,
                 type: "table",
                 headers: ["", "Verdi (B)"],
                 rows: [
-                    { label: "Omløpsmidler", given: [950000], calculate: 0 },
-                    { label: "Kortsiktig gjeld", given: [700000], calculate: 0 },
-                    { label: "Arbeidskapital", given: [null], calculate: 1 }
+                    { label: "Omløpsmidler", given: [950000] },
+                    { label: "Kortsiktig gjeld", given: [700000] },
+                    { label: "Arbeidskapital", given: [null] }
                 ],
                 solution: [[250000]],
                 hint: "Arbeidskapital = Omløpsmidler - Kortsiktig gjeld<br>Bruk formel: <code>=B1-B2</code>",
@@ -949,15 +1204,13 @@
                         <li>Rentekostnader: kr 30 000</li>
                     </ul>
                     <p><strong>Oppgave:</strong> Beregn rentedekningsgraden.</p>
-                    <p><strong>Formel:</strong> <code>Rentedekningsgrad = Driftsresultat / Rentekostnader</code></p>
-                    <p><strong>Tips:</strong> <code>=B1/B2</code></p>
                 `,
                 type: "table",
                 headers: ["", "Verdi (B)"],
                 rows: [
-                    { label: "Driftsresultat (EBIT)", given: [150000], calculate: 0 },
-                    { label: "Rentekostnader", given: [30000], calculate: 0 },
-                    { label: "Rentedekningsgrad", given: [null], calculate: 1 }
+                    { label: "Driftsresultat (EBIT)", given: [150000] },
+                    { label: "Rentekostnader", given: [30000] },
+                    { label: "Rentedekningsgrad", given: [null] }
                 ],
                 solution: [[5]],
                 hint: "Rentedekningsgrad = Driftsresultat / Rentekostnader<br>Bruk formel: <code>=B1/B2</code>",
@@ -975,15 +1228,13 @@
                         <li>Egenkapital: kr 400 000</li>
                     </ul>
                     <p><strong>Oppgave:</strong> Beregn gjeldsgraden.</p>
-                    <p><strong>Formel:</strong> <code>Gjeldsgrad = Total gjeld / Egenkapital</code></p>
-                    <p><strong>Tips:</strong> <code>=B1/B2</code></p>
                 `,
                 type: "table",
                 headers: ["", "Verdi (B)"],
                 rows: [
-                    { label: "Total gjeld", given: [800000], calculate: 0 },
-                    { label: "Egenkapital", given: [400000], calculate: 0 },
-                    { label: "Gjeldsgrad", given: [null], calculate: 1 }
+                    { label: "Total gjeld", given: [800000] },
+                    { label: "Egenkapital", given: [400000] },
+                    { label: "Gjeldsgrad", given: [null] }
                 ],
                 solution: [[2]],
                 hint: "Gjeldsgrad = Total gjeld / Egenkapital<br>Bruk formel: <code>=B1/B2</code>",
@@ -997,15 +1248,14 @@
                     <h4>Kappa AS - Nøkkeltallsutvikling</h4>
                     <p>Analyser utviklingen i nøkkeltallene fra 20x4 til 20x5.</p>
                     <p><strong>Oppgave:</strong> Beregn endringen i nøkkeltallene.</p>
-                    <p><strong>Tips:</strong> Bruk formler for å beregne endring: <code>=B2-C2</code></p>
                 `,
                 type: "table",
                 headers: ["Nøkkeltall", "20x5 (B)", "20x4 (C)", "Endring (D)"],
                 rows: [
-                    { label: "Likviditetsgrad 1", given: [2.1, 1.8], calculate: 1 },
-                    { label: "Egenkapitalandel (%)", given: [45, 40], calculate: 1 },
-                    { label: "ROE (%)", given: [18, 15], calculate: 1 },
-                    { label: "Gjeldsgrad", given: [1.2, 1.5], calculate: 1 }
+                    { label: "Likviditetsgrad 1", given: [2.1, 1.8, null] },
+                    { label: "Egenkapitalandel (%)", given: [45, 40, null] },
+                    { label: "ROE (%)", given: [18, 15, null] },
+                    { label: "Gjeldsgrad", given: [1.2, 1.5, null] }
                 ],
                 solution: [
                     [0.3],
@@ -1024,7 +1274,8 @@
             completedTasks: [],
             score: 0,
             selectingCell: false,
-            selectingForCell: null
+            selectingForCell: null,
+            theme: 'dark'
         };
 
         // Calculator state
@@ -1036,10 +1287,45 @@
 
         // Initialize
         function init() {
+            loadSettings();
             loadTaskList();
             loadTask(0);
             loadProgress();
             initCalculatorDrag();
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            gameState.theme = gameState.theme === 'dark' ? 'light' : 'dark';
+            
+            if (gameState.theme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                document.getElementById('theme-icon').textContent = '☀️';
+            } else {
+                document.body.removeAttribute('data-theme');
+                document.getElementById('theme-icon').textContent = '🌙';
+            }
+            
+            saveSettings();
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('regnskapsanalyse_settings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                gameState.theme = settings.theme || 'dark';
+                
+                if (gameState.theme === 'light') {
+                    document.body.setAttribute('data-theme', 'light');
+                    document.getElementById('theme-icon').textContent = '☀️';
+                }
+            }
+        }
+
+        function saveSettings() {
+            localStorage.setItem('regnskapsanalyse_settings', JSON.stringify({
+                theme: gameState.theme
+            }));
         }
 
         function loadTaskList() {
@@ -1055,7 +1341,7 @@
                 item.onclick = () => loadTask(index);
 
                 const statusClass = isCompleted ? 'completed' : 'not-started';
-                const statusText = isCompleted ? 'âœ“ Fullført' : 'Ikke startet';
+                const statusText = isCompleted ? '✓ Fullført' : 'Ikke startet';
 
                 item.innerHTML = `
                     <div class="task-item-title">${task.title}</div>
@@ -1107,19 +1393,21 @@
             const gridHTML = `
                 <div class="excel-grid">
                     <div class="grid-controls">
-                        <button class="grid-btn calc-btn" onclick="toggleCalculator()">ðŸ”¢ Kalkulator</button>
-                        <button class="grid-btn" onclick="clearAllInputs()">ðŸ—‘ï¸ Tøm alle svar</button>
+                        <button class="grid-btn calc-btn" onclick="toggleCalculator()">🔢 Kalkulator</button>
+                        <button class="grid-btn" onclick="clearAllInputs()">🗑️ Tøm alle svar</button>
                     </div>
 
-                    <table class="spreadsheet" id="spreadsheet">
-                        <thead>
-                            <tr>
-                                <th style="width: 50px">#</th>
-                                ${task.headers.map((h, i) => `<th>${h}</th>`).join('')}
-                            </tr>
-                        </thead>
-                        <tbody id="spreadsheet-body"></tbody>
-                    </table>
+                    <div class="spreadsheet-container">
+                        <table class="spreadsheet" id="spreadsheet">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px">#</th>
+                                    ${task.headers.map((h, i) => `<th>${h}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody id="spreadsheet-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             `;
 
@@ -1135,20 +1423,24 @@
             const tbody = document.getElementById('spreadsheet-body');
             const row = document.createElement('tr');
             
-            let cellsHTML = `<td class="cell-label">${rowNum}</td>`;
+            let cellsHTML = `<td class="cell-label">#</td>`;
             cellsHTML += `<td><input type="text" class="cell text-cell readonly" value="${rowData.label}" readonly></td>`;
             
-            // Add EMPTY cells for user to fill in - NO pre-filled values!
+            // For each cell: if value is not null, it's pre-filled (readonly), otherwise user fills it
             rowData.given.forEach((val, colIndex) => {
+                const isGivenCell = val !== null;
+                const cellValue = isGivenCell ? val : '';
+                const isReadonly = isGivenCell;
+                
                 cellsHTML += `
                     <td>
                         <input type="text" 
-                               class="cell" 
-                               value=""
-                               placeholder="?"
+                               class="cell ${isReadonly ? 'readonly' : ''}" 
+                               value="${cellValue}"
+                               placeholder="${isReadonly ? '' : '?'}"
+                               ${isReadonly ? 'readonly' : ''}
                                data-row="${rowNum}"
                                data-col="${colIndex + 2}"
-                               data-expected="${val !== null ? val : ''}"
                                onkeydown="handleCellNav(event)"
                                oninput="handleFormula(this)"
                                onfocus="handleCellFocus(this)"
@@ -1160,7 +1452,6 @@
             row.innerHTML = cellsHTML;
             tbody.appendChild(row);
 
-            // Add click handlers for cell selection
             const cells = row.querySelectorAll('.cell:not(.readonly):not(.text-cell)');
             cells.forEach(cell => {
                 cell.addEventListener('click', (e) => {
@@ -1172,14 +1463,12 @@
         }
 
         function handleCellFocus(cell) {
-            // If cell has a formula, show the formula instead of result
             if (cell.dataset.formula) {
                 cell.value = cell.dataset.formula;
             }
         }
 
         function handleCellBlur(cell) {
-            // If cell has a formula, show the result instead of formula
             if (cell.dataset.formula && cell.dataset.result) {
                 cell.value = parseFloat(cell.dataset.result).toFixed(2);
             }
@@ -1195,11 +1484,9 @@
                 cell.style.background = '';
             });
             
-            // Clear feedback
             document.getElementById('feedback').className = 'feedback';
         }
 
-        // Cell navigation with arrow keys
         function handleCellNav(event) {
             const cell = event.target;
             const row = cell.parentElement.parentElement;
@@ -1207,17 +1494,14 @@
             const tbody = document.getElementById('spreadsheet-body');
             const rowIndex = Array.from(tbody.children).indexOf(row);
             
-            // ESC to cancel cell selection
             if (event.key === 'Escape' && gameState.selectingCell) {
                 endCellSelection();
                 return;
             }
             
-            // Enter to select cell in formula mode OR exit if on source cell
             if (event.key === 'Enter' && gameState.selectingCell) {
                 event.preventDefault();
                 if (cell === gameState.selectingForCell) {
-                    // Exit selection mode if pressing Enter on the source cell
                     endCellSelection();
                 } else {
                     selectCellForFormula(cell);
@@ -1225,7 +1509,6 @@
                 return;
             }
             
-            // Arrow key navigation
             if (event.key === 'ArrowRight') {
                 event.preventDefault();
                 const nextCell = cell.parentElement.nextElementSibling?.querySelector('.cell');
@@ -1254,18 +1537,14 @@
                     cell.parentElement.previousElementSibling?.querySelector('.cell') :
                     cell.parentElement.nextElementSibling?.querySelector('.cell');
                 
-                if (nextCell) {
-                    nextCell.focus();
-                }
+                if (nextCell) nextCell.focus();
             } else if (event.key === '=' && !cell.classList.contains('text-cell')) {
-                // When user types =, start cell selection mode
                 setTimeout(() => {
                     startCellSelection(cell);
                 }, 10);
             }
         }
 
-        // Formula handling
         function handleFormula(cell) {
             const value = cell.value.trim();
             
@@ -1275,15 +1554,22 @@
                 try {
                     const formula = value.substring(1);
                     const result = evaluateFormula(formula);
-                    cell.dataset.result = result;
-                    cell.dataset.formula = value; // Save original formula
-                    cell.title = `Formel: ${value}\nResultat: ${parseFloat(result).toFixed(2)}`;
                     
-                    // Show result instead of formula
-                    cell.value = parseFloat(result).toFixed(2);
+                    if (isNaN(result)) {
+                        cell.dataset.result = 0;
+                        cell.title = 'Ugyldig formel - resultatet er ikke et tall';
+                        cell.value = '0';
+                    } else {
+                        cell.dataset.result = result;
+                        cell.dataset.formula = value;
+                        cell.title = `Formel: ${value}\nResultat: ${parseFloat(result).toFixed(2)}`;
+                        cell.value = parseFloat(result).toFixed(2);
+                    }
                 } catch (e) {
+                    console.error('Formula error:', e, 'Formula:', value);
                     cell.dataset.result = 0;
-                    cell.title = 'Ugyldig formel';
+                    cell.title = 'Ugyldig formel: ' + e.message;
+                    cell.value = '0';
                 }
             } else {
                 cell.classList.remove('formula');
@@ -1296,7 +1582,12 @@
         function evaluateFormula(formula) {
             // Replace cell references (B2, C3, etc.) with their values
             formula = formula.replace(/([A-Z]+)(\$?)(\d+)/gi, (match, col, lock, row) => {
-                const colIndex = col.charCodeAt(0) - 64; // A=1, B=2, etc.
+                // Column A is label column (index 1 in DOM, we skip #)
+                // Column B starts at index 2
+                const colLetter = col.toUpperCase();
+                let colIndex = colLetter.charCodeAt(0) - 64; // A=1, B=2, C=3, etc.
+                colIndex++; // Add 1 because we have # column at index 0
+                
                 const rowIndex = parseInt(row) - 1;
                 const tbody = document.getElementById('spreadsheet-body');
                 const targetRow = tbody.children[rowIndex];
@@ -1315,10 +1606,10 @@
                 return `Math.abs(${expr})`;
             });
             
-            // Evaluate
             try {
-                return eval(formula.replace(/×—/g, '*').replace(/×·/g, '/'));
+                return eval(formula.replace(/×/g, '*').replace(/÷/g, '/'));
             } catch (e) {
+                console.error('Formula error:', e);
                 return 0;
             }
         }
@@ -1331,7 +1622,6 @@
             return parseFloat(value) || 0;
         }
 
-        // Cell selection for formulas
         function startCellSelection(sourceCell) {
             gameState.selectingCell = true;
             gameState.selectingForCell = sourceCell;
@@ -1387,9 +1677,13 @@
             const row = cell.parentElement.parentElement;
             const tbody = document.getElementById('spreadsheet-body');
             const rowIndex = Array.from(tbody.children).indexOf(row) + 1;
+            
+            // Get cell index in row (skip # column at index 0)
             const cellIndex = Array.from(row.children).indexOf(cell.parentElement);
             
-            const columnLetter = String.fromCharCode(64 + cellIndex);
+            // Column A is the label column (index 1), Column B starts at index 2
+            // So we subtract 1 to get the letter (index 1 = A, index 2 = B, etc.)
+            const columnLetter = String.fromCharCode(64 + cellIndex - 1);
             return columnLetter + rowIndex;
         }
 
@@ -1397,7 +1691,7 @@
             const hint = document.createElement('div');
             hint.className = 'cell-selector-hint';
             hint.id = 'cell-selector-hint';
-            hint.innerHTML = 'ðŸŽ¯ Klikk på celler for å legge dem til formelen<br><small>Skriv +, -, *, / mellom â€¢ ESC for å avslutte</small>';
+            hint.innerHTML = '🎯 Klikk på celler for å legge dem til formelen<br><small>Skriv +, -, *, / mellom • ESC for å avslutte</small>';
             document.body.appendChild(hint);
         }
 
@@ -1453,7 +1747,7 @@
 
         function calcEquals() {
             try {
-                const result = eval(calcState.display.replace(/×—/g, '*').replace(/×·/g, '/'));
+                const result = eval(calcState.display.replace(/×/g, '*').replace(/÷/g, '/'));
                 calcState.display = result.toString();
                 document.getElementById('calc-display').textContent = result;
             } catch (e) {
@@ -1464,7 +1758,6 @@
             }
         }
 
-        // Answer checking
         function checkAnswer() {
             const task = tasks[gameState.currentTask];
             const tbody = document.getElementById('spreadsheet-body');
@@ -1474,19 +1767,32 @@
             let totalCount = 0;
             let allAnswered = true;
 
-            rows.forEach((row) => {
+            rows.forEach((row, rowIndex) => {
                 const cells = row.querySelectorAll('.cell:not(.readonly):not(.text-cell)');
+                let cellIndexInRow = 0;
+                
                 cells.forEach((cell) => {
-                    const expectedStr = cell.dataset.expected;
-                    if (!expectedStr) return; // Skip if no expected value
+                    // Find which column this is in the given array
+                    const allCells = row.querySelectorAll('.cell:not(.text-cell)');
+                    const colIndex = Array.from(allCells).indexOf(cell);
+                    
+                    if (colIndex === -1) return;
+                    
+                    // Get expected value from solution array
+                    const expectedValue = task.solution[rowIndex] && task.solution[rowIndex][cellIndexInRow];
+                    
+                    if (expectedValue === undefined || expectedValue === null) {
+                        cellIndexInRow++;
+                        return;
+                    }
                     
                     totalCount++;
                     const userValue = getCellValue(cell);
-                    const expectedValue = parseFloat(expectedStr);
                     
                     // Check if cell is empty
                     if (cell.value.trim() === '') {
                         allAnswered = false;
+                        cellIndexInRow++;
                         return;
                     }
                     
@@ -1498,6 +1804,8 @@
                     } else {
                         cell.style.background = 'rgba(239, 68, 68, 0.2)';
                     }
+                    
+                    cellIndexInRow++;
                 });
             });
 
@@ -1505,7 +1813,7 @@
             
             if (!allAnswered) {
                 feedback.className = 'feedback incorrect show';
-                feedback.textContent = 'âš ï¸ Vennligst fyll inn alle celler før du sjekker!';
+                feedback.textContent = '⚠️ Vennligst fyll inn alle celler før du sjekker!';
                 return;
             }
             
@@ -1516,12 +1824,12 @@
                 }
                 
                 feedback.className = 'feedback correct show';
-                feedback.textContent = 'ðŸŽ‰ Riktig! Flott jobbet!';
+                feedback.textContent = '🎉 Riktig! Flott jobbet!';
                 
                 document.getElementById('next-btn').style.display = 'inline-block';
             } else {
                 feedback.className = 'feedback incorrect show';
-                feedback.innerHTML = `âœ— ${correctCount} av ${totalCount} riktige svar. Prøv igjen!<br><small>Celler med riktig svar er markert i grønt, feil i rødt.</small>`;
+                feedback.innerHTML = `✗ ${correctCount} av ${totalCount} riktige svar. Prøv igjen!<br><small>Celler med riktig svar er markert i grønt, feil i rødt.</small>`;
             }
 
             updateStats();
@@ -1557,7 +1865,10 @@
         }
 
         function saveProgress() {
-            localStorage.setItem('regnskapsanalyse_progress', JSON.stringify(gameState));
+            localStorage.setItem('regnskapsanalyse_progress', JSON.stringify({
+                completedTasks: gameState.completedTasks,
+                score: gameState.score
+            }));
         }
 
         function loadProgress() {
@@ -1573,21 +1884,33 @@
 
         function backToMenu() {
             saveProgress();
+            saveSettings();
             window.location.href = 'index.html';
+        }
+
+        function openWiki() {
+            // TODO: Implementer wiki-funksjonalitet
+            // For nå, vis en melding
+            alert('Wiki kommer snart! 📚\n\nHer vil du kunne slå opp:\n• Regnskapsformler\n• Nøkkeltall\n• Lovparagrafer\n• Eksempler');
+            
+            // Når wiki er klar, bruk:
+            // window.open('wiki.html', '_blank');
+            // eller
+            // window.location.href = 'wiki.html';
         }
 
         function showCompletion() {
             const workspace = document.querySelector('.workspace');
             workspace.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px;">
-                    <h1 style="font-size: 3em; color: #4ade80; margin-bottom: 20px;">ðŸŽ‰ Gratulerer!</h1>
-                    <p style="font-size: 1.5em; margin-bottom: 40px;">Du har fullført alle regnskapsanalyse-oppgavene!</p>
+                    <h1 style="font-size: 3em; color: var(--accent-primary); margin-bottom: 20px;">🎉 Gratulerer!</h1>
+                    <p style="font-size: 1.5em; margin-bottom: 40px; color: var(--text-primary);">Du har fullført alle regnskapsanalyse-oppgavene!</p>
                     
-                    <div style="background: #2d2d2d; border: 2px solid #4ade80; border-radius: 15px; padding: 40px; max-width: 500px; margin: 0 auto 40px;">
-                        <h3 style="color: #4ade80; margin-bottom: 20px; font-size: 1.5em;">Din statistikk</h3>
-                        <div style="font-size: 1.3em; line-height: 2;">
-                            <p>âœ… Oppgaver fullført: ${gameState.completedTasks.length}/${tasks.length}</p>
-                            <p>â­ Totalt poeng: ${gameState.score}</p>
+                    <div style="background: var(--card-bg); border: 2px solid var(--accent-primary); border-radius: 15px; padding: 40px; max-width: 500px; margin: 0 auto 40px;">
+                        <h3 style="color: var(--accent-primary); margin-bottom: 20px; font-size: 1.5em;">Din statistikk</h3>
+                        <div style="font-size: 1.3em; line-height: 2; color: var(--text-primary);">
+                            <p>✅ Oppgaver fullført: ${gameState.completedTasks.length}/${tasks.length}</p>
+                            <p>⭐ Totalt poeng: ${gameState.score}</p>
                         </div>
                     </div>
                     
@@ -1600,7 +1923,6 @@
             saveProgress();
         }
 
-        // Initialize
         window.onload = init;
     </script>
 </body>

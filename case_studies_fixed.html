@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Studies - Avansert Regnskap</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .game-header {
+            background: #2d2d2d;
+            border-bottom: 2px solid #404040;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            background: #404040;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #4ade80;
+            color: #1e1e1e;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: #404040;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        .stat-label {
+            color: #9ca3af;
+            margin-right: 5px;
+        }
+
+        .stat-value {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .game-content {
+            display: flex;
+            min-height: calc(100vh - 100px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: #2d2d2d;
+            border-right: 2px solid #404040;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .sidebar h3 {
+            color: #4ade80;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            border-bottom: 2px solid #404040;
+            padding-bottom: 10px;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-item {
+            background: #404040;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .task-item:hover {
+            background: #4a4a4a;
+            border-left-color: #4ade80;
+        }
+
+        .task-item.active {
+            background: rgba(74, 222, 128, 0.2);
+            border-left-color: #4ade80;
+        }
+
+        .task-item.completed {
+            border-left-color: #22c55e;
+        }
+
+        .task-item-title {
+            font-weight: bold;
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+
+        .task-item-category {
+            font-size: 0.85em;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .task-item-difficulty {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .difficulty-easy { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .difficulty-medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .difficulty-hard { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.75em;
+            margin-top: 8px;
+            margin-left: 8px;
+        }
+
+        .status-badge.completed {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .status-badge.not-started {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+
+        /* Workspace */
+        .workspace {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .progress-container {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-wrapper {
+            width: 100%;
+            height: 30px;
+            background: #1e1e1e;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s;
+        }
+
+        .task-header {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .task-title {
+            font-size: 1.8em;
+            color: #4ade80;
+            margin-bottom: 15px;
+        }
+
+        .task-description {
+            background: #404040;
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.8;
+            border-left: 4px solid #4ade80;
+        }
+
+        .task-description h4 {
+            color: #4ade80;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .task-description p {
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .task-description ul {
+            margin-left: 20px;
+            margin-top: 10px;
+            color: #e0e0e0;
+        }
+
+        .task-description li {
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+
+        .task-description strong {
+            color: #4ade80;
+        }
+
+        .task-description code {
+            background: #1e1e1e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #3b82f6;
+            font-family: 'Consolas', monospace;
+        }
+
+        /* Excel Grid */
+        .excel-grid {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .grid-btn {
+            background: #404040;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .grid-btn:hover {
+            background: #4ade80;
+            color: #1e1e1e;
+        }
+
+        .spreadsheet {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e1e1e;
+            overflow-x: auto;
+        }
+
+        .spreadsheet th {
+            background: #404040;
+            color: #9ca3af;
+            padding: 10px;
+            font-weight: bold;
+            border: 1px solid #555;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .spreadsheet td {
+            border: 1px solid #555;
+            padding: 0;
+            position: relative;
+        }
+
+        .cell {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            padding: 10px;
+            font-size: 0.95em;
+            font-family: 'Consolas', 'Courier New', monospace;
+            text-align: right;
+        }
+
+        .cell:focus {
+            outline: 2px solid #4ade80;
+            background: #2d2d2d;
+            z-index: 5;
+        }
+
+        .cell.readonly {
+            background: #404040;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .cell.text-cell {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .cell-label {
+            background: #404040;
+            color: #9ca3af;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #555;
+        }
+
+        .cell.correct {
+            background: rgba(74, 222, 128, 0.2) !important;
+        }
+
+        .cell.incorrect {
+            background: rgba(239, 68, 68, 0.2) !important;
+        }
+
+        .cell.formula {
+            color: #3b82f6;
+        }
+
+        /* Remove spinner from number inputs */
+        .cell[type="number"]::-webkit-outer-spin-button,
+        .cell[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .cell[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn.check {
+            background: #4ade80;
+            color: #1e1e1e;
+        }
+
+        .action-btn.check:hover {
+            background: #22c55e;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.hint {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .action-btn.hint:hover {
+            background: #d97706;
+        }
+
+        .action-btn.reset {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn.reset:hover {
+            background: #dc2626;
+        }
+
+        .action-btn.next {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.next:hover {
+            background: #2563eb;
+        }
+
+        /* Feedback */
+        .feedback {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            border-color: #4ade80;
+            color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .feedback.incorrect {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .hint-box {
+            background: #2d2d2d;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .hint-box.show {
+            display: block;
+        }
+
+        .hint-title {
+            color: #f59e0b;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .hint-box p {
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .hint-box ul {
+            color: #e0e0e0;
+            margin-left: 20px;
+        }
+
+        .hint-box li {
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+
+        .hint-box strong {
+            color: #4ade80;
+        }
+
+        .hint-box code {
+            background: #1e1e1e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #3b82f6;
+            font-family: 'Consolas', monospace;
+        }
+
+        .explanation-box {
+            background: #2d2d2d;
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .explanation-box.show {
+            display: block;
+        }
+
+        .explanation-title {
+            color: #3b82f6;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .explanation-box p {
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .explanation-box ul {
+            color: #e0e0e0;
+            margin-left: 20px;
+        }
+
+        .explanation-box li {
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+
+        .explanation-box strong {
+            color: #4ade80;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+            }
+
+            .workspace {
+                padding: 15px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="game-header">
+        <div class="header-left">
+            <button class="back-btn" onclick="backToMenu()">← Tilbake</button>
+            <div class="stat-item">
+                <span class="stat-label">Modul:</span>
+                <span class="stat-value">Case Studies</span>
+            </div>
+        </div>
+        
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="stat-label">Oppgave:</span>
+                <span class="stat-value"><span id="current-task">1</span>/<span id="total-tasks">15</span></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Fullført:</span>
+                <span class="stat-value" id="completed-count">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Poeng:</span>
+                <span class="stat-value" id="score">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="game-content">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h3>💼 Case-oppgaver</h3>
+            <div class="task-list" id="task-list"></div>
+        </div>
+
+        <!-- Workspace -->
+        <div class="workspace">
+            <!-- Progress -->
+            <div class="progress-container">
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar-fill" id="progress-fill" style="width: 0%">0%</div>
+                </div>
+            </div>
+
+            <!-- Task Content -->
+            <div id="task-content"></div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn hint" onclick="showHint()">💡 Hint</button>
+                <button class="action-btn check" onclick="checkAnswer()">✓ Sjekk svar</button>
+                <button class="action-btn reset" onclick="resetTask()">🔄 Nullstill</button>
+                <button class="action-btn next" id="next-btn" onclick="nextTask()" style="display: none;">Neste →</button>
+            </div>
+
+            <!-- Hint Box -->
+            <div class="hint-box" id="hint-box">
+                <div class="hint-title">💡 Hint:</div>
+                <div id="hint-content"></div>
+            </div>
+
+            <!-- Explanation Box -->
+            <div class="explanation-box" id="explanation-box">
+                <div class="explanation-title">📖 Forklaring:</div>
+                <div id="explanation-content"></div>
+            </div>
+
+            <!-- Feedback -->
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+
+    <script>
+        // Task definitions - 15 comprehensive case studies
+        const tasks = [
+            {
+                id: 1,
+                title: "Case 1: Resultatdisponering - Grunnleggende",
+                category: "Årsavslutning",
+                difficulty: "easy",
+                description: `
+                    <h4>Alpha Trading AS - Resultatdisponering for 20x5</h4>
+                    <p><strong>Situasjon:</strong></p>
+                    <p>Selskapet har gjort opp årsregnskapet for 20x5 og må nå disponere årets resultat.</p>
+                    <ul>
+                        <li>Årsresultat (overskudd): kr 800 000</li>
+                        <li>Styret foreslår utbytte: kr 300 000</li>
+                        <li>Resten skal overføres til annen egenkapital</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Fyll inn disponeringen i tabellen under.</p>
+                `,
+                hint: `
+                    <p><strong>Resultatdisponering følger denne strukturen:</strong></p>
+                    <ul>
+                        <li>Utbytte bokføres på konto 8920 (Avsatt utbytte)</li>
+                        <li>Rest til annen egenkapital bokføres på konto 8960</li>
+                        <li>Total disponering må være lik årsresultatet (kr 800 000)</li>
+                    </ul>
+                    <p><code>Overføring til annen EK = 800 000 - 300 000 = 500 000</code></p>
+                `,
+                explanation: `
+                    <p><strong>Resultatdisponering forklart:</strong></p>
+                    <p>Etter at årsregnskapet er gjort opp, må styret beslutte hvordan årets resultat skal disponeres.</p>
+                    <p><strong>Bokføring:</strong></p>
+                    <ul>
+                        <li>Debet 8800 (Årsresultat): 800 000</li>
+                        <li>Kredit 8920 (Avsatt utbytte): 300 000</li>
+                        <li>Kredit 8960 (Overføring annen EK): 500 000</li>
+                    </ul>
+                `,
+                type: "table",
+                headers: ["Konto", "Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "8920", desc: "Avsatt utbytte", editable: true },
+                    { label: "8960", desc: "Overføring annen egenkapital", editable: true },
+                    { label: "SUM", desc: "Total disponering", editable: false, isSum: true }
+                ],
+                solution: [300000, 500000, 800000]
+            },
+            {
+                id: 2,
+                title: "Case 2: Resultatdisponering - Underskudd",
+                category: "Årsavslutning",
+                difficulty: "easy",
+                description: `
+                    <h4>Beta Consulting AS - Underskudd for 20x5</h4>
+                    <p><strong>Situasjon:</strong></p>
+                    <p>Selskapet har dessverre gått med underskudd dette året.</p>
+                    <ul>
+                        <li>Årsresultat (underskudd): kr -450 000</li>
+                        <li>Underskuddet skal dekkes av annen egenkapital</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Fyll inn disponeringen.</p>
+                `,
+                hint: `
+                    <p><strong>Disponering av underskudd:</strong></p>
+                    <ul>
+                        <li>Underskudd dekkes vanligvis av annen egenkapital</li>
+                        <li>Beløpet skal være positivt i disponeringen</li>
+                    </ul>
+                    <p><code>Underskudd: -450 000, disponering: 450 000</code></p>
+                `,
+                explanation: `
+                    <p><strong>Disponering av underskudd:</strong></p>
+                    <p>Når selskapet går med underskudd, må tapet dekkes ved å redusere annen egenkapital.</p>
+                    <p><strong>Bokføring:</strong></p>
+                    <ul>
+                        <li>Kredit 8800 (Årsresultat): 450 000</li>
+                        <li>Debet 8990 (Udekket tap): 450 000</li>
+                    </ul>
+                `,
+                type: "table",
+                headers: ["Konto", "Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "8990", desc: "Udekket tap / fra annen egenkapital", editable: true },
+                    { label: "SUM", desc: "Total disponering", editable: false, isSum: true }
+                ],
+                solution: [450000, 450000]
+            },
+            {
+                id: 3,
+                title: "Case 3: Avskrivning av maskiner",
+                category: "Anleggsmidler",
+                difficulty: "easy",
+                description: `
+                    <h4>Gamma Production AS - Avskrivning av produksjonsutstyr</h4>
+                    <p><strong>Situasjon:</strong></p>
+                    <ul>
+                        <li>Kjøpt maskin 01.01.20x5 for kr 500 000</li>
+                        <li>Forventet levetid: 10 år</li>
+                        <li>Avskrivningsmetode: Lineær</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn avskrivning for 20x5.</p>
+                `,
+                hint: `
+                    <p><strong>Lineær avskrivning:</strong></p>
+                    <p><code>Årlig avskrivning = Anskaffelseskost / Levetid</code></p>
+                    <p><code>Årlig avskrivning = 500 000 / 10 = 50 000</code></p>
+                `,
+                explanation: `
+                    <p><strong>Avskrivning av anleggsmidler:</strong></p>
+                    <p>Anleggsmidler skal avskrives over økonomisk levetid.</p>
+                    <ul>
+                        <li>500 000 / 10 år = 50 000 kr/år</li>
+                    </ul>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Anskaffelseskost", value: 500000, editable: false },
+                    { label: "Levetid (år)", value: 10, editable: false },
+                    { label: "Avskrivning 20x5", editable: true }
+                ],
+                solution: [50000]
+            },
+            {
+                id: 4,
+                title: "Case 4: Avskrivning - Delår",
+                category: "Anleggsmidler",
+                difficulty: "medium",
+                description: `
+                    <h4>Delta Tech AS - Avskrivning ved kjøp i løpet av året</h4>
+                    <p><strong>Situasjon:</strong></p>
+                    <ul>
+                        <li>Kjøpt maskin 01.04.20x5 for kr 600 000</li>
+                        <li>Forventet levetid: 5 år</li>
+                        <li>Avskrivningsmetode: Lineær</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn avskrivning for 20x5 (kun 9 måneder).</p>
+                `,
+                hint: `
+                    <p><strong>Avskrivning ved delår:</strong></p>
+                    <p><code>Årlig avskrivning = 600 000 / 5 = 120 000</code></p>
+                    <p><code>Avskrivning 20x5 = 120 000 × (9/12) = 90 000</code></p>
+                `,
+                explanation: `
+                    <p><strong>Avskrivning ved kjøp i løpet av året:</strong></p>
+                    <ul>
+                        <li>Helårs avskrivning: 120 000</li>
+                        <li>9 måneder: 120 000 × 9/12 = 90 000</li>
+                    </ul>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Anskaffelseskost", value: 600000, editable: false },
+                    { label: "Levetid (år)", value: 5, editable: false },
+                    { label: "Måneder i bruk 20x5", value: 9, editable: false },
+                    { label: "Avskrivning 20x5", editable: true }
+                ],
+                solution: [90000]
+            },
+            {
+                id: 5,
+                title: "Case 5: Tap på kundefordringer",
+                category: "Fordringer",
+                difficulty: "medium",
+                description: `
+                    <h4>Epsilon Retail AS - Konstatering av tap på fordring</h4>
+                    <p><strong>Situasjon:</strong></p>
+                    <ul>
+                        <li>Kundefordring: kr 75 000</li>
+                        <li>Kunden har gått konkurs</li>
+                        <li>Tidligere avsetning: kr 15 000</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn tilleggstapet.</p>
+                `,
+                hint: `
+                    <p><strong>Konstatering av tap:</strong></p>
+                    <ul>
+                        <li>Total fordring: 75 000</li>
+                        <li>Allerede avsatt: 15 000</li>
+                        <li>Tilleggstap = 75 000 - 15 000 = 60 000</li>
+                    </ul>
+                `,
+                explanation: `
+                    <p><strong>Tap på kundefordringer:</strong></p>
+                    <p>Når en kundefordring blir konstatert som tap, må den fjernes fra balansen.</p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Total kundefordring", value: 75000, editable: false },
+                    { label: "Tidligere avsetning", value: 15000, editable: false },
+                    { label: "Tilleggstap 20x5", editable: true }
+                ],
+                solution: [60000]
+            },
+            {
+                id: 6,
+                title: "Case 6: Periodisering - Forskuddsbetalt forsikring",
+                category: "Periodisering",
+                difficulty: "medium",
+                description: `
+                    <h4>Zeta Services AS - Periodisering av forsikring</h4>
+                    <p><strong>Situasjon:</strong></p>
+                    <ul>
+                        <li>Betalt forsikring 01.10.20x5: kr 48 000</li>
+                        <li>Forsikringen gjelder 12 måneder fremover</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Hvor mye skal periodiseres som forskuddsbetalt?</p>
+                `,
+                hint: `
+                    <p><strong>Periodisering:</strong></p>
+                    <ul>
+                        <li>I 20x5: 3 måneder (okt-des)</li>
+                        <li>I 20x6: 9 måneder</li>
+                        <li>Forskuddsbetalt: 48 000 × (9/12) = 36 000</li>
+                    </ul>
+                `,
+                explanation: `
+                    <p><strong>Periodisering etter sammenstillingsprinsippet.</strong></p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Total betalt forsikring", value: 48000, editable: false },
+                    { label: "Måneder i 20x5", value: 3, editable: false },
+                    { label: "Måneder i 20x6", value: 9, editable: false },
+                    { label: "Forskuddsbetalt 31.12.20x5", editable: true }
+                ],
+                solution: [36000]
+            },
+            {
+                id: 7,
+                title: "Case 7: Påløpte kostnader - Lønn",
+                category: "Periodisering",
+                difficulty: "medium",
+                description: `
+                    <h4>Eta Consulting AS - Påløpte lønnskostnader</h4>
+                    <p><strong>Situasjon ved årsskiftet:</strong></p>
+                    <ul>
+                        <li>Desember lønn (utbetales 10.01): kr 350 000</li>
+                        <li>Påløpte feriepenger: kr 95 000</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn totale påløpte lønnskostnader.</p>
+                `,
+                hint: `
+                    <p><strong>Påløpte kostnader:</strong></p>
+                    <ul>
+                        <li>Desember lønn: 350 000</li>
+                        <li>Påløpte feriepenger: 95 000</li>
+                        <li>Total: 350 000 + 95 000 = 445 000</li>
+                    </ul>
+                `,
+                explanation: `
+                    <p><strong>Periodisering av lønnskostnader.</strong></p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Desember lønn (påløpt)", value: 350000, editable: false },
+                    { label: "Påløpte feriepenger", value: 95000, editable: false },
+                    { label: "Sum påløpte lønnskostnader", editable: true }
+                ],
+                solution: [445000]
+            },
+            {
+                id: 8,
+                title: "Case 8: MVA-oppgjør",
+                category: "Merverdiavgift",
+                difficulty: "medium",
+                description: `
+                    <h4>Theta Retail AS - MVA-oppgjør</h4>
+                    <p><strong>Termindata:</strong></p>
+                    <ul>
+                        <li>Utgående MVA: kr 280 000</li>
+                        <li>Inngående MVA: kr 195 000</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn netto MVA til oppgjør.</p>
+                `,
+                hint: `
+                    <p><strong>MVA-oppgjør:</strong></p>
+                    <p><code>Netto MVA = Utgående - Inngående</code></p>
+                    <p><code>= 280 000 - 195 000 = 85 000</code></p>
+                `,
+                explanation: `
+                    <p><strong>Merverdiavgiftsoppgjør.</strong></p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Utgående MVA", value: 280000, editable: false },
+                    { label: "Inngående MVA", value: 195000, editable: false },
+                    { label: "Netto MVA til oppgjør", editable: true }
+                ],
+                solution: [85000]
+            },
+            {
+                id: 9,
+                title: "Case 9: Arbeidsgiveravgift",
+                category: "Lønn",
+                difficulty: "medium",
+                description: `
+                    <h4>Iota AS - Arbeidsgiveravgift</h4>
+                    <p><strong>Lønnsdata for desember:</strong></p>
+                    <ul>
+                        <li>Brutto lønn: kr 500 000</li>
+                        <li>Feriepenger påløpt: kr 60 000</li>
+                        <li>AGA-sats: 14,1%</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn total arbeidsgiveravgift.</p>
+                `,
+                hint: `
+                    <p><strong>Arbeidsgiveravgift:</strong></p>
+                    <ul>
+                        <li>På lønn: 500 000 × 14,1% = 70 500</li>
+                        <li>På feriepenger: 60 000 × 14,1% = 8 460</li>
+                        <li>Total: 78 960</li>
+                    </ul>
+                `,
+                explanation: `
+                    <p><strong>AGA beregnes av lønn og feriepenger.</strong></p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Brutto lønn", value: 500000, editable: false },
+                    { label: "Feriepenger", value: 60000, editable: false },
+                    { label: "AGA-sats (%)", value: 14.1, editable: false },
+                    { label: "Total arbeidsgiveravgift", editable: true }
+                ],
+                solution: [78960]
+            },
+            {
+                id: 10,
+                title: "Case 10: Betalbar skatt",
+                category: "Skatt",
+                difficulty: "hard",
+                description: `
+                    <h4>Kappa Invest AS - Beregning av betalbar skatt 20x5</h4>
+                    <p><strong>Regnskapsdata:</strong></p>
+                    <ul>
+                        <li>Regnskapsmessig resultat før skatt: kr 1 200 000</li>
+                        <li>Permanente forskjeller: kr 50 000</li>
+                        <li>Skattemessige avskrivninger: kr 180 000</li>
+                        <li>Regnskapsmessige avskrivninger: kr 150 000</li>
+                        <li>Skattesats: 22%</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn betalbar skatt.</p>
+                `,
+                hint: `
+                    <p><strong>Beregning:</strong></p>
+                    <ol>
+                        <li>Regnskapsmessig resultat: 1 200 000</li>
+                        <li>+ Permanente forskjeller: +50 000</li>
+                        <li>- Ekstra skattemessige avskrivninger: -30 000</li>
+                        <li>= Alminnelig inntekt: 1 220 000</li>
+                        <li>× 22% = 268 400</li>
+                    </ol>
+                `,
+                explanation: `
+                    <p><strong>Forskjellen mellom regnskapsmessig og skattemessig resultat.</strong></p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Regnskapsmessig resultat", value: 1200000, editable: false },
+                    { label: "Permanente forskjeller", value: 50000, editable: false },
+                    { label: "Midlertidige forskjeller", value: -30000, editable: false },
+                    { label: "Alminnelig inntekt", value: 1220000, editable: false },
+                    { label: "Betalbar skatt (22%)", editable: true }
+                ],
+                solution: [268400]
+            },
+            {
+                id: 11,
+                title: "Case 11: Varelagerendring",
+                category: "Varekostnad",
+                difficulty: "hard",
+                description: `
+                    <h4>Lambda Trading AS - Beregning av varekostnad</h4>
+                    <p><strong>Varelagertall for 20x5:</strong></p>
+                    <ul>
+                        <li>Varelager 01.01.20x5: kr 450 000</li>
+                        <li>Innkjøp av varer: kr 2 800 000</li>
+                        <li>Varelager 31.12.20x5: kr 520 000</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn varekostnad for 20x5.</p>
+                `,
+                hint: `
+                    <p><strong>Varekostnad:</strong></p>
+                    <p><code>Varekostnad = IB + Innkjøp - UB</code></p>
+                    <p><code>= 450 000 + 2 800 000 - 520 000 = 2 730 000</code></p>
+                `,
+                explanation: `
+                    <p><strong>Varekostnad (solgte varers kostnad).</strong></p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Varelager 01.01 (IB)", value: 450000, editable: false },
+                    { label: "Innkjøp av varer 20x5", value: 2800000, editable: false },
+                    { label: "Varelager 31.12 (UB)", value: 520000, editable: false },
+                    { label: "Varekostnad 20x5", editable: true }
+                ],
+                solution: [2730000]
+            },
+            {
+                id: 12,
+                title: "Case 12: Salg av anleggsmiddel",
+                category: "Anleggsmidler",
+                difficulty: "hard",
+                description: `
+                    <h4>Mu Production AS - Salg av brukt maskin</h4>
+                    <p><strong>Situasjon:</strong></p>
+                    <ul>
+                        <li>Opprinnelig anskaffelseskost: kr 800 000</li>
+                        <li>Akkumulerte avskrivninger: kr 550 000</li>
+                        <li>Bokført verdi: kr 250 000</li>
+                        <li>Salgspris (ekskl. mva): kr 320 000</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn gevinst ved salg.</p>
+                `,
+                hint: `
+                    <p><strong>Gevinst/tap:</strong></p>
+                    <p><code>Gevinst = Salgspris - Bokført verdi</code></p>
+                    <p><code>= 320 000 - 250 000 = 70 000</code></p>
+                `,
+                explanation: `
+                    <p><strong>Salg av anleggsmidler.</strong></p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Anskaffelseskost", value: 800000, editable: false },
+                    { label: "Akkumulerte avskrivninger", value: 550000, editable: false },
+                    { label: "Bokført verdi", value: 250000, editable: false },
+                    { label: "Salgspris (ekskl. mva)", value: 320000, editable: false },
+                    { label: "Gevinst ved salg", editable: true }
+                ],
+                solution: [70000]
+            },
+            {
+                id: 13,
+                title: "Case 13: Utsatt skatt",
+                category: "Skatt",
+                difficulty: "hard",
+                description: `
+                    <h4>Nu Tech AS - Beregning av utsatt skatt</h4>
+                    <p><strong>Situasjon ved utgangen av 20x5:</strong></p>
+                    <ul>
+                        <li>Bokført verdi maskiner: kr 400 000</li>
+                        <li>Skattemessig verdi maskiner: kr 320 000</li>
+                        <li>Midlertidig forskjell: kr 80 000</li>
+                        <li>Skattesats: 22%</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn utsatt skatt.</p>
+                `,
+                hint: `
+                    <p><strong>Utsatt skatt:</strong></p>
+                    <p><code>Utsatt skatt = Forskjell × Skattesats</code></p>
+                    <p><code>= 80 000 × 22% = 17 600</code></p>
+                `,
+                explanation: `
+                    <p><strong>Utsatt skatt (deferred tax).</strong></p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Bokført verdi maskiner", value: 400000, editable: false },
+                    { label: "Skattemessig verdi maskiner", value: 320000, editable: false },
+                    { label: "Midlertidig forskjell", value: 80000, editable: false },
+                    { label: "Skattesats (%)", value: 22, editable: false },
+                    { label: "Utsatt skatt", editable: true }
+                ],
+                solution: [17600]
+            },
+            {
+                id: 14,
+                title: "Case 14: Kompleks resultatdisponering",
+                category: "Årsavslutning",
+                difficulty: "hard",
+                description: `
+                    <h4>Omega Industries AS - Komplett resultatdisponering</h4>
+                    <p><strong>Situasjon for 20x5:</strong></p>
+                    <ul>
+                        <li>Årsresultat før disponering: kr 1 250 000</li>
+                        <li>Styret foreslår nytt utbytte: kr 500 000</li>
+                        <li>Rest til annen egenkapital</li>
+                    </ul>
+                    <p><strong>Oppgave:</strong> Beregn overføring til annen egenkapital.</p>
+                `,
+                hint: `
+                    <p><strong>Viktig:</strong> Vi disponerer kun årets resultat.</p>
+                    <ul>
+                        <li>Nytt utbytte: 500 000</li>
+                        <li>Rest: 1 250 000 - 500 000 = 750 000</li>
+                    </ul>
+                `,
+                explanation: `
+                    <p><strong>Kompleks resultatdisponering.</strong></p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "Årsresultat 20x5", value: 1250000, editable: false },
+                    { label: "Avsatt utbytte 20x5", value: 500000, editable: false },
+                    { label: "Overføring annen egenkapital", editable: true }
+                ],
+                solution: [750000]
+            },
+            {
+                id: 15,
+                title: "Case 15: Master Challenge - Komplett årsavslutning",
+                category: "Årsavslutning",
+                difficulty: "hard",
+                description: `
+                    <h4>Pi Enterprises AS - Komplett årsavslutning</h4>
+                    <p><strong>Det mangler følgende poster ved årsskiftet:</strong></p>
+                    <ol>
+                        <li>Avskrivning maskiner (kjøpt 01.07 for 480 000, levetid 8 år)</li>
+                        <li>Påløpt desember lønn: kr 280 000</li>
+                        <li>Påløpte feriepenger: kr 75 000</li>
+                        <li>Arbeidsgiveravgift (14,1%)</li>
+                    </ol>
+                    <p><strong>Oppgave:</strong> Beregn totale tilleggskostnader.</p>
+                `,
+                hint: `
+                    <p><strong>Beregning:</strong></p>
+                    <ol>
+                        <li>Avskrivning: 480 000 / 8 × 6/12 = 30 000</li>
+                        <li>Lønn: 280 000</li>
+                        <li>Feriepenger: 75 000</li>
+                        <li>AGA på lønn: 280 000 × 14,1% = 39 480</li>
+                        <li>AGA på feriepenger: 75 000 × 14,1% = 10 575</li>
+                        <li>Total: 435 055</li>
+                    </ol>
+                `,
+                explanation: `
+                    <p><strong>Komplett årsavslutning - alle elementer.</strong></p>
+                `,
+                type: "table",
+                headers: ["Beskrivelse", "Beløp"],
+                rows: [
+                    { label: "1. Avskrivning maskiner", editable: true },
+                    { label: "2. Påløpt lønn", editable: true },
+                    { label: "3. Påløpte feriepenger", editable: true },
+                    { label: "4. AGA på lønn", editable: true },
+                    { label: "5. AGA på feriepenger", editable: true },
+                    { label: "TOTALE TILLEGGSKOSTNADER", editable: true }
+                ],
+                solution: [30000, 280000, 75000, 39480, 10575, 435055]
+            }
+        ];
+
+        // Game state
+        let gameState = {
+            currentTask: 0,
+            completedTasks: [],
+            score: 0
+        };
+
+        // Initialize
+        function init() {
+            loadTaskList();
+            loadTask(0);
+            loadProgress();
+        }
+
+        function loadTaskList() {
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const isCompleted = gameState.completedTasks.includes(task.id);
+                const isActive = index === gameState.currentTask;
+
+                const item = document.createElement('div');
+                item.className = 'task-item' + (isActive ? ' active' : '') + (isCompleted ? ' completed' : '');
+                item.onclick = () => loadTask(index);
+
+                const statusClass = isCompleted ? 'completed' : 'not-started';
+                const statusText = isCompleted ? '✓ Fullført' : 'Ikke startet';
+
+                item.innerHTML = `
+                    <div class="task-item-title">${task.title}</div>
+                    <div class="task-item-category">${task.category}</div>
+                    <span class="task-item-difficulty difficulty-${task.difficulty}">
+                        ${task.difficulty === 'easy' ? '⭐ Lett' : task.difficulty === 'medium' ? '⭐⭐ Middels' : '⭐⭐⭐ Vanskelig'}
+                    </span>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                `;
+
+                taskList.appendChild(item);
+            });
+        }
+
+        function loadTask(index) {
+            if (index < 0 || index >= tasks.length) return;
+
+            gameState.currentTask = index;
+            const task = tasks[index];
+
+            // Update header
+            document.getElementById('current-task').textContent = index + 1;
+            document.getElementById('total-tasks').textContent = tasks.length;
+
+            // Update progress
+            updateProgress();
+
+            // Load task content
+            const content = document.getElementById('task-content');
+            content.innerHTML = `
+                <div class="task-header">
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-description">${task.description}</div>
+                </div>
+            `;
+
+            // Render table
+            renderTaskTable(task);
+
+            // Reset feedback
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('hint-box').classList.remove('show');
+            document.getElementById('explanation-box').classList.remove('show');
+            document.getElementById('next-btn').style.display = 'none';
+
+            // Update task list
+            loadTaskList();
+        }
+
+        function renderTaskTable(task) {
+            const content = document.getElementById('task-content');
+            
+            let tableHTML = `
+                <div class="excel-grid">
+                    <div class="grid-controls">
+                        <button class="grid-btn" onclick="resetTask()">🗑️ Nullstill svar</button>
+                    </div>
+                    <table class="spreadsheet">
+                        <thead>
+                            <tr>
+                                ${task.headers.map(h => `<th>${h}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+            `;
+
+            task.rows.forEach((row, rowIndex) => {
+                tableHTML += '<tr>';
+                
+                if (row.label) {
+                    tableHTML += `<td class="cell-label">${row.label}</td>`;
+                }
+                
+                if (row.desc) {
+                    tableHTML += `<td><input type="text" class="cell text-cell readonly" value="${row.desc}" readonly></td>`;
+                }
+                
+                if (row.value !== undefined) {
+                    tableHTML += `<td><input type="text" class="cell readonly" value="${row.value}" readonly></td>`;
+                }
+                
+                if (row.editable || row.isSum) {
+                    const placeholder = row.isSum ? 'Beregnes automatisk' : 'Skriv svar eller formel (=A1+A2)';
+                    const readonly = row.isSum ? 'readonly' : '';
+                    const extraClass = row.isSum ? 'readonly' : '';
+                    tableHTML += `<td><input type="text" class="cell ${extraClass}" 
+                                             data-row="${rowIndex}" 
+                                             placeholder="${placeholder}"
+                                             oninput="handleFormula(this)"
+                                             ${readonly}></td>`;
+                }
+                
+                tableHTML += '</tr>';
+            });
+
+            tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            content.insertAdjacentHTML('beforeend', tableHTML);
+
+            // Add event listeners for auto-sum if needed
+            if (task.rows.some(r => r.isSum)) {
+                document.querySelectorAll('.cell[type="number"]:not(.readonly)').forEach(input => {
+                    input.addEventListener('input', updateSum);
+                });
+            }
+        }
+
+        function updateSum() {
+            const inputs = document.querySelectorAll('.cell[type="number"]:not(.readonly)');
+            const sumCell = document.querySelector('.cell.readonly[type="number"]');
+            
+            if (!sumCell) return;
+
+            let sum = 0;
+            inputs.forEach(input => {
+                sum += parseFloat(input.value) || 0;
+            });
+            
+            sumCell.value = sum;
+        }
+
+        function checkAnswer() {
+            const task = tasks[gameState.currentTask];
+            const inputs = document.querySelectorAll('.cell[type="number"]:not(.readonly)');
+            
+            let correctCount = 0;
+            let totalCount = task.solution.length;
+
+            inputs.forEach((input, index) => {
+                if (index >= task.solution.length) return;
+                
+                const userValue = parseFloat(input.value) || 0;
+                const expectedValue = task.solution[index];
+                
+                // Allow 1% tolerance for rounding
+                const tolerance = Math.abs(expectedValue) * 0.01;
+                if (Math.abs(userValue - expectedValue) <= tolerance || Math.abs(userValue - expectedValue) <= 1) {
+                    correctCount++;
+                    input.classList.add('correct');
+                    input.classList.remove('incorrect');
+                } else {
+                    input.classList.add('incorrect');
+                    input.classList.remove('correct');
+                }
+            });
+
+            const feedback = document.getElementById('feedback');
+            
+            if (correctCount === totalCount) {
+                gameState.score += task.difficulty === 'hard' ? 15 : task.difficulty === 'medium' ? 10 : 5;
+                if (!gameState.completedTasks.includes(task.id)) {
+                    gameState.completedTasks.push(task.id);
+                }
+                
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '🎉 Riktig! Flott jobbet!<br><small>Klikk "Forklaring" for å lære mer</small>';
+                
+                document.getElementById('next-btn').style.display = 'inline-block';
+                
+                // Show explanation
+                const explBox = document.getElementById('explanation-box');
+                explBox.classList.add('show');
+                document.getElementById('explanation-content').innerHTML = task.explanation;
+            } else {
+                feedback.className = 'feedback incorrect show';
+                feedback.innerHTML = `✗ ${correctCount} av ${totalCount} riktige svar. Prøv igjen!<br>
+                                      <small>Riktige svar er markert i grønt, feil i rødt.</small>`;
+            }
+
+            updateStats();
+            loadTaskList();
+            saveProgress();
+        }
+
+        function showHint() {
+            const task = tasks[gameState.currentTask];
+            document.getElementById('hint-content').innerHTML = task.hint;
+            document.getElementById('hint-box').classList.add('show');
+        }
+
+        function resetTask() {
+            const inputs = document.querySelectorAll('.cell[type="number"]:not(.readonly)');
+            inputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('correct', 'incorrect');
+            });
+            
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('hint-box').classList.remove('show');
+            document.getElementById('explanation-box').classList.remove('show');
+        }
+
+        function nextTask() {
+            const nextIndex = gameState.currentTask + 1;
+            if (nextIndex < tasks.length) {
+                loadTask(nextIndex);
+            } else {
+                showCompletion();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('completed-count').textContent = gameState.completedTasks.length;
+            document.getElementById('score').textContent = gameState.score;
+        }
+
+        function updateProgress() {
+            const progress = (gameState.completedTasks.length / tasks.length) * 100;
+            const progressFill = document.getElementById('progress-fill');
+            progressFill.style.width = progress + '%';
+            progressFill.textContent = Math.round(progress) + '%';
+        }
+
+        function saveProgress() {
+            localStorage.setItem('case_studies_progress', JSON.stringify(gameState));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('case_studies_progress');
+            if (saved) {
+                const progress = JSON.parse(saved);
+                gameState.completedTasks = progress.completedTasks || [];
+                gameState.score = progress.score || 0;
+                updateStats();
+                updateProgress();
+            }
+        }
+
+        function backToMenu() {
+            saveProgress();
+            window.location.href = 'index.html';
+        }
+
+        function showCompletion() {
+            const workspace = document.querySelector('.workspace');
+            workspace.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px;">
+                    <h1 style="font-size: 3em; color: #4ade80; margin-bottom: 20px;">🎉 Gratulerer!</h1>
+                    <p style="font-size: 1.5em; margin-bottom: 40px;">Du har fullført alle case-oppgavene!</p>
+                    
+                    <div style="background: #2d2d2d; border: 2px solid #4ade80; border-radius: 15px; 
+                                padding: 40px; max-width: 500px; margin: 0 auto 40px;">
+                        <h3 style="color: #4ade80; margin-bottom: 20px; font-size: 1.5em;">Din statistikk</h3>
+                        <div style="font-size: 1.3em; line-height: 2;">
+                            <p>✅ Oppgaver fullført: ${gameState.completedTasks.length}/${tasks.length}</p>
+                            <p>⭐ Totalt poeng: ${gameState.score}</p>
+                        </div>
+                    </div>
+                    
+                    <button class="action-btn check" onclick="backToMenu()" style="font-size: 1.2em; padding: 20px 50px;">
+                        Tilbake til meny
+                    </button>
+                </div>
+            `;
+            
+            saveProgress();
+        }
+
+        // Initialize
+        window.onload = init;
+    </script>
+</body>
+</html>

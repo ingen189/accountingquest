@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bli med i spill - AccountingQuest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 3em;
+            font-weight: bold;
+            color: #4ade80;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .join-container {
+            background: #2d2d2d;
+            border: 3px solid #4ade80;
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .join-title {
+            font-size: 2em;
+            color: #4ade80;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            color: #9ca3af;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #1e1e1e;
+            border: 2px solid #404040;
+            color: #e0e0e0;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4ade80;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+        }
+
+        .form-input.pin-input {
+            font-size: 2em;
+            letter-spacing: 10px;
+            font-weight: bold;
+        }
+
+        .emoji-picker {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .emoji-option {
+            background: #1e1e1e;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .emoji-option:hover {
+            border-color: #4ade80;
+            transform: scale(1.1);
+        }
+
+        .emoji-option.selected {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.2);
+        }
+
+        .join-btn {
+            width: 100%;
+            background: #4ade80;
+            color: #1e1e1e;
+            border: none;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 30px;
+        }
+
+        .join-btn:hover {
+            background: #22c55e;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+        }
+
+        .join-btn:disabled {
+            background: #404040;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-link a {
+            color: #4ade80;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Waiting Screen */
+        .waiting-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .waiting-screen.show {
+            display: block;
+        }
+
+        .waiting-animation {
+            font-size: 5em;
+            margin: 30px 0;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .waiting-text {
+            font-size: 1.5em;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+
+        .player-info {
+            background: #2d2d2d;
+            border: 2px solid #4ade80;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .player-avatar-large {
+            font-size: 5em;
+            margin-bottom: 15px;
+        }
+
+        .player-name-large {
+            font-size: 2em;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .join-container {
+                padding: 30px 20px;
+            }
+
+            .logo {
+                font-size: 2em;
+            }
+
+            .emoji-picker {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">🎮 AccountingQuest</div>
+
+    <!-- Join Form -->
+    <div class="join-container" id="join-form">
+        <div class="join-title">Bli med i spill!</div>
+
+        <div class="form-group">
+            <label class="form-label">PIN-kode fra læreren:</label>
+            <input type="text" 
+                   class="form-input pin-input" 
+                   id="pin-input" 
+                   placeholder="000000" 
+                   maxlength="6"
+                   pattern="[0-9]*"
+                   inputmode="numeric">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Ditt navn:</label>
+            <input type="text" 
+                   class="form-input" 
+                   id="name-input" 
+                   placeholder="Skriv inn navnet ditt"
+                   maxlength="20">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Velg din avatar:</label>
+            <div class="emoji-picker" id="emoji-picker">
+                <div class="emoji-option" data-emoji="😊">😊</div>
+                <div class="emoji-option" data-emoji="🤓">🤓</div>
+                <div class="emoji-option" data-emoji="😎">😎</div>
+                <div class="emoji-option" data-emoji="🤩">🤩</div>
+                <div class="emoji-option" data-emoji="🥳">🥳</div>
+                <div class="emoji-option" data-emoji="🤔">🤔</div>
+                <div class="emoji-option" data-emoji="😺">😺</div>
+                <div class="emoji-option" data-emoji="🦊">🦊</div>
+                <div class="emoji-option" data-emoji="🐼">🐼</div>
+                <div class="emoji-option" data-emoji="🦁">🦁</div>
+                <div class="emoji-option" data-emoji="🚀">🚀</div>
+                <div class="emoji-option" data-emoji="⭐">⭐</div>
+            </div>
+        </div>
+
+        <button class="join-btn" id="join-btn" onclick="joinGame()">Bli med! 🎮</button>
+
+        <div class="error-message" id="error-message">Feil PIN-kode eller spill ikke funnet</div>
+
+        <div class="back-link">
+            <a href="multiplayer_index.html">← Tilbake</a>
+        </div>
+    </div>
+
+    <!-- Waiting Screen -->
+    <div class="waiting-screen" id="waiting-screen">
+        <div class="player-info">
+            <div class="player-avatar-large" id="player-avatar-display">😊</div>
+            <div class="player-name-large" id="player-name-display">Spillernavn</div>
+        </div>
+
+        <div class="waiting-animation">⏳</div>
+        <div class="waiting-text">Venter på at læreren starter spillet...</div>
+        <div style="color: #9ca3af; margin-top: 10px;">
+            <span id="player-count-display">0</span> spillere pålogget
+        </div>
+    </div>
+
+    <script>
+        let selectedEmoji = '😊';
+        let gamePin = '';
+        let playerName = '';
+
+        // Emoji picker
+        document.querySelectorAll('.emoji-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.emoji-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedEmoji = this.dataset.emoji;
+            });
+        });
+
+        // Select first emoji by default
+        document.querySelector('.emoji-option').classList.add('selected');
+
+        // PIN input formatting
+        document.getElementById('pin-input').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        function joinGame() {
+            const pin = document.getElementById('pin-input').value.trim();
+            const name = document.getElementById('name-input').value.trim();
+
+            if (pin.length !== 6) {
+                showError('PIN må være 6 siffer');
+                return;
+            }
+
+            if (!name) {
+                showError('Vennligst skriv inn navnet ditt');
+                return;
+            }
+
+            // Check if game exists
+            const session = JSON.parse(localStorage.getItem('game_session'));
+            if (!session || session.pin != pin) {
+                showError('Ugyldig PIN-kode eller spillet har ikke startet ennå');
+                return;
+            }
+
+            // Join game
+            gamePin = pin;
+            playerName = name;
+
+            const players = JSON.parse(localStorage.getItem(`game_${pin}_players`) || '[]');
+            
+            // Check if name is taken
+            if (players.some(p => p.name === name)) {
+                showError('Dette navnet er allerede tatt. Velg et annet navn.');
+                return;
+            }
+
+            players.push({
+                name,
+                avatar: selectedEmoji,
+                joinedAt: Date.now()
+            });
+
+            localStorage.setItem(`game_${pin}_players`, JSON.stringify(players));
+
+            // Show waiting screen
+            document.getElementById('join-form').style.display = 'none';
+            document.getElementById('waiting-screen').classList.add('show');
+            document.getElementById('player-avatar-display').textContent = selectedEmoji;
+            document.getElementById('player-name-display').textContent = name;
+
+            // Start polling for game start
+            pollForGameStart();
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('error-message');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+            
+            setTimeout(() => {
+                errorEl.classList.remove('show');
+            }, 3000);
+        }
+
+        function pollForGameStart() {
+            setInterval(() => {
+                // Update player count
+                const players = JSON.parse(localStorage.getItem(`game_${gamePin}_players`) || '[]');
+                document.getElementById('player-count-display').textContent = players.length;
+
+                // Check if game has started
+                const question = localStorage.getItem(`game_${gamePin}_question`);
+                if (question) {
+                    window.location.href = `student_game.html?pin=${gamePin}&name=${encodeURIComponent(playerName)}`;
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>
