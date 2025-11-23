@@ -114,6 +114,40 @@
             box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
         }
 
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            background: var(--bg-primary);
+            padding: 5px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+        }
+
+        .mode-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9em;
+        }
+
+        .mode-btn:hover {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .mode-btn.active {
+            background: var(--accent-primary);
+            color: #1e1e1e;
+        }
+
         .header-stats {
             display: flex;
             gap: 15px;
@@ -224,6 +258,45 @@
             background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
             transition: width 0.5s ease;
             border-radius: 4px;
+        }
+
+        /* Progress Dots in Category Cards */
+        .category-dots {
+            display: flex;
+            gap: 4px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .category-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-dot:hover {
+            transform: scale(1.3);
+        }
+
+        .category-dot.current {
+            background: var(--accent-primary);
+            transform: scale(1.3);
+            box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+        }
+
+        .category-dot.answered {
+            background: var(--accent-secondary);
+        }
+
+        .category-dot.correct {
+            background: var(--accent-primary);
+        }
+
+        .category-dot.incorrect {
+            background: var(--error-color);
         }
 
         /* Workspace */
@@ -719,6 +792,16 @@
                 <span>📖</span>
                 <span>Wiki</span>
             </button>
+            <div class="mode-selector">
+                <button class="mode-btn active" id="practice-mode" onclick="setMode('practice')">
+                    <span>📝</span>
+                    <span>Øvingsmodus</span>
+                </button>
+                <button class="mode-btn" id="test-mode" onclick="setMode('test')">
+                    <span>✅</span>
+                    <span>Testmodus</span>
+                </button>
+            </div>
         </div>
         <div class="header-stats">
             <div class="stat-item">
@@ -756,17 +839,26 @@
                     <div class="question-type" id="qtype">📘 Type</div>
                 </div>
                 <div class="question-text" id="qtext">Laster spørsmål...</div>
+                
                 <div id="qcontent">
                     <!-- Question content populated by JavaScript -->
                 </div>
                 <div class="action-buttons">
-                    <button class="action-btn" onclick="checkA()">
+                    <button class="action-btn secondary" onclick="prevQ()" id="prev-btn">
+                        <span>←</span>
+                        <span>Tilbake</span>
+                    </button>
+                    <button class="action-btn" onclick="checkA()" id="check-btn">
                         <span>✓</span>
                         <span>Sjekk svar</span>
                     </button>
-                    <button class="action-btn secondary" onclick="skipQ()">
+                    <button class="action-btn" onclick="nextQ()" id="next-btn">
                         <span>→</span>
-                        <span>Hopp over</span>
+                        <span>Neste</span>
+                    </button>
+                    <button class="action-btn" onclick="finishQuiz()" id="finish-btn" style="display: none;">
+                        <span>🏁</span>
+                        <span>Ferdig</span>
                     </button>
                 </div>
             </div>
@@ -783,12 +875,6 @@
                 <div class="explanation" id="explain">
                     Forklaring kommer her...
                 </div>
-                <div class="action-buttons">
-                    <button class="action-btn" id="nextbtn" onclick="nextQ()">
-                        <span>→</span>
-                        <span>Neste spørsmål</span>
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -800,9 +886,9 @@
                 {
                     type: "para",
                     q: "I hvilken paragraf i regnskapsloven finner du definisjonen av årsregnskap?",
-                    a: "§ 1-2 (RGL)",
+                    a: "§ 1-2 (RSKL)",
                     variations: ["§1-2", "§ 1-2", "1-2", "§1-2 RGL", "§ 1-2 RGL"],
-                    l: "§ 1-2 (RGL)",
+                    l: "§ 1-2 (RSKL)",
                     w: "#wiki/rgl-1-2",
                     exp: "§ 1-2 i regnskapsloven definerer årsregnskap og regnskapsplikt."
                 },
@@ -816,7 +902,7 @@
                         "Kun balansen"
                     ],
                     a: 2,
-                    l: "§ 3-2 (RGL)",
+                    l: "§ 3-2 (RSKL)",
                     w: "#wiki/rgl-3-2",
                     exp: "Årsregnskapet består av resultatregnskap, balanse, kontantstrømoppstilling (for større foretak) og noter."
                 },
@@ -824,7 +910,7 @@
                     type: "tf",
                     q: "Påstand: Balanselikningen er Eiendeler = Egenkapital + Gjeld",
                     a: true,
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/balanselikningen",
                     exp: "Dette er korrekt. Balanselikningen viser at totale eiendeler alltid er lik sum av egenkapital og gjeld."
                 },
@@ -833,7 +919,7 @@
                     q: "Hvilke av følgende er omløpsmidler? (Velg alle som passer)",
                     opts: ["Varelager", "Kundefordringer", "Bygninger", "Kontanter", "Maskiner"],
                     a: [0, 1, 3],
-                    l: "§ 5-1 (RGL)",
+                    l: "§ 5-1 (RSKL)",
                     w: "#wiki/omlop",
                     exp: "Omløpsmidler inkluderer varer, fordringer og kontanter. Bygninger og maskiner er anleggsmidler."
                 },
@@ -865,7 +951,7 @@
                         "Kun å dokumentere transaksjoner"
                     ],
                     a: 1,
-                    l: "§ 3-1 (RGL)",
+                    l: "§ 3-1 (RSKL)",
                     w: "#wiki/formal",
                     exp: "Årsregnskapet skal gi informasjon om foretakets økonomiske stilling og resultat, og er grunnlag for beslutninger."
                 },
@@ -873,16 +959,16 @@
                     type: "tf",
                     q: "Påstand: Alle regnskapspliktige skal føre årsregnskap etter regnskapsloven",
                     a: true,
-                    l: "§ 1-2 (RGL)",
+                    l: "§ 1-2 (RSKL)",
                     w: "#wiki/plikt",
                     exp: "Alle regnskapspliktige må føre årsregnskap i samsvar med regnskapsloven, god regnskapsskikk og bestemmelser."
                 },
                 {
                     type: "para",
                     q: "Hvilken paragraf omhandler god regnskapsskikk?",
-                    a: "§ 4-1 (RGL)",
+                    a: "§ 4-1 (RSKL)",
                     variations: ["§4-1", "§ 4-1", "4-1", "§4-1 RGL", "§ 4-1 RGL"],
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/god-skikk",
                     exp: "§ 4-1 fastslår at årsregnskapet skal utarbeides i samsvar med god regnskapsskikk."
                 },
@@ -891,7 +977,7 @@
                     q: "Hvilke av følgende er anleggsmidler? (Velg alle)",
                     opts: ["Bygninger", "Maskiner", "Varelager", "Goodwill", "Kundefordringer"],
                     a: [0, 1, 3],
-                    l: "§ 5-1 (RGL)",
+                    l: "§ 5-1 (RSKL)",
                     w: "#wiki/anlegg",
                     exp: "Anleggsmidler er eiendeler bestemt til varig eie eller bruk: bygninger, maskiner, goodwill. Varelager og kundefordringer er omløpsmidler."
                 },
@@ -905,7 +991,7 @@
                         "Årets resultat"
                     ],
                     a: 1,
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/egenkapital",
                     exp: "Egenkapital er differansen mellom eiendeler og gjeld, og representerer eiernes kapital i virksomheten."
                 },
@@ -913,16 +999,16 @@
                     type: "tf",
                     q: "Påstand: Resultatregnskapet viser foretakets inntekter og kostnader for en periode",
                     a: true,
-                    l: "§ 6-1 (RGL)",
+                    l: "§ 6-1 (RSKL)",
                     w: "#wiki/resultat",
                     exp: "Resultatregnskapet viser inntekter, kostnader og resultatet for regnskapsperioden."
                 },
                 {
                     type: "para",
                     q: "I hvilken paragraf finner du kravene til balansen?",
-                    a: "§ 6-2 (RGL)",
+                    a: "§ 6-2 (RSKL)",
                     variations: ["§6-2", "§ 6-2", "6-2", "§6-2 RGL", "§ 6-2 RGL"],
-                    l: "§ 6-2 (RGL)",
+                    l: "§ 6-2 (RSKL)",
                     w: "#wiki/balanse",
                     exp: "§ 6-2 regulerer oppstilling og innhold i balansen."
                 },
@@ -937,7 +1023,7 @@
                         "Konkurransesituasjon"
                     ],
                     a: [0, 1, 3],
-                    l: "§ 3-3 (RGL)",
+                    l: "§ 3-3 (RSKL)",
                     w: "#wiki/arsberetning",
                     exp: "Årsberetningen skal bl.a. inneholde redegjørelse for virksomheten, fortsatt drift og arbeidsmiljø."
                 },
@@ -949,7 +1035,7 @@
                         { label: "Eiendeler", correct: [0, 1, 4] },
                         { label: "Egenkapital og gjeld", correct: [2, 3] }
                     ],
-                    l: "§ 6-2 (RGL)",
+                    l: "§ 6-2 (RSKL)",
                     w: "#wiki/balanse-oppstilling",
                     exp: "Balansen viser eiendeler på venstre side, egenkapital og gjeld på høyre side."
                 },
@@ -958,7 +1044,7 @@
                     q: "Hva er regnskapsåret for de fleste foretak?",
                     opts: ["1. januar - 31. desember", "1. juli - 30. juni", "1. april - 31. mars", "Fritt valg"],
                     a: 0,
-                    l: "§ 1-7 (RGL)",
+                    l: "§ 1-7 (RSKL)",
                     w: "#wiki/regnskapsaar",
                     exp: "Regnskapsåret er normalt kalenderåret, men kan avvike for enkelte typer virksomheter."
                 },
@@ -966,16 +1052,16 @@
                     type: "tf",
                     q: "Påstand: Små foretak kan unnlate å utarbeide kontantstrømoppstilling",
                     a: true,
-                    l: "§ 3-2 (RGL)",
+                    l: "§ 3-2 (RSKL)",
                     w: "#wiki/kontantstrom",
                     exp: "Små foretak er fritatt fra plikten til å utarbeide kontantstrømoppstilling."
                 },
                 {
                     type: "para",
                     q: "Hvilken paragraf definerer små foretak?",
-                    a: "§ 1-6 (RGL)",
+                    a: "§ 1-6 (RSKL)",
                     variations: ["§1-6", "§ 1-6", "1-6", "§1-6 RGL", "§ 1-6 RGL"],
-                    l: "§ 1-6 (RGL)",
+                    l: "§ 1-6 (RSKL)",
                     w: "#wiki/sma-foretak",
                     exp: "§ 1-6 definerer små foretak basert på grenser for salgsinntekt, balansesum og antall ansatte."
                 },
@@ -990,7 +1076,7 @@
                         "Forsiktighetsprinsippet"
                     ],
                     a: [0, 1, 3, 4],
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/prinsipper",
                     exp: "God regnskapsskikk omfatter bl.a. transaksjons-, opptjenings-, sammenstillings- og forsiktighetsprinsippet."
                 },
@@ -1004,7 +1090,7 @@
                         "Kun store transaksjoner skal bokføres"
                     ],
                     a: 1,
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/transaksjon",
                     exp: "Transaksjonsprinsippet sier at regnskapet skal bygge på faktiske transaksjoner og hendelser."
                 },
@@ -1012,16 +1098,16 @@
                     type: "tf",
                     q: "Påstand: Goodwill er et immaterielt eiendel",
                     a: true,
-                    l: "§ 5-3 (RGL)",
+                    l: "§ 5-3 (RSKL)",
                     w: "#wiki/goodwill",
                     exp: "Goodwill er en immateriell eiendel som oppstår ved oppkjøp av virksomhet."
                 },
                 {
                     type: "para",
                     q: "Hvilken paragraf regulerer vurdering av eiendeler?",
-                    a: "§ 5-2 (RGL)",
+                    a: "§ 5-2 (RSKL)",
                     variations: ["§5-2", "§ 5-2", "5-2", "§5-2 RGL", "§ 5-2 RGL"],
-                    l: "§ 5-2 (RGL)",
+                    l: "§ 5-2 (RSKL)",
                     w: "#wiki/vurdering",
                     exp: "§ 5-2 regulerer hvordan eiendeler skal vurderes i balansen."
                 },
@@ -1036,7 +1122,7 @@
                         "Revisorhonorarer"
                     ],
                     a: [0, 2, 4],
-                    l: "§ 7-1 (RGL)",
+                    l: "§ 7-1 (RSKL)",
                     w: "#wiki/noter",
                     exp: "Notene skal bl.a. inneholde regnskapsprinsipper, lønnskostnader og revisorhonorarer."
                 },
@@ -1048,7 +1134,7 @@
                         { label: "Primærdokumenter", correct: [0, 3, 4] },
                         { label: "Støttedokumenter", correct: [1, 2] }
                     ],
-                    l: "§ 2-1 (BFL)",
+                    l: "§ 2-1 (BOKL)",
                     w: "#wiki/dokumenter",
                     exp: "Primærdokumenter er grunnlag for bokføring. Støttedokumenter gir tilleggsinformasjon."
                 },
@@ -1057,7 +1143,7 @@
                     q: "Hvor lenge skal regnskapsmateriale oppbevares?",
                     opts: ["3 år", "5 år", "7 år", "10 år"],
                     a: 1,
-                    l: "§ 13-1 (BFL)",
+                    l: "§ 13-1 (BOKL)",
                     w: "#wiki/oppbevaring",
                     exp: "Regnskapsmateriale skal oppbevares i 5 år etter regnskapsårets slutt."
                 },
@@ -1071,7 +1157,7 @@
                         "Årsregnskap er kun for små bedrifter"
                     ],
                     a: 1,
-                    l: "§ 1-2 (RGL)",
+                    l: "§ 1-2 (RSKL)",
                     w: "#wiki/finans-vs-ars",
                     exp: "Finansregnskap kan dekke kvartaler eller andre perioder. Årsregnskap er alltid for 12 måneder."
                 },
@@ -1086,9 +1172,9 @@
                 {
                     type: "para",
                     q: "Hvilken paragraf definerer hvem som er regnskapsbrukere?",
-                    a: "§ 3-1 (RGL)",
+                    a: "§ 3-1 (RSKL)",
                     variations: ["§3-1", "§ 3-1", "3-1", "§3-1 RGL", "§ 3-1 RGL"],
-                    l: "§ 3-1 (RGL)",
+                    l: "§ 3-1 (RSKL)",
                     w: "#wiki/brukere",
                     exp: "§ 3-1 beskriver at regnskapet skal gi informasjon til ulike interessenter."
                 },
@@ -1103,7 +1189,7 @@
                         "Skatteetaten"
                     ],
                     a: [0, 1, 3, 4],
-                    l: "§ 3-1 (RGL)",
+                    l: "§ 3-1 (RSKL)",
                     w: "#wiki/interessenter",
                     exp: "Regnskapsbrukere: eiere, kreditorer, ansatte, myndigheter, kunder, leverandører."
                 },
@@ -1117,7 +1203,7 @@
                         "Å dele arbeidet mellom to personer"
                     ],
                     a: 1,
-                    l: "§ 4-1 (BFL)",
+                    l: "§ 4-1 (BOKL)",
                     w: "#wiki/dobbelt-formal",
                     exp: "Dobbelt bokføring sikrer at debet = kredit og gir kontroll og oversikt."
                 }
@@ -1133,7 +1219,7 @@
                         "Inntekt resultatføres ved årsslutt"
                     ],
                     a: 2,
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/opptjening",
                     exp: "Opptjeningsprinsippet sier at inntekt skal resultatføres når den er opptjent, uavhengig av betalingstidspunkt."
                 },
@@ -1141,16 +1227,16 @@
                     type: "tf",
                     q: "Påstand: Sammenstillingsprinsippet betyr at kostnader føres i samme periode som tilhørende inntekter",
                     a: true,
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/sammenstilling",
                     exp: "Dette er korrekt. Matching av inntekter og kostnader sikrer riktig periodisering."
                 },
                 {
                     type: "para",
                     q: "I hvilken paragraf finner du forsiktighetsprinsippet?",
-                    a: "§ 4-2 (RGL)",
+                    a: "§ 4-2 (RSKL)",
                     variations: ["§4-2", "§ 4-2", "4-2"],
-                    l: "§ 4-2 (RGL)",
+                    l: "§ 4-2 (RSKL)",
                     w: "#wiki/forsiktighet",
                     exp: "§ 4-2 sier at urealiserte tap skal resultatføres, mens urealiserte gevinster ikke skal resultatføres."
                 },
@@ -1159,7 +1245,7 @@
                     q: "Hva inkluderes i lønnskostnad? (Velg alle)",
                     opts: ["Bruttolønn", "Arbeidsgiveravgift (AGA)", "Feriepenger", "Kun nettolønn"],
                     a: [0, 1, 2],
-                    l: "§ 6-1 (RGL)",
+                    l: "§ 6-1 (RSKL)",
                     w: "#wiki/lonn",
                     exp: "Lønnskostnad inkluderer bruttolønn, AGA, feriepenger og pensjonskostnader."
                 },
@@ -1191,7 +1277,7 @@
                         "Periodisert inntekt"
                     ],
                     a: 1,
-                    l: "§ 5-9 (RGL)",
+                    l: "§ 5-9 (RSKL)",
                     w: "#wiki/avsetning",
                     exp: "Avsetning er en forpliktelse som er usikker med hensyn til beløp eller forfallstidspunkt."
                 },
@@ -1199,16 +1285,16 @@
                     type: "tf",
                     q: "Påstand: Avskrivninger er utgifter som påvirker kontantstrømmen",
                     a: false,
-                    l: "§ 5-3 (RGL)",
+                    l: "§ 5-3 (RSKL)",
                     w: "#wiki/avskrivning",
                     exp: "Avskrivninger er kostnader, ikke utgifter. De påvirker resultatet, men ikke kontantstrømmen direkte."
                 },
                 {
                     type: "para",
                     q: "Hvilken paragraf regulerer periodisering av inntekter og kostnader?",
-                    a: "§ 4-1 (RGL)",
+                    a: "§ 4-1 (RSKL)",
                     variations: ["§4-1", "§ 4-1", "4-1", "§4-1 RGL", "§ 4-1 RGL"],
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/periodisering",
                     exp: "§ 4-1 fastslår prinsippene for periodisering av inntekter og kostnader."
                 },
@@ -1223,7 +1309,7 @@
                         "Tap på fordringer"
                     ],
                     a: [1, 2, 4],
-                    l: "§ 4-2 (RGL)",
+                    l: "§ 4-2 (RSKL)",
                     w: "#wiki/resultatforing",
                     exp: "Urealiserte tap, påløpte kostnader og realiserte tap skal resultatføres. Forskuddsbetalinger balanseres."
                 },
@@ -1237,7 +1323,7 @@
                         "Kun variable kostnader"
                     ],
                     a: 1,
-                    l: "§ 5-7 (RGL)",
+                    l: "§ 5-7 (RSKL)",
                     w: "#wiki/palopt",
                     exp: "Påløpte kostnader er kostnader som tilhører perioden, men som ikke er betalt ennå."
                 },
@@ -1245,16 +1331,16 @@
                     type: "tf",
                     q: "Påstand: Forskuddsbetalte kostnader er en eiendel",
                     a: true,
-                    l: "§ 5-1 (RGL)",
+                    l: "§ 5-1 (RSKL)",
                     w: "#wiki/forskudd",
                     exp: "Forskuddsbetalte kostnader (f.eks. forskuddsbetalt husleie) er en eiendel som skal balanseføres."
                 },
                 {
                     type: "para",
                     q: "Hvilken paragraf omhandler vurdering av varelager?",
-                    a: "§ 5-2 (RGL)",
+                    a: "§ 5-2 (RSKL)",
                     variations: ["§5-2", "§ 5-2", "5-2", "§5-2 RGL", "§ 5-2 RGL"],
-                    l: "§ 5-2 (RGL)",
+                    l: "§ 5-2 (RSKL)",
                     w: "#wiki/varelager",
                     exp: "§ 5-2 regulerer vurdering av varelager til laveste verdi av anskaffelseskost og virkelig verdi."
                 },
@@ -1269,7 +1355,7 @@
                         "Dobbel avskrivning"
                     ],
                     a: [0, 1, 3],
-                    l: "§ 5-3 (RGL)",
+                    l: "§ 5-3 (RSKL)",
                     w: "#wiki/avskrivningsmetoder",
                     exp: "Tillatte metoder inkluderer lineær, saldo og produksjonsavskrivning."
                 },
@@ -1301,7 +1387,7 @@
                         "Bokført verdi"
                     ],
                     a: 1,
-                    l: "§ 5-2 (RGL)",
+                    l: "§ 5-2 (RSKL)",
                     w: "#wiki/virkelig-verdi",
                     exp: "Virkelig verdi er det beløp en eiendel kan omsettes for i en transaksjon mellom uavhengige parter."
                 },
@@ -1309,16 +1395,16 @@
                     type: "tf",
                     q: "Påstand: Nedskrivninger kan reverseres i senere perioder",
                     a: true,
-                    l: "§ 5-3 (RGL)",
+                    l: "§ 5-3 (RSKL)",
                     w: "#wiki/nedskrivning",
                     exp: "Nedskrivninger kan reverseres dersom grunnlaget for nedskrivningen ikke lenger er til stede."
                 },
                 {
                     type: "para",
                     q: "Hvilken paragraf regulerer tap på fordringer?",
-                    a: "§ 5-2 (RGL)",
+                    a: "§ 5-2 (RSKL)",
                     variations: ["§5-2", "§ 5-2", "5-2", "§5-2 RGL", "§ 5-2 RGL"],
-                    l: "§ 5-2 (RGL)",
+                    l: "§ 5-2 (RSKL)",
                     w: "#wiki/tap-fordring",
                     exp: "§ 5-2 regulerer vurdering og nedskrivning av fordringer ved tap."
                 },
@@ -1333,7 +1419,7 @@
                         "Installasjonskostnader"
                     ],
                     a: [0, 1, 2, 4],
-                    l: "§ 5-3 (RGL)",
+                    l: "§ 5-3 (RSKL)",
                     w: "#wiki/anskaffelseskost",
                     exp: "Anskaffelseskost inkluderer kjøpspris, avgifter, frakt og installasjon. Ikke fremtidige kostnader."
                 },
@@ -1355,16 +1441,16 @@
                     type: "tf",
                     q: "Påstand: Alle varige driftsmidler skal avskrives",
                     a: false,
-                    l: "§ 5-3 (RGL)",
+                    l: "§ 5-3 (RSKL)",
                     w: "#wiki/avskriving-unntak",
                     exp: "Tomt avskrives ikke, da den normalt ikke har begrenset levetid. Andre varige driftsmidler avskrives."
                 },
                 {
                     type: "para",
                     q: "Hvilken paragraf omhandler vurdering av finansielle instrumenter?",
-                    a: "§ 5-8 (RGL)",
+                    a: "§ 5-8 (RSKL)",
                     variations: ["§5-8", "§ 5-8", "5-8", "§5-8 RGL", "§ 5-8 RGL"],
-                    l: "§ 5-8 (RGL)",
+                    l: "§ 5-8 (RSKL)",
                     w: "#wiki/finansielle",
                     exp: "§ 5-8 regulerer vurdering av finansielle instrumenter som aksjer og obligasjoner."
                 },
@@ -1379,7 +1465,7 @@
                         "Gevinst ved salg av anleggsmidler"
                     ],
                     a: [0, 1],
-                    l: "§ 6-1 (RGL)",
+                    l: "§ 6-1 (RSKL)",
                     w: "#wiki/drift",
                     exp: "Driftsinntekter er salgsinntekt og annen driftsinntekt. Renter og gevinster er finansposter."
                 },
@@ -1398,7 +1484,7 @@
                         { label: "Finansposter", correct: [1] },
                         { label: "Skatt", correct: [3] }
                     ],
-                    l: "§ 6-1 (RGL)",
+                    l: "§ 6-1 (RSKL)",
                     w: "#wiki/resultat-oppstilling",
                     exp: "Resultatregnskapet deles i drift, finans og skatt."
                 },
@@ -1412,7 +1498,7 @@
                         "Tapte fordringer"
                     ],
                     a: 1,
-                    l: "§ 5-2 (RGL)",
+                    l: "§ 5-2 (RSKL)",
                     w: "#wiki/kundefordringer",
                     exp: "Kundefordringer er beløp kunder skylder for leverte varer/tjenester på kreditt."
                 },
@@ -1426,7 +1512,7 @@
                         "Kun store transaksjoner bokføres"
                     ],
                     a: 1,
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/transaksjons",
                     exp: "Transaksjonsprinsippet krever at alle regnskapsposter bygger på faktiske hendelser."
                 },
@@ -1443,7 +1529,7 @@
                     q: "Hva kalles prinsippet om å vurdere til laveste verdi?",
                     a: "Laveste verdis prinsipp",
                     variations: ["laveste verdi", "laveste verdis prinsipp", "lower of cost or market"],
-                    l: "§ 5-2 (RGL)",
+                    l: "§ 5-2 (RSKL)",
                     w: "#wiki/laveste-verdi",
                     exp: "Eiendeler vurderes til laveste av anskaffelseskost og virkelig verdi."
                 },
@@ -1458,7 +1544,7 @@
                         "Opprinnelig kjøpspris"
                     ],
                     a: [0, 1, 3],
-                    l: "§ 5-2 (RGL)",
+                    l: "§ 5-2 (RSKL)",
                     w: "#wiki/virkelig-faktorer",
                     exp: "Virkelig verdi påvirkes av marked, tilstand og forventet salg. Ikke historisk kostpris."
                 }
@@ -1791,7 +1877,7 @@
                         "Kun betalbar skatt"
                     ],
                     a: [0, 1],
-                    l: "§ 6-1 (RGL)",
+                    l: "§ 6-1 (RSKL)",
                     w: "#wiki/kostnad",
                     exp: "Skattekostnad = Betalbar skatt +/- Endring utsatt skatt. Skattetrekk er ikke skattekostnad for selskapet."
                 },
@@ -1807,7 +1893,7 @@
                         { label: "Midlertidige forskjeller", correct: [0] },
                         { label: "Permanente forskjeller", correct: [1, 2] }
                     ],
-                    l: "§ 5-14 (RGL)",
+                    l: "§ 5-14 (RSKL)",
                     w: "#wiki/forskjeller",
                     exp: "Midlertidige forskjeller reverserer over tid. Permanente forskjeller reverserer aldri."
                 },
@@ -1821,7 +1907,7 @@
                         "Forskuddsskatt"
                     ],
                     a: 1,
-                    l: "§ 5-14 (RGL)",
+                    l: "§ 5-14 (RSKL)",
                     w: "#wiki/utsatt",
                     exp: "Utsatt skatt er beregnet skatt på midlertidige forskjeller som vil reversere i fremtiden."
                 },
@@ -2051,7 +2137,7 @@
                     type: "para",
                     q: "Hvilken lov regulerer bokføringsplikten i Norge?",
                     a: "Bokføringsloven",
-                    variations: ["bokføringsloven", "bfl", "BFL", "bokføringslova"],
+                    variations: ["bokføringsloven", "bokl", "BOKL", "bokføringslova"],
                     l: "Bokføringsloven",
                     w: "#wiki/bfl",
                     exp: "Bokføringsloven regulerer hvem som er bokføringspliktig og hvordan bokføring skal utføres."
@@ -2066,7 +2152,7 @@
                         "Å unngå revisor"
                     ],
                     a: 1,
-                    l: "§ 1-1 (BFL)",
+                    l: "§ 1-1 (BOKL)",
                     w: "#wiki/formal-bokforing",
                     exp: "Bokføring skal gi oversikt over virksomhetens eiendeler, gjeld, egenkapital, inntekter og kostnader."
                 },
@@ -2074,7 +2160,7 @@
                     type: "tf",
                     q: "Påstand: Alle transaksjoner må bokføres kronologisk",
                     a: true,
-                    l: "§ 5-1 (BFL)",
+                    l: "§ 5-1 (BOKL)",
                     w: "#wiki/kronologisk",
                     exp: "Bokføring skal være løpende og kronologisk, slik at man kan følge transaksjonene i tidsrekkefølge."
                 },
@@ -2089,7 +2175,7 @@
                         "Kontonummer"
                     ],
                     a: [0, 1, 3, 4],
-                    l: "§ 5-1 (BFL)",
+                    l: "§ 5-1 (BOKL)",
                     w: "#wiki/bilag",
                     exp: "Bokføring skal inneholde bilagsnummer, dato, beløp og kontonummer. Ikke personnummer."
                 },
@@ -2108,7 +2194,7 @@
                         { label: "Inngående bilag", correct: [1] },
                         { label: "Interne bilag", correct: [2, 4] }
                     ],
-                    l: "§ 5-1 (BFL)",
+                    l: "§ 5-1 (BOKL)",
                     w: "#wiki/bilagstyper",
                     exp: "Utgående: salg og uttak. Inngående: kjøp. Interne: lønn og bank."
                 },
@@ -2122,7 +2208,7 @@
                         "Kassabon"
                     ],
                     a: 1,
-                    l: "§ 5-1 (BFL)",
+                    l: "§ 5-1 (BOKL)",
                     w: "#wiki/kontering",
                     exp: "Et konteringsbilag viser hvordan et bilag skal fordeles på ulike konti i regnskapet."
                 },
@@ -2130,7 +2216,7 @@
                     type: "tf",
                     q: "Påstand: Man kan bruke blyant i kassebok",
                     a: false,
-                    l: "§ 5-6 (BFL)",
+                    l: "§ 5-6 (BOKL)",
                     w: "#wiki/endring",
                     exp: "Bokføring skal være bestandig og ikke kunne endres uten at det fremgår. Blyant er ikke tillatt."
                 },
@@ -2139,7 +2225,7 @@
                     q: "Innen når skal bokføring være à jour?",
                     a: "To måneder",
                     variations: ["2 måneder", "to mnd", "2 mnd", "to månedar", "2 månedar"],
-                    l: "§ 5-3 (BFL)",
+                    l: "§ 5-3 (BOKL)",
                     w: "#wiki/a-jour",
                     exp: "Bokføringen skal være à jour innen to måneder etter regnskapsperiodens utløp."
                 },
@@ -2154,7 +2240,7 @@
                         "Kontantprinsippet"
                     ],
                     a: [0, 2, 4],
-                    l: "§ 4-1 (BFL)",
+                    l: "§ 4-1 (BOKL)",
                     w: "#wiki/prinsipper-bokforing",
                     exp: "Hovedprinsipper: dobbelt bokføring, bruttoprinsipper og kontantprinsippet."
                 },
@@ -2168,7 +2254,7 @@
                         "Man bruker to kontoer for alt"
                     ],
                     a: 2,
-                    l: "§ 4-1 (BFL)",
+                    l: "§ 4-1 (BOKL)",
                     w: "#wiki/dobbelt",
                     exp: "Dobbelt bokføring betyr at hver transaksjon påvirker minst to konti - en i debet og en i kredit."
                 },
@@ -2176,7 +2262,7 @@
                     type: "tf",
                     q: "Påstand: Bilag kan kastes etter at de er bokført",
                     a: false,
-                    l: "§ 13-1 (BFL)",
+                    l: "§ 13-1 (BOKL)",
                     w: "#wiki/oppbevaring-bilag",
                     exp: "Bilag må oppbevares i 5 år sammen med bokføringsmaterialet."
                 },
@@ -2241,7 +2327,7 @@
                     type: "tf",
                     q: "Påstand: Alle virksomheter må bruke reskontro",
                     a: true,
-                    l: "§ 5-4 (BFL)",
+                    l: "§ 5-4 (BOKL)",
                     w: "#wiki/reskontro",
                     exp: "Virksomheter skal føre spesifikasjon av kunde- og leverandørfordringer (reskontro)."
                 },
@@ -2250,7 +2336,7 @@
                     q: "Hva heter oversikten som viser saldo på alle konti?",
                     a: "Hovedbok",
                     variations: ["hovedboka", "hovedboken", "Hovedboka", "Hovedboken"],
-                    l: "§ 5-2 (BFL)",
+                    l: "§ 5-2 (BOKL)",
                     w: "#wiki/hovedbok",
                     exp: "Hovedboken viser systematisk oversikt over alle konti med posteringer og saldoer."
                 },
@@ -2265,7 +2351,7 @@
                         "Varelager"
                     ],
                     a: [0, 1, 2, 4],
-                    l: "§ 5-5 (BFL)",
+                    l: "§ 5-5 (BOKL)",
                     w: "#wiki/avstemming",
                     exp: "Bank, fordringer, gjeld og varelager må avstemmes. Lønnskostnad er en resultatkonto."
                 },
@@ -2287,7 +2373,7 @@
                     type: "tf",
                     q: "Påstand: Man kan slette feilbokførte posteringer",
                     a: false,
-                    l: "§ 5-6 (BFL)",
+                    l: "§ 5-6 (BOKL)",
                     w: "#wiki/rettelser",
                     exp: "Feil må rettes med omvendte posteringer eller tilleggsbilag. Sletting er ikke tillatt."
                 },
@@ -2296,7 +2382,7 @@
                     q: "Hva heter prosessen med å avslutte regnskapsåret?",
                     a: "Årsavslutning",
                     variations: ["årsavslutninga", "års-avslutning", "arsavslutning", "Årsavslutninga"],
-                    l: "§ 5-7 (BFL)",
+                    l: "§ 5-7 (BOKL)",
                     w: "#wiki/arsavslutning",
                     exp: "Årsavslutning er prosessen med å avslutte alle konti og overføre saldoer til nytt regnskapsår."
                 },
@@ -2311,7 +2397,7 @@
                         "Vurdere fordringer"
                     ],
                     a: [0, 1, 2, 4],
-                    l: "§ 5-7 (BFL)",
+                    l: "§ 5-7 (BOKL)",
                     w: "#wiki/avslutning-rutiner",
                     exp: "Ved årsavslutning: periodisering, avskrivninger, varetelling, fordringsvurdering. Ikke sletting."
                 },
@@ -2343,7 +2429,7 @@
                         "Kontantbok brukes av små bedrifter"
                     ],
                     a: 1,
-                    l: "§ 5-1 (BFL)",
+                    l: "§ 5-1 (BOKL)",
                     w: "#wiki/kassebok",
                     exp: "Begrepene brukes ofte om hverandre, men betyr det samme - en bok for kontanttransaksjoner."
                 },
@@ -2351,7 +2437,7 @@
                     type: "tf",
                     q: "Påstand: Elektronisk bokføring må ha sikkerhetskopi",
                     a: true,
-                    l: "§ 6-1 (BFL)",
+                    l: "§ 6-1 (BOKL)",
                     w: "#wiki/datasikkerhet",
                     exp: "Elektroniske regnskaper må sikkerhetskoperes for å unngå tap av data."
                 }
@@ -2375,7 +2461,7 @@
                     type: "tf",
                     q: "Påstand: Alle foretak må ha revisor",
                     a: false,
-                    l: "§ 7-1 (RGL)",
+                    l: "§ 7-1 (RSKL)",
                     w: "#wiki/revisjonsplikt",
                     exp: "Små foretak kan velge bort revisjonsplikt hvis de oppfyller visse kriterier."
                 },
@@ -2579,7 +2665,7 @@
                         "Å erstatte balansen"
                     ],
                     a: 1,
-                    l: "§ 7-1 (RGL)",
+                    l: "§ 7-1 (RSKL)",
                     w: "#wiki/noter-formal",
                     exp: "Noter skal gi tilleggsinformasjon som er nødvendig for å forstå regnskapet."
                 },
@@ -2587,16 +2673,16 @@
                     type: "tf",
                     q: "Påstand: Alle foretak må utarbeide årsberetning",
                     a: false,
-                    l: "§ 3-3 (RGL)",
+                    l: "§ 3-3 (RSKL)",
                     w: "#wiki/arsberetning-plikt",
                     exp: "Små foretak kan unnlate årsberetning hvis visse opplysninger tas med i notene."
                 },
                 {
                     type: "para",
                     q: "I hvilken paragraf finner du krav til innhold i notene?",
-                    a: "§ 7-1 (RGL)",
+                    a: "§ 7-1 (RSKL)",
                     variations: ["§7-1", "§ 7-1", "7-1", "§7-1 RGL", "§ 7-1 RGL"],
-                    l: "§ 7-1 (RGL)",
+                    l: "§ 7-1 (RSKL)",
                     w: "#wiki/noter-innhold",
                     exp: "§ 7-1 spesifiserer hvilket innhold notene skal ha."
                 },
@@ -2611,7 +2697,7 @@
                         "Pantstillelser"
                     ],
                     a: [0, 2, 4],
-                    l: "§ 7-1 (RGL)",
+                    l: "§ 7-1 (RSKL)",
                     w: "#wiki/noter-krav",
                     exp: "Noter skal inneholde regnskapsprinsipper, revisorhonorarer, pantstillelser og mye annet relevant."
                 },
@@ -2629,7 +2715,7 @@
                         { label: "Årsberetning", correct: [0, 2, 4] },
                         { label: "Noter", correct: [1, 3] }
                     ],
-                    l: "§ 3-3, § 7-1 (RGL)",
+                    l: "§ 3-3, § 7-1 (RSKL)",
                     w: "#wiki/fordeling",
                     exp: "Årsberetning: Vurderinger og fremtid. Noter: Tall og spesifikasjoner."
                 },
@@ -2643,7 +2729,7 @@
                         "Budsjett"
                     ],
                     a: 1,
-                    l: "§ 6-3 (RGL)",
+                    l: "§ 6-3 (RSKL)",
                     w: "#wiki/kontantstrom",
                     exp: "Kontantstrømoppstilling viser inn- og utbetalinger fordelt på drift, investering og finansiering."
                 },
@@ -2651,16 +2737,16 @@
                     type: "tf",
                     q: "Påstand: Kontantstrømoppstilling kan utarbeides etter direkte eller indirekte metode",
                     a: true,
-                    l: "§ 6-3 (RGL)",
+                    l: "§ 6-3 (RSKL)",
                     w: "#wiki/metoder",
                     exp: "Både direkte metode (faktiske inn/utbetalinger) og indirekte metode (fra resultat) er tillatt."
                 },
                 {
                     type: "para",
                     q: "Hvilken paragraf regulerer egenkapitaloppstillingen?",
-                    a: "§ 6-2 (RGL)",
+                    a: "§ 6-2 (RSKL)",
                     variations: ["§6-2", "§ 6-2", "6-2", "§6-2 RGL", "§ 6-2 RGL"],
-                    l: "§ 6-2 (RGL)",
+                    l: "§ 6-2 (RSKL)",
                     w: "#wiki/egenkapital-oppstilling",
                     exp: "§ 6-2 krever at endringer i egenkapitalen vises, enten i balansen eller egen oppstilling."
                 },
@@ -2675,7 +2761,7 @@
                         "Sosiale aktiviteter"
                     ],
                     a: [0, 1, 2],
-                    l: "§ 6-3 (RGL)",
+                    l: "§ 6-3 (RSKL)",
                     w: "#wiki/aktiviteter",
                     exp: "Kontantstrøm deles i drift, investering og finansiering."
                 },
@@ -2689,7 +2775,7 @@
                         "Fjorårets hendelser"
                     ],
                     a: 1,
-                    l: "§ 7-3 (RGL)",
+                    l: "§ 7-3 (RSKL)",
                     w: "#wiki/etterfølgende",
                     exp: "Hendelser etter balansedagen som gir ny informasjon må hensyntas i regnskapet."
                 },
@@ -2697,16 +2783,16 @@
                     type: "tf",
                     q: "Påstand: Sammenligningstall for foregående år må alltid vises",
                     a: true,
-                    l: "§ 6-1 (RGL)",
+                    l: "§ 6-1 (RSKL)",
                     w: "#wiki/sammenligning",
                     exp: "Årsregnskapet skal vise sammenligningstall fra foregående år for alle poster."
                 },
                 {
                     type: "para",
                     q: "Hvilken paragraf omhandler konsernregnskap?",
-                    a: "§ 3-2 (RGL)",
+                    a: "§ 3-2 (RSKL)",
                     variations: ["§3-2", "§ 3-2", "3-2", "§3-2 RGL", "§ 3-2 RGL"],
-                    l: "§ 3-2 (RGL)",
+                    l: "§ 3-2 (RSKL)",
                     w: "#wiki/konsern",
                     exp: "§ 3-2 fastslår at morselskap skal utarbeide konsernregnskap."
                 },
@@ -2721,7 +2807,7 @@
                         "Kundefordringer til eksterne"
                     ],
                     a: [0, 1, 3],
-                    l: "§ 3-7 (RGL)",
+                    l: "§ 3-7 (RSKL)",
                     w: "#wiki/konsolidering",
                     exp: "Interne transaksjoner, gjeld og urealisert intern fortjeneste må elimineres."
                 },
@@ -2740,7 +2826,7 @@
                         { label: "Investeringsaktiviteter", correct: [1, 2] },
                         { label: "Finansieringsaktiviteter", correct: [3] }
                     ],
-                    l: "§ 6-3 (RGL)",
+                    l: "§ 6-3 (RSKL)",
                     w: "#wiki/klassifisering",
                     exp: "Drift: løpende drift. Investering: anleggsmidler og utbytte. Finansiering: lån og egenkapital."
                 },
@@ -2762,7 +2848,7 @@
                     type: "tf",
                     q: "Påstand: Årsregnskapet må godkjennes av styret før signering",
                     a: true,
-                    l: "§ 3-4 (RGL)",
+                    l: "§ 3-4 (RSKL)",
                     w: "#wiki/godkjenning",
                     exp: "Styret skal godkjenne og signere årsregnskapet før det fremlegges for generalforsamling."
                 },
@@ -2771,7 +2857,7 @@
                     q: "Når er fristen for å levere årsregnskapet til Regnskapsregisteret?",
                     a: "7 måneder",
                     variations: ["7 mnd", "sju måneder", "sju mnd", "7 månedar", "sju månedar"],
-                    l: "§ 3-4 (RGL)",
+                    l: "§ 3-4 (RSKL)",
                     w: "#wiki/frist",
                     exp: "Årsregnskapet må sendes til Regnskapsregisteret innen 7 måneder etter regnskapsårets slutt."
                 },
@@ -2786,7 +2872,7 @@
                         "Forståelighet"
                     ],
                     a: [0, 1, 3, 4],
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/kvalitet",
                     exp: "Regnskapsinformasjon skal være pålitelig, relevant, sammenlignbar og forståelig."
                 },
@@ -2800,7 +2886,7 @@
                         "Omdømme"
                     ],
                     a: 1,
-                    l: "§ 3-9 (RGL)",
+                    l: "§ 3-9 (RSKL)",
                     w: "#wiki/konsern-goodwill",
                     exp: "Goodwill oppstår når kjøpesum overstiger virkelig verdi av ervervede eiendeler minus gjeld."
                 },
@@ -2808,7 +2894,7 @@
                     type: "tf",
                     q: "Påstand: Minoritetsinteresser skal vises som gjeld i konsernbalansen",
                     a: false,
-                    l: "§ 3-8 (RGL)",
+                    l: "§ 3-8 (RSKL)",
                     w: "#wiki/minoritet",
                     exp: "Minoritetsinteresser vises som egen post i egenkapitalen, ikke som gjeld."
                 },
@@ -2817,7 +2903,7 @@
                     q: "Hva kalles metoden der morselskap eier 20-50% av et selskap?",
                     a: "Egenkapitalmetoden",
                     variations: ["egenkapitalmetoden", "egenkapital metoden", "equity method"],
-                    l: "§ 3-11 (RGL)",
+                    l: "§ 3-11 (RSKL)",
                     w: "#wiki/tilknyttet",
                     exp: "Ved egenkapitalmetoden (tilknyttet selskap) innregnes forholdsmessig andel av resultat."
                 },
@@ -2832,7 +2918,7 @@
                         "Prinsipp for prisfastsettelse"
                     ],
                     a: [0, 1, 3, 4],
-                    l: "§ 7-30 (RGL)",
+                    l: "§ 7-30 (RSKL)",
                     w: "#wiki/narstaaende",
                     exp: "Transaksjoner med nærstående må opplyses med art, beskrivelse, beløp og prinsipp."
                 },
@@ -2851,7 +2937,7 @@
                         { label: "Balanse", correct: [1, 2] },
                         { label: "Kontantstrømoppstilling", correct: [4] }
                     ],
-                    l: "§ 6-1, § 6-2, § 6-3 (RGL)",
+                    l: "§ 6-1, § 6-2, § 6-3 (RSKL)",
                     w: "#wiki/oppstillinger",
                     exp: "Resultat: Inntekt/kostnad. Balanse: Eiendeler/gjeld/EK. Kontantstrøm: Betalinger."
                 },
@@ -2865,7 +2951,7 @@
                         "Kun Skatteetaten"
                     ],
                     a: 2,
-                    l: "§ 3-1 (RGL)",
+                    l: "§ 3-1 (RSKL)",
                     w: "#wiki/malgruppe",
                     exp: "Årsregnskapet er offentlig og skal gi informasjon til alle interessenter."
                 },
@@ -2873,7 +2959,7 @@
                     type: "tf",
                     q: "Påstand: Resultatregnskap kan settes opp etter art eller funksjon",
                     a: true,
-                    l: "§ 6-1 (RGL)",
+                    l: "§ 6-1 (RSKL)",
                     w: "#wiki/oppstilling-type",
                     exp: "Artsinndeling: Lønn, avskrivning, etc. Funksjonsinndeling: Produksjon, salg, administrasjon."
                 },
@@ -3528,7 +3614,7 @@
                         "Å få ferie"
                     ],
                     a: 1,
-                    l: "§ 3-2 (RGL)",
+                    l: "§ 3-2 (RSKL)",
                     w: "#wiki/avslutning-formal",
                     exp: "Regnskapsavslutning skal sikre at regnskapet er korrekt og rettvisende per balansedagen."
                 },
@@ -3536,7 +3622,7 @@
                     type: "tf",
                     q: "Påstand: Periodisering er en viktig del av regnskapsavslutningen",
                     a: true,
-                    l: "§ 4-1 (RGL)",
+                    l: "§ 4-1 (RSKL)",
                     w: "#wiki/periodisering-avslutning",
                     exp: "Periodisering sikrer at inntekter og kostnader henføres til riktig periode."
                 },
@@ -3545,7 +3631,7 @@
                     q: "Hva heter vurderingen av om virksomheten kan fortsette driften?",
                     a: "Fortsatt drift",
                     variations: ["fortsatt drift", "going concern", "going-concern"],
-                    l: "§ 3-3 (RGL)",
+                    l: "§ 3-3 (RSKL)",
                     w: "#wiki/fortsatt-drift",
                     exp: "Fortsatt drift-forutsetningen må vurderes ved regnskapsavslutning og i årsberetning."
                 },
@@ -3560,7 +3646,7 @@
                         "Vurdering av fordringer"
                     ],
                     a: [0, 1, 2, 4],
-                    l: "§ 5-7 (BFL)",
+                    l: "§ 5-7 (BOKL)",
                     w: "#wiki/avslutningsposteringer",
                     exp: "Årsavslutning: Periodisering, avskrivninger, varetelling, fordringsvurdering. Ikke løpende."
                 },
@@ -3580,7 +3666,7 @@
                         { label: "Forskuddsinntekter (gjeld)", correct: [2] },
                         { label: "Opptjente inntekter (eiendel)", correct: [3] }
                     ],
-                    l: "§ 5-7 (RGL)",
+                    l: "§ 5-7 (RSKL)",
                     w: "#wiki/periodisering-typer",
                     exp: "Påløpt: Gjeld. Forskuddsbetalt: Eiendel. Forskuddsinntekt: Gjeld. Opptjent: Eiendel."
                 },
@@ -3594,7 +3680,7 @@
                         "Til markedsverdi"
                     ],
                     a: 2,
-                    l: "§ 5-2 (RGL)",
+                    l: "§ 5-2 (RSKL)",
                     w: "#wiki/varevurdering",
                     exp: "Laveste verdis prinsipp: Varelager vurderes til laveste av kost og netto salgsverdi."
                 },
@@ -3602,7 +3688,7 @@
                     type: "tf",
                     q: "Påstand: Tap på kundefordringer må estimeres ved årsavslutning",
                     a: true,
-                    l: "§ 5-2 (RGL)",
+                    l: "§ 5-2 (RSKL)",
                     w: "#wiki/tapsavsetning",
                     exp: "Forventet tap på fordringer skal vurderes og nedskrives ved årsavslutning."
                 },
@@ -3611,7 +3697,7 @@
                     q: "Hva kalles justeringer for hendelser etter balansedagen?",
                     a: "Etterfølgende hendelser",
                     variations: ["etterfølgende", "subsequent events", "events after"],
-                    l: "§ 7-3 (RGL)",
+                    l: "§ 7-3 (RSKL)",
                     w: "#wiki/etterfølgende-hendelser",
                     exp: "Hendelser mellom balansedagen og fastsettelse av regnskap kan kreve justeringer."
                 },
@@ -3626,7 +3712,7 @@
                         "Avsatt til annen egenkapital"
                     ],
                     a: [0, 1, 3, 4],
-                    l: "§ 3-3 (RGL)",
+                    l: "§ 3-3 (RSKL)",
                     w: "#wiki/disponering",
                     exp: "Resultatdisponering: Utbytte, fond, konsernbidrag, andre EK-overføringer."
                 },
@@ -3648,7 +3734,7 @@
                     type: "tf",
                     q: "Påstand: Avskrivninger beregnes fra første dag i måneden etter anskaffelse",
                     a: false,
-                    l: "§ 5-3 (RGL)",
+                    l: "§ 5-3 (RSKL)",
                     w: "#wiki/avskrivning-start",
                     exp: "Avskrivning starter når eiendelen tas i bruk, ikke ved anskaffelse."
                 },
@@ -3657,7 +3743,7 @@
                     q: "Hva heter oppstillingen som viser endringer i egenkapitalen?",
                     a: "Egenkapitaloppstilling",
                     variations: ["egenkapitaloppstilling", "oppstilling egenkapital", "statement of equity"],
-                    l: "§ 6-2 (RGL)",
+                    l: "§ 6-2 (RSKL)",
                     w: "#wiki/ek-oppstilling",
                     exp: "Egenkapitaloppstilling viser åpningsbalanse, endringer og sluttbalanse for EK-komponenter."
                 },
@@ -3672,7 +3758,7 @@
                         "Avsetning for generelle risikoer"
                     ],
                     a: [0, 1, 3],
-                    l: "§ 5-9 (RGL)",
+                    l: "§ 5-9 (RSKL)",
                     w: "#wiki/avsetninger",
                     exp: "Avsetninger for spesifikke forpliktelser: garantier, omstrukturering, pensjoner. Ikke generelt."
                 },
@@ -3705,7 +3791,7 @@
                         "Lån fra bank"
                     ],
                     a: 1,
-                    l: "§ 5-10 (RGL)",
+                    l: "§ 5-10 (RSKL)",
                     w: "#wiki/betinget",
                     exp: "Betingede forpliktelser (f.eks. garantier, rettssaker) opplyses i noter."
                 },
@@ -3713,7 +3799,7 @@
                     type: "tf",
                     q: "Påstand: Alle anleggsmidler må avskrives",
                     a: false,
-                    l: "§ 5-3 (RGL)",
+                    l: "§ 5-3 (RSKL)",
                     w: "#wiki/avskrivningsunntak",
                     exp: "Tomt og kunst avskrives vanligvis ikke da de ikke har begrenset levetid."
                 },
@@ -3722,7 +3808,7 @@
                     q: "Hva kalles kontroller av at bokførte tall stemmer med faktisk?",
                     a: "Avstemming",
                     variations: ["avstemming", "avstemminger", "reconciliation"],
-                    l: "§ 5-5 (BFL)",
+                    l: "§ 5-5 (BOKL)",
                     w: "#wiki/avstemming-prosess",
                     exp: "Avstemming sikrer at bokførte tall (bank, fordringer, gjeld) stemmer med virkeligheten."
                 },
@@ -3737,7 +3823,7 @@
                         "Leverandørgjeld"
                     ],
                     a: [0, 1, 2, 4],
-                    l: "§ 5-5 (BFL)",
+                    l: "§ 5-5 (BOKL)",
                     w: "#wiki/avstemming-konti",
                     exp: "Balanseposter må avstemmes: bank, fordringer, lager, gjeld. Resultatkonti avstemmes ikke."
                 },
@@ -3759,7 +3845,7 @@
                     type: "tf",
                     q: "Påstand: Regnskapet kan endres etter at det er godkjent av generalforsamling",
                     a: false,
-                    l: "§ 3-5 (RGL)",
+                    l: "§ 3-5 (RSKL)",
                     w: "#wiki/endring-regnskap",
                     exp: "Etter godkjenning kan regnskap kun endres ved vesentlige feil og krever ny godkjenning."
                 }
@@ -3771,11 +3857,28 @@
             cat: "Grunnleggende Regnskap",
             qi: 0,
             ans: {},
-            userAnswers: {}
+            userAnswers: {},
+            mode: 'practice' // 'practice' or 'test'
         };
 
         let draggedItem = null;
         let draggedFrom = null;
+
+        // Mode functions
+        function setMode(mode) {
+            S.mode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(mode + '-mode').classList.add('active');
+            
+            // In test mode, hide feedback until end
+            if (mode === 'test') {
+                document.getElementById('check-btn').style.display = 'none';
+            } else {
+                document.getElementById('check-btn').style.display = 'inline-flex';
+            }
+            
+            saveProg();
+        }
 
         // Initialize
         function init() {
@@ -3807,6 +3910,23 @@
                 let correct = qs.filter((q, i) => S.ans[cat + '_' + i] === true).length;
                 let progress = Math.round((answered / qs.length) * 100);
                 
+                // Generate dots for this category
+                let dotsHtml = '<div class="category-dots">';
+                for (let i = 0; i < qs.length; i++) {
+                    let k = cat + '_' + i;
+                    let classes = ['category-dot'];
+                    
+                    if (cat === S.cat && i === S.qi) classes.push('current');
+                    if (S.ans[k] !== undefined) {
+                        classes.push('answered');
+                        if (S.ans[k]) classes.push('correct');
+                        else classes.push('incorrect');
+                    }
+                    
+                    dotsHtml += `<div class="${classes.join(' ')}" onclick="goToCategoryQuestion('${cat}', ${i})" title="Spørsmål ${i + 1}"></div>`;
+                }
+                dotsHtml += '</div>';
+                
                 h += `
                     <div class="category-card ${cat === S.cat ? 'active' : ''}" onclick="loadCat('${cat}')">
                         <div class="category-name">${cat}</div>
@@ -3817,11 +3937,20 @@
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: ${progress}%"></div>
                         </div>
+                        ${dotsHtml}
                     </div>
                 `;
             }
             
             sb.innerHTML = h;
+        }
+
+        // Go to specific category and question
+        function goToCategoryQuestion(cat, index) {
+            S.cat = cat;
+            S.qi = index;
+            loadCats();
+            loadQ();
         }
 
         // Load Category
@@ -3842,6 +3971,14 @@
             document.getElementById('qtext').textContent = q.q;
             document.getElementById('curr').textContent = S.qi + 1;
             
+            // Update category sidebar to reflect current question
+            loadCats();
+            
+            // Show/hide buttons based on position
+            document.getElementById('prev-btn').style.display = S.qi === 0 ? 'none' : 'inline-flex';
+            document.getElementById('next-btn').style.display = S.qi === qs.length - 1 ? 'none' : 'inline-flex';
+            document.getElementById('finish-btn').style.display = S.qi === qs.length - 1 ? 'inline-flex' : 'none';
+            
             let types = {
                 'para': '📝 Paragraf',
                 'mc': '📘 Flervalg',
@@ -3857,7 +3994,7 @@
             if (q.type === 'para') {
                 qc.innerHTML = `
                     <input type="text" class="para-input" id="parain" placeholder="§ X-X (LOV)">
-                    <div class="para-hint">Eksempel: § 4-2 (RGL)</div>
+                    <div class="para-hint">Eksempel: § 4-2 (RSKL)</div>
                 `;
             } else if (q.type === 'mc') {
                 let h = '<div class="mc-options">';
@@ -3916,8 +4053,54 @@
             }
             
             document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
-            document.getElementById('nextbtn').style.display = 'none';
             updateStats();
+        }
+
+        // Previous Question
+        function prevQ() {
+            if (S.qi > 0) {
+                S.qi--;
+                loadQ();
+            }
+        }
+
+        // Finish Quiz
+        function finishQuiz() {
+            if (S.mode === 'test') {
+                // Show all results at once in test mode
+                showTestResults();
+            } else {
+                // Go to next category or show completion
+                nextQ();
+            }
+        }
+
+        // Show Test Results
+        function showTestResults() {
+            let qs = DB[S.cat];
+            let correct = 0;
+            let total = qs.length;
+            
+            for (let i = 0; i < qs.length; i++) {
+                let k = S.cat + '_' + i;
+                if (S.ans[k] === true) correct++;
+            }
+            
+            let percentage = Math.round((correct / total) * 100);
+            
+            alert(`Test fullført!\n\nResultat: ${correct}/${total} (${percentage}%)\n\nKorrekte svar: ${correct}\nFeil svar: ${total - correct}`);
+            
+            // Move to next category
+            let cats = Object.keys(DB);
+            let ci = cats.indexOf(S.cat);
+            if (ci < cats.length - 1) {
+                S.cat = cats[ci + 1];
+                S.qi = 0;
+                loadCats();
+                loadQ();
+            } else {
+                showDone();
+            }
         }
 
         // True/False Selection
@@ -3954,9 +4137,7 @@
             tgt.classList.remove('drag-over');
             
             if (draggedItem) {
-                if (tgt.children.length > 0 && tgt.classList.contains('dnd-target')) {
-                    draggedFrom.appendChild(tgt.children[0]);
-                }
+                // Allow multiple items in target - don't swap, just move
                 tgt.appendChild(draggedItem);
                 tgt.classList.add('filled');
                 draggedItem = null;
@@ -4037,16 +4218,10 @@
                 <a href="${q.w}" target="_blank">${q.l}</a>
             `;
             document.getElementById('explain').textContent = q.exp;
-            document.getElementById('nextbtn').style.display = 'inline-block';
             
             saveProg();
             loadCats();
             updateStats();
-        }
-
-        // Skip Question
-        function skipQ() {
-            nextQ();
         }
 
         // Next Question
@@ -4054,18 +4229,20 @@
             let qs = DB[S.cat];
             if (S.qi < qs.length - 1) {
                 S.qi++;
+                loadQ();
             } else {
                 let cats = Object.keys(DB);
                 let ci = cats.indexOf(S.cat);
                 if (ci < cats.length - 1) {
                     S.cat = cats[ci + 1];
                     S.qi = 0;
+                    loadCats();
+                    loadQ();
                 } else {
                     showDone();
                     return;
                 }
             }
-            loadCat(S.cat);
         }
 
         // Update Stats
