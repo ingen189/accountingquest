@@ -223,7 +223,9 @@
             timer: null,
             correctCount: 0,
             totalQuestions: 0,
-            hasAnswered: false
+            hasAnswered: false,
+            questionStartTime: 0,
+            timePerQuestion: 30
         };
 
         function init() {
@@ -238,15 +240,24 @@
                 return;
             }
 
-            // Get player info from Firebase
+            // Get player info and restore score from Firebase
             db.ref('games/' + gameState.pin + '/players/' + gameState.playerId).once('value')
                 .then(function(snapshot) {
                     var player = snapshot.val();
                     if (player) {
                         gameState.playerAvatar = player.avatar || '😊';
+                        gameState.score = player.score || 0;
+                        gameState.correctCount = player.correctCount || 0;
                         document.getElementById('player-avatar').textContent = gameState.playerAvatar;
                         document.getElementById('player-name').textContent = gameState.playerName;
+                        document.getElementById('score').textContent = gameState.score;
                     }
+                });
+
+            // Get time per question from quiz settings
+            db.ref('games/' + gameState.pin + '/quiz/timePerQuestion').once('value')
+                .then(function(snapshot) {
+                    gameState.timePerQuestion = snapshot.val() || 30;
                 });
 
             // Listen for question changes
@@ -278,32 +289,59 @@
         function loadQuestion(questionData) {
             gameState.currentQuestionIndex = questionData.index;
             gameState.totalQuestions = Math.max(gameState.totalQuestions, questionData.index + 1);
-            gameState.hasAnswered = false;
+            gameState.questionStartTime = questionData.startedAt || Date.now();
 
-            // Hide other screens, show question
-            hideAllScreens();
-            document.getElementById('question-screen').classList.add('show');
+            // Check if already answered this question
+            db.ref('games/' + gameState.pin + '/answers/' + gameState.playerId).once('value')
+                .then(function(snapshot) {
+                    var existingAnswer = snapshot.val();
+                    if (existingAnswer && existingAnswer.questionIndex === questionData.index) {
+                        // Already answered - show waiting screen
+                        gameState.hasAnswered = true;
+                        hideAllScreens();
+                        document.getElementById('waiting-screen').classList.add('show');
+                        document.querySelector('#waiting-screen .waiting-text').textContent = 'Du har allerede svart. Venter på neste spørsmål...';
+                        return;
+                    }
 
-            // Update UI
-            document.getElementById('question-number').textContent = 'Spørsmål ' + (questionData.index + 1);
-            document.getElementById('question-text').textContent = questionData.text;
+                    gameState.hasAnswered = false;
 
-            // Load answers
-            var container = document.getElementById('answers-container');
-            var labels = ['A', 'B', 'C', 'D'];
-            var classes = ['answer-a', 'answer-b', 'answer-c', 'answer-d'];
-            
-            var html = '';
-            questionData.answers.forEach(function(answer, i) {
-                html += '<button class="answer-btn ' + classes[i] + '" onclick="selectAnswer(' + i + ')">' +
-                    '<div class="answer-label">' + labels[i] + '</div>' +
-                    '<div class="answer-text">' + answer + '</div>' +
-                '</button>';
-            });
-            container.innerHTML = html;
+                    // Hide other screens, show question
+                    hideAllScreens();
+                    document.getElementById('question-screen').classList.add('show');
 
-            // Start timer (estimate based on server time)
-            startTimer(30); // Default 30 seconds
+                    // Update UI
+                    document.getElementById('question-number').textContent = 'Spørsmål ' + (questionData.index + 1);
+                    document.getElementById('question-text').textContent = questionData.text;
+
+                    // Load answers
+                    var container = document.getElementById('answers-container');
+                    var labels = ['A', 'B', 'C', 'D'];
+                    var classes = ['answer-a', 'answer-b', 'answer-c', 'answer-d'];
+                    
+                    var html = '';
+                    questionData.answers.forEach(function(answer, i) {
+                        html += '<button class="answer-btn ' + classes[i] + '" onclick="selectAnswer(' + i + ')">' +
+                            '<div class="answer-label">' + labels[i] + '</div>' +
+                            '<div class="answer-text">' + answer + '</div>' +
+                        '</button>';
+                    });
+                    container.innerHTML = html;
+
+                    // Calculate remaining time based on server timestamp
+                    var elapsed = Math.floor((Date.now() - gameState.questionStartTime) / 1000);
+                    var remaining = Math.max(0, gameState.timePerQuestion - elapsed);
+                    
+                    if (remaining <= 0) {
+                        // Time already up
+                        document.querySelectorAll('.answer-btn').forEach(function(btn) {
+                            btn.disabled = true;
+                        });
+                        showFeedback(false, 0);
+                    } else {
+                        startTimer(remaining);
+                    }
+                });
         }
 
         function startTimer(duration) {
@@ -355,25 +393,34 @@
             // Highlight selected answer
             document.querySelectorAll('.answer-btn')[answerIndex].classList.add('selected');
 
-            // Calculate points
-            var timeBonus = Math.max(0, gameState.timeLeft);
-            var points = 500 + Math.floor((timeBonus / 30) * 500);
+            // Calculate time left based on server timestamp (prevents F5 exploit)
+            var elapsed = Math.floor((Date.now() - gameState.questionStartTime) / 1000);
+            var actualTimeLeft = Math.max(0, gameState.timePerQuestion - elapsed);
+
+            // Calculate points based on actual server time
+            var points = 500 + Math.floor((actualTimeLeft / gameState.timePerQuestion) * 500);
 
             // Save answer to Firebase
             db.ref('games/' + gameState.pin + '/answers/' + gameState.playerId).set({
                 questionIndex: gameState.currentQuestionIndex,
                 answer: answerIndex,
-                timeLeft: gameState.timeLeft,
+                timeLeft: actualTimeLeft,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
 
+            // Update score in Firebase (assume correct for demo - real check would be server-side)
+            gameState.score += points;
+            gameState.correctCount++;
+            
+            db.ref('games/' + gameState.pin + '/players/' + gameState.playerId).update({
+                score: gameState.score,
+                correctCount: gameState.correctCount
+            });
+
+            document.getElementById('score').textContent = gameState.score;
+
             // Show feedback after short delay
             setTimeout(function() {
-                // For now, assume all answers are correct for demo
-                // In real implementation, you'd check against correct answer
-                gameState.score += points;
-                gameState.correctCount++;
-                document.getElementById('score').textContent = gameState.score;
                 showFeedback(true, points);
             }, 500);
         }

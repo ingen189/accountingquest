@@ -274,6 +274,11 @@
                 </div>
 
                 <button class="skip-btn" onclick="skipQuestion()">Hopp over →</button>
+                <button class="skip-btn" id="pause-btn" onclick="togglePause()" style="background: #f59e0b; margin-left: 10px;">⏸️ Pause</button>
+                
+                <div id="auto-advance-notice" style="display: none; margin-top: 20px; padding: 15px; background: rgba(74, 222, 128, 0.2); border: 2px solid #4ade80; border-radius: 10px;">
+                    <span style="font-size: 1.2em;">✅ Alle har svart! Neste spørsmål om <span id="auto-countdown">5</span> sekunder...</span>
+                </div>
             </div>
         </div>
 
@@ -322,7 +327,10 @@
             currentQuestion: 0,
             answers: {},
             timeLeft: 0,
-            timer: null
+            timer: null,
+            isPaused: false,
+            autoAdvanceTimer: null,
+            allAnswered: false
         };
 
         function init() {
@@ -348,10 +356,22 @@
 
                     var game = snapshot.val();
                     gameState.quiz = game.quiz;
+                    gameState.currentQuestion = game.currentQuestionIndex || 0;
 
                     document.getElementById('quiz-title').textContent = game.quiz.title;
                     document.getElementById('question-count').textContent = game.quiz.questions.length;
                     document.getElementById('time-per-question').textContent = game.quiz.timePerQuestion + 's';
+
+                    // Check game status and restore state
+                    if (game.status === 'playing' && game.currentQuestion) {
+                        // Game is in progress - restore to current question
+                        document.getElementById('lobby-screen').style.display = 'none';
+                        document.getElementById('question-screen').style.display = 'block';
+                        gameState.currentQuestion = game.currentQuestion.index;
+                        showQuestion(gameState.currentQuestion);
+                    } else if (game.status === 'finished') {
+                        showResults();
+                    }
 
                     // Listen for players joining
                     listenForPlayers();
@@ -414,9 +434,26 @@
             }
 
             gameState.currentQuestion = index;
+            gameState.allAnswered = false;
+            gameState.isPaused = false;
+            
+            // Hide auto-advance notice
+            document.getElementById('auto-advance-notice').style.display = 'none';
+            if (gameState.autoAdvanceTimer) {
+                clearInterval(gameState.autoAdvanceTimer);
+            }
+            
+            // Update pause button
+            document.getElementById('pause-btn').innerHTML = '⏸️ Pause';
+            document.getElementById('pause-btn').style.background = '#f59e0b';
+            
             var question = gameState.quiz.questions[index];
+            var startTime = Date.now();
 
-            // Update Firebase with current question
+            // Save current question index to Firebase
+            db.ref('games/' + gameState.pin + '/currentQuestionIndex').set(index);
+
+            // Update Firebase with current question and server timestamp
             db.ref('games/' + gameState.pin + '/currentQuestion').set({
                 index: index,
                 text: question.text,
@@ -462,6 +499,8 @@
             }
 
             gameState.timer = setInterval(function() {
+                if (gameState.isPaused) return;
+                
                 gameState.timeLeft--;
                 timerEl.textContent = gameState.timeLeft;
 
@@ -480,6 +519,48 @@
                 }
             }, 1000);
         }
+        
+        function togglePause() {
+            gameState.isPaused = !gameState.isPaused;
+            var btn = document.getElementById('pause-btn');
+            
+            if (gameState.isPaused) {
+                btn.innerHTML = '▶️ Fortsett';
+                btn.style.background = '#4ade80';
+                
+                // Also pause auto-advance if active
+                if (gameState.autoAdvanceTimer) {
+                    clearInterval(gameState.autoAdvanceTimer);
+                }
+            } else {
+                btn.innerHTML = '⏸️ Pause';
+                btn.style.background = '#f59e0b';
+                
+                // Resume auto-advance if all answered
+                if (gameState.allAnswered) {
+                    startAutoAdvance();
+                }
+            }
+        }
+        
+        function startAutoAdvance() {
+            var countdown = 5;
+            document.getElementById('auto-advance-notice').style.display = 'block';
+            document.getElementById('auto-countdown').textContent = countdown;
+            
+            gameState.autoAdvanceTimer = setInterval(function() {
+                if (gameState.isPaused) return;
+                
+                countdown--;
+                document.getElementById('auto-countdown').textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(gameState.autoAdvanceTimer);
+                    clearInterval(gameState.timer);
+                    showQuestionResult();
+                }
+            }, 1000);
+        }
 
         function listenForAnswers() {
             db.ref('games/' + gameState.pin + '/answers').on('value', function(snapshot) {
@@ -487,9 +568,12 @@
                 
                 // Count answers per option for current question
                 var counts = [0, 0, 0, 0];
+                var answeredCount = 0;
+                
                 Object.values(answers).forEach(function(answer) {
                     if (answer.questionIndex === gameState.currentQuestion) {
                         counts[answer.answer]++;
+                        answeredCount++;
                     }
                 });
 
@@ -498,6 +582,17 @@
                     var el = document.getElementById('answer-count-' + i);
                     if (el) el.textContent = count;
                 });
+                
+                // Check if all players have answered
+                var playerCount = Object.keys(gameState.players).length;
+                if (playerCount > 0 && answeredCount >= playerCount && !gameState.allAnswered) {
+                    gameState.allAnswered = true;
+                    
+                    // Start auto-advance countdown
+                    if (!gameState.isPaused) {
+                        startAutoAdvance();
+                    }
+                }
             });
         }
 
@@ -510,6 +605,9 @@
 
         function skipQuestion() {
             clearInterval(gameState.timer);
+            if (gameState.autoAdvanceTimer) {
+                clearInterval(gameState.autoAdvanceTimer);
+            }
             showQuestion(gameState.currentQuestion + 1);
         }
 
