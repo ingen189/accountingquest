@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oppgrader til Premium - AccountingQuest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #4ade80, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #9ca3af;
+            font-size: 1.2em;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .pricing-card {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            border-color: #4ade80;
+            box-shadow: 0 20px 60px rgba(74, 222, 128, 0.3);
+        }
+
+        .pricing-card.recommended {
+            border-color: #4ade80;
+            box-shadow: 0 10px 40px rgba(74, 222, 128, 0.2);
+        }
+
+        .pricing-card.recommended::before {
+            content: '⭐ Anbefalt';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4ade80;
+            color: #1e1e1e;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .tier-name {
+            font-size: 1.5em;
+            color: #4ade80;
+            margin-bottom: 10px;
+        }
+
+        .price {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .price-small {
+            font-size: 0.4em;
+            color: #9ca3af;
+        }
+
+        .savings {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .features {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .features li {
+            padding: 12px 0;
+            border-bottom: 1px solid #404040;
+            font-size: 1em;
+        }
+
+        .features li:last-child {
+            border-bottom: none;
+        }
+
+        .features li::before {
+            content: '✓ ';
+            color: #4ade80;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn-upgrade {
+            width: 100%;
+            padding: 18px;
+            background: #4ade80;
+            color: #1e1e1e;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-upgrade:hover {
+            background: #3bc56f;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.4);
+        }
+
+        .btn-upgrade:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .comparison {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+
+        .comparison h2 {
+            color: #4ade80;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #404040;
+        }
+
+        .comparison-table th {
+            background: #404040;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .check {
+            color: #4ade80;
+            font-size: 1.5em;
+        }
+
+        .cross {
+            color: #ef4444;
+            font-size: 1.5em;
+        }
+
+        .payment-methods {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #404040;
+            border-radius: 10px;
+        }
+
+        .payment-methods p {
+            color: #9ca3af;
+            margin-bottom: 15px;
+        }
+
+        .payment-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .payment-icon {
+            background: #2d2d2d;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-link a {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .back-link a:hover {
+            color: #4ade80;
+        }
+
+        .faq {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .faq h2 {
+            color: #4ade80;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2em;
+        }
+
+        .faq-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #404040;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            color: #e0e0e0;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .faq-answer {
+            color: #9ca3af;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .price {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Oppgrader til Premium</h1>
+            <p>Få full tilgang til alle funksjoner</p>
+        </div>
+
+        <div class="pricing-cards">
+            <!-- Monthly Plan -->
+            <div class="pricing-card">
+                <div class="tier-name">📅 Månedlig</div>
+                <div class="price">
+                    9 kr
+                    <span class="price-small">/mnd</span>
+                </div>
+                <ul class="features">
+                    <li>Unlimited forsøk</li>
+                    <li>Alle case studies (15)</li>
+                    <li>Hjernetrim-oppgaver (10)</li>
+                    <li>Cloud-lagring</li>
+                    <li>Sync på tvers av enheter</li>
+                    <li>Prioritert support</li>
+                </ul>
+                <button class="btn-upgrade" onclick="selectPlan('monthly')">
+                    Velg månedlig
+                </button>
+            </div>
+
+            <!-- Yearly Plan (Recommended) -->
+            <div class="pricing-card recommended">
+                <div class="tier-name">🎓 Årlig</div>
+                <div class="savings">Spar 22 kr/år!</div>
+                <div class="price">
+                    79 kr
+                    <span class="price-small">/år</span>
+                </div>
+                <ul class="features">
+                    <li>Alt i Månedlig</li>
+                    <li>2 måneder gratis</li>
+                    <li>Kun 6,58 kr/mnd</li>
+                    <li>Bedre verdi for pengene</li>
+                    <li>Perfekt for studenter</li>
+                    <li>Garantert pris i ett år</li>
+                </ul>
+                <button class="btn-upgrade" onclick="selectPlan('yearly')">
+                    Velg årlig (Anbefalt)
+                </button>
+            </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="comparison">
+            <h2>📊 Sammenligning</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Funksjon</th>
+                        <th>Free</th>
+                        <th style="color: #4ade80;">Premium</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align: left;">Bokføringsoppgaver</td>
+                        <td><span class="check">✓</span> Alle 36</td>
+                        <td><span class="check">✓</span> Alle 36</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">Quiz-spørsmål</td>
+                        <td><span class="check">✓</span> Alle 90</td>
+                        <td><span class="check">✓</span> Alle 90</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">Regnskapsanalyse</td>
+                        <td><span class="check">✓</span> 6 av 11</td>
+                        <td><span class="check">✓</span> Alle 11</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">Case Studies</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span> Alle 15</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">Hjernetrim</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span> Alle 10</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">Forsøk per dag</td>
+                        <td>3 feil/dag</td>
+                        <td><span class="check">✓</span> Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">Cloud-lagring</td>
+                        <td><span class="cross">✗</span> Kun lokalt</td>
+                        <td><span class="check">✓</span> Permanent</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">Sync mellom enheter</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">Support</td>
+                        <td>Standard</td>
+                        <td><span class="check">✓</span> Prioritert</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq">
+            <h2>❓ Ofte stilte spørsmål</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">Kan jeg si opp når som helst?</div>
+                <div class="faq-answer">Ja! Du kan når som helst si opp abonnementet. Ved månedlig betaling stoppes neste trekk. Ved årlig betaling får du tilgang ut perioden du har betalt for.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Hvordan betaler jeg?</div>
+                <div class="faq-answer">Vi aksepterer Vipps, kredittkort og debetkort. Alle betalinger er sikre og krypterte via Stripe.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Får jeg faktura?</div>
+                <div class="faq-answer">Ja, du får automatisk kvittering på e-post ved hver betaling.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Hva skjer med min progresjon hvis jeg oppgraderer?</div>
+                <div class="faq-answer">All din progresjon blir bevart! Du fortsetter akkurat der du slapp, men får tilgang til alle Premium-funksjoner.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Er dette kun for studenter?</div>
+                <div class="faq-answer">Nei! Alle kan bruke AccountingQuest. Vi har studenter, regnskapsførere og privatpersoner som øver til fagprøver.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Hva er institusjonsabonnement?</div>
+                <div class="faq-answer">Vi tilbyr spesialpriser for universiteter og høyskoler. Kontakt oss på kontakt@accountingquest.app for mer info.</div>
+            </div>
+        </div>
+
+        <div class="payment-methods">
+            <p>💳 Sikker betaling med:</p>
+            <div class="payment-icons">
+                <div class="payment-icon">Vipps</div>
+                <div class="payment-icon">Visa</div>
+                <div class="payment-icon">Mastercard</div>
+                <div class="payment-icon">Stripe</div>
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">← Tilbake til forsiden</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // VIKTIG: Bruk samme Firebase config som i auth.html
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "accountingquest.firebaseapp.com",
+            projectId: "accountingquest",
+            storageBucket: "accountingquest.appspot.com",
+            messagingSenderId: "YOUR_ID",
+            appId: "YOUR_APP_ID",
+            databaseURL: "https://accountingquest-default-rtdb.europe-west1.firebasedatabase.app"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        async function selectPlan(plan) {
+            // Sjekk om bruker er logget inn
+            const user = firebase.auth().currentUser;
+            
+            if (!user) {
+                if (confirm('Du må logge inn for å oppgradere. Vil du logge inn nå?')) {
+                    window.location.href = 'auth.html';
+                }
+                return;
+            }
+
+            // VIKTIG: Her må du integrere med Stripe/Vipps
+            // Dette er et placeholder-eksempel
+            
+            const prices = {
+                monthly: 9,
+                yearly: 79
+            };
+
+            const priceText = plan === 'monthly' ? '9 kr/mnd' : '79 kr/år';
+            
+            if (confirm(`Vil du oppgradere til Premium (${priceText})?`)) {
+                // TODO: Implementer Stripe Checkout eller Vipps
+                // For nå: simuler oppgradering
+                
+                try {
+                    await firebase.database()
+                        .ref(`users/${user.uid}/profile/subscription`)
+                        .set('premium');
+                    
+                    await firebase.database()
+                        .ref(`users/${user.uid}/subscription`)
+                        .set({
+                            tier: 'premium',
+                            plan: plan,
+                            startedAt: firebase.database.ServerValue.TIMESTAMP,
+                            status: 'active'
+                        });
+                    
+                    alert('🎉 Gratulerer! Du har nå Premium!\n\nDu har full tilgang til alle funksjoner.');
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    alert('Oppgradering feilet: ' + error.message);
+                }
+            }
+        }
+
+        // Stripe integration (eksempel)
+        function redirectToStripeCheckout(plan) {
+            // Dette krever Stripe account og API keys
+            // Se Stripe dokumentasjon for full implementasjon
+            
+            const priceIds = {
+                monthly: 'price_XXXXXXXXX', // Ditt Stripe Price ID
+                yearly: 'price_YYYYYYYYY'
+            };
+
+            // Redirect til Stripe Checkout
+            window.location.href = `https://checkout.stripe.com/pay/${priceIds[plan]}`;
+        }
+    </script>
+</body>
+</html>

@@ -120,6 +120,21 @@
             transform: scaleX(1);
         }
 
+        .option-card.disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .option-card.disabled:hover {
+            transform: none;
+            border-color: #404040;
+            box-shadow: none;
+        }
+
+        .option-card.disabled::before {
+            display: none;
+        }
+
         .option-icon {
             font-size: 4em;
             margin-bottom: 20px;
@@ -144,6 +159,7 @@
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #404040;
+            list-style: none;
         }
 
         .option-features li {
@@ -177,6 +193,16 @@
         }
 
         @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .logo {
+                font-size: 1.5em;
+            }
+
             .welcome h1 {
                 font-size: 2.5em;
             }
@@ -233,13 +259,13 @@
                     <li>Konkurrer mot klassekamerater</li>
                     <li>Se resultater live</li>
                     <li>Poeng og plassering</li>
-                    <li>Morsom grafikk og lyder</li>
+                    <li>Morsom grafikk og animasjoner</li>
                 </ul>
                 <span class="status-badge">Tilgjengelig nå</span>
             </div>
 
             <!-- Duel Mode (Coming Soon) -->
-            <div class="option-card" style="opacity: 0.7; cursor: not-allowed;">
+            <div class="option-card disabled">
                 <div class="option-icon">⚔️</div>
                 <div class="option-title">Duell-modus</div>
                 <div class="option-desc">

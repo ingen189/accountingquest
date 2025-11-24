@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lærerportal - AccountingQuest</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -1123,8 +1129,204 @@
         }
 
         function openMultiplayer() {
-            alert('🎮 Multiplayer-modul kommer snart! Her kan du lage Kahoot-stil klasseromsquiz.');
+            // Show multiplayer setup modal
+            const modal = document.getElementById('builderModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = '🎮 Start Multiplayer Quiz';
+            
+            // Get saved quizzes
+            let quizOptions = '<option value="">-- Velg en quiz --</option>';
+            
+            // Add demo quizzes
+            quizOptions += '<option value="demo_bokforing">Demo: Bokføring Grunnleggende</option>';
+            quizOptions += '<option value="demo_mva">Demo: MVA-regler</option>';
+            quizOptions += '<option value="demo_regnskap">Demo: Regnskapsprinsipper</option>';
+            
+            // Add saved quizzes
+            if (savedTasks.quiz && savedTasks.quiz.length > 0) {
+                savedTasks.quiz.forEach(function(task, index) {
+                    quizOptions += '<option value="saved_' + index + '">' + task.title + '</option>';
+                });
+            }
+            
+            body.innerHTML = 
+                '<div style="max-width: 600px; margin: 0 auto;">' +
+                    '<p style="color: #9ca3af; margin-bottom: 30px;">Start en live quiz-konkurranse som studentene kan delta i via PIN-kode!</p>' +
+                    
+                    '<div class="form-group">' +
+                        '<label>Velg Quiz</label>' +
+                        '<select id="multiplayerQuizSelect">' + quizOptions + '</select>' +
+                    '</div>' +
+                    
+                    '<div class="form-group">' +
+                        '<label>Tid per spørsmål (sekunder)</label>' +
+                        '<select id="timePerQuestion">' +
+                            '<option value="15">15 sekunder</option>' +
+                            '<option value="20">20 sekunder</option>' +
+                            '<option value="30" selected>30 sekunder</option>' +
+                            '<option value="45">45 sekunder</option>' +
+                            '<option value="60">60 sekunder</option>' +
+                        '</select>' +
+                    '</div>' +
+                    
+                    '<div class="save-actions">' +
+                        '<button class="btn" onclick="closeModal()">Avbryt</button>' +
+                        '<button class="btn primary" onclick="startMultiplayerGame()">🚀 Start Spill</button>' +
+                    '</div>' +
+                '</div>';
+            
+            modal.classList.add('active');
         }
+        
+        function startMultiplayerGame() {
+            var quizSelect = document.getElementById('multiplayerQuizSelect').value;
+            var timePerQuestion = parseInt(document.getElementById('timePerQuestion').value);
+            
+            if (!quizSelect) {
+                alert('Vennligst velg en quiz!');
+                return;
+            }
+            
+            var quiz = null;
+            
+            // Demo quizzes
+            if (quizSelect === 'demo_bokforing') {
+                quiz = {
+                    title: 'Bokføring Grunnleggende',
+                    timePerQuestion: timePerQuestion,
+                    questions: [
+                        {
+                            text: 'Hva er debet-siden av en konto?',
+                            answers: ['Venstre side', 'Høyre side', 'Øverst', 'Nederst'],
+                            correct: 0
+                        },
+                        {
+                            text: 'Hvilken konto øker ved debitering?',
+                            answers: ['Gjeld', 'Inntekt', 'Eiendeler', 'Egenkapital'],
+                            correct: 2
+                        },
+                        {
+                            text: 'Hva betyr MVA?',
+                            answers: ['Moms ved anskaffelse', 'Merverdiavgift', 'Månedlig verdianslag', 'Materiell verdianskuelse'],
+                            correct: 1
+                        },
+                        {
+                            text: 'Hvilket prinsipp sier at inntekter og kostnader skal føres i den perioden de oppstår?',
+                            answers: ['Kontantprinsippet', 'Sammenstillingsprinsippet', 'Forsiktighetsprinsippet', 'Periodiseringsprinsippet'],
+                            correct: 3
+                        },
+                        {
+                            text: 'Hva er en kontoplan?',
+                            answers: ['En plan for kontorinnredning', 'En oversikt over alle kontoer i regnskapet', 'En betalingsplan', 'En budsjettplan'],
+                            correct: 1
+                        }
+                    ]
+                };
+            } else if (quizSelect === 'demo_mva') {
+                quiz = {
+                    title: 'MVA-regler',
+                    timePerQuestion: timePerQuestion,
+                    questions: [
+                        {
+                            text: 'Hva er standard MVA-sats i Norge?',
+                            answers: ['15%', '20%', '25%', '27%'],
+                            correct: 2
+                        },
+                        {
+                            text: 'Hvilken MVA-sats gjelder for matvarer?',
+                            answers: ['0%', '12%', '15%', '25%'],
+                            correct: 1
+                        },
+                        {
+                            text: 'Når må MVA-oppgaven normalt leveres?',
+                            answers: ['Månedlig', 'Annenhver måned', 'Kvartalsvis', 'Årlig'],
+                            correct: 1
+                        },
+                        {
+                            text: 'Hva er fradragsberettiget inngående MVA?',
+                            answers: ['MVA på private kjøp', 'MVA på næringsrelaterte kjøp', 'All MVA', 'Ingen MVA'],
+                            correct: 1
+                        }
+                    ]
+                };
+            } else if (quizSelect === 'demo_regnskap') {
+                quiz = {
+                    title: 'Regnskapsprinsipper',
+                    timePerQuestion: timePerQuestion,
+                    questions: [
+                        {
+                            text: 'Hva innebærer forsiktighetsprinsippet?',
+                            answers: ['Alltid velge høyeste verdi', 'Ikke overvurdere eiendeler eller undervurdere gjeld', 'Utsette alle kostnader', 'Ignorere usikre poster'],
+                            correct: 1
+                        },
+                        {
+                            text: 'Hva er hovedformålet med årsregnskapet?',
+                            answers: ['Beregne skatt', 'Gi informasjon til interessenter', 'Tilfredsstille myndighetene', 'Beregne utbytte'],
+                            correct: 1
+                        },
+                        {
+                            text: 'Hva er egenkapital?',
+                            answers: ['Eiendeler minus gjeld', 'Inntekter minus kostnader', 'Bankinnskudd', 'Aksjekapital'],
+                            correct: 0
+                        }
+                    ]
+                };
+            } else if (quizSelect.startsWith('saved_')) {
+                var index = parseInt(quizSelect.split('_')[1]);
+                var savedQuiz = savedTasks.quiz[index];
+                quiz = {
+                    title: savedQuiz.title,
+                    timePerQuestion: timePerQuestion,
+                    questions: savedQuiz.options ? [{
+                        text: savedQuiz.description,
+                        answers: savedQuiz.options.map(function(o) { return o.text; }),
+                        correct: savedQuiz.options.findIndex(function(o) { return o.correct; })
+                    }] : []
+                };
+            }
+            
+            if (!quiz || quiz.questions.length === 0) {
+                alert('Kunne ikke laste quiz');
+                return;
+            }
+            
+            // Generate 6-digit PIN
+            var pin = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Save to Firebase
+            var gameRef = db.ref('games/' + pin);
+            gameRef.set({
+                pin: pin,
+                status: 'lobby',
+                quiz: quiz,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                players: {}
+            }).then(function() {
+                closeModal();
+                // Redirect to game host
+                window.location.href = 'game_host.html?pin=' + pin;
+            }).catch(function(error) {
+                console.error('Error creating game:', error);
+                alert('Kunne ikke opprette spill. Prøv igjen.');
+            });
+        }
+
+        // Firebase Config
+        var firebaseConfig = {
+            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+            authDomain: "accountingquest-multiplayer.firebaseapp.com",
+            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest-multiplayer",
+            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+            messagingSenderId: "525417361926",
+            appId: "1:525417361926:web:ec9b737f82af9b21700987"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+        console.log('🔥 Firebase initialized in Teacher Portal');
 
         // Initialize Excel table when needed
         document.addEventListener('DOMContentLoaded', () => {
