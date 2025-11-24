@@ -1,0 +1,123 @@
+/* ExcelGrid Styles - Standalone CSS */
+
+.excel-grid-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    background: #1e1e1e;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.excel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.excel-table th {
+    background: #404040;
+    color: #a0a0a0;
+    padding: 12px;
+    border: 1px solid #404040;
+    text-align: center;
+    font-weight: 600;
+}
+
+.excel-table td {
+    border: 1px solid #404040;
+    padding: 0;
+}
+
+.cell-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.excel-cell {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #eaeaea;
+    padding: 12px;
+    font-size: 0.95em;
+    font-family: 'Consolas', 'Monaco', monospace;
+    text-align: right;
+    outline: none;
+    transition: background 0.2s;
+}
+
+.excel-cell:focus {
+    outline: 2px solid #4ade80;
+    background: rgba(255,255,255,0.05);
+    z-index: 5;
+}
+
+.excel-cell:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+.excel-cell.readonly {
+    background: #404040;
+    color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+/* Fill Handle - Grønn sirkel */
+.fill-handle {
+    position: absolute;
+    right: 1px;
+    bottom: 1px;
+    width: 10px;
+    height: 10px;
+    background: #4ade80;
+    border: 2px solid #1e1e1e;
+    border-radius: 50%;
+    cursor: crosshair;
+    z-index: 25;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(74, 222, 128, 0.3);
+    transition: all 0.2s ease;
+}
+
+.fill-handle:hover {
+    width: 14px;
+    height: 14px;
+    right: -1px;
+    bottom: -1px;
+    background: #5ef77c;
+    box-shadow: 0 3px 8px rgba(74, 222, 128, 0.8), 0 0 0 2px rgba(74, 222, 128, 0.5);
+}
+
+.excel-cell.filling {
+    background: rgba(74, 222, 128, 0.25) !important;
+}
+
+.excel-cell.selecting-mode {
+    cursor: crosshair;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.excel-cell.selected-for-formula {
+    outline: 3px solid #3b82f6 !important;
+    background: rgba(59, 130, 246, 0.2) !important;
+    animation: cellPulse 0.5s;
+}
+
+@keyframes cellPulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+    50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
+}
+
+.cell-selection-hint {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #2d2d2d;
+    border: 2px solid #4ade80;
+    border-radius: 12px;
+    padding: 25px;
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    color: #eaeaea;
+}

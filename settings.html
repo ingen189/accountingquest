@@ -1,808 +1,830 @@
 <!DOCTYPE html>
-<html lang="no">
+<html lang="no" data-theme="dark" data-accent="green">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Innstillinger - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ========== THEME VARIABLES ========== */
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f26;
+            --bg-tertiary: #2d3748;
+            --bg-card: #1e2530;
+            --bg-input: #0f1419;
+            --text-primary: #e0e0e0;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: #2d3748;
+            --border-light: #374151;
+            --accent: #4ade80;
+            --accent-hover: #22c55e;
+            --accent-glow: rgba(74, 222, 128, 0.3);
+            --accent-secondary: #3b82f6;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 15px;
+            --radius-full: 50px;
+            --space-xs: 5px;
+            --space-sm: 10px;
+            --space-md: 15px;
+            --space-lg: 20px;
+            --space-xl: 30px;
         }
+
+        /* Light theme */
+        [data-theme="light"] {
+            --bg-primary: #f5f5f0;
+            --bg-secondary: #fafaf8;
+            --bg-tertiary: #eaeae5;
+            --bg-card: #ffffff;
+            --bg-input: #f5f5f0;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --text-muted: #9ca3af;
+            --border-color: #e5e5e0;
+            --border-light: #d1d1cc;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="cream"] {
+            --bg-primary: #f9f6f1;
+            --bg-secondary: #fffcf7;
+            --bg-tertiary: #f0ebe3;
+            --bg-card: #fffef9;
+            --bg-input: #f5f2ed;
+            --text-primary: #2d2a26;
+            --text-secondary: #5c5650;
+            --border-color: #e8e4dc;
+            --border-light: #d9d4cb;
+        }
+
+        [data-theme="dark-blue"] {
+            --bg-primary: #0a192f;
+            --bg-secondary: #112240;
+            --bg-tertiary: #1d3461;
+            --bg-card: #172a46;
+            --bg-input: #0a192f;
+            --text-primary: #ccd6f6;
+            --text-secondary: #8892b0;
+            --border-color: #1d3461;
+            --border-light: #233554;
+        }
+
+        [data-theme="midnight"] {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #171717;
+            --bg-card: #0f0f0f;
+            --bg-input: #050505;
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --border-color: #262626;
+            --border-light: #404040;
+        }
+
+        [data-theme="charcoal"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #242424;
+            --bg-tertiary: #333333;
+            --bg-card: #2a2a2a;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --border-color: #3d3d3d;
+            --border-light: #4a4a4a;
+        }
+
+        [data-theme="slate"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --border-light: #475569;
+        }
+
+        [data-theme="forest"] {
+            --bg-primary: #0c1a14;
+            --bg-secondary: #142b1f;
+            --bg-tertiary: #1f3d2b;
+            --bg-card: #183225;
+            --text-primary: #d4e8dc;
+            --text-secondary: #8fb89e;
+            --border-color: #1f3d2b;
+            --border-light: #2a5038;
+        }
+
+        [data-theme="purple-night"] {
+            --bg-primary: #13111c;
+            --bg-secondary: #1c1829;
+            --bg-tertiary: #2d2640;
+            --bg-card: #211d30;
+            --text-primary: #e8e4f0;
+            --text-secondary: #a39bb8;
+            --border-color: #2d2640;
+            --border-light: #3d3455;
+        }
+
+        /* Accent colors */
+        [data-accent="green"] { --accent: #4ade80; --accent-hover: #22c55e; --accent-glow: rgba(74, 222, 128, 0.3); }
+        [data-accent="blue"] { --accent: #3b82f6; --accent-hover: #2563eb; --accent-glow: rgba(59, 130, 246, 0.3); }
+        [data-accent="purple"] { --accent: #a855f7; --accent-hover: #9333ea; --accent-glow: rgba(168, 85, 247, 0.3); }
+        [data-accent="pink"] { --accent: #ec4899; --accent-hover: #db2777; --accent-glow: rgba(236, 72, 153, 0.3); }
+        [data-accent="orange"] { --accent: #f59e0b; --accent-hover: #d97706; --accent-glow: rgba(245, 158, 11, 0.3); }
+        [data-accent="cyan"] { --accent: #06b6d4; --accent-hover: #0891b2; --accent-glow: rgba(6, 182, 212, 0.3); }
+        [data-accent="red"] { --accent: #ef4444; --accent-hover: #dc2626; --accent-glow: rgba(239, 68, 68, 0.3); }
+        [data-accent="yellow"] { --accent: #eab308; --accent-hover: #ca8a04; --accent-glow: rgba(234, 179, 8, 0.3); }
+        [data-accent="teal"] { --accent: #14b8a6; --accent-hover: #0d9488; --accent-glow: rgba(20, 184, 166, 0.3); }
+        [data-accent="indigo"] { --accent: #6366f1; --accent-hover: #4f46e5; --accent-glow: rgba(99, 102, 241, 0.3); }
+
+        /* ========== BASE STYLES ========== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
+            transition: background var(--transition-normal), color var(--transition-normal);
+            line-height: 1.6;
         }
 
-        /* Dark mode (default) */
-        body.dark-mode {
-            background: #1e1e1e;
-            color: #e0e0e0;
-        }
+        a { color: var(--accent); text-decoration: none; }
 
-        /* Light mode */
-        body.light-mode {
-            background: #f5f5f5;
-            color: #1e1e1e;
-        }
-
-        .header {
-            padding: 20px 40px;
-            border-bottom: 2px solid;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        body.dark-mode .header {
-            background: #2d2d2d;
-            border-bottom-color: #4ade80;
-        }
-
-        body.light-mode .header {
-            background: #ffffff;
-            border-bottom-color: #22c55e;
-        }
-
-        .header-title {
-            font-size: 1.8em;
-            font-weight: bold;
-        }
-
-        body.dark-mode .header-title {
-            color: #4ade80;
-        }
-
-        body.light-mode .header-title {
-            color: #22c55e;
-        }
-
-        .back-btn {
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            font-size: 1em;
-        }
-
-        body.dark-mode .back-btn {
-            background: #404040;
-            color: #e0e0e0;
-        }
-
-        body.light-mode .back-btn {
-            background: #e0e0e0;
-            color: #1e1e1e;
-        }
-
-        .back-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        body.dark-mode .back-btn:hover {
-            background: #4ade80;
-            color: #1e1e1e;
-        }
-
-        body.light-mode .back-btn:hover {
-            background: #22c55e;
-            color: white;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .settings-section {
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            transition: all 0.3s;
-        }
-
-        body.dark-mode .settings-section {
-            background: #2d2d2d;
-            border: 2px solid #404040;
-        }
-
-        body.light-mode .settings-section {
-            background: white;
-            border: 2px solid #e0e0e0;
-        }
-
-        .section-title {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        body.dark-mode .section-title {
-            color: #4ade80;
-        }
-
-        body.light-mode .section-title {
-            color: #22c55e;
-        }
-
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid;
-        }
-
-        body.dark-mode .setting-item {
-            border-bottom-color: #404040;
-        }
-
-        body.light-mode .setting-item {
-            border-bottom-color: #e0e0e0;
-        }
-
-        .setting-item:last-child {
-            border-bottom: none;
-        }
-
-        .setting-info {
-            flex: 1;
-        }
-
-        .setting-label {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .setting-description {
-            font-size: 0.9em;
-        }
-
-        body.dark-mode .setting-description {
-            color: #9ca3af;
-        }
-
-        body.light-mode .setting-description {
-            color: #6b7280;
-        }
-
-        /* Toggle Switch */
-        .toggle-switch {
-            position: relative;
-            width: 60px;
-            height: 30px;
-            margin-left: 20px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
+        /* ========== HEADER ========== */
+        .aq-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #404040;
-            transition: 0.3s;
-            border-radius: 30px;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .toggle-slider {
-            background-color: #4ade80;
-        }
-
-        input:checked + .toggle-slider:before {
-            transform: translateX(30px);
-        }
-
-        /* Select dropdown */
-        .setting-select {
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 2px solid;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-left: 20px;
-        }
-
-        body.dark-mode .setting-select {
-            background: #1e1e1e;
-            color: #e0e0e0;
-            border-color: #404040;
-        }
-
-        body.light-mode .setting-select {
-            background: #f5f5f5;
-            color: #1e1e1e;
-            border-color: #d1d5db;
-        }
-
-        .setting-select:focus {
-            outline: none;
-            border-color: #4ade80;
-        }
-
-        /* Preview box */
-        .preview-box {
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            transition: all 0.3s;
-        }
-
-        body.dark-mode .preview-box {
-            background: #1e1e1e;
-            border: 2px solid #404040;
-        }
-
-        body.light-mode .preview-box {
-            background: #f9fafb;
-            border: 2px solid #d1d5db;
-        }
-
-        .preview-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        body.dark-mode .preview-title {
-            color: #4ade80;
-        }
-
-        body.light-mode .preview-title {
-            color: #22c55e;
-        }
-
-        /* Action buttons */
-        .action-buttons {
+            z-index: 100;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
             gap: 15px;
+        }
+
+        .aq-header-left, .aq-header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .aq-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .aq-logo-icon { font-size: 1.8em; }
+
+        .aq-logo-text {
+            font-size: 1.4em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .aq-module-name {
+            color: var(--accent);
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        /* ========== BUTTONS ========== */
+        .aq-btn {
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-            margin-top: 40px;
-        }
-
-        .btn {
-            padding: 15px 40px;
+            gap: 8px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: bold;
+            border-radius: var(--radius-md);
+            font-size: 0.95em;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all var(--transition-normal);
+            text-decoration: none;
         }
 
-        .btn-primary {
-            background: #4ade80;
-            color: #1e1e1e;
+        .aq-btn-primary {
+            background: var(--accent);
+            color: var(--bg-primary);
         }
 
-        .btn-primary:hover {
-            background: #22c55e;
+        .aq-btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .aq-btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .aq-btn-secondary:hover {
+            background: var(--border-light);
             transform: translateY(-2px);
         }
 
-        .btn-secondary {
-            background: #3b82f6;
+        .aq-btn-danger {
+            background: var(--error);
             color: white;
         }
 
-        .btn-secondary:hover {
-            background: #2563eb;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
+        .aq-btn-danger:hover {
             background: #dc2626;
         }
 
-        /* Success message */
-        .success-message {
+        /* ========== BADGES ========== */
+        .aq-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .aq-badge-primary { background: var(--accent); color: var(--bg-primary); }
+        .aq-badge-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .aq-badge-success { background: var(--success); color: white; }
+        .aq-badge-info { background: var(--info); color: white; }
+
+        /* ========== PROGRESS ========== */
+        .aq-progress {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .aq-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+            border-radius: var(--radius-full);
+            transition: width 0.5s ease;
+        }
+
+        /* ========== SETTINGS SPECIFIC ========== */
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .settings-title {
+            font-size: 2em;
             text-align: center;
-            padding: 15px;
-            border-radius: 10px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .settings-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .settings-section h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2em;
+        }
+
+        .settings-section p {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        /* Theme grid */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .theme-card {
+            background: var(--bg-tertiary);
+            border: 3px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .theme-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-3px);
+        }
+
+        .theme-card.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 50px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+        }
+
+        .theme-preview-dark { background: linear-gradient(135deg, #0f1419, #1a1f26); }
+        .theme-preview-light { background: linear-gradient(135deg, #f5f5f0, #fafaf8); }
+        .theme-preview-cream { background: linear-gradient(135deg, #f9f6f1, #fffcf7); }
+        .theme-preview-dark-blue { background: linear-gradient(135deg, #0a192f, #112240); }
+        .theme-preview-midnight { background: linear-gradient(135deg, #000000, #0a0a0a); }
+        .theme-preview-charcoal { background: linear-gradient(135deg, #1a1a1a, #242424); }
+        .theme-preview-slate { background: linear-gradient(135deg, #0f172a, #1e293b); }
+        .theme-preview-forest { background: linear-gradient(135deg, #0c1a14, #142b1f); }
+        .theme-preview-purple-night { background: linear-gradient(135deg, #13111c, #1c1829); }
+
+        .theme-name {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--text-primary);
+        }
+
+        /* Accent grid */
+        .accent-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .accent-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: var(--radius-md);
+            border: 3px solid var(--border-color);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+        .accent-btn:hover {
+            transform: scale(1.15);
+            border-color: var(--border-light);
+        }
+
+        .accent-btn.active {
+            border-color: white;
+            box-shadow: 0 0 15px currentColor;
+            transform: scale(1.1);
+        }
+
+        .accent-btn.active::after {
+            content: '✓';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            color: white;
+            text-shadow: 0 0 3px rgba(0,0,0,0.5);
+        }
+
+        .accent-green { background: #4ade80; }
+        .accent-blue { background: #3b82f6; }
+        .accent-purple { background: #a855f7; }
+        .accent-pink { background: #ec4899; }
+        .accent-orange { background: #f59e0b; }
+        .accent-cyan { background: #06b6d4; }
+        .accent-red { background: #ef4444; }
+        .accent-yellow { background: #eab308; }
+        .accent-teal { background: #14b8a6; }
+        .accent-indigo { background: #6366f1; }
+
+        /* Preview section */
+        .preview-section {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 20px;
             margin-top: 20px;
-            display: none;
         }
 
-        body.dark-mode .success-message {
-            background: rgba(74, 222, 128, 0.2);
-            border: 2px solid #4ade80;
-            color: #4ade80;
+        .preview-section h4 {
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+            font-size: 0.95em;
         }
 
-        body.light-mode .success-message {
-            background: rgba(34, 197, 94, 0.2);
-            border: 2px solid #22c55e;
-            color: #22c55e;
+        .preview-components {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
         }
 
-        .success-message.show {
-            display: block;
-            animation: slideDown 0.3s;
+        /* Storage info */
+        .storage-info {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 15px;
+            margin-bottom: 15px;
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
+        .storage-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .storage-item:last-child { border-bottom: none; }
+
+        .storage-item span:last-child {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .data-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .badges-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .theme-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .setting-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .toggle-switch,
-            .setting-select {
-                margin-left: 0;
+            .settings-container {
+                padding: 15px;
             }
         }
     </style>
 </head>
-<body class="dark-mode">
-    <div class="header">
-        <div class="header-title">⚙️ Innstillinger</div>
-        <button class="back-btn" onclick="goBack()">← Tilbake</button>
+<body>
+    <!-- Header -->
+    <header class="aq-header">
+        <div class="aq-header-left">
+            <a href="index.html" class="aq-logo">
+                <span class="aq-logo-icon">📚</span>
+                <span class="aq-logo-text">AccountingQuest</span>
+            </a>
+            <span class="aq-module-name">⚙️ Innstillinger</span>
+        </div>
+        <div class="aq-header-right">
+            <a href="index.html" class="aq-btn aq-btn-secondary">← Tilbake</a>
+        </div>
+    </header>
+    
+    <div class="settings-container">
+        <h1 class="settings-title">⚙️ Innstillinger</h1>
+        
+        <!-- Tema -->
+        <section class="settings-section">
+            <h3>🎨 Tema</h3>
+            <p>Velg utseendet som passer deg best.</p>
+            
+            <div class="theme-grid" id="theme-grid">
+                <div class="theme-card" data-theme="dark">
+                    <div class="theme-preview theme-preview-dark"></div>
+                    <div class="theme-name">🌙 Mørk</div>
+                </div>
+                <div class="theme-card" data-theme="light">
+                    <div class="theme-preview theme-preview-light"></div>
+                    <div class="theme-name">☀️ Lys</div>
+                </div>
+                <div class="theme-card" data-theme="cream">
+                    <div class="theme-preview theme-preview-cream"></div>
+                    <div class="theme-name">🍦 Krem</div>
+                </div>
+                <div class="theme-card" data-theme="dark-blue">
+                    <div class="theme-preview theme-preview-dark-blue"></div>
+                    <div class="theme-name">🌊 Navy</div>
+                </div>
+                <div class="theme-card" data-theme="midnight">
+                    <div class="theme-preview theme-preview-midnight"></div>
+                    <div class="theme-name">🌑 Svart</div>
+                </div>
+                <div class="theme-card" data-theme="charcoal">
+                    <div class="theme-preview theme-preview-charcoal"></div>
+                    <div class="theme-name">⬛ Kull</div>
+                </div>
+                <div class="theme-card" data-theme="slate">
+                    <div class="theme-preview theme-preview-slate"></div>
+                    <div class="theme-name">🔷 Skifer</div>
+                </div>
+                <div class="theme-card" data-theme="forest">
+                    <div class="theme-preview theme-preview-forest"></div>
+                    <div class="theme-name">🌲 Skog</div>
+                </div>
+                <div class="theme-card" data-theme="purple-night">
+                    <div class="theme-preview theme-preview-purple-night"></div>
+                    <div class="theme-name">🔮 Lilla</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Accent-farge -->
+        <section class="settings-section">
+            <h3>✨ Accent-farge</h3>
+            <p>Velg din favorittfarge for knapper og uthevinger.</p>
+            
+            <div class="accent-grid" id="accent-grid">
+                <button class="accent-btn accent-green" data-accent="green" title="Grønn"></button>
+                <button class="accent-btn accent-blue" data-accent="blue" title="Blå"></button>
+                <button class="accent-btn accent-purple" data-accent="purple" title="Lilla"></button>
+                <button class="accent-btn accent-pink" data-accent="pink" title="Rosa"></button>
+                <button class="accent-btn accent-orange" data-accent="orange" title="Oransje"></button>
+                <button class="accent-btn accent-cyan" data-accent="cyan" title="Cyan"></button>
+                <button class="accent-btn accent-red" data-accent="red" title="Rød"></button>
+                <button class="accent-btn accent-yellow" data-accent="yellow" title="Gul"></button>
+                <button class="accent-btn accent-teal" data-accent="teal" title="Teal"></button>
+                <button class="accent-btn accent-indigo" data-accent="indigo" title="Indigo"></button>
+            </div>
+            
+            <!-- Preview -->
+            <div class="preview-section">
+                <h4>Forhåndsvisning:</h4>
+                <div class="preview-components">
+                    <button class="aq-btn aq-btn-primary">Primær-knapp</button>
+                    <button class="aq-btn aq-btn-secondary">Sekundær</button>
+                    <span class="aq-badge aq-badge-primary">Badge</span>
+                    <div class="aq-progress" style="width: 150px;">
+                        <div class="aq-progress-bar" style="width: 70%;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Brukerdata -->
+        <section class="settings-section">
+            <h3>💾 Data</h3>
+            
+            <div class="storage-info">
+                <div class="storage-item">
+                    <span>Bokføring fremgang</span>
+                    <span id="bokforing-count">0 oppgaver</span>
+                </div>
+                <div class="storage-item">
+                    <span>Quiz fremgang</span>
+                    <span id="quiz-count">0 kategorier</span>
+                </div>
+                <div class="storage-item">
+                    <span>Egne quizzer</span>
+                    <span id="custom-quiz-count">0 quizzer</span>
+                </div>
+                <div class="storage-item">
+                    <span>Totalt lagret</span>
+                    <span id="total-storage">0 KB</span>
+                </div>
+            </div>
+            
+            <div class="data-actions">
+                <button class="aq-btn aq-btn-secondary" onclick="exportData()">
+                    📥 Eksporter data
+                </button>
+                <button class="aq-btn aq-btn-secondary" onclick="document.getElementById('import-file').click()">
+                    📤 Importer data
+                </button>
+                <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
+                <button class="aq-btn aq-btn-danger" onclick="confirmResetData()">
+                    🗑️ Nullstill alt
+                </button>
+            </div>
+        </section>
+        
+        <!-- Om -->
+        <section class="settings-section">
+            <h3>ℹ️ Om AccountingQuest</h3>
+            <p>
+                AccountingQuest er en gamifisert læringsplattform for norsk bokføring og regnskap.
+                Plattformen er designet for å gjøre det lettere å lære regnskapsføring gjennom
+                interaktive oppgaver basert på norske lover og standarder.
+            </p>
+            <div class="badges-row">
+                <span class="aq-badge aq-badge-secondary">Versjon 2.0</span>
+                <span class="aq-badge aq-badge-info">Firebase-støtte</span>
+                <span class="aq-badge aq-badge-success">Multiplayer</span>
+            </div>
+        </section>
     </div>
-
-    <div class="container">
-        <!-- Utseende -->
-        <div class="settings-section">
-            <div class="section-title">🎨 Utseende</div>
-            
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Mørk modus</div>
-                    <div class="setting-description">Bruk mørkt tema for bedre lesbarhet i mørke rom</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="dark-mode-toggle" checked onchange="toggleDarkMode()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Tema-farge</div>
-                    <div class="setting-description">Velg hovedfarge for applikasjonen</div>
-                </div>
-                <select class="setting-select" id="theme-color" onchange="changeThemeColor()">
-                    <option value="green">Grønn (Standard)</option>
-                    <option value="blue">Blå</option>
-                    <option value="purple">Lilla</option>
-                    <option value="orange">Oransje</option>
-                </select>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Animasjoner</div>
-                    <div class="setting-description">Aktiver smooth overganger og animasjoner</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="animations-toggle" checked onchange="toggleAnimations()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Spill-innstillinger -->
-        <div class="settings-section">
-            <div class="section-title">🎮 Spill-innstillinger</div>
-            
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Lydeffekter</div>
-                    <div class="setting-description">Spill lyder ved svar og resultater</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="sound-toggle" checked onchange="toggleSound()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Vis forklaringer automatisk</div>
-                    <div class="setting-description">Vis forklaring etter hvert spørsmål (anbefalt)</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="auto-explanation-toggle" checked onchange="toggleAutoExplanation()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Standard quiz-tid</div>
-                    <div class="setting-description">Standard tid per spørsmål for nye quiz</div>
-                </div>
-                <select class="setting-select" id="default-time" onchange="changeDefaultTime()">
-                    <option value="15">15 sekunder</option>
-                    <option value="20">20 sekunder</option>
-                    <option value="30" selected>30 sekunder</option>
-                    <option value="45">45 sekunder</option>
-                    <option value="60">60 sekunder</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Excel/Bokføring-innstillinger -->
-        <div class="settings-section">
-            <div class="section-title">📊 Bokføring & Excel</div>
-            
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Excel-stil interface</div>
-                    <div class="setting-description">Bruk Excel-lignende celler i bokføringsoppgaver</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="excel-mode-toggle" checked onchange="toggleExcelMode()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Vis kalkulator</div>
-                    <div class="setting-description">Vis flyttbar kalkulator i bokføringsoppgaver</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="calculator-toggle" checked onchange="toggleCalculator()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Celle-navigering</div>
-                    <div class="setting-description">Bruk piltaster for å navigere mellom celler</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="cell-nav-toggle" checked onchange="toggleCellNav()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Formel-støtte</div>
-                    <div class="setting-description">Aktiver Excel-formler (=B1+C1, =SUM(), etc.)</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="formula-toggle" checked onchange="toggleFormulas()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Auto-formatering</div>
-                    <div class="setting-description">Formater tall automatisk (1000 → 1 000)</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="auto-format-toggle" checked onchange="toggleAutoFormat()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Quiz-opplevelse -->
-        <div class="settings-section">
-            <div class="section-title">❓ Quiz-opplevelse</div>
-            
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Quiz-type for solo-spill</div>
-                    <div class="setting-description">Velg stil for quiz uten multiplayer</div>
-                </div>
-                <select class="setting-select" id="quiz-style" onchange="changeQuizStyle()">
-                    <option value="kahoot">Kahoot-stil (4 fargeknapper)</option>
-                    <option value="traditional">Tradisjonell (enkle knapper)</option>
-                    <option value="excel">Excel-stil (skriv svar)</option>
-                </select>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Vis fremgang under quiz</div>
-                    <div class="setting-description">Vis fremdriftsbalk og spørsmål-nummer</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="progress-toggle" checked onchange="toggleProgress()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Tillat hoppe over</div>
-                    <div class="setting-description">La brukere hoppe over vanskelige spørsmål</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="skip-toggle" onchange="toggleSkip()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Hint-system</div>
-                    <div class="setting-description">Vis hint-knapp på spørsmål</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="hints-toggle" checked onchange="toggleHints()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Data & Lagring -->
-        <div class="settings-section">
-            <div class="section-title">💾 Data & Lagring</div>
-            
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">Auto-lagre fremgang</div>
-                    <div class="setting-description">Lagre fremgang automatisk under spill</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="autosave-toggle" checked onchange="toggleAutosave()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="preview-box">
-                <div class="preview-title">📊 Lagringsplasss brukt</div>
-                <div id="storage-info">Beregner...</div>
-            </div>
-
-            <div class="action-buttons">
-                <button class="btn btn-secondary" onclick="exportData()">📥 Eksporter data</button>
-                <button class="btn btn-danger" onclick="clearAllData()">🗑️ Slett all data</button>
-            </div>
-        </div>
-
-        <!-- Lagre-knapp -->
-        <div class="action-buttons">
-            <button class="btn btn-primary" onclick="saveSettings()">💾 Lagre innstillinger</button>
-        </div>
-
-        <div class="success-message" id="success-message">
-            ✅ Innstillinger lagret!
-        </div>
-    </div>
-
+    
     <script>
-        // Settings object
-        let settings = {
-            darkMode: true,
-            themeColor: 'green',
-            animations: true,
-            sound: true,
-            autoExplanation: true,
-            defaultTime: 30,
-            excelMode: true,
-            calculator: true,
-            cellNav: true,
-            formulas: true,
-            autoFormat: true,
-            quizStyle: 'kahoot',
-            showProgress: true,
-            allowSkip: false,
-            hints: true,
-            autosave: true
-        };
+        // ========== THEME MANAGER (INLINE) ==========
+        var ThemeManager = (function() {
+            var themes = ['dark', 'light', 'cream', 'dark-blue', 'midnight', 'charcoal', 'slate', 'forest', 'purple-night'];
+            var accents = ['green', 'blue', 'purple', 'pink', 'orange', 'cyan', 'red', 'yellow', 'teal', 'indigo'];
+            var THEME_KEY = 'aq_theme';
+            var ACCENT_KEY = 'aq_accent';
 
-        // Load settings on startup
-        function init() {
-            loadSettings();
-            applySettings();
-            updateStorageInfo();
-        }
-
-        function loadSettings() {
-            const saved = localStorage.getItem('user_settings');
-            if (saved) {
-                settings = { ...settings, ...JSON.parse(saved) };
+            function init() {
+                var savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+                var savedAccent = localStorage.getItem(ACCENT_KEY) || 'green';
+                setTheme(savedTheme);
+                setAccent(savedAccent);
             }
-            
-            // Update UI
-            document.getElementById('dark-mode-toggle').checked = settings.darkMode;
-            document.getElementById('theme-color').value = settings.themeColor;
-            document.getElementById('animations-toggle').checked = settings.animations;
-            document.getElementById('sound-toggle').checked = settings.sound;
-            document.getElementById('auto-explanation-toggle').checked = settings.autoExplanation;
-            document.getElementById('default-time').value = settings.defaultTime;
-            document.getElementById('excel-mode-toggle').checked = settings.excelMode;
-            document.getElementById('calculator-toggle').checked = settings.calculator;
-            document.getElementById('cell-nav-toggle').checked = settings.cellNav;
-            document.getElementById('formula-toggle').checked = settings.formulas;
-            document.getElementById('auto-format-toggle').checked = settings.autoFormat;
-            document.getElementById('quiz-style').value = settings.quizStyle;
-            document.getElementById('progress-toggle').checked = settings.showProgress;
-            document.getElementById('skip-toggle').checked = settings.allowSkip;
-            document.getElementById('hints-toggle').checked = settings.hints;
-            document.getElementById('autosave-toggle').checked = settings.autosave;
+
+            function setTheme(theme) {
+                if (!themes.includes(theme)) theme = 'dark';
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem(THEME_KEY, theme);
+            }
+
+            function setAccent(accent) {
+                if (!accents.includes(accent)) accent = 'green';
+                document.documentElement.setAttribute('data-accent', accent);
+                localStorage.setItem(ACCENT_KEY, accent);
+            }
+
+            function getTheme() {
+                return document.documentElement.getAttribute('data-theme') || 'dark';
+            }
+
+            function getAccent() {
+                return document.documentElement.getAttribute('data-accent') || 'green';
+            }
+
+            init();
+
+            return { setTheme: setTheme, setAccent: setAccent, getTheme: getTheme, getAccent: getAccent };
+        })();
+
+        // ========== UI INITIALIZATION ==========
+        function initUI() {
+            var currentTheme = ThemeManager.getTheme();
+            var currentAccent = ThemeManager.getAccent();
+
+            // Update theme cards
+            document.querySelectorAll('.theme-card').forEach(function(card) {
+                card.classList.toggle('active', card.dataset.theme === currentTheme);
+            });
+
+            // Update accent buttons
+            document.querySelectorAll('.accent-btn').forEach(function(btn) {
+                btn.classList.toggle('active', btn.dataset.accent === currentAccent);
+            });
         }
 
-        function applySettings() {
-            document.body.className = settings.darkMode ? 'dark-mode' : 'light-mode';
-            
-            // Apply theme color
-            const root = document.documentElement;
-            const colors = {
-                green: '#4ade80',
-                blue: '#3b82f6',
-                purple: '#a855f7',
-                orange: '#f59e0b'
-            };
-            root.style.setProperty('--theme-color', colors[settings.themeColor] || colors.green);
-        }
+        // Theme click handlers
+        document.querySelectorAll('.theme-card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                ThemeManager.setTheme(this.dataset.theme);
+                initUI();
+            });
+        });
 
-        function toggleDarkMode() {
-            settings.darkMode = document.getElementById('dark-mode-toggle').checked;
-            applySettings();
-        }
+        // Accent click handlers
+        document.querySelectorAll('.accent-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                ThemeManager.setAccent(this.dataset.accent);
+                initUI();
+            });
+        });
 
-        function changeThemeColor() {
-            settings.themeColor = document.getElementById('theme-color').value;
-            applySettings();
-        }
-
-        function toggleAnimations() {
-            settings.animations = document.getElementById('animations-toggle').checked;
-        }
-
-        function toggleSound() {
-            settings.sound = document.getElementById('sound-toggle').checked;
-        }
-
-        function toggleAutoExplanation() {
-            settings.autoExplanation = document.getElementById('auto-explanation-toggle').checked;
-        }
-
-        function changeDefaultTime() {
-            settings.defaultTime = parseInt(document.getElementById('default-time').value);
-        }
-
-        function toggleExcelMode() {
-            settings.excelMode = document.getElementById('excel-mode-toggle').checked;
-        }
-
-        function toggleCalculator() {
-            settings.calculator = document.getElementById('calculator-toggle').checked;
-        }
-
-        function toggleCellNav() {
-            settings.cellNav = document.getElementById('cell-nav-toggle').checked;
-        }
-
-        function toggleFormulas() {
-            settings.formulas = document.getElementById('formula-toggle').checked;
-        }
-
-        function toggleAutoFormat() {
-            settings.autoFormat = document.getElementById('auto-format-toggle').checked;
-        }
-
-        function changeQuizStyle() {
-            settings.quizStyle = document.getElementById('quiz-style').value;
-        }
-
-        function toggleProgress() {
-            settings.showProgress = document.getElementById('progress-toggle').checked;
-        }
-
-        function toggleSkip() {
-            settings.allowSkip = document.getElementById('skip-toggle').checked;
-        }
-
-        function toggleHints() {
-            settings.hints = document.getElementById('hints-toggle').checked;
-        }
-
-        function toggleAutosave() {
-            settings.autosave = document.getElementById('autosave-toggle').checked;
-        }
-
-        function saveSettings() {
-            localStorage.setItem('user_settings', JSON.stringify(settings));
-            
-            // Show success message
-            const msg = document.getElementById('success-message');
-            msg.classList.add('show');
-            setTimeout(() => {
-                msg.classList.remove('show');
-            }, 3000);
-        }
-
+        // ========== STORAGE INFO ==========
         function updateStorageInfo() {
-            let totalSize = 0;
-            for (let key in localStorage) {
+            try {
+                var bokforing = JSON.parse(localStorage.getItem('bokforingProgress') || '{}');
+                document.getElementById('bokforing-count').textContent = Object.keys(bokforing).length + ' oppgaver';
+            } catch(e) {
+                document.getElementById('bokforing-count').textContent = '0 oppgaver';
+            }
+
+            try {
+                var quiz = JSON.parse(localStorage.getItem('quizProgress') || '{}');
+                document.getElementById('quiz-count').textContent = Object.keys(quiz).length + ' kategorier';
+            } catch(e) {
+                document.getElementById('quiz-count').textContent = '0 kategorier';
+            }
+
+            try {
+                var custom = JSON.parse(localStorage.getItem('aq_my_quizzes') || '[]');
+                document.getElementById('custom-quiz-count').textContent = custom.length + ' quizzer';
+            } catch(e) {
+                document.getElementById('custom-quiz-count').textContent = '0 quizzer';
+            }
+
+            var total = 0;
+            for (var key in localStorage) {
                 if (localStorage.hasOwnProperty(key)) {
-                    totalSize += localStorage[key].length + key.length;
+                    total += (localStorage.getItem(key) || '').length;
                 }
             }
-            
-            const sizeKB = (totalSize / 1024).toFixed(2);
-            const maxSize = 5120; // ~5MB for most browsers
-            const percentUsed = ((totalSize / 1024) / maxSize * 100).toFixed(1);
-            
-            document.getElementById('storage-info').innerHTML = `
-                Brukt: ${sizeKB} KB av ~5 MB (${percentUsed}%)
-                <br><small>localStorage inneholder ${Object.keys(localStorage).length} nøkler</small>
-            `;
+            document.getElementById('total-storage').textContent = (total / 1024).toFixed(1) + ' KB';
         }
 
+        // ========== DATA FUNCTIONS ==========
         function exportData() {
-            const data = {
-                settings: settings,
-                quizzes: localStorage.getItem('teacher_quizzes'),
-                progress: localStorage.getItem('bokforing_progress'),
-                timestamp: new Date().toISOString()
+            var data = {
+                exportDate: new Date().toISOString(),
+                version: '2.0',
+                theme: ThemeManager.getTheme(),
+                accent: ThemeManager.getAccent(),
+                progress: {}
             };
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+
+            var keysToExport = ['bokforingProgress', 'quizProgress', 'analyseProgress', 'caseProgress', 'hjernetrimProgress', 'aq_my_quizzes'];
+            keysToExport.forEach(function(key) {
+                var value = localStorage.getItem(key);
+                if (value) {
+                    try { data.progress[key] = JSON.parse(value); }
+                    catch(e) { data.progress[key] = value; }
+                }
+            });
+
+            var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
             a.href = url;
-            a.download = `accountingquest_backup_${Date.now()}.json`;
+            a.download = 'accountingquest-backup-' + new Date().toISOString().split('T')[0] + '.json';
             a.click();
+            URL.revokeObjectURL(url);
         }
 
-        function clearAllData() {
-            if (confirm('Er du SIKKER på at du vil slette ALL data? Dette kan ikke angres!')) {
-                if (confirm('Siste sjanse! Alt vil bli slettet permanent.')) {
-                    localStorage.clear();
-                    alert('All data er slettet. Siden vil nå lastes på nytt.');
-                    location.reload();
+        function importData(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = JSON.parse(e.target.result);
+                    if (!data.progress) { alert('Ugyldig backup-fil'); return; }
+
+                    Object.keys(data.progress).forEach(function(key) {
+                        var value = data.progress[key];
+                        localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+                    });
+
+                    if (data.theme) ThemeManager.setTheme(data.theme);
+                    if (data.accent) ThemeManager.setAccent(data.accent);
+
+                    alert('Data importert!');
+                    updateStorageInfo();
+                    initUI();
+                } catch(err) {
+                    alert('Feil ved import: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function confirmResetData() {
+            if (confirm('⚠️ Er du sikker på at du vil slette ALL fremgang?\n\nDette kan ikke angres!')) {
+                if (confirm('Siste sjanse! Klikk OK for å slette alt.')) {
+                    var keysToDelete = [];
+                    for (var key in localStorage) {
+                        if (key.startsWith('aq_') || key.includes('Progress') || key.includes('quiz')) {
+                            keysToDelete.push(key);
+                        }
+                    }
+                    keysToDelete.forEach(function(key) { localStorage.removeItem(key); });
+                    alert('All data er slettet.');
+                    updateStorageInfo();
                 }
             }
         }
 
-        function goBack() {
-            window.history.back();
-        }
-
-        // Initialize on load
-        window.onload = init;
+        // ========== INIT ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            initUI();
+            updateStorageInfo();
+        });
     </script>
 </body>
 </html>

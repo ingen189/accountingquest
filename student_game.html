@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spill - AccountingQuest</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -11,9 +16,9 @@
             background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
             color: #e0e0e0;
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
         }
-        .game-container { display: flex; flex-direction: column; height: 100vh; }
+        .game-container { display: flex; flex-direction: column; min-height: 100vh; }
         .header {
             background: rgba(0,0,0,0.3);
             padding: 15px 20px;
@@ -32,95 +37,307 @@
             flex-direction: column;
             justify-content: center;
             padding: 20px;
+            overflow-y: auto;
         }
 
         /* Waiting Screen */
-        .waiting-screen { text-align: center; display: none; }
-        .waiting-screen.show { display: block; }
+        .screen { display: none; }
+        .screen.show { display: block; }
+        .waiting-screen { text-align: center; }
         .waiting-icon { font-size: 5em; margin-bottom: 20px; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         .waiting-text { font-size: 1.5em; color: #9ca3af; }
 
-        /* Question Screen */
-        .question-screen { display: none; }
-        .question-screen.show { display: block; }
+        /* Question Display */
         .question-display {
             background: rgba(45, 45, 45, 0.8);
             border: 3px solid #4ade80;
             border-radius: 20px;
-            padding: 40px;
+            padding: 30px;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
-        .question-number { font-size: 1.2em; color: #9ca3af; margin-bottom: 20px; }
-        .question-text { font-size: 2em; color: #e0e0e0; margin-bottom: 30px; line-height: 1.4; }
-        .timer-display { font-size: 3em; color: #4ade80; font-weight: bold; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .question-number { font-size: 1.1em; color: #9ca3af; }
+        .question-type-badge {
+            background: #4ade80;
+            color: #1a1a2e;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .question-text { font-size: 1.6em; color: #e0e0e0; line-height: 1.4; }
+        .timer-display { font-size: 3em; color: #4ade80; font-weight: bold; margin-top: 15px; }
         .timer-display.warning { color: #f59e0b; animation: pulse 0.5s infinite; }
         .timer-display.danger { color: #ef4444; }
+
+        /* Multiple Choice / True False Buttons */
         .answers-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            max-width: 1000px;
+            gap: 15px;
+            max-width: 900px;
             margin: 0 auto;
             width: 100%;
         }
+        .answers-container.single-column { grid-template-columns: 1fr; max-width: 600px; }
+        
         .answer-btn {
             background: #2d2d2d;
             border: 4px solid #404040;
-            border-radius: 20px;
-            padding: 40px 20px;
-            font-size: 1.3em;
+            border-radius: 15px;
+            padding: 30px 20px;
+            font-size: 1.2em;
             color: #e0e0e0;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
-            overflow: hidden;
         }
-        .answer-btn:hover:not(:disabled) { transform: scale(1.05); }
+        .answer-btn:hover:not(:disabled) { transform: scale(1.03); }
         .answer-btn:disabled { cursor: not-allowed; opacity: 0.6; }
         .answer-btn.answer-a { border-color: #ef4444; }
-        .answer-btn.answer-a:hover:not(:disabled) { background: #ef4444; }
+        .answer-btn.answer-a:hover:not(:disabled), .answer-btn.answer-a.selected { background: #ef4444; }
         .answer-btn.answer-b { border-color: #3b82f6; }
-        .answer-btn.answer-b:hover:not(:disabled) { background: #3b82f6; }
+        .answer-btn.answer-b:hover:not(:disabled), .answer-btn.answer-b.selected { background: #3b82f6; }
         .answer-btn.answer-c { border-color: #f59e0b; }
-        .answer-btn.answer-c:hover:not(:disabled) { background: #f59e0b; }
+        .answer-btn.answer-c:hover:not(:disabled), .answer-btn.answer-c.selected { background: #f59e0b; }
         .answer-btn.answer-d { border-color: #22c55e; }
-        .answer-btn.answer-d:hover:not(:disabled) { background: #22c55e; }
-        .answer-btn.selected { transform: scale(1.05); box-shadow: 0 0 40px rgba(74, 222, 128, 0.5); }
-        .answer-btn.answer-a.selected { background: #ef4444; }
-        .answer-btn.answer-b.selected { background: #3b82f6; }
-        .answer-btn.answer-c.selected { background: #f59e0b; }
-        .answer-btn.answer-d.selected { background: #22c55e; }
-        .answer-label { font-size: 1.8em; font-weight: bold; margin-bottom: 15px; }
-        .answer-text { font-size: 1.1em; }
+        .answer-btn.answer-d:hover:not(:disabled), .answer-btn.answer-d.selected { background: #22c55e; }
+        .answer-btn.selected { transform: scale(1.03); box-shadow: 0 0 30px rgba(74, 222, 128, 0.4); }
+        .answer-label { font-size: 1.5em; font-weight: bold; margin-bottom: 10px; }
+        .answer-text { font-size: 1em; }
+
+        /* Multiple Select (checkboxes) */
+        .checkbox-container { max-width: 700px; margin: 0 auto; }
+        .checkbox-item {
+            background: #2d2d2d;
+            border: 3px solid #404040;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .checkbox-item:hover { border-color: #4ade80; }
+        .checkbox-item.selected { border-color: #4ade80; background: rgba(74, 222, 128, 0.15); }
+        .checkbox-item input[type="checkbox"] { width: 25px; height: 25px; cursor: pointer; }
+        .checkbox-item label { flex: 1; cursor: pointer; font-size: 1.1em; }
+
+        /* True/False */
+        .tf-container { display: flex; gap: 30px; justify-content: center; max-width: 600px; margin: 0 auto; }
+        .tf-btn {
+            flex: 1;
+            padding: 50px 30px;
+            border-radius: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 4px solid;
+        }
+        .tf-btn.true { background: #2d2d2d; border-color: #22c55e; color: #22c55e; }
+        .tf-btn.true:hover, .tf-btn.true.selected { background: #22c55e; color: white; }
+        .tf-btn.false { background: #2d2d2d; border-color: #ef4444; color: #ef4444; }
+        .tf-btn.false:hover, .tf-btn.false.selected { background: #ef4444; color: white; }
+
+        /* Drag and Drop */
+        .dd-container { max-width: 900px; margin: 0 auto; }
+        .dd-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .dd-category {
+            background: #1a1a2e;
+            border: 3px dashed #404040;
+            border-radius: 15px;
+            min-height: 150px;
+            padding: 15px;
+        }
+        .dd-category.drag-over { border-color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+        .dd-category-title {
+            text-align: center;
+            color: #4ade80;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #404040;
+        }
+        .dd-category-items { min-height: 80px; }
+        .dd-items-pool {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .dd-item {
+            background: #404040;
+            border: 2px solid #555;
+            border-radius: 10px;
+            padding: 12px 20px;
+            cursor: grab;
+            transition: all 0.2s;
+            font-size: 1em;
+        }
+        .dd-item:hover { border-color: #4ade80; }
+        .dd-item.dragging { opacity: 0.5; cursor: grabbing; }
+        .dd-item.placed { background: #4ade80; color: #1a1a2e; border-color: #4ade80; }
+
+        /* Bokføring */
+        .bokforing-container { max-width: 800px; margin: 0 auto; }
+        .bokforing-scenario {
+            background: #1a1a2e;
+            border: 2px solid #4ade80;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .bokforing-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #2d2d2d;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .bokforing-table th {
+            background: #1a1a2e;
+            padding: 15px;
+            text-align: left;
+            color: #4ade80;
+            border-bottom: 2px solid #4ade80;
+        }
+        .bokforing-table th:nth-child(3),
+        .bokforing-table th:nth-child(4) { text-align: right; }
+        .bokforing-table td { padding: 10px 15px; border-bottom: 1px solid #404040; }
+        .bokforing-table input {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a2e;
+            border: 2px solid #404040;
+            border-radius: 5px;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+        .bokforing-table input:focus { outline: none; border-color: #4ade80; }
+        .bokforing-table input[type="number"] { text-align: right; }
+        .add-row-btn {
+            background: #404040;
+            color: #e0e0e0;
+            border: 2px dashed #555;
+            padding: 15px;
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .add-row-btn:hover { border-color: #4ade80; color: #4ade80; }
+
+        /* Analyse */
+        .analyse-container { max-width: 700px; margin: 0 auto; }
+        .analyse-data {
+            background: #1a1a2e;
+            border: 2px solid #404040;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .analyse-data h4 { color: #4ade80; margin-bottom: 15px; }
+        .analyse-data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .analyse-data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #2d2d2d;
+            border-radius: 5px;
+        }
+        .analyse-data-item span:last-child { color: #4ade80; font-weight: bold; }
+        .analyse-input-group {
+            text-align: center;
+            padding: 20px;
+        }
+        .analyse-input-group label { display: block; margin-bottom: 10px; font-size: 1.2em; }
+        .analyse-input {
+            width: 200px;
+            padding: 15px;
+            font-size: 1.5em;
+            text-align: center;
+            background: #1a1a2e;
+            border: 3px solid #4ade80;
+            border-radius: 10px;
+            color: #e0e0e0;
+        }
+
+        /* Submit Button */
+        .submit-container { text-align: center; margin-top: 25px; }
+        .submit-btn {
+            background: #4ade80;
+            color: #1a1a2e;
+            border: none;
+            padding: 20px 60px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .submit-btn:hover { background: #22c55e; transform: scale(1.05); }
+        .submit-btn:disabled { background: #555; cursor: not-allowed; transform: none; }
 
         /* Feedback Screen */
-        .feedback-screen { display: none; text-align: center; padding: 40px; }
-        .feedback-screen.show { display: block; }
-        .feedback-icon { font-size: 8em; margin-bottom: 30px; }
-        .feedback-text { font-size: 2em; margin-bottom: 20px; }
-        .feedback-text.correct { color: #4ade80; }
-        .feedback-text.incorrect { color: #ef4444; }
-        .points-earned { font-size: 3em; color: #4ade80; font-weight: bold; margin: 20px 0; }
+        .feedback-screen { text-align: center; padding: 40px; }
+        .feedback-icon { font-size: 6em; margin-bottom: 20px; }
+        .feedback-text { font-size: 2em; margin-bottom: 15px; }
+        .feedback-points { font-size: 3em; color: #4ade80; font-weight: bold; }
+        .feedback-correct { color: #22c55e; }
+        .feedback-wrong { color: #ef4444; }
 
         /* Results Screen */
-        .results-screen { display: none; text-align: center; padding: 40px 20px; }
-        .results-screen.show { display: block; }
-        .final-score { background: #2d2d2d; border: 3px solid #4ade80; border-radius: 20px; padding: 40px; max-width: 500px; margin: 0 auto; }
-        .trophy-icon { font-size: 5em; margin-bottom: 20px; }
-        .final-score-title { font-size: 1.5em; color: #9ca3af; margin-bottom: 10px; }
-        .final-score-value { font-size: 4em; color: #4ade80; font-weight: bold; }
-        .rank-display { font-size: 1.3em; color: #f59e0b; margin-top: 20px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
-        .stat-box { background: #404040; padding: 20px; border-radius: 10px; }
-        .stat-value { font-size: 2em; color: #4ade80; font-weight: bold; }
-        .stat-label { color: #9ca3af; margin-top: 5px; }
+        .results-screen { text-align: center; padding: 30px; }
+        .results-title { font-size: 2.5em; color: #4ade80; margin-bottom: 30px; }
+        .results-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        .stat-box {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        .stat-value { font-size: 2.5em; color: #4ade80; font-weight: bold; }
+        .stat-label { color: #9ca3af; margin-top: 10px; }
+        .rank-display {
+            font-size: 4em;
+            margin: 30px 0;
+        }
 
         @media (max-width: 768px) {
             .answers-container { grid-template-columns: 1fr; }
-            .question-text { font-size: 1.5em; }
-            .answer-btn { padding: 30px 15px; }
+            .tf-container { flex-direction: column; }
+            .dd-categories { grid-template-columns: 1fr; }
+            .results-stats { grid-template-columns: 1fr; }
+            .question-text { font-size: 1.3em; }
+            .answer-btn { padding: 20px 15px; }
         }
     </style>
 </head>
@@ -131,69 +348,67 @@
                 <div class="player-avatar" id="player-avatar">😊</div>
                 <div class="player-name" id="player-name">Spiller</div>
             </div>
-            <div class="score-display">Poeng: <span id="score">0</span></div>
+            <div class="score-display">
+                <span id="score">0</span> poeng
+            </div>
         </div>
 
         <div class="game-content">
             <!-- Waiting Screen -->
-            <div class="waiting-screen show" id="waiting-screen">
+            <div class="screen waiting-screen show" id="waiting-screen">
                 <div class="waiting-icon">⏳</div>
-                <div class="waiting-text">Venter på neste spørsmål...</div>
+                <div class="waiting-text">Venter på at læreren skal starte...</div>
             </div>
 
             <!-- Question Screen -->
-            <div class="question-screen" id="question-screen">
+            <div class="screen question-screen" id="question-screen">
                 <div class="question-display">
-                    <div class="question-number" id="question-number">Spørsmål 1</div>
-                    <div class="question-text" id="question-text">Spørsmål lastes...</div>
+                    <div class="question-header">
+                        <div class="question-number" id="question-number">Spørsmål 1</div>
+                        <div class="question-type-badge" id="question-type-badge">Quiz</div>
+                    </div>
+                    <div class="question-text" id="question-text">Spørsmålet vises her...</div>
                     <div class="timer-display" id="timer">30</div>
                 </div>
 
-                <div class="answers-container" id="answers-container">
-                    <!-- Answers will be loaded here -->
+                <!-- Answer area - changes based on type -->
+                <div id="answer-area"></div>
+
+                <!-- Submit button for types that need it -->
+                <div class="submit-container" id="submit-container" style="display: none;">
+                    <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">✓ Send svar</button>
                 </div>
             </div>
 
             <!-- Feedback Screen -->
-            <div class="feedback-screen" id="feedback-screen">
+            <div class="screen feedback-screen" id="feedback-screen">
                 <div class="feedback-icon" id="feedback-icon">✅</div>
                 <div class="feedback-text" id="feedback-text">Riktig!</div>
-                <div class="points-earned" id="points-earned">+750</div>
+                <div class="feedback-points" id="feedback-points">+500</div>
             </div>
 
             <!-- Results Screen -->
-            <div class="results-screen" id="results-screen">
-                <div class="final-score">
-                    <div class="trophy-icon">🏆</div>
-                    <div class="final-score-title">Din totale poengsum:</div>
-                    <div class="final-score-value" id="final-score">0</div>
-                    <div class="rank-display" id="rank-display">Gratulerer!</div>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <div class="stat-value" id="correct-count">0</div>
-                            <div class="stat-label">Riktige svar</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value" id="accuracy">0%</div>
-                            <div class="stat-label">Nøyaktighet</div>
-                        </div>
+            <div class="screen results-screen" id="results-screen">
+                <h1 class="results-title">🎉 Ferdig!</h1>
+                <div class="results-stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="final-score">0</div>
+                        <div class="stat-label">Poeng</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="correct-count">0</div>
+                        <div class="stat-label">Riktige</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="accuracy">0%</div>
+                        <div class="stat-label">Nøyaktighet</div>
                     </div>
                 </div>
-
-                <div style="margin-top: 30px;">
-                    <button onclick="window.location.href='multiplayer_index.html'" 
-                            style="background: #4ade80; color: #1e1e1e; border: none; padding: 15px 40px; border-radius: 10px; font-size: 1.1em; cursor: pointer;">
-                        ← Tilbake til meny
-                    </button>
-                </div>
+                <div class="rank-display" id="rank-display">🏆</div>
+                <p style="color: #9ca3af; font-size: 1.2em;" id="rank-text">Din plassering</p>
             </div>
         </div>
     </div>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
         // Firebase Config
@@ -209,7 +424,6 @@
         
         firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
-        console.log('🔥 Firebase initialized');
 
         // Game State
         var gameState = {
@@ -219,13 +433,30 @@
             playerAvatar: '😊',
             score: 0,
             currentQuestionIndex: -1,
+            currentQuestion: null,
             timeLeft: 0,
             timer: null,
             correctCount: 0,
             totalQuestions: 0,
             hasAnswered: false,
             questionStartTime: 0,
-            timePerQuestion: 30
+            timePerQuestion: 30,
+            selectedAnswer: null,
+            selectedAnswers: [], // For multiple select
+            dragDropAnswers: {}, // For drag and drop
+            bokforingAnswers: [], // For bokføring
+            analyseAnswer: '' // For analyse
+        };
+
+        // Question type labels
+        var typeLabels = {
+            multiple_choice: '🔘 Flervalg',
+            multiple_select: '☑️ Velg flere',
+            true_false: '✅ Sant/Usant',
+            paragraph: '📜 Paragraf',
+            drag_drop: '🎯 Dra & Slipp',
+            bokforing: '📊 Bokføring',
+            analyse: '📈 Analyse'
         };
 
         function init() {
@@ -286,17 +517,28 @@
             });
         }
 
+        function hideAllScreens() {
+            document.querySelectorAll('.screen').forEach(function(s) {
+                s.classList.remove('show');
+            });
+        }
+
         function loadQuestion(questionData) {
             gameState.currentQuestionIndex = questionData.index;
+            gameState.currentQuestion = questionData;
             gameState.totalQuestions = Math.max(gameState.totalQuestions, questionData.index + 1);
             gameState.questionStartTime = questionData.startedAt || Date.now();
+            gameState.selectedAnswer = null;
+            gameState.selectedAnswers = [];
+            gameState.dragDropAnswers = {};
+            gameState.bokforingAnswers = [];
+            gameState.analyseAnswer = '';
 
             // Check if already answered this question
             db.ref('games/' + gameState.pin + '/answers/' + gameState.playerId).once('value')
                 .then(function(snapshot) {
                     var existingAnswer = snapshot.val();
                     if (existingAnswer && existingAnswer.questionIndex === questionData.index) {
-                        // Already answered - show waiting screen
                         gameState.hasAnswered = true;
                         hideAllScreens();
                         document.getElementById('waiting-screen').classList.add('show');
@@ -305,43 +547,476 @@
                     }
 
                     gameState.hasAnswered = false;
-
-                    // Hide other screens, show question
                     hideAllScreens();
                     document.getElementById('question-screen').classList.add('show');
 
-                    // Update UI
+                    // Update question info
                     document.getElementById('question-number').textContent = 'Spørsmål ' + (questionData.index + 1);
                     document.getElementById('question-text').textContent = questionData.text;
-
-                    // Load answers
-                    var container = document.getElementById('answers-container');
-                    var labels = ['A', 'B', 'C', 'D'];
-                    var classes = ['answer-a', 'answer-b', 'answer-c', 'answer-d'];
                     
-                    var html = '';
-                    questionData.answers.forEach(function(answer, i) {
-                        html += '<button class="answer-btn ' + classes[i] + '" onclick="selectAnswer(' + i + ')">' +
-                            '<div class="answer-label">' + labels[i] + '</div>' +
-                            '<div class="answer-text">' + answer + '</div>' +
-                        '</button>';
-                    });
-                    container.innerHTML = html;
+                    var questionType = questionData.type || 'multiple_choice';
+                    document.getElementById('question-type-badge').textContent = typeLabels[questionType] || '📝 Quiz';
 
-                    // Calculate remaining time based on server timestamp
+                    // Build answer UI based on type
+                    buildAnswerUI(questionData);
+
+                    // Calculate remaining time
                     var elapsed = Math.floor((Date.now() - gameState.questionStartTime) / 1000);
                     var remaining = Math.max(0, gameState.timePerQuestion - elapsed);
                     
                     if (remaining <= 0) {
-                        // Time already up
-                        document.querySelectorAll('.answer-btn').forEach(function(btn) {
-                            btn.disabled = true;
-                        });
+                        disableAllInputs();
                         showFeedback(false, 0);
                     } else {
                         startTimer(remaining);
                     }
                 });
+        }
+
+        function buildAnswerUI(questionData) {
+            var container = document.getElementById('answer-area');
+            var submitContainer = document.getElementById('submit-container');
+            var type = questionData.type || 'multiple_choice';
+
+            submitContainer.style.display = 'none';
+
+            switch(type) {
+                case 'multiple_choice':
+                    container.innerHTML = buildMultipleChoiceUI(questionData);
+                    break;
+                case 'multiple_select':
+                    container.innerHTML = buildMultipleSelectUI(questionData);
+                    submitContainer.style.display = 'block';
+                    break;
+                case 'true_false':
+                    container.innerHTML = buildTrueFalseUI(questionData);
+                    break;
+                case 'paragraph':
+                    container.innerHTML = buildParagraphUI(questionData);
+                    submitContainer.style.display = 'block';
+                    break;
+                case 'drag_drop':
+                    container.innerHTML = buildDragDropUI(questionData);
+                    submitContainer.style.display = 'block';
+                    initDragDrop();
+                    break;
+                case 'bokforing':
+                    container.innerHTML = buildBokforingUI(questionData);
+                    submitContainer.style.display = 'block';
+                    break;
+                case 'analyse':
+                    container.innerHTML = buildAnalyseUI(questionData);
+                    submitContainer.style.display = 'block';
+                    break;
+                default:
+                    container.innerHTML = buildMultipleChoiceUI(questionData);
+            }
+        }
+
+        // Multiple Choice UI
+        function buildMultipleChoiceUI(q) {
+            var labels = ['A', 'B', 'C', 'D', 'E', 'F'];
+            var classes = ['answer-a', 'answer-b', 'answer-c', 'answer-d', 'answer-a', 'answer-b'];
+            var answers = q.answers || [];
+            
+            // Shuffle if needed
+            if (q.shuffle) {
+                answers = shuffleArray(answers.slice());
+            }
+            
+            var html = '<div class="answers-container">';
+            answers.forEach(function(answer, i) {
+                html += '<button class="answer-btn ' + classes[i % classes.length] + '" onclick="selectMCAnswer(' + i + ', this)">' +
+                    '<div class="answer-label">' + labels[i] + '</div>' +
+                    '<div class="answer-text">' + answer + '</div>' +
+                '</button>';
+            });
+            html += '</div>';
+            return html;
+        }
+
+        // Multiple Select UI
+        function buildMultipleSelectUI(q) {
+            var answers = q.answers || q.options || [];
+            
+            var html = '<div class="checkbox-container">';
+            answers.forEach(function(answer, i) {
+                var text = typeof answer === 'object' ? answer.text : answer;
+                html += '<div class="checkbox-item" onclick="toggleCheckbox(' + i + ', this)">' +
+                    '<input type="checkbox" id="cb-' + i + '" data-index="' + i + '">' +
+                    '<label for="cb-' + i + '">' + text + '</label>' +
+                '</div>';
+            });
+            html += '</div>';
+            return html;
+        }
+
+        // True/False UI
+        function buildTrueFalseUI(q) {
+            return '<div class="tf-container">' +
+                '<button class="tf-btn true" onclick="selectTFAnswer(true, this)">✅ SANT</button>' +
+                '<button class="tf-btn false" onclick="selectTFAnswer(false, this)">❌ USANT</button>' +
+            '</div>';
+        }
+
+        // Paragraph UI
+        function buildParagraphUI(q) {
+            return '<div class="analyse-container">' +
+                '<div class="analyse-data">' +
+                    '<h4>📜 Lovhenvisning: ' + (q.paragraphRef || 'Ukjent') + '</h4>' +
+                    '<p style="color: #9ca3af;">Skriv inn nøkkelordene du forbinder med denne paragrafen.</p>' +
+                '</div>' +
+                '<div class="analyse-input-group">' +
+                    '<label>Ditt svar:</label>' +
+                    '<input type="text" class="analyse-input" id="paragraph-input" placeholder="Skriv nøkkelord..." style="width: 100%;">' +
+                '</div>' +
+            '</div>';
+        }
+
+        // Drag & Drop UI
+        function buildDragDropUI(q) {
+            var categories = q.categories || [];
+            var items = q.items || [];
+            
+            // Shuffle items
+            if (q.shuffle !== false) {
+                items = shuffleArray(items.slice());
+            }
+            
+            var html = '<div class="dd-container">';
+            
+            // Categories
+            html += '<div class="dd-categories">';
+            categories.forEach(function(cat, i) {
+                html += '<div class="dd-category" data-category="' + cat + '" ondrop="dropItem(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">' +
+                    '<div class="dd-category-title">' + cat + '</div>' +
+                    '<div class="dd-category-items" id="cat-items-' + i + '"></div>' +
+                '</div>';
+            });
+            html += '</div>';
+            
+            // Items pool
+            html += '<div class="dd-items-pool" id="items-pool" ondrop="dropItem(event)" ondragover="allowDrop(event)">';
+            items.forEach(function(item, i) {
+                var text = typeof item === 'object' ? item.text : item;
+                html += '<div class="dd-item" draggable="true" data-item="' + text + '" id="dd-item-' + i + '" ondragstart="dragStart(event)">' + text + '</div>';
+            });
+            html += '</div>';
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Bokføring UI
+        function buildBokforingUI(q) {
+            var html = '<div class="bokforing-container">';
+            
+            // Scenario
+            if (q.scenario) {
+                html += '<div class="bokforing-scenario"><strong>📄 Bilag:</strong> ' + q.scenario + '</div>';
+            }
+            
+            // Table
+            html += '<table class="bokforing-table">' +
+                '<thead><tr>' +
+                    '<th>#</th>' +
+                    '<th>Konto</th>' +
+                    '<th>Debet</th>' +
+                    '<th>Kredit</th>' +
+                '</tr></thead>' +
+                '<tbody id="bokforing-rows">';
+            
+            // Pre-fill rows if specified
+            var numRows = (q.postings && q.postings.length) || 3;
+            for (var i = 0; i < numRows; i++) {
+                html += buildBokforingRow(i + 1, q.prefill ? q.postings[i] : null);
+            }
+            
+            html += '</tbody></table>';
+            html += '<button type="button" class="add-row-btn" onclick="addBokforingRow()">+ Legg til rad</button>';
+            html += '</div>';
+            
+            return html;
+        }
+
+        function buildBokforingRow(num, prefill) {
+            var kontoVal = prefill ? prefill.konto : '';
+            var kontoDisabled = prefill ? 'readonly style="background:#333;"' : '';
+            
+            return '<tr class="bokforing-row">' +
+                '<td>' + num + '</td>' +
+                '<td><input type="text" class="bok-konto" placeholder="Kontonr" value="' + kontoVal + '" ' + kontoDisabled + '></td>' +
+                '<td><input type="number" class="bok-debet" placeholder="0"></td>' +
+                '<td><input type="number" class="bok-kredit" placeholder="0"></td>' +
+            '</tr>';
+        }
+
+        function addBokforingRow() {
+            var tbody = document.getElementById('bokforing-rows');
+            var rowNum = tbody.children.length + 1;
+            var tr = document.createElement('tr');
+            tr.className = 'bokforing-row';
+            tr.innerHTML = '<td>' + rowNum + '</td>' +
+                '<td><input type="text" class="bok-konto" placeholder="Kontonr"></td>' +
+                '<td><input type="number" class="bok-debet" placeholder="0"></td>' +
+                '<td><input type="number" class="bok-kredit" placeholder="0"></td>';
+            tbody.appendChild(tr);
+        }
+
+        // Analyse UI
+        function buildAnalyseUI(q) {
+            var data = q.data || {};
+            
+            var html = '<div class="analyse-container">';
+            
+            // Show data
+            html += '<div class="analyse-data">' +
+                '<h4>📊 Regnskapsdata:</h4>' +
+                '<div class="analyse-data-grid">';
+            
+            if (data.omsetning) html += '<div class="analyse-data-item"><span>Omsetning:</span><span>kr ' + formatNumber(data.omsetning) + '</span></div>';
+            if (data.resultat) html += '<div class="analyse-data-item"><span>Resultat:</span><span>kr ' + formatNumber(data.resultat) + '</span></div>';
+            if (data.eiendeler) html += '<div class="analyse-data-item"><span>Eiendeler:</span><span>kr ' + formatNumber(data.eiendeler) + '</span></div>';
+            if (data.gjeld) html += '<div class="analyse-data-item"><span>Gjeld:</span><span>kr ' + formatNumber(data.gjeld) + '</span></div>';
+            if (data.egenkapital) html += '<div class="analyse-data-item"><span>Egenkapital:</span><span>kr ' + formatNumber(data.egenkapital) + '</span></div>';
+            
+            html += '</div></div>';
+            
+            // Input
+            html += '<div class="analyse-input-group">' +
+                '<label>Ditt svar:</label>' +
+                '<input type="text" class="analyse-input" id="analyse-input" placeholder="F.eks. 15% eller 2.5">' +
+            '</div>';
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Answer selection handlers
+        function selectMCAnswer(index, btn) {
+            if (gameState.hasAnswered) return;
+            gameState.hasAnswered = true;
+            gameState.selectedAnswer = index;
+            
+            clearInterval(gameState.timer);
+            
+            document.querySelectorAll('.answer-btn').forEach(function(b) { b.disabled = true; });
+            btn.classList.add('selected');
+            
+            submitAnswerToFirebase('multiple_choice', index);
+        }
+
+        function selectTFAnswer(value, btn) {
+            if (gameState.hasAnswered) return;
+            gameState.hasAnswered = true;
+            gameState.selectedAnswer = value;
+            
+            clearInterval(gameState.timer);
+            
+            document.querySelectorAll('.tf-btn').forEach(function(b) { b.disabled = true; });
+            btn.classList.add('selected');
+            
+            submitAnswerToFirebase('true_false', value);
+        }
+
+        function toggleCheckbox(index, item) {
+            if (gameState.hasAnswered) return;
+            
+            var cb = item.querySelector('input[type="checkbox"]');
+            cb.checked = !cb.checked;
+            item.classList.toggle('selected', cb.checked);
+            
+            if (cb.checked) {
+                if (!gameState.selectedAnswers.includes(index)) {
+                    gameState.selectedAnswers.push(index);
+                }
+            } else {
+                gameState.selectedAnswers = gameState.selectedAnswers.filter(function(i) { return i !== index; });
+            }
+        }
+
+        // Drag & Drop handlers
+        function initDragDrop() {
+            // Touch support for mobile
+            document.querySelectorAll('.dd-item').forEach(function(item) {
+                item.addEventListener('touchstart', handleTouchStart, { passive: false });
+                item.addEventListener('touchmove', handleTouchMove, { passive: false });
+                item.addEventListener('touchend', handleTouchEnd, { passive: false });
+            });
+        }
+
+        var draggedItem = null;
+        var touchItem = null;
+
+        function dragStart(e) {
+            draggedItem = e.target;
+            e.dataTransfer.setData('text/plain', e.target.dataset.item);
+            setTimeout(function() { e.target.classList.add('dragging'); }, 0);
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function dropItem(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (draggedItem) {
+                var itemsContainer = e.currentTarget.querySelector('.dd-category-items') || e.currentTarget;
+                itemsContainer.appendChild(draggedItem);
+                draggedItem.classList.remove('dragging');
+                
+                // Track placement
+                var category = e.currentTarget.dataset.category || 'pool';
+                gameState.dragDropAnswers[draggedItem.dataset.item] = category;
+                
+                if (category !== 'pool') {
+                    draggedItem.classList.add('placed');
+                } else {
+                    draggedItem.classList.remove('placed');
+                }
+                
+                draggedItem = null;
+            }
+        }
+
+        // Touch handlers for mobile drag & drop
+        function handleTouchStart(e) {
+            touchItem = e.target;
+            touchItem.classList.add('dragging');
+        }
+
+        function handleTouchMove(e) {
+            if (!touchItem) return;
+            e.preventDefault();
+            
+            var touch = e.touches[0];
+            touchItem.style.position = 'fixed';
+            touchItem.style.left = (touch.clientX - 50) + 'px';
+            touchItem.style.top = (touch.clientY - 20) + 'px';
+            touchItem.style.zIndex = '1000';
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchItem) return;
+            
+            var touch = e.changedTouches[0];
+            touchItem.style.position = '';
+            touchItem.style.left = '';
+            touchItem.style.top = '';
+            touchItem.style.zIndex = '';
+            touchItem.classList.remove('dragging');
+            
+            // Find drop target
+            var dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            var category = dropTarget ? dropTarget.closest('.dd-category') : null;
+            
+            if (category) {
+                var itemsContainer = category.querySelector('.dd-category-items');
+                itemsContainer.appendChild(touchItem);
+                gameState.dragDropAnswers[touchItem.dataset.item] = category.dataset.category;
+                touchItem.classList.add('placed');
+            }
+            
+            touchItem = null;
+        }
+
+        // Submit answer
+        function submitAnswer() {
+            if (gameState.hasAnswered) return;
+            gameState.hasAnswered = true;
+            clearInterval(gameState.timer);
+            disableAllInputs();
+            
+            var type = gameState.currentQuestion.type || 'multiple_choice';
+            var answer;
+            
+            switch(type) {
+                case 'multiple_select':
+                    answer = gameState.selectedAnswers;
+                    break;
+                case 'paragraph':
+                    answer = document.getElementById('paragraph-input').value;
+                    break;
+                case 'drag_drop':
+                    answer = gameState.dragDropAnswers;
+                    break;
+                case 'bokforing':
+                    answer = collectBokforingAnswers();
+                    break;
+                case 'analyse':
+                    answer = document.getElementById('analyse-input').value;
+                    break;
+                default:
+                    answer = gameState.selectedAnswer;
+            }
+            
+            submitAnswerToFirebase(type, answer);
+        }
+
+        function collectBokforingAnswers() {
+            var answers = [];
+            document.querySelectorAll('.bokforing-row').forEach(function(row) {
+                var konto = row.querySelector('.bok-konto').value;
+                var debet = parseFloat(row.querySelector('.bok-debet').value) || 0;
+                var kredit = parseFloat(row.querySelector('.bok-kredit').value) || 0;
+                
+                if (konto || debet || kredit) {
+                    answers.push({ konto: konto, debet: debet, kredit: kredit });
+                }
+            });
+            return answers;
+        }
+
+        function submitAnswerToFirebase(type, answer) {
+            var elapsed = Math.floor((Date.now() - gameState.questionStartTime) / 1000);
+            var timeLeft = Math.max(0, gameState.timePerQuestion - elapsed);
+            
+            // Calculate points
+            var basePoints = gameState.currentQuestion.points || 200;
+            var timeBonus = Math.floor((timeLeft / gameState.timePerQuestion) * (basePoints / 2));
+            var points = basePoints / 2 + timeBonus; // Half points base, half for speed
+            
+            // For now, assume correct (real validation would be server-side)
+            var isCorrect = true; // TODO: Add proper validation
+            
+            if (isCorrect) {
+                gameState.score += Math.round(points);
+                gameState.correctCount++;
+            }
+            
+            // Save to Firebase
+            db.ref('games/' + gameState.pin + '/answers/' + gameState.playerId).set({
+                questionIndex: gameState.currentQuestionIndex,
+                type: type,
+                answer: answer,
+                timeLeft: timeLeft,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            // Update player score
+            db.ref('games/' + gameState.pin + '/players/' + gameState.playerId).update({
+                score: gameState.score,
+                correctCount: gameState.correctCount
+            });
+            
+            document.getElementById('score').textContent = gameState.score;
+            
+            setTimeout(function() {
+                showFeedback(isCorrect, Math.round(points));
+            }, 500);
+        }
+
+        function disableAllInputs() {
+            document.querySelectorAll('button, input').forEach(function(el) {
+                el.disabled = true;
+            });
         }
 
         function startTimer(duration) {
@@ -350,148 +1025,103 @@
             timerEl.textContent = gameState.timeLeft;
             timerEl.className = 'timer-display';
 
-            if (gameState.timer) {
-                clearInterval(gameState.timer);
-            }
+            if (gameState.timer) clearInterval(gameState.timer);
 
             gameState.timer = setInterval(function() {
                 gameState.timeLeft--;
-                timerEl.textContent = Math.max(0, gameState.timeLeft);
+                timerEl.textContent = gameState.timeLeft;
 
-                if (gameState.timeLeft <= 10) {
-                    timerEl.classList.add('warning');
-                }
-                if (gameState.timeLeft <= 5) {
-                    timerEl.classList.add('danger');
-                }
+                if (gameState.timeLeft <= 10) timerEl.classList.add('warning');
+                if (gameState.timeLeft <= 5) timerEl.classList.add('danger');
 
                 if (gameState.timeLeft <= 0) {
                     clearInterval(gameState.timer);
-                    // Disable buttons if time runs out
-                    document.querySelectorAll('.answer-btn').forEach(function(btn) {
-                        btn.disabled = true;
-                    });
-                    
                     if (!gameState.hasAnswered) {
+                        gameState.hasAnswered = true;
+                        disableAllInputs();
                         showFeedback(false, 0);
                     }
                 }
             }, 1000);
         }
 
-        function selectAnswer(answerIndex) {
-            if (gameState.hasAnswered) return;
-            gameState.hasAnswered = true;
-
-            clearInterval(gameState.timer);
-
-            // Disable all buttons
-            document.querySelectorAll('.answer-btn').forEach(function(btn) {
-                btn.disabled = true;
-            });
-
-            // Highlight selected answer
-            document.querySelectorAll('.answer-btn')[answerIndex].classList.add('selected');
-
-            // Calculate time left based on server timestamp (prevents F5 exploit)
-            var elapsed = Math.floor((Date.now() - gameState.questionStartTime) / 1000);
-            var actualTimeLeft = Math.max(0, gameState.timePerQuestion - elapsed);
-
-            // Calculate points based on actual server time
-            var points = 500 + Math.floor((actualTimeLeft / gameState.timePerQuestion) * 500);
-
-            // Save answer to Firebase
-            db.ref('games/' + gameState.pin + '/answers/' + gameState.playerId).set({
-                questionIndex: gameState.currentQuestionIndex,
-                answer: answerIndex,
-                timeLeft: actualTimeLeft,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            // Update score in Firebase (assume correct for demo - real check would be server-side)
-            gameState.score += points;
-            gameState.correctCount++;
-            
-            db.ref('games/' + gameState.pin + '/players/' + gameState.playerId).update({
-                score: gameState.score,
-                correctCount: gameState.correctCount
-            });
-
-            document.getElementById('score').textContent = gameState.score;
-
-            // Show feedback after short delay
-            setTimeout(function() {
-                showFeedback(true, points);
-            }, 500);
-        }
-
-        function showFeedback(isCorrect, points) {
+        function showFeedback(correct, points) {
             hideAllScreens();
             document.getElementById('feedback-screen').classList.add('show');
-
-            if (isCorrect) {
-                document.getElementById('feedback-icon').textContent = '✅';
-                document.getElementById('feedback-text').textContent = 'Riktig svar!';
-                document.getElementById('feedback-text').className = 'feedback-text correct';
-                document.getElementById('points-earned').textContent = '+' + points;
-                document.getElementById('points-earned').style.display = 'block';
+            
+            var icon = document.getElementById('feedback-icon');
+            var text = document.getElementById('feedback-text');
+            var pointsEl = document.getElementById('feedback-points');
+            
+            if (correct && points > 0) {
+                icon.textContent = '✅';
+                text.textContent = 'Bra jobbet!';
+                text.className = 'feedback-text feedback-correct';
+                pointsEl.textContent = '+' + points;
+                pointsEl.style.color = '#22c55e';
             } else {
-                document.getElementById('feedback-icon').textContent = '❌';
-                document.getElementById('feedback-text').textContent = 'Tiden gikk ut!';
-                document.getElementById('feedback-text').className = 'feedback-text incorrect';
-                document.getElementById('points-earned').style.display = 'none';
+                icon.textContent = '⏱️';
+                text.textContent = points === 0 ? 'Tiden er ute!' : 'Svaret er registrert';
+                text.className = 'feedback-text';
+                pointsEl.textContent = '+' + points;
+                pointsEl.style.color = '#f59e0b';
             }
-
-            // Return to waiting screen after delay
+            
+            // Return to waiting after delay
             setTimeout(function() {
                 hideAllScreens();
                 document.getElementById('waiting-screen').classList.add('show');
-            }, 2000);
+                document.querySelector('#waiting-screen .waiting-text').textContent = 'Venter på neste spørsmål...';
+            }, 2500);
         }
 
         function showResults() {
             clearInterval(gameState.timer);
             hideAllScreens();
             document.getElementById('results-screen').classList.add('show');
-
+            
             document.getElementById('final-score').textContent = gameState.score;
             document.getElementById('correct-count').textContent = gameState.correctCount;
             
-            var accuracy = gameState.totalQuestions > 0 ? 
-                Math.round((gameState.correctCount / gameState.totalQuestions) * 100) : 0;
+            var accuracy = gameState.totalQuestions > 0 
+                ? Math.round((gameState.correctCount / gameState.totalQuestions) * 100) 
+                : 0;
             document.getElementById('accuracy').textContent = accuracy + '%';
-
-            // Get rank from Firebase
+            
+            // Get ranking
             db.ref('games/' + gameState.pin + '/players').orderByChild('score').once('value')
                 .then(function(snapshot) {
                     var players = [];
                     snapshot.forEach(function(child) {
                         players.push({ id: child.key, ...child.val() });
                     });
-                    players.sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
+                    players.reverse(); // Highest first
                     
                     var rank = players.findIndex(function(p) { return p.id === gameState.playerId; }) + 1;
-                    if (rank === 1) {
-                        document.getElementById('rank-display').textContent = '🥇 Du vant!';
-                    } else if (rank === 2) {
-                        document.getElementById('rank-display').textContent = '🥈 Andreplass!';
-                    } else if (rank === 3) {
-                        document.getElementById('rank-display').textContent = '🥉 Tredjeplass!';
-                    } else {
-                        document.getElementById('rank-display').textContent = 'Du kom på ' + rank + '. plass';
-                    }
+                    
+                    var medals = ['🥇', '🥈', '🥉'];
+                    document.getElementById('rank-display').textContent = medals[rank - 1] || '🏅';
+                    document.getElementById('rank-text').textContent = rank + '. plass av ' + players.length;
                 });
         }
 
-        function hideAllScreens() {
-            document.getElementById('waiting-screen').classList.remove('show');
-            document.getElementById('question-screen').classList.remove('show');
-            document.getElementById('feedback-screen').classList.remove('show');
-            document.getElementById('results-screen').classList.remove('show');
+        // Utility functions
+        function shuffleArray(array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+            return array;
         }
 
-        // Initialize
-        window.onload = init;
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>

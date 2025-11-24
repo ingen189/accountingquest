@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExcelGrid - Med SUM!</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #1a1a2e; --bg-secondary: #16213e;
+            --text-primary: #eaeaea; --accent-primary: #4ade80;
+            --border-color: #404040; --card-bg: #2d2d2d; --cell-bg: #1e1e1e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+            color: var(--text-primary); min-height: 100vh; padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: var(--accent-primary); margin-bottom: 15px; font-size: 2.2em; }
+        .info {
+            background: var(--card-bg); padding: 20px; border-radius: 12px;
+            margin-bottom: 25px; line-height: 1.9; border-left: 5px solid var(--accent-primary);
+        }
+        .info strong { color: var(--accent-primary); }
+        .info code {
+            background: #333; padding: 3px 8px; border-radius: 4px;
+            color: var(--accent-primary); font-family: 'Consolas', monospace;
+        }
+        .info ul { margin: 10px 0 10px 20px; }
+        #grid-container { margin: 25px 0; }
+        .btn {
+            padding: 14px 30px; border: none; border-radius: 10px;
+            font-size: 1.05em; font-weight: bold; cursor: pointer; margin: 8px;
+            background: var(--accent-primary); color: #1e1e1e;
+            box-shadow: 0 4px 10px rgba(74, 222, 128, 0.3); transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        
+        /* Excel Grid */
+        .excel-grid-wrapper {
+            overflow-x: auto; border-radius: 10px; background: var(--cell-bg);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .excel-table {
+            width: 100%; border-collapse: collapse;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        .excel-table th {
+            background: var(--border-color); color: #a0a0a0; padding: 12px;
+            border: 1px solid var(--border-color); text-align: center; font-weight: 600;
+        }
+        .excel-table td { border: 1px solid var(--border-color); padding: 0; }
+        .cell-wrapper { position: relative; width: 100%; height: 100%; }
+        .excel-cell {
+            width: 100%; background: transparent; border: none; color: var(--text-primary);
+            padding: 12px; font-size: 0.95em; font-family: 'Consolas', 'Monaco', monospace;
+            text-align: right; outline: none; transition: background 0.2s;
+        }
+        .excel-cell:focus {
+            outline: 2px solid var(--accent-primary);
+            background: rgba(255,255,255,0.05); z-index: 5;
+        }
+        .excel-cell:hover { background: rgba(255,255,255,0.03); }
+        .excel-cell.readonly { background: var(--border-color); color: #a0a0a0; }
+        
+        .fill-handle {
+            position: absolute; right: 1px; bottom: 1px; width: 10px; height: 10px;
+            background: var(--accent-primary); border: 2px solid var(--cell-bg);
+            border-radius: 50%; cursor: crosshair; z-index: 25;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4); transition: all 0.2s ease;
+        }
+        .fill-handle:hover {
+            width: 14px; height: 14px; right: -1px; bottom: -1px;
+            background: #5ef77c; box-shadow: 0 3px 8px rgba(74, 222, 128, 0.8);
+        }
+        
+        .excel-cell.filling { background: rgba(74, 222, 128, 0.25) !important; }
+        .excel-cell.selecting-mode { cursor: crosshair; background: rgba(59, 130, 246, 0.1); }
+        .excel-cell.selected-for-formula {
+            outline: 3px solid #3b82f6 !important;
+            background: rgba(59, 130, 246, 0.2) !important;
+        }
+        .cell-selection-hint {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--card-bg); border: 2px solid var(--accent-primary);
+            border-radius: 12px; padding: 25px; z-index: 1000; text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 ExcelGrid - MED SUM, AVERAGE, MIN, MAX!</h1>
+        <div class="info">
+            <strong>✨ NYE FUNKSJONER MED RANGES:</strong>
+            <ul>
+                <li><code>=SUM(A1:C1)</code> - Summerer A1+B1+C1</li>
+                <li><code>=AVERAGE(A1:C1)</code> - Gjennomsnitt av A1,B1,C1</li>
+                <li><code>=MIN(A1:C1)</code> - Minste verdi</li>
+                <li><code>=MAX(A1:C1)</code> - Største verdi</li>
+                <li><code>=SUM(A1:A3)</code> - Vertikal sum</li>
+                <li><code>=SUM(A1:C3)</code> - Rektangulær sum</li>
+            </ul>
+            <strong>Plus alt det andre:</strong> ABS, +, -, *, /, dra-og-slipp, $ låsing, live oppdatering!
+        </div>
+        
+        <div id="grid-container"></div>
+        
+        <button class="btn" onclick="demo()">🎬 Demo SUM</button>
+    </div>
+    
+    <script>
+/**
+ * ExcelGrid - Reusable Excel-like spreadsheet component
+ * Can be used across all AccountingQuest modules
+ * 
+ * Usage:
+ * const grid = new ExcelGrid(containerId, options);
+ * grid.loadData(rows);
+ * grid.onCellChange((row, col, value) => { ... });
+ */
+
+class ExcelGrid {
+    constructor(containerId, options = {}) {
+        this.container = document.getElementById(containerId);
+        this.options = {
+            headers: options.headers || [],
+            allowFormulas: options.allowFormulas !== false,
+            allowCellSelection: options.allowCellSelection !== false,
+            allowFillHandle: options.allowFillHandle !== false,
+            showRowNumbers: options.showRowNumbers !== false,
+            readonlyColumns: options.readonlyColumns || [],
+            ...options
+        };
+        
+        this.data = [];
+        this.cells = new Map(); // Map of "row-col" -> cell element
+        this.state = {
+            selectingCell: false,
+            selectingForCell: null,
+            fillHandleActive: false,
+            fillStartCell: null,
+            fillHandleStarted: false
+        };
+        
+        this.callbacks = {
+            onChange: null,
+            onValidate: null
+        };
+        
+        this.recalcTimer = null;
+        
+        this.init();
+    }
+    
+    init() {
+        this.container.innerHTML = `
+            <div class="excel-grid-wrapper">
+                <table class="excel-table">
+                    <thead id="${this.container.id}-thead"></thead>
+                    <tbody id="${this.container.id}-tbody"></tbody>
+                </table>
+            </div>
+        `;
+        
+        this.thead = document.getElementById(`${this.container.id}-thead`);
+        this.tbody = document.getElementById(`${this.container.id}-tbody`);
+        
+        this.renderHeaders();
+    }
+    
+    renderHeaders() {
+        let headersHTML = '<tr>';
+        
+        if (this.options.showRowNumbers) {
+            headersHTML += '<th class="row-number-header">#</th>';
+        }
+        
+        this.options.headers.forEach(header => {
+            headersHTML += `<th>${header}</th>`;
+        });
+        
+        headersHTML += '</tr>';
+        this.thead.innerHTML = headersHTML;
+    }
+    
+    loadData(rows) {
+        this.data = rows;
+        this.tbody.innerHTML = '';
+        this.cells.clear();
+        
+        rows.forEach((row, rowIndex) => {
+            this.addRow(row, rowIndex);
+        });
+    }
+    
+    addRow(rowData, rowIndex) {
+        const tr = document.createElement('tr');
+        let cellHTML = '';
+        
+        // Row number
+        if (this.options.showRowNumbers) {
+            cellHTML += `<td class="row-number">${rowIndex + 1}</td>`;
+        }
+        
+        // Data cells
+        rowData.forEach((cellData, colIndex) => {
+            const isReadonly = this.isColumnReadonly(colIndex) || cellData.readonly;
+            const value = cellData.value !== undefined ? cellData.value : cellData;
+            const cellId = `${rowIndex}-${colIndex}`;
+            
+            cellHTML += `
+                <td>
+                    <div class="cell-wrapper">
+                        <input type="text"
+                               class="excel-cell ${isReadonly ? 'readonly' : ''}"
+                               value="${value}"
+                               data-row="${rowIndex}"
+                               data-col="${colIndex}"
+                               data-cell-id="${cellId}"
+                               ${isReadonly ? 'readonly' : ''}
+                               placeholder="${isReadonly ? '' : '?'}">
+                        ${!isReadonly ? '<div class="fill-handle"></div>' : ''}
+                    </div>
+                </td>
+            `;
+        });
+        
+        tr.innerHTML = cellHTML;
+        this.tbody.appendChild(tr);
+        
+        // Attach event listeners to all cells in this row
+        const allCells = tr.querySelectorAll('.excel-cell');
+        allCells.forEach(cell => {
+            const cellId = cell.dataset.cellId;
+            this.cells.set(cellId, cell);
+            
+            // Attach full listeners to non-readonly cells
+            if (!cell.classList.contains('readonly')) {
+                this.attachCellListeners(cell);
+            }
+        });
+    }
+    
+    attachCellListeners(cell) {
+        // Keydown for navigation
+        cell.addEventListener('keydown', (e) => this.handleKeydown(cell, e));
+        
+        // Focus - show formula
+        cell.addEventListener('focus', () => {
+            if (cell.dataset.formula) {
+                cell.value = cell.dataset.formula;
+            }
+        });
+        
+        // Blur - evaluate formula
+        cell.addEventListener('blur', () => {
+            if (cell.value.trim().startsWith('=')) {
+                this.evaluateFormula(cell);
+            }
+        });
+        
+        // Input - recalculate all formulas when a value changes
+        cell.addEventListener('input', () => {
+            // Debounce to avoid too many recalculations
+            if (this.recalcTimer) clearTimeout(this.recalcTimer);
+            this.recalcTimer = setTimeout(() => {
+                this.recalculateAll();
+            }, 100);
+        });
+        
+        // Click for cell selection in formulas
+        cell.addEventListener('click', () => {
+            if (this.state.selectingCell && cell !== this.state.selectingForCell) {
+                this.selectCellForFormula(cell);
+            }
+        });
+        
+        // Fill handle (drag to copy)
+        if (this.options.allowFillHandle) {
+            // Add listener to the fill-handle div if it exists
+            const fillHandle = cell.parentElement.querySelector('.fill-handle');
+            if (fillHandle) {
+                fillHandle.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.startFillHandle(cell);
+                });
+                fillHandle.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.startFillHandle(cell);
+                }, { passive: false });
+            }
+        }
+    }
+    
+    handleKeydown(cell, event) {
+        const key = event.key;
+        
+        // Escape - end selection mode
+        if (key === 'Escape' && this.state.selectingCell) {
+            event.preventDefault();
+            this.endCellSelection();
+            return;
+        }
+        
+        // Enter in selection mode
+        if (key === 'Enter' && this.state.selectingCell) {
+            event.preventDefault();
+            if (cell === this.state.selectingForCell) {
+                this.endCellSelection();
+            } else {
+                this.selectCellForFormula(cell);
+            }
+            return;
+        }
+        
+        // Navigation keys
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(key)) {
+            event.preventDefault();
+            
+            // Evaluate on Enter
+            if (key === 'Enter' && cell.value.trim().startsWith('=')) {
+                this.evaluateFormula(cell);
+            }
+            
+            this.navigate(cell, key, event.shiftKey);
+            return;
+        }
+        
+        // Start cell selection when typing =
+        if (key === '=' && cell.value === '' && this.options.allowCellSelection) {
+            setTimeout(() => this.startCellSelection(cell), 10);
+        }
+    }
+    
+    navigate(cell, key, shiftKey) {
+        // cell.parentElement = .cell-wrapper
+        // cell.parentElement.parentElement = <td>
+        // cell.parentElement.parentElement.parentElement = <tr>
+        const td = cell.parentElement.parentElement;
+        const row = td.parentElement;
+        const cellIndex = Array.from(row.children).indexOf(td);
+        const rowIndex = Array.from(this.tbody.children).indexOf(row);
+        
+        let targetCell = null;
+        
+        switch(key) {
+            case 'ArrowRight':
+                targetCell = td.nextElementSibling?.querySelector('.excel-cell');
+                break;
+            case 'ArrowLeft':
+                targetCell = td.previousElementSibling?.querySelector('.excel-cell');
+                break;
+            case 'ArrowDown':
+            case 'Enter':
+                const nextRow = row.nextElementSibling;
+                if (nextRow) targetCell = nextRow.children[cellIndex]?.querySelector('.excel-cell');
+                break;
+            case 'ArrowUp':
+                const prevRow = row.previousElementSibling;
+                if (prevRow) targetCell = prevRow.children[cellIndex]?.querySelector('.excel-cell');
+                break;
+            case 'Tab':
+                targetCell = shiftKey ?
+                    td.previousElementSibling?.querySelector('.excel-cell') :
+                    td.nextElementSibling?.querySelector('.excel-cell');
+                break;
+        }
+        
+        if (targetCell) targetCell.focus();
+    }
+    
+    // Formula evaluation
+    evaluateFormula(cell) {
+        const value = cell.value.trim();
+        if (!value.startsWith('=')) return;
+        
+        const formula = value.substring(1);
+        
+        // Check for incomplete formulas
+        if (/[\+\-\*\/\(]$/.test(formula.trim())) {
+            cell.title = 'Ufullstendig formel';
+            return;
+        }
+        
+        try {
+            const result = this.calculateFormula(formula);
+            
+            if (isNaN(result) || !isFinite(result)) {
+                cell.dataset.result = '0';
+                cell.title = 'Ugyldig formel';
+            } else {
+                cell.dataset.result = result.toString();
+                cell.dataset.formula = value;
+                cell.value = result.toFixed(2);
+                cell.title = `Formel: ${value}\nResultat: ${result.toFixed(2)}`;
+                
+                // Trigger onChange callback
+                if (this.callbacks.onChange) {
+                    const row = parseInt(cell.dataset.row);
+                    const col = parseInt(cell.dataset.col);
+                    this.callbacks.onChange(row, col, result);
+                }
+                
+                // Recalculate other formulas that might depend on this one
+                setTimeout(() => this.recalculateAll(), 10);
+            }
+        } catch (e) {
+            console.error('Formula error:', e);
+            cell.dataset.result = '0';
+            cell.title = 'Feil i formel';
+        }
+    }
+    
+    // Recalculate all formulas (when dependencies change)
+    recalculateAll() {
+        this.cells.forEach((cell, cellId) => {
+            if (cell.dataset.formula) {
+                // Re-evaluate this formula
+                const formula = cell.dataset.formula.substring(1);
+                try {
+                    const result = this.calculateFormula(formula);
+                    if (!isNaN(result) && isFinite(result)) {
+                        cell.dataset.result = result.toString();
+                        // Only update display if cell is not focused (not being edited)
+                        if (document.activeElement !== cell) {
+                            cell.value = result.toFixed(2);
+                            cell.title = `Formel: ${cell.dataset.formula}\nResultat: ${result.toFixed(2)}`;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Recalc error for', cellId, e);
+                }
+            }
+        });
+    }
+    
+    calculateFormula(formula) {
+        // First, handle range functions like SUM(A1:C1), AVERAGE(A1:C1), etc.
+        formula = this.expandRangeFunctions(formula);
+        
+        // Replace cell references (A1, B2, etc.) with values
+        let processedFormula = formula.replace(/([A-Z]+)(\$?)(\d+)/gi, (match, col, lock, row) => {
+            const value = this.getCellValue(col, parseInt(row) - 1);
+            return `(${value})`;
+        });
+        
+        // Replace functions
+        processedFormula = processedFormula.replace(/ABS\(([^)]+)\)/gi, (match, expr) => {
+            return `Math.abs(${expr})`;
+        });
+        
+        processedFormula = processedFormula.replace(/×/g, '*').replace(/÷/g, '/');
+        
+        return eval(processedFormula);
+    }
+    
+    expandRangeFunctions(formula) {
+        // Handle SUM(A1:C1) -> SUM(A1,B1,C1)
+        formula = formula.replace(/SUM\(([A-Z]+\$?\d+):([A-Z]+\$?\d+)\)/gi, (match, start, end) => {
+            const cells = this.expandRange(start, end);
+            return `(${cells.join('+')})`;
+        });
+        
+        // Handle AVERAGE(A1:C1) -> (A1+B1+C1)/3
+        formula = formula.replace(/AVERAGE\(([A-Z]+\$?\d+):([A-Z]+\$?\d+)\)/gi, (match, start, end) => {
+            const cells = this.expandRange(start, end);
+            return `((${cells.join('+')}))/${cells.length})`;
+        });
+        
+        // Handle MIN(A1:C1) -> Math.min(A1,B1,C1)
+        formula = formula.replace(/MIN\(([A-Z]+\$?\d+):([A-Z]+\$?\d+)\)/gi, (match, start, end) => {
+            const cells = this.expandRange(start, end);
+            return `Math.min(${cells.join(',')})`;
+        });
+        
+        // Handle MAX(A1:C1) -> Math.max(A1,B1,C1)
+        formula = formula.replace(/MAX\(([A-Z]+\$?\d+):([A-Z]+\$?\d+)\)/gi, (match, start, end) => {
+            const cells = this.expandRange(start, end);
+            return `Math.max(${cells.join(',')})`;
+        });
+        
+        return formula;
+    }
+    
+    expandRange(startRef, endRef) {
+        // Parse start and end references (e.g., A1, C3)
+        const startMatch = startRef.match(/([A-Z]+)(\$?)(\d+)/i);
+        const endMatch = endRef.match(/([A-Z]+)(\$?)(\d+)/i);
+        
+        if (!startMatch || !endMatch) return [];
+        
+        const startCol = startMatch[1].toUpperCase();
+        const startRow = parseInt(startMatch[3]);
+        const endCol = endMatch[1].toUpperCase();
+        const endRow = parseInt(endMatch[3]);
+        
+        const startColCode = startCol.charCodeAt(0);
+        const endColCode = endCol.charCodeAt(0);
+        
+        const cells = [];
+        
+        // Handle horizontal range (same row, different columns)
+        if (startRow === endRow) {
+            for (let col = startColCode; col <= endColCode; col++) {
+                cells.push(String.fromCharCode(col) + startRow);
+            }
+        }
+        // Handle vertical range (same column, different rows)
+        else if (startCol === endCol) {
+            for (let row = startRow; row <= endRow; row++) {
+                cells.push(startCol + row);
+            }
+        }
+        // Handle rectangular range (multiple rows and columns)
+        else {
+            for (let row = startRow; row <= endRow; row++) {
+                for (let col = startColCode; col <= endColCode; col++) {
+                    cells.push(String.fromCharCode(col) + row);
+                }
+            }
+        }
+        
+        return cells;
+    }
+    
+    getCellValue(colLetter, rowIndex) {
+        const colIndex = colLetter.toUpperCase().charCodeAt(0) - 65; // A=0, B=1, etc
+        const cellId = `${rowIndex}-${colIndex}`;
+        const cell = this.cells.get(cellId);
+        
+        if (!cell) return 0;
+        
+        // If cell has evaluated result, use that
+        if (cell.dataset.result !== undefined) {
+            return parseFloat(cell.dataset.result);
+        }
+        
+        // If cell contains formula, evaluate it recursively
+        const value = cell.value.trim();
+        if (value.startsWith('=')) {
+            const formula = value.substring(1);
+            return this.calculateFormula(formula);
+        }
+        
+        // Parse as number
+        return parseFloat(value.replace(/\s/g, '').replace(/,/g, '')) || 0;
+    }
+    
+    // Cell selection for formulas
+    startCellSelection(sourceCell) {
+        this.state.selectingCell = true;
+        this.state.selectingForCell = sourceCell;
+        
+        this.cells.forEach(cell => {
+            if (cell !== sourceCell) {
+                cell.classList.add('selecting-mode');
+            }
+        });
+        
+        this.showSelectionHint();
+    }
+    
+    endCellSelection() {
+        this.state.selectingCell = false;
+        this.state.selectingForCell = null;
+        
+        this.cells.forEach(cell => {
+            cell.classList.remove('selecting-mode', 'selected-for-formula');
+        });
+        
+        this.hideSelectionHint();
+    }
+    
+    selectCellForFormula(targetCell) {
+        if (!this.state.selectingCell || !this.state.selectingForCell) return;
+        
+        const sourceCell = this.state.selectingForCell;
+        const cellRef = this.getCellReference(targetCell);
+        
+        if (cellRef) {
+            const cursorPos = sourceCell.selectionStart || sourceCell.value.length;
+            const currentValue = sourceCell.value;
+            sourceCell.value = currentValue.slice(0, cursorPos) + cellRef + currentValue.slice(cursorPos);
+            
+            targetCell.classList.add('selected-for-formula');
+            setTimeout(() => targetCell.classList.remove('selected-for-formula'), 500);
+        }
+        
+        setTimeout(() => {
+            sourceCell.focus();
+            sourceCell.setSelectionRange(sourceCell.value.length, sourceCell.value.length);
+        }, 10);
+    }
+    
+    getCellReference(cell) {
+        const row = parseInt(cell.dataset.row) + 1; // 1-indexed for display
+        const col = parseInt(cell.dataset.col);
+        const colLetter = String.fromCharCode(65 + col); // 0=A, 1=B, etc
+        return colLetter + row;
+    }
+    
+    showSelectionHint() {
+        const hint = document.createElement('div');
+        hint.id = 'cell-selection-hint';
+        hint.className = 'cell-selection-hint';
+        hint.innerHTML = '🎯 Klikk på celler for å legge dem til formelen<br><small>Skriv +, -, *, / mellom • ESC for å avslutte</small>';
+        document.body.appendChild(hint);
+    }
+    
+    hideSelectionHint() {
+        const hint = document.getElementById('cell-selection-hint');
+        if (hint) hint.remove();
+    }
+    
+    // Fill handle (drag to copy formulas)
+    handleFillStart(cell, e) {
+        const rect = cell.getBoundingClientRect();
+        const isBottomRight = (
+            e.clientX > rect.right - 20 &&
+            e.clientY > rect.bottom - 20
+        );
+        
+        if (isBottomRight) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.startFillHandle(cell);
+        }
+    }
+    
+    handleFillStartTouch(cell, e) {
+        const touch = e.touches[0];
+        const rect = cell.getBoundingClientRect();
+        const isBottomRight = (
+            touch.clientX > rect.right - 25 &&
+            touch.clientY > rect.bottom - 25
+        );
+        
+        if (isBottomRight) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.startFillHandle(cell);
+        }
+    }
+    
+    startFillHandle(cell) {
+        this.state.fillStartCell = cell;
+        this.state.fillHandleStarted = false;
+        
+        document.addEventListener('mousemove', this.handleFillDrag.bind(this));
+        document.addEventListener('mouseup', this.endFillHandle.bind(this));
+        document.addEventListener('touchmove', this.handleFillDragTouch.bind(this), { passive: false });
+        document.addEventListener('touchend', this.endFillHandle.bind(this));
+    }
+    
+    handleFillDrag(e) {
+        if (!this.state.fillStartCell) return;
+        
+        if (!this.state.fillHandleStarted) {
+            this.state.fillHandleStarted = true;
+            this.state.fillHandleActive = true;
+            this.state.fillStartCell.classList.add('filling');
+        }
+        
+        const target = document.elementFromPoint(e.clientX, e.clientY);
+        if (target && target.classList.contains('excel-cell')) {
+            this.highlightFillRange(target);
+        }
+    }
+    
+    handleFillDragTouch(e) {
+        if (!this.state.fillStartCell) return;
+        e.preventDefault();
+        
+        if (!this.state.fillHandleStarted) {
+            this.state.fillHandleStarted = true;
+            this.state.fillHandleActive = true;
+            this.state.fillStartCell.classList.add('filling');
+        }
+        
+        const touch = e.touches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (target && target.classList.contains('excel-cell')) {
+            this.highlightFillRange(target);
+        }
+    }
+    
+    highlightFillRange(target) {
+        const startCell = this.state.fillStartCell;
+        const startRow = parseInt(startCell.dataset.row);
+        const startCol = parseInt(startCell.dataset.col);
+        const targetRow = parseInt(target.dataset.row);
+        const targetCol = parseInt(target.dataset.col);
+        
+        // Clear previous highlighting
+        this.cells.forEach(cell => {
+            if (cell !== startCell) cell.classList.remove('filling');
+        });
+        
+        // Highlight range - allow both vertical and horizontal
+        if (targetRow === startRow && targetCol > startCol) {
+            // Horizontal (right)
+            for (let i = startCol + 1; i <= targetCol; i++) {
+                const cellId = `${startRow}-${i}`;
+                const cell = this.cells.get(cellId);
+                if (cell && !cell.classList.contains('readonly')) {
+                    cell.classList.add('filling');
+                }
+            }
+        } else if (targetCol === startCol && targetRow > startRow) {
+            // Vertical (down)
+            for (let i = startRow + 1; i <= targetRow; i++) {
+                const cellId = `${i}-${startCol}`;
+                const cell = this.cells.get(cellId);
+                if (cell && !cell.classList.contains('readonly')) {
+                    cell.classList.add('filling');
+                }
+            }
+        }
+    }
+    
+    endFillHandle(e) {
+        if (!this.state.fillStartCell) return;
+        
+        if (this.state.fillHandleStarted) {
+            let clientX, clientY;
+            
+            if (e.type === 'touchend' && e.changedTouches.length > 0) {
+                clientX = e.changedTouches[0].clientX;
+                clientY = e.changedTouches[0].clientY;
+            } else if (e.type === 'mouseup') {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            if (clientX !== undefined) {
+                const target = document.elementFromPoint(clientX, clientY);
+                if (target && target.classList.contains('excel-cell')) {
+                    this.copyFormula(this.state.fillStartCell, target);
+                }
+            }
+        }
+        
+        this.cleanupFillHandle();
+    }
+    
+    copyFormula(startCell, endCell) {
+        const startRow = parseInt(startCell.dataset.row);
+        const startCol = parseInt(startCell.dataset.col);
+        const endRow = parseInt(endCell.dataset.row);
+        const endCol = parseInt(endCell.dataset.col);
+        
+        const sourceValue = startCell.value.trim();
+        const sourceFormula = startCell.dataset.formula || sourceValue;
+        
+        // Determine direction
+        if (endRow > startRow && endCol === startCol) {
+            // Vertical (down)
+            this.copyFormulaVertical(startCell, startRow, endRow, startCol, sourceFormula, sourceValue);
+        } else if (endCol > startCol && endRow === startRow) {
+            // Horizontal (right)
+            this.copyFormulaHorizontal(startCell, startRow, startCol, endCol, sourceFormula, sourceValue);
+        }
+    }
+    
+    copyFormulaVertical(startCell, startRow, endRow, col, sourceFormula, sourceValue) {
+        if (sourceFormula.startsWith('=')) {
+            const formula = sourceFormula.substring(1);
+            
+            for (let i = startRow + 1; i <= endRow; i++) {
+                const cellId = `${i}-${col}`;
+                const cell = this.cells.get(cellId);
+                
+                if (cell && !cell.classList.contains('readonly')) {
+                    const rowOffset = i - startRow;
+                    const adjustedFormula = this.adjustFormulaForRow(formula, rowOffset);
+                    
+                    cell.value = '=' + adjustedFormula;
+                    cell.dataset.formula = '=' + adjustedFormula;
+                    this.evaluateFormula(cell);
+                }
+            }
+        } else {
+            // Copy plain value
+            for (let i = startRow + 1; i <= endRow; i++) {
+                const cellId = `${i}-${col}`;
+                const cell = this.cells.get(cellId);
+                
+                if (cell && !cell.classList.contains('readonly')) {
+                    cell.value = sourceValue;
+                }
+            }
+        }
+    }
+    
+    copyFormulaHorizontal(startCell, row, startCol, endCol, sourceFormula, sourceValue) {
+        if (sourceFormula.startsWith('=')) {
+            const formula = sourceFormula.substring(1);
+            
+            for (let i = startCol + 1; i <= endCol; i++) {
+                const cellId = `${row}-${i}`;
+                const cell = this.cells.get(cellId);
+                
+                if (cell && !cell.classList.contains('readonly')) {
+                    const colOffset = i - startCol;
+                    const adjustedFormula = this.adjustFormulaForColumn(formula, colOffset);
+                    
+                    cell.value = '=' + adjustedFormula;
+                    cell.dataset.formula = '=' + adjustedFormula;
+                    this.evaluateFormula(cell);
+                }
+            }
+        } else {
+            // Copy plain value
+            for (let i = startCol + 1; i <= endCol; i++) {
+                const cellId = `${row}-${i}`;
+                const cell = this.cells.get(cellId);
+                
+                if (cell && !cell.classList.contains('readonly')) {
+                    cell.value = sourceValue;
+                }
+            }
+        }
+    }
+    
+    adjustFormula(formula, rowOffset) {
+        // Legacy - keep for backwards compatibility
+        return this.adjustFormulaForRow(formula, rowOffset);
+    }
+    
+    adjustFormulaForRow(formula, rowOffset) {
+        // Adjust row numbers (vertical copy)
+        // B$1 keeps row locked, $B1 keeps column locked
+        return formula.replace(/(\$?)([A-Z]+)(\$?)(\d+)/gi, (match, colLock, col, rowLock, row) => {
+            const newCol = colLock ? colLock + col : col;
+            const newRow = rowLock ? row : (parseInt(row) + rowOffset).toString();
+            return newCol + (rowLock ? '$' : '') + newRow;
+        });
+    }
+    
+    adjustFormulaForColumn(formula, colOffset) {
+        // Adjust column letters (horizontal copy)
+        // B$1 keeps row locked, $B1 keeps column locked
+        return formula.replace(/(\$?)([A-Z]+)(\$?)(\d+)/gi, (match, colLock, col, rowLock, row) => {
+            let newCol;
+            if (colLock) {
+                // Column is locked with $
+                newCol = colLock + col;
+            } else {
+                // Adjust column letter
+                const colCode = col.charCodeAt(0);
+                newCol = String.fromCharCode(colCode + colOffset);
+            }
+            const newRow = rowLock ? '$' + row : row;
+            return newCol + newRow;
+        });
+    }
+    
+    cleanupFillHandle() {
+        this.cells.forEach(cell => cell.classList.remove('filling'));
+        
+        document.removeEventListener('mousemove', this.handleFillDrag);
+        document.removeEventListener('mouseup', this.endFillHandle);
+        document.removeEventListener('touchmove', this.handleFillDragTouch);
+        document.removeEventListener('touchend', this.endFillHandle);
+        
+        this.state.fillHandleActive = false;
+        this.state.fillStartCell = null;
+        this.state.fillHandleStarted = false;
+    }
+    
+    // Helper methods
+    isColumnReadonly(colIndex) {
+        return this.options.readonlyColumns.includes(colIndex);
+    }
+    
+    // Public API
+    onCellChange(callback) {
+        this.callbacks.onChange = callback;
+    }
+    
+    onValidate(callback) {
+        this.callbacks.onValidate = callback;
+    }
+    
+    getValue(row, col) {
+        const cellId = `${row}-${col}`;
+        const cell = this.cells.get(cellId);
+        return cell ? this.getCellValue(String.fromCharCode(65 + col), row) : null;
+    }
+    
+    setValue(row, col, value) {
+        const cellId = `${row}-${col}`;
+        const cell = this.cells.get(cellId);
+        if (cell) {
+            cell.value = value;
+            if (value.toString().startsWith('=')) {
+                this.evaluateFormula(cell);
+            }
+        }
+    }
+    
+    getAllValues() {
+        const values = [];
+        this.data.forEach((row, rowIndex) => {
+            const rowValues = [];
+            row.forEach((cell, colIndex) => {
+                rowValues.push(this.getValue(rowIndex, colIndex));
+            });
+            values.push(rowValues);
+        });
+        return values;
+    }
+    
+    clear() {
+        this.cells.forEach(cell => {
+            if (!cell.classList.contains('readonly')) {
+                cell.value = '';
+                delete cell.dataset.formula;
+                delete cell.dataset.result;
+                cell.title = '';
+            }
+        });
+    }
+}
+
+// Export for use in modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ExcelGrid;
+}
+        
+        let grid;
+        
+        window.addEventListener('load', function() {
+            console.log('🚀 Loading ExcelGrid with SUM support...');
+            
+            try {
+                grid = new ExcelGrid('grid-container', {
+                    headers: ['#', 'Jan', 'Feb', 'Mar', 'Q1 Total', 'Average'],
+                    readonlyColumns: [0]
+                });
+                
+                grid.loadData([
+                    [{ value: 'Salg', readonly: true }, 1000, 1200, 1500, '', ''],
+                    [{ value: 'Kostnader', readonly: true }, 400, 500, 600, '', ''],
+                    [{ value: 'Resultat', readonly: true }, '', '', '', '', '']
+                ]);
+                
+                console.log('✅ Grid loaded!');
+                console.log('Test: =SUM(B1:D1) i E1');
+                console.log('Test: =AVERAGE(B1:D1) i F1');
+            } catch (e) {
+                console.error('❌ Error:', e);
+            }
+        });
+        
+        function demo() {
+            alert('🎬 DEMO SUM FUNKSJONER:\n\n' +
+                  '📊 HORISONTAL SUM:\n' +
+                  '1. Skriv =SUM(B1:D1) i E1\n' +
+                  '   → Resultat: 3700 (1000+1200+1500)\n' +
+                  '2. Dra E1 nedover til E2\n' +
+                  '   → E2: =SUM(B2:D2) = 1500\n\n' +
+                  '📊 GJENNOMSNITT:\n' +
+                  '3. Skriv =AVERAGE(B1:D1) i F1\n' +
+                  '   → Resultat: 1233.33\n\n' +
+                  '📊 VERTIKAL SUM:\n' +
+                  '4. Skriv =SUM(B1:B2) i B3\n' +
+                  '   → Resultat: 1400 (1000+400)\n\n' +
+                  '📊 ANDRE FUNKSJONER:\n' +
+                  '• =MIN(B1:D1) → Minste verdi\n' +
+                  '• =MAX(B1:D1) → Største verdi\n' +
+                  '• =SUM(B1:D3) → Hele rektangel!\n\n' +
+                  '✨ KLAR FOR PRODUKSJON!');
+        }
+    </script>
+</body>
+</html>
