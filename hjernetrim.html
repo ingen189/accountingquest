@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧠 Hjernetrim - Ekstra Vanskelige Case</title>
+    <title>🧠 Hjernetrim - AccountingQuest</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -40,6 +40,7 @@
             transition: background 0.3s;
         }
 
+        /* Header */
         .game-header {
             background: var(--bg-secondary);
             border-bottom: 2px solid var(--border-color);
@@ -53,7 +54,7 @@
 
         .header-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 
-        .back-btn, .theme-toggle {
+        .back-btn, .theme-toggle, .wiki-btn {
             background: var(--bg-tertiary);
             color: var(--text-primary);
             border: none;
@@ -69,6 +70,17 @@
             color: var(--bg-primary);
         }
 
+        .wiki-btn {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .wiki-btn:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
         .stat-item {
             background: var(--bg-tertiary);
             padding: 8px 15px;
@@ -78,12 +90,10 @@
 
         .stat-value { color: var(--accent); font-weight: bold; }
 
+        /* Lock Screen */
         .lock-screen {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: var(--bg-primary);
             display: flex;
             align-items: center;
@@ -143,6 +153,7 @@
             transition: width 0.5s;
         }
 
+        /* Main Content */
         .game-content { display: flex; min-height: calc(100vh - 100px); }
 
         .sidebar {
@@ -207,6 +218,7 @@
         .status-badge.completed { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
         .status-badge.not-started { background: rgba(107, 114, 128, 0.2); color: var(--text-secondary); }
 
+        /* Workspace */
         .workspace { flex: 1; padding: 30px; overflow-y: auto; }
 
         .task-header {
@@ -223,8 +235,7 @@
             margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .task-description {
@@ -235,89 +246,122 @@
             border-left: 4px solid var(--accent);
         }
 
-        .task-description h4 { color: var(--accent); margin-top: 15px; margin-bottom: 10px; }
-        .task-description ul { margin-left: 20px; margin-top: 10px; }
-        .task-description strong { color: var(--warning); }
-
-        .warning-box {
-            background: rgba(239, 68, 68, 0.1);
-            border: 2px solid var(--error);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
+        .task-description h4 {
+            color: var(--accent);
+            margin-bottom: 10px;
         }
 
-        .info-box {
-            background: rgba(59, 130, 246, 0.1);
-            border: 2px solid var(--info);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
+        .task-description ul {
+            margin: 10px 0 10px 25px;
         }
 
-        .excel-grid {
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
+        .task-description li {
+            margin: 5px 0;
+        }
+
+        /* ExcelGrid Styles */
+        .excel-grid-wrapper {
+            overflow-x: auto;
             border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            margin: 20px 0;
         }
 
-        .grid-controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-
-        .grid-btn {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .grid-btn:hover { background: var(--accent); color: var(--bg-primary); }
-
-        .spreadsheet {
+        .excel-table {
             width: 100%;
             border-collapse: collapse;
-            background: var(--bg-primary);
+            font-family: 'Consolas', 'Monaco', monospace;
         }
 
-        .spreadsheet th {
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            padding: 10px;
-            font-weight: bold;
-            border: 1px solid var(--border-color);
+        .excel-table th {
+            background: #404040;
+            color: #a0a0a0;
+            padding: 12px;
+            border: 1px solid #404040;
             text-align: center;
-            font-size: 0.9em;
+            font-weight: 600;
         }
 
-        .spreadsheet td { border: 1px solid var(--border-color); padding: 0; }
+        .excel-table td {
+            border: 1px solid #404040;
+            padding: 0;
+        }
 
-        .cell {
+        .cell-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .excel-cell {
             width: 100%;
             background: transparent;
             border: none;
-            color: var(--text-primary);
-            padding: 10px;
+            color: #eaeaea;
+            padding: 12px;
             font-size: 0.95em;
-            font-family: 'Consolas', 'Courier New', monospace;
+            font-family: 'Consolas', 'Monaco', monospace;
             text-align: right;
+            outline: none;
+            transition: background 0.2s;
         }
 
-        .cell:focus { outline: 2px solid var(--accent); background: var(--bg-secondary); }
-        .cell.readonly { background: var(--bg-tertiary); color: var(--text-secondary); cursor: not-allowed; }
-        .cell.text-cell { text-align: left; }
-        .cell.formula { color: var(--accent); font-weight: bold; }
+        .excel-cell:focus {
+            outline: 2px solid #4ade80;
+            background: rgba(255,255,255,0.05);
+            z-index: 5;
+        }
 
-        .cell.selecting-mode {
-            cursor: crosshair !important;
+        .excel-cell:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .excel-cell.readonly {
+            background: #404040;
+            color: #a0a0a0;
+            cursor: not-allowed;
+        }
+
+        .excel-cell.text-left {
+            text-align: left;
+        }
+
+        /* Fill Handle */
+        .fill-handle {
+            position: absolute;
+            right: 1px;
+            bottom: 1px;
+            width: 10px;
+            height: 10px;
+            background: #4ade80;
+            border: 2px solid #1e1e1e;
+            border-radius: 50%;
+            cursor: crosshair;
+            z-index: 25;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(74, 222, 128, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .fill-handle:hover {
+            width: 14px;
+            height: 14px;
+            right: -1px;
+            bottom: -1px;
+            background: #5ef77c;
+            box-shadow: 0 3px 8px rgba(74, 222, 128, 0.8), 0 0 0 2px rgba(74, 222, 128, 0.5);
+        }
+
+        .excel-cell.filling {
+            background: rgba(74, 222, 128, 0.25) !important;
+        }
+
+        .excel-cell.selecting-mode {
+            cursor: crosshair;
             background: rgba(59, 130, 246, 0.1);
         }
 
-        .cell.selected-for-formula {
+        .excel-cell.selected-for-formula {
             outline: 3px solid #3b82f6 !important;
             background: rgba(59, 130, 246, 0.2) !important;
             animation: cellPulse 0.5s;
@@ -328,176 +372,914 @@
             50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .cell-label {
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            padding: 10px;
+        .cell-selection-hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2d2d2d;
+            border: 2px solid #4ade80;
+            border-radius: 12px;
+            padding: 25px;
+            z-index: 1000;
             text-align: center;
-            font-weight: bold;
-            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            color: #eaeaea;
         }
 
-        .action-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
 
         .action-btn {
-            padding: 15px 40px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 1em;
         }
 
-        .action-btn.check { background: var(--accent); color: white; }
-        .action-btn.check:hover { background: var(--accent-hover); transform: translateY(-2px); }
-        .action-btn.hint { background: var(--warning); color: white; }
-        .action-btn.reset { background: var(--info); color: white; }
-
-        .feedback {
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: center;
-            font-size: 1.2em;
-            font-weight: bold;
-            display: none;
+        .action-btn.hint {
+            background: #f59e0b;
+            color: white;
         }
 
-        .feedback.show { display: block; }
-        .feedback.correct { border-color: var(--accent); color: var(--accent); background: rgba(74, 222, 128, 0.1); }
-        .feedback.incorrect { border-color: var(--error); color: var(--error); background: rgba(239, 68, 68, 0.1); }
+        .action-btn.hint:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
 
+        .action-btn.reset {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .action-btn.reset:hover {
+            background: #4a4a4a;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.check {
+            background: var(--accent);
+            color: white;
+        }
+
+        .action-btn.check:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Hint Box */
         .hint-box {
-            background: var(--bg-secondary);
-            border: 2px solid var(--warning);
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid var(--info);
             border-radius: 10px;
             padding: 20px;
-            margin-top: 20px;
+            margin: 20px 0;
             display: none;
         }
 
         .hint-box.show { display: block; }
-        .hint-title { color: var(--warning); font-weight: bold; margin-bottom: 10px; font-size: 1.1em; }
 
+        .hint-title {
+            color: var(--info);
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        /* Feedback */
+        .feedback {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback.show { display: block; }
+
+        .feedback.correct {
+            background: rgba(74, 222, 128, 0.2);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .feedback.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid var(--error);
+            color: var(--error);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .game-content { flex-direction: column; }
-            .sidebar { width: 100%; max-height: 200px; }
-            .workspace { padding: 15px; }
-            .task-title { font-size: 1.4em; }
+            .game-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+                border-right: none;
+                border-bottom: 2px solid var(--border-color);
+            }
+
+            .workspace {
+                padding: 20px;
+            }
+
+            .task-title {
+                font-size: 1.4em;
+            }
+
+            .calculator-popup {
+                right: 10px;
+                top: 80px;
+            }
+        }
+
+        /* Calculator */
+        .calculator-popup {
+            position: fixed;
+            right: 30px;
+            top: 120px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: none;
+        }
+
+        .calculator-popup.show {
+            display: block;
+        }
+
+        .calc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calc-title {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .calc-close {
+            background: var(--error);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .calc-display {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1.8em;
+            font-family: 'Consolas', monospace;
+            text-align: right;
+            margin-bottom: 15px;
+            color: var(--accent);
+            min-height: 50px;
+            overflow-x: auto;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calc-btn:hover {
+            background: #4a4a4a;
+        }
+
+        .calc-btn.operator {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .calc-btn.operator:hover {
+            background: #2563eb;
+        }
+
+        .calc-btn.equals {
+            background: var(--accent);
+            color: var(--bg-primary);
+            grid-column: span 2;
+        }
+
+        .calc-btn.equals:hover {
+            background: var(--accent-hover);
+        }
+
+        .calc-btn.clear {
+            background: var(--error);
+            color: white;
+        }
+
+        .calc-btn.clear:hover {
+            background: #dc2626;
         }
     </style>
 </head>
-<body data-theme="dark">
-    <div class="lock-screen" id="lock-screen" style="display: none;">
+<body>
+    <!-- Lock Screen -->
+    <div class="lock-screen" id="lock-screen">
         <div class="lock-content">
             <div class="lock-icon">🔒</div>
-            <div class="lock-title">Hjernetrim er låst</div>
-            <p style="margin-bottom: 20px; color: var(--text-secondary);">
-                For å låse opp Hjernetrim må du først fullføre 80% av de andre modulene.
+            <h1 class="lock-title">🧠 Hjernetrim</h1>
+            <p style="font-size: 1.2em; margin-bottom: 20px;">
+                Dette er ekstra vanskelige oppgaver for de mest dedikerte studentene!
             </p>
             
             <div class="requirements-box">
-                <h4 style="margin-bottom: 15px; color: var(--accent);">📋 Krav:</h4>
+                <h3 style="color: var(--accent); margin-bottom: 15px;">📋 Krav for å låse opp:</h3>
                 <div class="requirement-item">
-                    <span>📖 Bokføring (30/36)</span>
-                    <span id="req-bokforing" class="requirement-not-met">❌</span>
+                    <span>Fullført Quiz</span>
+                    <span class="requirement-not-met" id="req-quiz">0%</span>
                 </div>
                 <div class="requirement-item">
-                    <span>❓ Quiz (120/162)</span>
-                    <span id="req-quiz" class="requirement-not-met">❌</span>
+                    <span>Fullført Bokføring</span>
+                    <span class="requirement-not-met" id="req-bokforing">0%</span>
                 </div>
                 <div class="requirement-item">
-                    <span>📊 Analyse (8/11)</span>
-                    <span id="req-analyse" class="requirement-not-met">❌</span>
+                    <span>Fullført Regnskapsanalyse</span>
+                    <span class="requirement-not-met" id="req-analyse">0%</span>
                 </div>
                 <div class="requirement-item">
-                    <span>💼 Case (3/5)</span>
-                    <span id="req-case" class="requirement-not-met">❌</span>
+                    <span>Fullført Case Studies</span>
+                    <span class="requirement-not-met" id="req-case">0%</span>
                 </div>
             </div>
 
             <div class="progress-bar">
-                <div class="progress-fill" id="unlock-progress" style="width: 0%">0%</div>
+                <div class="progress-fill" id="overall-progress" style="width: 0%;">0%</div>
             </div>
 
-            <button class="back-btn" style="margin-top: 30px;" onclick="backToMenu()">Tilbake</button>
+            <p style="margin-top: 20px; color: var(--text-secondary);">
+                Fullfør de andre modulene for å låse opp Hjernetrim!
+            </p>
+
+            <button class="back-btn" onclick="backToMenu()" style="margin-top: 20px;">← Tilbake til meny</button>
             
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--border-color);">
-                <button class="action-btn check" onclick="forceUnlock()" style="padding: 12px 30px;">
-                    🚀 Bypass (Testing)
-                </button>
-            </div>
+            <!-- Hidden unlock button for testing -->
+            <button onclick="forceUnlock()" style="position: absolute; bottom: 10px; right: 10px; opacity: 0.1; background: none; border: none; cursor: pointer;">🔓</button>
         </div>
     </div>
 
+    <!-- Main Game -->
     <div class="game-header">
         <div class="header-left">
             <button class="back-btn" onclick="backToMenu()">← Tilbake</button>
-            <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+            <button class="wiki-btn" onclick="openWiki()">📚 Wiki</button>
             <div class="stat-item">
-                <span class="stat-label">Modul:</span>
+                <span style="color: var(--text-secondary);">Modul:</span>
                 <span class="stat-value">🧠 Hjernetrim</span>
+            </div>
+            <div class="stat-item" id="pro-badge" style="display: none; background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white;">
+                ⭐ PRO
             </div>
         </div>
         
-        <div class="header-stats">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
             <div class="stat-item">
-                <span class="stat-label">Oppgave:</span>
-                <span class="stat-value"><span id="current-task">1</span>/<span id="total-tasks">10</span></span>
+                <span style="color: var(--text-secondary);">Fullført:</span>
+                <span class="stat-value"><span id="completed-count">0</span>/10</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Fullført:</span>
-                <span class="stat-value" id="completed-count">0</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Poeng:</span>
+                <span style="color: var(--text-secondary);">Poeng:</span>
                 <span class="stat-value" id="score">0</span>
             </div>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓 Tema</button>
         </div>
     </div>
 
+    <!-- Main Content -->
     <div class="game-content">
+        <!-- Sidebar -->
         <div class="sidebar">
-            <h3>🧠 Ekstra Vanskelige Case</h3>
-            <div class="task-list" id="task-list"></div>
+            <h3>🧠 Ekstra vanskelige oppgaver</h3>
+            <div id="task-list"></div>
         </div>
 
+        <!-- Workspace -->
         <div class="workspace">
-            <div id="task-content"></div>
-
-            <div class="action-buttons">
-                <button class="action-btn hint" onclick="showHint()">💡 Hint</button>
-                <button class="action-btn reset" onclick="resetTask()">🔄 Reset</button>
-                <button class="action-btn check" onclick="checkAnswer()">✓ Sjekk</button>
+            <!-- Task Header -->
+            <div class="task-header">
+                <div class="task-title" id="task-title"></div>
+                <div class="task-description" id="task-description"></div>
             </div>
 
+            <!-- Excel Grid Container -->
+            <div id="excel-grid-container"></div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn" onclick="toggleCalculator()" style="background: #3b82f6; color: white;">🔢 Kalkulator</button>
+                <button class="action-btn hint" onclick="showHint()">💡 Hint</button>
+                <button class="action-btn reset" onclick="resetTask()">🔄 Reset</button>
+                <button class="action-btn check" onclick="checkAnswer()">✓ Sjekk svar</button>
+            </div>
+
+            <!-- Hint Box -->
             <div class="hint-box" id="hint-box">
                 <div class="hint-title">💡 Hint:</div>
                 <div id="hint-content"></div>
             </div>
 
+            <!-- Feedback -->
             <div class="feedback" id="feedback"></div>
         </div>
     </div>
 
+    <!-- Calculator -->
+    <div class="calculator-popup" id="calculator">
+        <div class="calc-header">
+            <div class="calc-title">🔢 Kalkulator</div>
+            <button class="calc-close" onclick="toggleCalculator()">✕</button>
+        </div>
+        <div class="calc-display" id="calc-display">0</div>
+        <div class="calc-buttons">
+            <button class="calc-btn clear" onclick="calcClear()">C</button>
+            <button class="calc-btn operator" onclick="calcInput('/')">/</button>
+            <button class="calc-btn operator" onclick="calcInput('*')">×</button>
+            <button class="calc-btn operator" onclick="calcInput('-')">-</button>
+            
+            <button class="calc-btn" onclick="calcInput('7')">7</button>
+            <button class="calc-btn" onclick="calcInput('8')">8</button>
+            <button class="calc-btn" onclick="calcInput('9')">9</button>
+            <button class="calc-btn operator" onclick="calcInput('+')">+</button>
+            
+            <button class="calc-btn" onclick="calcInput('4')">4</button>
+            <button class="calc-btn" onclick="calcInput('5')">5</button>
+            <button class="calc-btn" onclick="calcInput('6')">6</button>
+            <button class="calc-btn operator" onclick="calcInput('(')">(</button>
+            
+            <button class="calc-btn" onclick="calcInput('1')">1</button>
+            <button class="calc-btn" onclick="calcInput('2')">2</button>
+            <button class="calc-btn" onclick="calcInput('3')">3</button>
+            <button class="calc-btn operator" onclick="calcInput(')')">)</button>
+            
+            <button class="calc-btn" onclick="calcInput('0')">0</button>
+            <button class="calc-btn" onclick="calcInput('.')">.</button>
+            <button class="calc-btn equals" onclick="calcEquals()">=</button>
+        </div>
+    </div>
+
+    <!-- ExcelGrid Component -->
     <script>
+        /**
+         * ExcelGrid - Reusable Excel-like spreadsheet component
+         */
+        class ExcelGrid {
+            constructor(containerId, options = {}) {
+                this.container = document.getElementById(containerId);
+                this.options = {
+                    headers: options.headers || [],
+                    allowFormulas: options.allowFormulas !== false,
+                    allowCellSelection: options.allowCellSelection !== false,
+                    allowFillHandle: options.allowFillHandle !== false,
+                    showRowNumbers: options.showRowNumbers !== false,
+                    readonlyColumns: options.readonlyColumns || [],
+                    ...options
+                };
+                
+                this.data = [];
+                this.cells = new Map();
+                this.state = {
+                    selectingCell: false,
+                    selectingForCell: null,
+                    fillHandleActive: false,
+                    fillStartCell: null,
+                    fillHandleStarted: false
+                };
+                
+                this.callbacks = {
+                    onChange: null,
+                    onValidate: null
+                };
+                
+                this.recalcTimer = null;
+                
+                this.init();
+            }
+            
+            init() {
+                this.container.innerHTML = `
+                    <div class="excel-grid-wrapper">
+                        <table class="excel-table">
+                            <thead id="${this.container.id}-thead"></thead>
+                            <tbody id="${this.container.id}-tbody"></tbody>
+                        </table>
+                    </div>
+                `;
+                
+                this.thead = document.getElementById(`${this.container.id}-thead`);
+                this.tbody = document.getElementById(`${this.container.id}-tbody`);
+                
+                this.renderHeaders();
+            }
+            
+            renderHeaders() {
+                let headersHTML = '<tr>';
+                
+                if (this.options.showRowNumbers) {
+                    headersHTML += '<th class="row-number-header">#</th>';
+                }
+                
+                this.options.headers.forEach(header => {
+                    headersHTML += `<th>${header}</th>`;
+                });
+                
+                headersHTML += '</tr>';
+                this.thead.innerHTML = headersHTML;
+            }
+            
+            loadData(rows) {
+                this.data = rows;
+                this.tbody.innerHTML = '';
+                this.cells.clear();
+                
+                rows.forEach((row, rowIndex) => {
+                    this.addRow(row, rowIndex);
+                });
+            }
+            
+            addRow(rowData, rowIndex) {
+                const tr = document.createElement('tr');
+                let cellHTML = '';
+                
+                if (this.options.showRowNumbers) {
+                    cellHTML += `<td class="row-number">${rowIndex + 1}</td>`;
+                }
+                
+                rowData.forEach((cellData, colIndex) => {
+                    const isReadonly = this.isColumnReadonly(colIndex) || cellData.readonly;
+                    const value = cellData.value !== undefined ? cellData.value : cellData;
+                    const cellId = `${rowIndex}-${colIndex}`;
+                    const textAlign = cellData.textAlign || (colIndex === 0 ? 'left' : 'right');
+                    const dataKey = cellData.key || '';
+                    
+                    cellHTML += `
+                        <td>
+                            <div class="cell-wrapper">
+                                <input 
+                                    type="text" 
+                                    class="excel-cell ${isReadonly ? 'readonly' : ''} ${textAlign === 'left' ? 'text-left' : ''}" 
+                                    id="cell-${cellId}" 
+                                    value="${value}"
+                                    ${isReadonly ? 'readonly' : ''}
+                                    ${dataKey ? `data-key="${dataKey}"` : ''}
+                                    data-row="${rowIndex}"
+                                    data-col="${colIndex}"
+                                />
+                                ${!isReadonly && this.options.allowFillHandle ? '<div class="fill-handle"></div>' : ''}
+                            </div>
+                        </td>
+                    `;
+                });
+                
+                tr.innerHTML = cellHTML;
+                this.tbody.appendChild(tr);
+                
+                // Attach event listeners
+                rowData.forEach((cellData, colIndex) => {
+                    const cellId = `${rowIndex}-${colIndex}`;
+                    const cell = document.getElementById(`cell-${cellId}`);
+                    
+                    if (cell && !cell.classList.contains('readonly')) {
+                        this.attachCellListeners(cell, rowIndex, colIndex);
+                        this.cells.set(cellId, cell);
+                    }
+                });
+            }
+            
+            isColumnReadonly(colIndex) {
+                return this.options.readonlyColumns.includes(colIndex);
+            }
+            
+            attachCellListeners(cell, row, col) {
+                // Input event
+                cell.addEventListener('input', () => {
+                    this.handleCellInput(cell, row, col);
+                });
+                
+                // Focus event
+                cell.addEventListener('focus', () => {
+                    if (cell.dataset.formula) {
+                        cell.value = cell.dataset.formula;
+                    }
+                });
+                
+                // Blur event
+                cell.addEventListener('blur', () => {
+                    if (cell.dataset.formula && cell.dataset.result) {
+                        const result = parseFloat(cell.dataset.result);
+                        if (!isNaN(result) && isFinite(result)) {
+                            cell.value = this.formatNumber(result);
+                        }
+                    }
+                });
+                
+                // Keyboard navigation
+                cell.addEventListener('keydown', (e) => {
+                    this.handleKeyboard(e, cell, row, col);
+                });
+                
+                // Fill handle
+                const fillHandle = cell.parentElement.querySelector('.fill-handle');
+                if (fillHandle) {
+                    this.attachFillHandleListeners(fillHandle, cell, row, col);
+                }
+            }
+            
+            handleCellInput(cell, row, col) {
+                const value = cell.value;
+                
+                if (value.startsWith('=')) {
+                    this.handleFormula(cell, row, col);
+                } else {
+                    delete cell.dataset.formula;
+                    delete cell.dataset.result;
+                }
+                
+                if (this.callbacks.onChange) {
+                    this.callbacks.onChange(row, col, value);
+                }
+                
+                // Trigger recalculation
+                this.scheduleRecalc();
+            }
+            
+            handleFormula(cell, row, col) {
+                const formula = cell.value;
+                cell.dataset.formula = formula;
+                
+                try {
+                    const result = this.evaluateFormula(formula, row, col);
+                    cell.dataset.result = result;
+                    
+                    // Show result when not focused
+                    if (document.activeElement !== cell) {
+                        cell.value = this.formatNumber(result);
+                    }
+                } catch (error) {
+                    console.error('Formula error:', error);
+                    cell.dataset.result = '0';
+                }
+            }
+            
+            evaluateFormula(formula, currentRow, currentCol) {
+                let expression = formula.substring(1).trim();
+                
+                // Replace cell references
+                const cellRefRegex = /\$?([A-Z]+)\$?(\d+)/g;
+                expression = expression.replace(cellRefRegex, (match, col, row) => {
+                    const value = this.getCellValue(row - 1, this.colToIndex(col));
+                    return value;
+                });
+                
+                // Handle functions
+                expression = this.handleFunctions(expression);
+                
+                // Evaluate
+                try {
+                    const result = new Function(`return ${expression}`)();
+                    return result;
+                } catch (error) {
+                    console.error('Eval error:', error);
+                    return 0;
+                }
+            }
+            
+            handleFunctions(expression) {
+                // SUM
+                expression = expression.replace(/SUM\(([^)]+)\)/gi, (match, range) => {
+                    const values = this.getRangeValues(range);
+                    return values.reduce((sum, val) => sum + val, 0);
+                });
+                
+                // AVERAGE
+                expression = expression.replace(/AVERAGE\(([^)]+)\)/gi, (match, range) => {
+                    const values = this.getRangeValues(range);
+                    return values.length > 0 ? values.reduce((sum, val) => sum + val, 0) / values.length : 0;
+                });
+                
+                // MIN
+                expression = expression.replace(/MIN\(([^)]+)\)/gi, (match, range) => {
+                    const values = this.getRangeValues(range);
+                    return values.length > 0 ? Math.min(...values) : 0;
+                });
+                
+                // MAX
+                expression = expression.replace(/MAX\(([^)]+)\)/gi, (match, range) => {
+                    const values = this.getRangeValues(range);
+                    return values.length > 0 ? Math.max(...values) : 0;
+                });
+                
+                // ABS
+                expression = expression.replace(/ABS\(([^)]+)\)/gi, (match, value) => {
+                    return `Math.abs(${value})`;
+                });
+                
+                return expression;
+            }
+            
+            getRangeValues(range) {
+                const values = [];
+                
+                if (range.includes(':')) {
+                    const [start, end] = range.split(':');
+                    const startMatch = start.match(/([A-Z]+)(\d+)/);
+                    const endMatch = end.match(/([A-Z]+)(\d+)/);
+                    
+                    if (startMatch && endMatch) {
+                        const startCol = this.colToIndex(startMatch[1]);
+                        const startRow = parseInt(startMatch[2]) - 1;
+                        const endCol = this.colToIndex(endMatch[1]);
+                        const endRow = parseInt(endMatch[2]) - 1;
+                        
+                        for (let r = startRow; r <= endRow; r++) {
+                            for (let c = startCol; c <= endCol; c++) {
+                                values.push(this.getCellValue(r, c));
+                            }
+                        }
+                    }
+                } else {
+                    values.push(parseFloat(range) || 0);
+                }
+                
+                return values;
+            }
+            
+            getCellValue(row, col) {
+                const cellId = `${row}-${col}`;
+                const cell = this.cells.get(cellId);
+                
+                if (!cell) return 0;
+                
+                if (cell.dataset.result) {
+                    return parseFloat(cell.dataset.result) || 0;
+                }
+                
+                const value = cell.value.replace(/\s/g, '').replace(/,/g, '');
+                return parseFloat(value) || 0;
+            }
+            
+            colToIndex(col) {
+                let index = 0;
+                for (let i = 0; i < col.length; i++) {
+                    index = index * 26 + (col.charCodeAt(i) - 64);
+                }
+                return index - 1;
+            }
+            
+            indexToCol(index) {
+                let col = '';
+                index += 1;
+                while (index > 0) {
+                    const mod = (index - 1) % 26;
+                    col = String.fromCharCode(65 + mod) + col;
+                    index = Math.floor((index - mod) / 26);
+                }
+                return col;
+            }
+            
+            handleKeyboard(e, cell, row, col) {
+                const key = e.key;
+                let targetCell = null;
+                
+                if (key === 'ArrowUp') {
+                    e.preventDefault();
+                    targetCell = this.cells.get(`${row - 1}-${col}`);
+                } else if (key === 'ArrowDown') {
+                    e.preventDefault();
+                    targetCell = this.cells.get(`${row + 1}-${col}`);
+                } else if (key === 'ArrowLeft') {
+                    e.preventDefault();
+                    targetCell = this.cells.get(`${row}-${col - 1}`);
+                } else if (key === 'ArrowRight') {
+                    e.preventDefault();
+                    targetCell = this.cells.get(`${row}-${col + 1}`);
+                } else if (key === 'Enter') {
+                    e.preventDefault();
+                    targetCell = this.cells.get(`${row + 1}-${col}`);
+                } else if (key === 'Tab') {
+                    e.preventDefault();
+                    targetCell = this.cells.get(`${row}-${col + 1}`);
+                }
+                
+                if (targetCell) {
+                    targetCell.focus();
+                    targetCell.select();
+                }
+            }
+            
+            attachFillHandleListeners(fillHandle, cell, row, col) {
+                fillHandle.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.startFillHandle(cell, row, col);
+                });
+            }
+            
+            startFillHandle(cell, row, col) {
+                this.state.fillHandleActive = true;
+                this.state.fillStartCell = { cell, row, col };
+                
+                const handleMove = (e) => {
+                    if (!this.state.fillHandleActive) return;
+                    
+                    const target = document.elementFromPoint(e.clientX, e.clientY);
+                    if (target && target.classList.contains('excel-cell')) {
+                        const targetRow = parseInt(target.dataset.row);
+                        const targetCol = parseInt(target.dataset.col);
+                        this.highlightFillRange(row, col, targetRow, targetCol);
+                    }
+                };
+                
+                const handleUp = () => {
+                    if (this.state.fillHandleActive) {
+                        this.completeFill();
+                    }
+                    document.removeEventListener('mousemove', handleMove);
+                    document.removeEventListener('mouseup', handleUp);
+                };
+                
+                document.addEventListener('mousemove', handleMove);
+                document.addEventListener('mouseup', handleUp);
+            }
+            
+            highlightFillRange(startRow, startCol, endRow, endCol) {
+                this.cells.forEach((cell, id) => {
+                    cell.classList.remove('filling');
+                });
+                
+                const minRow = Math.min(startRow, endRow);
+                const maxRow = Math.max(startRow, endRow);
+                const minCol = Math.min(startCol, endCol);
+                const maxCol = Math.max(startCol, endCol);
+                
+                for (let r = minRow; r <= maxRow; r++) {
+                    for (let c = minCol; c <= maxCol; c++) {
+                        const cell = this.cells.get(`${r}-${c}`);
+                        if (cell) {
+                            cell.classList.add('filling');
+                        }
+                    }
+                }
+            }
+            
+            completeFill() {
+                const fillingCells = Array.from(this.cells.values()).filter(c => c.classList.contains('filling'));
+                
+                if (fillingCells.length > 1 && this.state.fillStartCell) {
+                    const sourceCell = this.state.fillStartCell.cell;
+                    const sourceFormula = sourceCell.dataset.formula;
+                    const sourceValue = sourceCell.value;
+                    
+                    fillingCells.forEach(targetCell => {
+                        if (targetCell !== sourceCell && !targetCell.classList.contains('readonly')) {
+                            if (sourceFormula) {
+                                // Copy and adjust formula
+                                const adjustedFormula = this.adjustFormula(
+                                    sourceFormula,
+                                    this.state.fillStartCell.row,
+                                    this.state.fillStartCell.col,
+                                    parseInt(targetCell.dataset.row),
+                                    parseInt(targetCell.dataset.col)
+                                );
+                                targetCell.value = adjustedFormula;
+                                this.handleFormula(targetCell, parseInt(targetCell.dataset.row), parseInt(targetCell.dataset.col));
+                            } else {
+                                targetCell.value = sourceValue;
+                            }
+                        }
+                        targetCell.classList.remove('filling');
+                    });
+                    
+                    this.scheduleRecalc();
+                }
+                
+                this.state.fillHandleActive = false;
+                this.state.fillStartCell = null;
+            }
+            
+            adjustFormula(formula, fromRow, fromCol, toRow, toCol) {
+                const rowDiff = toRow - fromRow;
+                const colDiff = toCol - fromCol;
+                
+                return formula.replace(/(\$?)([A-Z]+)(\$?)(\d+)/g, (match, colLock, col, rowLock, row) => {
+                    let newCol = col;
+                    let newRow = parseInt(row);
+                    
+                    if (!colLock) {
+                        const colIndex = this.colToIndex(col);
+                        newCol = this.indexToCol(colIndex + colDiff);
+                    }
+                    
+                    if (!rowLock) {
+                        newRow = parseInt(row) + rowDiff;
+                    }
+                    
+                    return `${colLock}${newCol}${rowLock}${newRow}`;
+                });
+            }
+            
+            scheduleRecalc() {
+                if (this.recalcTimer) {
+                    clearTimeout(this.recalcTimer);
+                }
+                
+                this.recalcTimer = setTimeout(() => {
+                    this.recalculateAll();
+                }, 100);
+            }
+            
+            recalculateAll() {
+                this.cells.forEach((cell, id) => {
+                    if (cell.dataset.formula) {
+                        const [row, col] = id.split('-').map(Number);
+                        this.handleFormula(cell, row, col);
+                    }
+                });
+            }
+            
+            formatNumber(num) {
+                if (isNaN(num) || !isFinite(num)) return '0';
+                return num.toLocaleString('nb-NO', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                });
+            }
+            
+            onCellChange(callback) {
+                this.callbacks.onChange = callback;
+            }
+            
+            getCellByKey(key) {
+                for (const [id, cell] of this.cells.entries()) {
+                    if (cell.dataset.key === key) {
+                        return cell;
+                    }
+                }
+                return null;
+            }
+            
+            getAllCellsWithKeys() {
+                const result = [];
+                this.cells.forEach((cell, id) => {
+                    if (cell.dataset.key) {
+                        result.push(cell);
+                    }
+                });
+                return result;
+            }
+        }
+    </script>
+
+    <!-- Main Game Script -->
+    <script>
+        // Task Definitions - Original 10 oppgaver
+        // Task Definitions - Original 10 oppgaver
         const tasks = [
             {
                 id: 1,
                 title: "🕵️ Case 1: Manipulasjonsdetektiv - TechCorp AS",
-                difficulty: "master",
-                shortDesc: "Finn røde flagg i regnskapet",
+                shortTitle: "Oppgave 1",
                 description: `
-                    <div class="warning-box"><strong>⚠️ MASTER LEVEL:</strong> Krever dyp analyse og kritisk tenkning</div>
-                    
+                    <div style="background: rgba(239, 68, 68, 0.1); border: 2px solid var(--error); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <strong>⚠️ MASTER LEVEL:</strong> Krever dyp analyse og kritisk tenkning
+                    </div>
                     <h4>Situasjon:</h4>
                     <p>Du er revisor for TechCorp AS. Ved gjennomgang oppdager du:</p>
                     <ul>
@@ -507,13 +1289,6 @@
                         <li>Totalkapital: ↑40% uten forklaring</li>
                         <li>Avskrivninger: Redusert fra 20% til 10%</li>
                     </ul>
-                    
-                    <h4>📊 Oppgave:</h4>
-                    <ol>
-                        <li>Antall røde flagg (minimum 5)</li>
-                        <li>Korrigert resultat (kr)</li>
-                        <li>Alvorlighetsgrad (1-10)</li>
-                    </ol>
                 `,
                 solution: { rodeFlags: 5, korrigertResultat: 3200000, alvorlighetsgrad: 8 },
                 hint: "Røde flagg: Fordringer vs salg, varelager, revisorskift, totalkapital, avskrivningspolitikk. Korrigert resultat må justeres.",
@@ -522,11 +1297,11 @@
             {
                 id: 2,
                 title: "🚨 Case 2: Krise - RetailMax AS",
-                difficulty: "master",
-                shortDesc: "Redde konkursrammet bedrift",
+                shortTitle: "Oppgave 2",
                 description: `
-                    <div class="warning-box"><strong>⚠️ AKUTT:</strong> Selskapet er på konkursens rand!</div>
-                    
+                    <div style="background: rgba(239, 68, 68, 0.1); border: 2px solid var(--error); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <strong>⚠️ AKUTT:</strong> Selskapet er på konkursens rand!
+                    </div>
                     <h4>Situasjon:</h4>
                     <ul>
                         <li>Likviditetsgrad 1: 0,4 (kritisk!)</li>
@@ -534,13 +1309,6 @@
                         <li>Brudd på lånebetingelser</li>
                         <li>8M forfaller om 2 uker</li>
                     </ul>
-                    
-                    <h4>📊 Oppgave:</h4>
-                    <ol>
-                        <li>Nødvendig kapitalinnhenting (kr)</li>
-                        <li>Ny likviditetsgrad (desimaltall)</li>
-                        <li>Tiltak-prioritet (1-5)</li>
-                    </ol>
                 `,
                 solution: { nodvendigKapital: 8000000, nyLikviditetsgrad: 1.24, prioritet: 2 },
                 hint: "8M forfaller. Faktoring + salg AM ≈ 8,6M. LG1 = (Omløpsmidler + Tiltak) / Kortsiktig gjeld",
@@ -549,8 +1317,7 @@
             {
                 id: 3,
                 title: "🤝 Case 3: Fusjon - Alpha kjøper Beta AS",
-                difficulty: "expert",
-                shortDesc: "Verdsett og beregn goodwill",
+                shortTitle: "Oppgave 3",
                 description: `
                     <h4>Beta AS data:</h4>
                     <ul>
@@ -559,13 +1326,7 @@
                         <li>Bransje-multiplikator: 6x EBIT</li>
                         <li>Skjulte reserver: 3 000 000 kr</li>
                     </ul>
-                    
-                    <h4>📊 Oppgave (kjøpesum 13M):</h4>
-                    <ol>
-                        <li>Verdi med multiplikator (kr)</li>
-                        <li>Korrigert EK (kr)</li>
-                        <li>Goodwill (kr)</li>
-                    </ol>
+                    <p><strong>Kjøpesum: 13M</strong></p>
                 `,
                 solution: { verdiMultiplikator: 12000000, korrigertEK: 13000000, goodwill: 0 },
                 hint: "Verdi = Årsresultat × 6. Korrigert EK = Bokført + Skjulte. Goodwill = Kjøpesum - Korrigert EK",
@@ -574,8 +1335,7 @@
             {
                 id: 4,
                 title: "🧾 Case 4: Kompleks MVA - ImportExport AS",
-                difficulty: "master",
-                shortDesc: "Internasjonal handel med MVA",
+                shortTitle: "Oppgave 4",
                 description: `
                     <h4>Transaksjoner denne måneden:</h4>
                     <ul>
@@ -585,13 +1345,6 @@
                         <li>Representasjon (50% ikke fradrag): 10k + MVA 2,5k</li>
                         <li>Firmabil (20% privat): 40k + MVA 10k</li>
                     </ul>
-                    
-                    <h4>📊 Oppgave:</h4>
-                    <ol>
-                        <li>Utgående MVA (kr)</li>
-                        <li>Inngående MVA (kr)</li>
-                        <li>MVA til betaling (kr)</li>
-                    </ol>
                 `,
                 solution: { utgaendeMVA: 62500, inngaendeMVA: 34750, mvaTilBetaling: 27750 },
                 hint: "Utgående = Import(omvendt) + Innenlands. Inngående = Import + (Rep×50%) + (Bil×80%). Oppgjør = Utgående - Inngående",
@@ -600,8 +1353,7 @@
             {
                 id: 5,
                 title: "💰 Case 5: Skatt-puslespill - MegaCorp AS",
-                difficulty: "master",
-                shortDesc: "Kompleks skattesituasjon",
+                shortTitle: "Oppgave 5",
                 description: `
                     <h4>Data:</h4>
                     <ul>
@@ -612,13 +1364,6 @@
                         <li>Fremførbart underskudd: 2 000 000 kr</li>
                         <li>Skattesats: 22%</li>
                     </ul>
-                    
-                    <h4>📊 Oppgave:</h4>
-                    <ol>
-                        <li>Skattemessig resultat (kr)</li>
-                        <li>Betalbar skatt (kr)</li>
-                        <li>Total skattekostnad (kr)</li>
-                    </ol>
                 `,
                 solution: { skattemessigResultat: 8200000, betalbarSkatt: 1804000, skattekostnad: 1694000 },
                 hint: "Skatt.res = Regn.res + Permanente + Midlertidige - Fremførbart. Betalbar = Skatt.res × 22%. Utsatt skatt = Midlertidig × 22%",
@@ -627,8 +1372,7 @@
             {
                 id: 6,
                 title: "⚖️ Case 6: Regnskapspolitikk-dilemma",
-                difficulty: "expert",
-                shortDesc: "Etisk vurdering",
+                shortTitle: "Oppgave 6",
                 description: `
                     <h4>Ledelsen foreslår:</h4>
                     <ul>
@@ -637,13 +1381,6 @@
                         <li>Redusere tap-avsetning 5%→1%: +400k</li>
                         <li>Endre inntektsføring: +1M</li>
                     </ul>
-                    
-                    <h4>📊 Oppgave:</h4>
-                    <ol>
-                        <li>Akseptable tiltak (0-4)</li>
-                        <li>Total effekt hvis alle (kr)</li>
-                        <li>Risiko (1-10)</li>
-                    </ol>
                 `,
                 solution: { akseptableTiltak: 1, totalEffekt: 3900000, risiko: 8 },
                 hint: "Kun tiltak 2 kan være akseptabelt hvis økonomisk levetid er reell. Andre = manipulering.",
@@ -652,8 +1389,7 @@
             {
                 id: 7,
                 title: "💸 Case 7: Gjeldsforhandling - DebtCo AS",
-                difficulty: "master",
-                shortDesc: "Konkursnær bedrift",
+                shortTitle: "Oppgave 7",
                 description: `
                     <h4>Situasjon (EK: -16M!):</h4>
                     <ul>
@@ -664,13 +1400,6 @@
                         <li>Total gjeld: 50M</li>
                         <li>Prioritert (lønn+skatt+sikret): 25M</li>
                     </ul>
-                    
-                    <h4>📊 Oppgave:</h4>
-                    <ol>
-                        <li>Reell verdi eiendeler (kr)</li>
-                        <li>Dekningsgrad usikret (0-100%)</li>
-                        <li>Forslag kr/kr gjeld (desimal)</li>
-                    </ol>
                 `,
                 solution: { reellVerdi: 30200000, dekningsgradUsikret: 20, forslag: 0.20 },
                 hint: "Reell = Markedsverdier. Etter prioritert, hva gjenstår? Dekningsgrad = Rest / Usikret gjeld",
@@ -679,8 +1408,7 @@
             {
                 id: 8,
                 title: "🏢 Case 8: Konsernregnskap Light",
-                difficulty: "expert",
-                shortDesc: "Konsolidering mor/datter",
+                shortTitle: "Oppgave 8",
                 description: `
                     <h4>Parent AS eier 80% av Child AS:</h4>
                     <ul>
@@ -690,13 +1418,6 @@
                         <li>Parent resultat: 8M</li>
                         <li>Child resultat: 2M</li>
                     </ul>
-                    
-                    <h4>📊 Oppgave:</h4>
-                    <ol>
-                        <li>Konsolidert resultat (kr)</li>
-                        <li>Minoritetsandel 20% (kr)</li>
-                        <li>Majoritetens andel (kr)</li>
-                    </ol>
                 `,
                 solution: { konsolidertResultat: 9900000, minoritet: 400000, majoritet: 9500000 },
                 hint: "Konsol = Sum - Rente. Minoritet = 20% av Child. Majoritet = Rest",
@@ -705,21 +1426,13 @@
             {
                 id: 9,
                 title: "📉 Case 9: Budsjettavvik - PlanCorp AS",
-                difficulty: "expert",
-                shortDesc: "Analyser store avvik",
+                shortTitle: "Oppgave 9",
                 description: `
                     <h4>Budsjett 2024 vs Faktisk:</h4>
                     <ul>
                         <li>Omsetning: 100M → 85M</li>
                         <li>Resultat: 10M → -2M</li>
                     </ul>
-                    
-                    <h4>📊 Oppgave:</h4>
-                    <ol>
-                        <li>Avvik omsetning (kr, negativt tall)</li>
-                        <li>Avvik resultat (kr, negativt tall)</li>
-                        <li>Budsjettkvalitet (1-10, 10=bra)</li>
-                    </ol>
                 `,
                 solution: { avvikOmsetning: -15000000, avvikResultat: -12000000, budsjettkvalitet: 3 },
                 hint: "Avvik = Faktisk - Budsjett. Negativt = dårligere. Budsjett var urealistisk.",
@@ -728,8 +1441,7 @@
             {
                 id: 10,
                 title: "📦 Case 10: Kompleks Varekostnad",
-                difficulty: "master",
-                shortDesc: "FIFO vs gjennomsnitt",
+                shortTitle: "Oppgave 10",
                 description: `
                     <h4>Innkjøp (kronologisk):</h4>
                     <ul>
@@ -738,412 +1450,174 @@
                         <li>200 stk à 1100 kr = 220k</li>
                         <li>Produsert: 400 stk, Solgt: 350 stk</li>
                     </ul>
-                    
-                    <h4>📊 Oppgave:</h4>
-                    <ol>
-                        <li>Varekostnad FIFO (kr)</li>
-                        <li>Gjennomsnittspris (kr per stk)</li>
-                        <li>Varekostnad gjennomsnitt (kr)</li>
-                    </ol>
                 `,
                 solution: { varekostnadFIFO: 385000, gjennomsnittspris: 1111, varekostnadGjennomsnitt: 388889 },
                 hint: "FIFO: Først inn først ut. Gjennomsnitt = Total / Antall. Kostnad = Solgt × Pris",
                 explanation: "FIFO: 100×1000+150×1200+100×1100=385k. Snitt: 500k/450=1111. Kostnad: 388,9k"
             }
         ];
-
         let gameState = {
             currentTask: 0,
             completedTasks: [],
             score: 0,
-            theme: 'dark',
-            unlocked: false
+            unlocked: false,
+            theme: 'dark'
         };
 
+        let currentGrid = null;
+
+        // Initialize
         function init() {
-            loadProgress();
             checkUnlockStatus();
+            loadProgress();
             loadTaskList();
-            if (gameState.unlocked) loadTask(0);
+            loadTask(0);
+            
+            // Vis Pro badge hvis bruker er Pro
+            const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            if (userProfile.subscription === 'pro') {
+                document.getElementById('pro-badge').style.display = 'block';
+            }
         }
 
+        // Check if module should be unlocked
         function checkUnlockStatus() {
-            const bProgress = JSON.parse(localStorage.getItem('bokforing_progress') || '{"completedTasks":[]}');
-            const qProgress = JSON.parse(localStorage.getItem('quiz_progress') || '{"completedCount":0}');
-            const aProgress = JSON.parse(localStorage.getItem('regnskapsanalyse_progress') || '{"completedTasks":[]}');
-            const cProgress = JSON.parse(localStorage.getItem('case_progress') || '{"completedTasks":[]}');
+            // 🌟 PRO BYPASS: Pro brukere får full tilgang
+            const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            const isPro = userProfile.subscription === 'pro';
+            
+            if (isPro) {
+                gameState.unlocked = true;
+                document.getElementById('lock-screen').style.display = 'none';
+                return; // Skip requirements check
+            }
 
-            const total = (
-                ((bProgress.completedTasks || []).length / 30) * 0.25 +
-                ((qProgress.completedCount || 0) / 120) * 0.25 +
-                ((aProgress.completedTasks || []).length / 8) * 0.25 +
-                ((cProgress.completedTasks || []).length / 3) * 0.25
-            ) * 100;
+            // For gratis brukere: Sjekk krav
+            const quizProgress = JSON.parse(localStorage.getItem('quiz_progress') || '{}');
+            const bokforingProgress = JSON.parse(localStorage.getItem('bokforing_progress') || '{}');
+            const analyseProgress = JSON.parse(localStorage.getItem('analyse_progress') || '{}');
+            const caseProgress = JSON.parse(localStorage.getItem('case_progress') || '{}');
 
-            document.getElementById('unlock-progress').style.width = total + '%';
-            document.getElementById('unlock-progress').textContent = Math.round(total) + '%';
+            const quizPercent = ((quizProgress.completedQuestions || 0) / 20) * 100;
+            const bokforingPercent = ((bokforingProgress.completedTasks || 0) / 15) * 100;
+            const analysePercent = ((analyseProgress.completedTasks || 0) / 8) * 100;
+            const casePercent = ((caseProgress.completedTasks || 0) / 5) * 100;
 
-            gameState.unlocked = total >= 80;
-            document.getElementById('lock-screen').style.display = gameState.unlocked ? 'none' : 'flex';
+            const overallPercent = (quizPercent + bokforingPercent + analysePercent + casePercent) / 4;
+
+            document.getElementById('req-quiz').textContent = Math.round(quizPercent) + '%';
+            document.getElementById('req-quiz').className = quizPercent >= 80 ? 'requirement-met' : 'requirement-not-met';
+            
+            document.getElementById('req-bokforing').textContent = Math.round(bokforingPercent) + '%';
+            document.getElementById('req-bokforing').className = bokforingPercent >= 80 ? 'requirement-met' : 'requirement-not-met';
+            
+            document.getElementById('req-analyse').textContent = Math.round(analysePercent) + '%';
+            document.getElementById('req-analyse').className = analysePercent >= 80 ? 'requirement-met' : 'requirement-not-met';
+            
+            document.getElementById('req-case').textContent = Math.round(casePercent) + '%';
+            document.getElementById('req-case').className = casePercent >= 80 ? 'requirement-met' : 'requirement-not-met';
+
+            const progressFill = document.getElementById('overall-progress');
+            progressFill.style.width = overallPercent + '%';
+            progressFill.textContent = Math.round(overallPercent) + '%';
+
+            if (overallPercent >= 80 || gameState.unlocked) {
+                gameState.unlocked = true;
+                document.getElementById('lock-screen').style.display = 'none';
+            }
         }
 
         function loadTaskList() {
-            const list = document.getElementById('task-list');
-            list.innerHTML = tasks.map((t, i) => `
-                <div class="task-item ${i === gameState.currentTask ? 'active' : ''} ${gameState.completedTasks.includes(t.id) ? 'completed' : ''}" onclick="loadTask(${i})">
-                    <div class="difficulty-badge difficulty-${t.difficulty}">${t.difficulty === 'master' ? '🔥 MASTER' : '⚡ EXPERT'}</div>
-                    <div class="task-item-title">${t.title}</div>
-                    <div class="task-item-desc">${t.shortDesc}</div>
-                    <span class="status-badge ${gameState.completedTasks.includes(t.id) ? 'completed' : 'not-started'}">
-                        ${gameState.completedTasks.includes(t.id) ? '✓ Fullført' : 'Ikke startet'}
-                    </span>
-                </div>
-            `).join('');
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const isCompleted = gameState.completedTasks.includes(task.id);
+                const isActive = index === gameState.currentTask;
+
+                const item = document.createElement('div');
+                item.className = 'task-item' + (isActive ? ' active' : '') + (isCompleted ? ' completed' : '');
+                item.onclick = () => loadTask(index);
+
+                item.innerHTML = `
+                    <div class="task-item-title">${task.shortTitle}</div>
+                    <div class="task-item-desc">${task.title}</div>
+                    <span class="difficulty-badge difficulty-master">⚡ EKSTREMT</span>
+                    ${isCompleted ? '<span class="status-badge completed">✓ Fullført</span>' : '<span class="status-badge not-started">Ikke startet</span>'}
+                `;
+
+                taskList.appendChild(item);
+            });
         }
 
         function loadTask(index) {
-            if (!gameState.unlocked) return;
             gameState.currentTask = index;
             const task = tasks[index];
 
-            document.getElementById('current-task').textContent = index + 1;
-            document.getElementById('total-tasks').textContent = tasks.length;
+            // Update header
+            document.getElementById('task-title').textContent = task.title;
+            document.getElementById('task-description').innerHTML = task.description;
 
-            document.getElementById('task-content').innerHTML = `
-                <div class="task-header">
-                    <div class="task-title">${task.title}</div>
-                    <div class="task-description">${task.description}</div>
-                </div>
-                
-                <div class="excel-grid">
+            // Create simple grid without ExcelGrid component
+            const gridHTML = `
+                <div style="background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 10px; padding: 20px; margin: 20px 0;">
                     <table class="spreadsheet">
-                        <thead><tr><th>#</th><th>Spørsmål</th><th>Svar</th></tr></thead>
-                        <tbody id="tbody"></tbody>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px">#</th>
+                                <th>Spørsmål</th>
+                                <th style="width: 200px">Svar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="task-tbody"></tbody>
                     </table>
                 </div>
             `;
-
-            const tbody = document.getElementById('tbody');
+            
+            document.getElementById('excel-grid-container').innerHTML = gridHTML;
+            
+            // Add rows for each solution key
+            const tbody = document.getElementById('task-tbody');
             Object.keys(task.solution).forEach((key, i) => {
                 const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim();
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="cell-label">${i+1}</td>
-                        <td><input type="text" class="cell text-cell readonly" value="${label}" readonly></td>
-                        <td><input type="text" class="cell" data-key="${key}" placeholder="Svar eller =formel" 
-                                   onkeydown="handleCellNav(event)" 
-                                   oninput="handleFormula(this)"
-                                   onfocus="handleCellFocus(this)"
-                                   onblur="handleCellBlur(this)"></td>
-                    </tr>
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="background: var(--bg-tertiary); color: var(--text-secondary); text-align: center; font-weight: bold; padding: 10px;">${i + 1}</td>
+                    <td style="padding: 0;"><input type="text" class="excel-cell readonly text-left" value="${label}" readonly style="background: var(--bg-tertiary); color: var(--text-secondary);"></td>
+                    <td style="padding: 0;"><input type="text" class="excel-cell" data-key="${key}" placeholder="Skriv svar"></td>
                 `;
+                tbody.appendChild(row);
             });
 
-            setTimeout(() => tbody.querySelector('.cell:not(.readonly)').focus(), 100);
+            // Hide feedback and hint
             document.getElementById('feedback').className = 'feedback';
             document.getElementById('hint-box').classList.remove('show');
+
+            // Focus first input
+            setTimeout(() => {
+                const firstInput = tbody.querySelector('.excel-cell:not(.readonly)');
+                if (firstInput) firstInput.focus();
+            }, 100);
+
             loadTaskList();
-        }
-
-        let selectingCell = false;
-        let selectingForCell = null;
-
-        function handleCellNav(e) {
-            const cell = e.target;
-            const row = cell.parentElement.parentElement;
-            const idx = Array.from(row.children).indexOf(cell.parentElement);
-            
-            // ESC to cancel cell selection
-            if (e.key === 'Escape' && selectingCell) {
-                endCellSelection();
-                return;
-            }
-            
-            // Enter in selection mode selects the cell
-            if (e.key === 'Enter' && selectingCell) {
-                e.preventDefault();
-                if (cell === selectingForCell) {
-                    endCellSelection();
-                } else {
-                    selectCellForFormula(cell);
-                }
-                return;
-            }
-            
-            // Allow typing operators to restart selection
-            if ((e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/' || e.key === '(' || e.key === ')') && cell.value.startsWith('=')) {
-                // Let the operator be typed
-                setTimeout(() => {
-                    // Only restart selection if we're not already selecting
-                    if (!selectingCell) {
-                        startCellSelection(cell);
-                    }
-                }, 50);
-                return;
-            }
-            
-            // Normal Enter - move down
-            if (e.key === 'Enter' && !selectingCell) {
-                e.preventDefault();
-                const next = row.nextElementSibling;
-                if (next) next.children[idx]?.querySelector('.cell:not(.readonly)')?.focus();
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                const next = row.nextElementSibling;
-                if (next) next.children[idx]?.querySelector('.cell:not(.readonly)')?.focus();
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                const prev = row.previousElementSibling;
-                if (prev) prev.children[idx]?.querySelector('.cell:not(.readonly)')?.focus();
-            } else if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                const prev = cell.parentElement.previousElementSibling;
-                if (prev) prev.querySelector('.cell:not(.readonly)')?.focus();
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                const next = cell.parentElement.nextElementSibling;
-                if (next) next.querySelector('.cell:not(.readonly)')?.focus();
-            } else if (e.key === 'Tab') {
-                e.preventDefault();
-                const next = e.shiftKey ? 
-                    cell.parentElement.previousElementSibling :
-                    cell.parentElement.nextElementSibling;
-                if (next) next.querySelector('.cell:not(.readonly)')?.focus();
-            } else if (e.key === '=' && !cell.classList.contains('text-cell')) {
-                setTimeout(() => startCellSelection(cell), 10);
-            }
-        }
-
-        function handleFormula(cell) {
-            const value = cell.value.trim();
-            
-            if (value.startsWith('=')) {
-                cell.classList.add('formula');
-                
-                // Check if formula looks complete (doesn't end with operator)
-                const endsWithOperator = /[\+\-\*\/\(]$/.test(value);
-                
-                if (endsWithOperator) {
-                    // Formula is incomplete, don't evaluate yet
-                    cell.dataset.result = 0;
-                    cell.title = 'Ufullstendig formel...';
-                    return;
-                }
-                
-                try {
-                    const formula = value.substring(1);
-                    const result = evaluateFormula(formula);
-                    
-                    if (result !== undefined && !isNaN(result) && isFinite(result)) {
-                        cell.dataset.result = result;
-                        cell.dataset.formula = value;
-                        cell.title = `Formel: ${value}\nResultat: ${result.toLocaleString('nb-NO')}`;
-                    } else {
-                        cell.dataset.result = 0;
-                        cell.title = 'Ugyldig formel';
-                    }
-                } catch (e) {
-                    cell.dataset.result = 0;
-                    cell.title = 'Feil: ' + e.message;
-                }
-            } else {
-                cell.classList.remove('formula');
-                delete cell.dataset.result;
-                delete cell.dataset.formula;
-                cell.title = '';
-            }
-        }
-
-        function evaluateFormula(formula) {
-            console.log('Evaluating formula:', formula);
-            
-            // Replace cell references (B1, B2, B3)
-            // In our table: col 0 = #, col 1 = Label (A), col 2 = Input (B)
-            formula = formula.replace(/([A-Z]+)(\d+)/gi, (match, col, row) => {
-                const colLetter = col.toUpperCase();
-                const rowIndex = parseInt(row) - 1; // B1 → row 0
-                const tbody = document.getElementById('tbody');
-                const targetRow = tbody.children[rowIndex];
-                
-                if (!targetRow) {
-                    console.log(`${match} → 0 (row not found)`);
-                    return 0;
-                }
-                
-                // Map column letters to DOM indices
-                // A = column 1 (label), B = column 2 (input), C = column 3, etc.
-                const colIndex = colLetter.charCodeAt(0) - 64; // A=1, B=2, C=3
-                
-                const cell = targetRow.children[colIndex]?.querySelector('.cell');
-                if (cell) {
-                    const value = getCellValue(cell);
-                    console.log(`${match} (row ${rowIndex}, col ${colIndex}) → ${value}`);
-                    return value || 0;
-                }
-                
-                console.log(`${match} → 0 (cell not found at col ${colIndex})`);
-                return 0;
-            });
-            
-            console.log('After replacement:', formula);
-            
-            try {
-                const result = eval(formula.replace(/×/g, '*').replace(/÷/g, '/'));
-                console.log('Result:', result);
-                return result;
-            } catch (e) {
-                console.error('Formula error:', e);
-                return 0;
-            }
-        }
-
-        function getCellValue(cell) {
-            // If cell has a calculated result from a formula, use that
-            if (cell.dataset.result !== undefined && cell.dataset.result !== 'undefined') {
-                const result = parseFloat(cell.dataset.result);
-                if (!isNaN(result) && isFinite(result)) {
-                    console.log(`  Getting formula result: ${result}`);
-                    return result;
-                }
-            }
-            
-            // Otherwise parse the cell value directly
-            // Remove spaces and commas (thousand separators), keep dots (decimal)
-            const value = cell.value.replace(/\s/g, '').replace(/,/g, '');
-            const parsed = parseFloat(value);
-            const result = isNaN(parsed) ? 0 : parsed;
-            console.log(`  Getting direct value: ${cell.value} → ${result}`);
-            return result;
-        }
-
-        function startCellSelection(sourceCell) {
-            selectingCell = true;
-            selectingForCell = sourceCell;
-            
-            document.querySelectorAll('.cell').forEach(cell => {
-                if (cell !== sourceCell && !cell.classList.contains('text-cell') && !cell.classList.contains('readonly')) {
-                    cell.classList.add('selecting-mode');
-                    cell.style.cursor = 'crosshair';
-                    
-                    // Add click handler
-                    cell.onclick = () => {
-                        if (selectingCell) selectCellForFormula(cell);
-                    };
-                }
-            });
-            
-            showCellSelectorHint();
-        }
-
-        function endCellSelection() {
-            selectingCell = false;
-            selectingForCell = null;
-            
-            document.querySelectorAll('.cell').forEach(cell => {
-                cell.classList.remove('selecting-mode', 'selected-for-formula');
-                cell.style.cursor = '';
-                cell.onclick = null;
-            });
-            
-            hideCellSelectorHint();
-        }
-
-        function selectCellForFormula(targetCell) {
-            if (!selectingCell || !selectingForCell) return;
-            
-            const cellRef = getCellReference(targetCell);
-            const sourceCell = selectingForCell;
-            
-            if (cellRef) {
-                const cursorPos = sourceCell.selectionStart || sourceCell.value.length;
-                const currentValue = sourceCell.value;
-                sourceCell.value = currentValue.slice(0, cursorPos) + cellRef + currentValue.slice(cursorPos);
-                
-                handleFormula(sourceCell);
-                
-                targetCell.classList.add('selected-for-formula');
-                setTimeout(() => {
-                    targetCell.classList.remove('selected-for-formula');
-                }, 500);
-            }
-            
-            // END selection immediately after selecting one cell
-            endCellSelection();
-            
-            if (sourceCell && document.body.contains(sourceCell)) {
-                setTimeout(() => {
-                    sourceCell.focus();
-                    sourceCell.setSelectionRange(sourceCell.value.length, sourceCell.value.length);
-                }, 10);
-            }
-        }
-
-        function getCellReference(cell) {
-            const row = cell.parentElement.parentElement;
-            const tbody = document.getElementById('tbody');
-            const rowIndex = Array.from(tbody.children).indexOf(row) + 1;
-            const cellIndex = Array.from(row.children).indexOf(cell.parentElement);
-            
-            const columnLetter = String.fromCharCode(64 + cellIndex);
-            return columnLetter + rowIndex;
-        }
-
-        function showCellSelectorHint() {
-            const hint = document.createElement('div');
-            hint.id = 'cell-selector-hint';
-            hint.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#3b82f6;color:white;padding:15px 20px;border-radius:10px;font-weight:bold;z-index:1000;box-shadow:0 5px 20px rgba(0,0,0,0.5);animation:slideUp 0.3s';
-            hint.innerHTML = '🎯 Klikk på celler for å legge til i formelen<br><small>ESC for å avslutte</small>';
-            document.body.appendChild(hint);
-        }
-
-        function hideCellSelectorHint() {
-            const hint = document.getElementById('cell-selector-hint');
-            if (hint) hint.remove();
-        }
-
-        function handleCellFocus(cell) {
-            // When focusing, show the formula if it exists
-            if (cell.dataset.formula) {
-                cell.value = cell.dataset.formula;
-                cell.classList.add('formula');
-            }
-        }
-
-        function handleCellBlur(cell) {
-            // When leaving cell, show the result if it's a formula
-            if (cell.dataset.formula && cell.dataset.result) {
-                const result = parseFloat(cell.dataset.result);
-                if (!isNaN(result) && isFinite(result)) {
-                    // Format the result nicely
-                    cell.value = result.toLocaleString('nb-NO', {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 2
-                    });
-                    cell.classList.remove('formula');
-                } else {
-                    cell.value = '0';
-                }
-            }
+            saveProgress();
         }
 
         function checkAnswer() {
             const task = tasks[gameState.currentTask];
-            const inputs = document.querySelectorAll('.cell[data-key]');
-            let correct = 0, total = inputs.length;
+            const inputs = document.querySelectorAll('.excel-cell[data-key]');
+            
+            let correct = 0;
+            let total = Object.keys(task.solution).length;
 
             inputs.forEach(input => {
-                // Get value from formula result or direct input
-                let val = 0;
-                if (input.dataset.result) {
-                    val = parseFloat(input.dataset.result);
-                } else {
-                    val = parseFloat(input.value) || 0;
-                }
+                const key = input.dataset.key;
+                const expected = task.solution[key];
+                const value = parseFloat(input.value.replace(/\s/g, '').replace(/,/g, '')) || 0;
+
+                const tolerance = Math.abs(expected) * 0.05;
                 
-                const exp = task.solution[input.dataset.key];
-                const tol = Math.abs(exp) * 0.05;
-                
-                if (Math.abs(val - exp) <= tol || Math.abs(val - exp) <= 1) {
+                if (Math.abs(value - expected) <= tolerance || Math.abs(value - expected) <= 1) {
                     correct++;
                     input.parentElement.style.background = 'rgba(74, 222, 128, 0.2)';
                 } else {
@@ -1151,17 +1625,17 @@
                 }
             });
 
-            const fb = document.getElementById('feedback');
+            const feedback = document.getElementById('feedback');
             if (correct === total) {
                 gameState.score += 20;
                 if (!gameState.completedTasks.includes(task.id)) {
                     gameState.completedTasks.push(task.id);
                 }
-                fb.className = 'feedback correct show';
-                fb.innerHTML = `🎉 PERFEKT!<br><small>${task.explanation}</small>`;
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = `🎉 PERFEKT!<br><small>${task.explanation}</small>`;
             } else {
-                fb.className = 'feedback incorrect show';
-                fb.textContent = `✗ ${correct}/${total} riktige`;
+                feedback.className = 'feedback incorrect show';
+                feedback.textContent = `✗ ${correct}/${total} riktige`;
             }
 
             updateStats();
@@ -1170,17 +1644,13 @@
         }
 
         function showHint() {
-            document.getElementById('hint-content').innerHTML = tasks[gameState.currentTask].hint;
+            const task = tasks[gameState.currentTask];
+            document.getElementById('hint-content').innerHTML = task.hint;
             document.getElementById('hint-box').classList.add('show');
         }
 
         function resetTask() {
-            document.querySelectorAll('.cell[data-key]').forEach(c => {
-                c.value = '';
-                c.parentElement.style.background = '';
-            });
-            document.getElementById('feedback').className = 'feedback';
-            document.getElementById('hint-box').classList.remove('show');
+            loadTask(gameState.currentTask);
         }
 
         function updateStats() {
@@ -1199,6 +1669,7 @@
                 gameState.completedTasks = p.completedTasks || [];
                 gameState.score = p.score || 0;
                 gameState.theme = p.theme || 'dark';
+                gameState.unlocked = p.unlocked || false;
                 document.body.setAttribute('data-theme', gameState.theme);
                 updateStats();
             }
@@ -1218,10 +1689,71 @@
         function forceUnlock() {
             gameState.unlocked = true;
             document.getElementById('lock-screen').style.display = 'none';
-            loadTask(0);
+            saveProgress();
         }
 
-        window.onload = init;
+        function openWiki() {
+            window.open('wiki.html', '_blank');
+        }
+
+        // Calculator functions
+        let calcState = {
+            display: '0',
+            lastWasEquals: false
+        };
+
+        function toggleCalculator() {
+            const calc = document.getElementById('calculator');
+            calc.classList.toggle('show');
+        }
+
+        function calcInput(value) {
+            if (calcState.lastWasEquals) {
+                calcState.display = value;
+                calcState.lastWasEquals = false;
+            } else {
+                if (calcState.display === '0' && value !== '.') {
+                    calcState.display = value;
+                } else {
+                    calcState.display += value;
+                }
+            }
+            document.getElementById('calc-display').textContent = calcState.display;
+        }
+
+        function calcClear() {
+            calcState.display = '0';
+            calcState.lastWasEquals = false;
+            document.getElementById('calc-display').textContent = '0';
+        }
+
+        function calcEquals() {
+            try {
+                // Replace × with *
+                let expression = calcState.display.replace(/×/g, '*');
+                const result = eval(expression);
+                calcState.display = result.toString();
+                calcState.lastWasEquals = true;
+                document.getElementById('calc-display').textContent = result;
+            } catch (error) {
+                document.getElementById('calc-display').textContent = 'Error';
+                calcState.display = '0';
+            }
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            // 🌟 FOR TESTING: Sett Pro-status (fjern i produksjon)
+            const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            if (!userProfile.subscription) {
+                userProfile.subscription = 'pro'; // Default til Pro for testing
+                userProfile.name = 'Truls (Pro)';
+                localStorage.setItem('userProfile', JSON.stringify(userProfile));
+                console.log('✅ Pro-tilgang aktivert for testing');
+            }
+            
+            init();
+        };
     </script>
 </body>
 </html>
