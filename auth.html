@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AccountingQuest - Logg inn</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-container {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #4ade80, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .logo p { color: #9ca3af; }
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #404040;
+            padding: 5px;
+            border-radius: 10px;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+        .tab.active { background: #4ade80; color: #1e1e1e; }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #404040;
+            border: 2px solid #555;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+        .form-group input:focus { outline: none; border-color: #4ade80; }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #4ade80;
+            color: #1e1e1e;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #3bc56f;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: #404040; color: #e0e0e0; margin-top: 10px; }
+        .btn-secondary:hover { background: #555; box-shadow: none; }
+        .btn-google { background: #4285f4; color: white; margin-top: 10px; }
+        .btn-google:hover { background: #3367d6; }
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            color: #9ca3af;
+            position: relative;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #404040;
+        }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .error { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; }
+        .success { background: rgba(74, 222, 128, 0.2); border: 1px solid #4ade80; color: #4ade80; }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #1e1e1e;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .skip-link { text-align: center; margin-top: 20px; }
+        .skip-link a { color: #9ca3af; text-decoration: none; font-size: 0.9em; }
+        .skip-link a:hover { color: #4ade80; }
+        .role-selector { display: flex; gap: 10px; margin-bottom: 10px; }
+        .role-btn {
+            flex: 1;
+            padding: 15px;
+            background: #404040;
+            border: 2px solid #555;
+            border-radius: 10px;
+            color: #9ca3af;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .role-btn:hover { border-color: #4ade80; }
+        .role-btn.selected { border-color: #4ade80; background: rgba(74, 222, 128, 0.1); color: #4ade80; }
+        .role-btn .icon { font-size: 2em; display: block; margin-bottom: 5px; }
+        .free-features { background: #404040; border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .free-features h3 { color: #4ade80; margin-bottom: 15px; font-size: 1.1em; }
+        .free-features ul { list-style: none; padding: 0; }
+        .free-features li { padding: 8px 0; color: #9ca3af; font-size: 0.95em; }
+        .free-features li::before { content: '✓ '; color: #4ade80; font-weight: bold; margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">
+            <h1>📚 AccountingQuest</h1>
+            <p>Gamifisert norsk bokføring</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="auth-tabs">
+            <button class="tab active" id="tab-login" onclick="showLogin()">Logg inn</button>
+            <button class="tab" id="tab-signup" onclick="showSignup()">Registrer</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-form" class="auth-form active">
+            <div class="form-group">
+                <label>E-post</label>
+                <input type="email" id="login-email" placeholder="din@epost.no">
+            </div>
+            <div class="form-group">
+                <label>Passord</label>
+                <input type="password" id="login-password" placeholder="••••••">
+            </div>
+            <button class="btn" id="login-btn" onclick="doLogin()">Logg inn</button>
+            <button class="btn btn-google" onclick="doGoogleLogin()">🔵 Logg inn med Google</button>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signup-form" class="auth-form">
+            <div class="form-group">
+                <label>Brukernavn</label>
+                <input type="text" id="signup-username" placeholder="OlaStudent">
+            </div>
+            <div class="form-group">
+                <label>E-post</label>
+                <input type="email" id="signup-email" placeholder="din@epost.no">
+            </div>
+            <div class="form-group">
+                <label>Passord (min 6 tegn)</label>
+                <input type="password" id="signup-password" placeholder="••••••">
+            </div>
+            <div class="form-group">
+                <label>Jeg er...</label>
+                <div class="role-selector">
+                    <div class="role-btn selected" id="role-student" onclick="selectRole('student')">
+                        <span class="icon">🎓</span>Student
+                    </div>
+                    <div class="role-btn" id="role-teacher" onclick="selectRole('teacher')">
+                        <span class="icon">👨‍🏫</span>Lærer
+                    </div>
+                </div>
+            </div>
+            <button class="btn" id="signup-btn" onclick="doSignup()">Opprett konto (Gratis)</button>
+            <button class="btn btn-google" onclick="doGoogleLogin()">🔵 Registrer med Google</button>
+        </div>
+
+        <div class="divider">eller</div>
+
+        <button class="btn btn-secondary" id="guest-btn" onclick="doGuestLogin()">
+            🎮 Fortsett uten konto
+        </button>
+
+        <div class="free-features">
+            <h3>✨ Helt gratis:</h3>
+            <ul>
+                <li>Alle bokføringsoppgaver (36 stk)</li>
+                <li>Alle quiz-spørsmål (245 stk)</li>
+                <li>Multiplayer quiz med klassen</li>
+            </ul>
+        </div>
+
+        <div class="skip-link">
+            <a href="index.html">← Tilbake til forsiden</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // Firebase Config
+        var firebaseConfig = {
+            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+            authDomain: "accountingquest-multiplayer.firebaseapp.com",
+            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest-multiplayer",
+            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+            messagingSenderId: "525417361926",
+            appId: "1:525417361926:web:ec9b737f82af9b21700987"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        console.log('🔥 Firebase OK');
+
+        var selectedRole = 'student';
+
+        // Tab switching
+        function showLogin() {
+            document.getElementById('tab-login').classList.add('active');
+            document.getElementById('tab-signup').classList.remove('active');
+            document.getElementById('login-form').classList.add('active');
+            document.getElementById('signup-form').classList.remove('active');
+            hideMessage();
+        }
+
+        function showSignup() {
+            document.getElementById('tab-signup').classList.add('active');
+            document.getElementById('tab-login').classList.remove('active');
+            document.getElementById('signup-form').classList.add('active');
+            document.getElementById('login-form').classList.remove('active');
+            hideMessage();
+        }
+
+        // Role selection
+        function selectRole(role) {
+            selectedRole = role;
+            document.getElementById('role-student').classList.remove('selected');
+            document.getElementById('role-teacher').classList.remove('selected');
+            document.getElementById('role-' + role).classList.add('selected');
+        }
+
+        // Login
+        function doLogin() {
+            var email = document.getElementById('login-email').value;
+            var password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showError('Fyll inn e-post og passord');
+                return;
+            }
+
+            var btn = document.getElementById('login-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>';
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(function() {
+                    showSuccess('Logget inn! Omdirigerer...');
+                    setTimeout(function() { window.location.href = 'index.html'; }, 1000);
+                })
+                .catch(function(error) {
+                    showError(getErrorMsg(error.code));
+                    btn.disabled = false;
+                    btn.textContent = 'Logg inn';
+                });
+        }
+
+        // Signup
+        function doSignup() {
+            var username = document.getElementById('signup-username').value;
+            var email = document.getElementById('signup-email').value;
+            var password = document.getElementById('signup-password').value;
+
+            if (!username || !email || !password) {
+                showError('Fyll inn alle feltene');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Passordet må være minst 6 tegn');
+                return;
+            }
+
+            var btn = document.getElementById('signup-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>';
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then(function(result) {
+                    return firebase.database().ref('users/' + result.user.uid).set({
+                        username: username,
+                        email: email,
+                        role: selectedRole,
+                        subscription: 'free',
+                        createdAt: Date.now()
+                    });
+                })
+                .then(function() {
+                    showSuccess('Konto opprettet! Omdirigerer...');
+                    setTimeout(function() { window.location.href = 'index.html'; }, 1000);
+                })
+                .catch(function(error) {
+                    showError(getErrorMsg(error.code));
+                    btn.disabled = false;
+                    btn.textContent = 'Opprett konto (Gratis)';
+                });
+        }
+
+        // Google Login
+        function doGoogleLogin() {
+            var provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then(function(result) {
+                    var user = result.user;
+                    return firebase.database().ref('users/' + user.uid).once('value')
+                        .then(function(snapshot) {
+                            if (!snapshot.exists()) {
+                                return firebase.database().ref('users/' + user.uid).set({
+                                    username: user.displayName || user.email.split('@')[0],
+                                    email: user.email,
+                                    role: 'student',
+                                    subscription: 'free',
+                                    createdAt: Date.now()
+                                });
+                            }
+                        });
+                })
+                .then(function() {
+                    showSuccess('Logget inn med Google!');
+                    setTimeout(function() { window.location.href = 'index.html'; }, 1000);
+                })
+                .catch(function(error) {
+                    console.error(error);
+                    showError(getErrorMsg(error.code));
+                });
+        }
+
+        // Guest Login
+        function doGuestLogin() {
+            var btn = document.getElementById('guest-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Kobler til...';
+
+            firebase.auth().signInAnonymously()
+                .then(function() {
+                    window.location.href = 'index.html';
+                })
+                .catch(function(error) {
+                    showError('Kunne ikke koble til. Prøv igjen.');
+                    btn.disabled = false;
+                    btn.textContent = '🎮 Fortsett uten konto';
+                });
+        }
+
+        // Messages
+        function showError(msg) {
+            var el = document.getElementById('message');
+            el.className = 'message error';
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        function showSuccess(msg) {
+            var el = document.getElementById('message');
+            el.className = 'message success';
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        function hideMessage() {
+            document.getElementById('message').style.display = 'none';
+        }
+
+        function getErrorMsg(code) {
+            var msgs = {
+                'auth/invalid-email': 'Ugyldig e-postadresse',
+                'auth/user-not-found': 'Ingen bruker med denne e-posten',
+                'auth/wrong-password': 'Feil passord',
+                'auth/invalid-credential': 'Feil e-post eller passord',
+                'auth/email-already-in-use': 'E-posten er allerede registrert',
+                'auth/weak-password': 'Passordet er for svakt',
+                'auth/popup-closed-by-user': 'Innlogging avbrutt',
+                'auth/network-request-failed': 'Nettverksfeil - sjekk internett'
+            };
+            return msgs[code] || 'En feil oppstod (' + code + ')';
+        }
+
+        // Auto-redirect if logged in
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user && !user.isAnonymous) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        console.log('✅ Auth ready');
+    </script>
+</body>
+</html>
