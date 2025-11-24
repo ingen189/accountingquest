@@ -31,6 +31,11 @@
     <meta name="theme-color" content="#1a1a2e">
     <meta name="msapplication-navbutton-color" content="#1a1a2e">
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <style>
         :root {
             --bg-primary: #1a1a2e;
@@ -699,6 +704,46 @@
             gap: 8px;
             font-weight: 600;
             font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .user-badge:hover {
+            background: #f59e0b;
+            color: #1e1e1e;
+            transform: translateY(-2px);
+        }
+
+        .pro-badge {
+            background: #555;
+            color: #888;
+            padding: 10px 18px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0.6;
+        }
+
+        .pro-badge:hover {
+            opacity: 1;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .pro-badge.active {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            color: white;
+            opacity: 1;
+        }
+
+        .pro-badge.active:hover {
+            background: linear-gradient(135deg, #9333ea, #db2777);
         }
 
         .user-badge .user-icon {
@@ -917,9 +962,12 @@
             </div>
         </div>
         <nav class="header-actions" role="navigation" aria-label="Hovednavigasjon">
-            <div class="user-badge" id="user-badge">
+            <div class="user-badge" id="user-badge" onclick="handleUserClick()" style="cursor: pointer;">
                 <span class="user-icon" aria-hidden="true">👤 </span>
                 <span id="username-display">Gjest</span>
+            </div>
+            <div class="pro-badge" id="pro-badge" onclick="window.location.href='upgrade.html'" title="Oppgrader til Premium">
+                <span>⭐ PRO</span>
             </div>
             <button class="header-btn wiki" onclick="navigateToModule('wiki.html')" aria-label="Åpne Wiki">
                 <span aria-hidden="true">📖 </span>
@@ -1695,6 +1743,74 @@
                 // Uncomment when service worker is ready
                 // navigator.serviceWorker.register('/sw.js');
             });
+        }
+
+        // ============================================
+        // FIREBASE AUTH
+        // ============================================
+        var firebaseConfig = {
+            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+            authDomain: "accountingquest-multiplayer.firebaseapp.com",
+            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest-multiplayer",
+            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+            messagingSenderId: "525417361926",
+            appId: "1:525417361926:web:ec9b737f82af9b21700987"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        console.log('🔥 Firebase initialized');
+
+        var currentUser = null;
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            currentUser = user;
+            var usernameEl = document.getElementById('username-display');
+            var userBadge = document.getElementById('user-badge');
+            var proBadge = document.getElementById('pro-badge');
+            
+            if (user) {
+                if (user.isAnonymous) {
+                    usernameEl.textContent = 'Gjest';
+                } else {
+                    // Hent brukernavn og subscription fra database
+                    firebase.database().ref('users/' + user.uid).once('value')
+                        .then(function(snapshot) {
+                            var data = snapshot.val();
+                            if (data && data.username) {
+                                usernameEl.textContent = data.username;
+                            } else if (user.displayName) {
+                                usernameEl.textContent = user.displayName;
+                            } else if (user.email) {
+                                usernameEl.textContent = user.email.split('@')[0];
+                            }
+                            
+                            // Sjekk premium status
+                            if (data && data.subscription === 'premium') {
+                                proBadge.classList.add('active');
+                            }
+                        })
+                        .catch(function(error) {
+                            console.error('Error fetching user:', error);
+                        });
+                }
+            } else {
+                usernameEl.textContent = 'Gjest';
+            }
+        });
+
+        function handleUserClick() {
+            if (currentUser && !currentUser.isAnonymous) {
+                // Bruker er logget inn - vis meny
+                if (confirm('Vil du logge ut?')) {
+                    firebase.auth().signOut().then(function() {
+                        location.reload();
+                    });
+                }
+            } else {
+                // Ikke logget inn - gå til auth
+                window.location.href = 'auth.html';
+            }
         }
     </script>
 </body>
