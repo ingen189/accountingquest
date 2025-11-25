@@ -1242,13 +1242,15 @@
                 window.db = firebase.database();
                 console.log('✅ Database ready');
                 
-                // Now that Firebase is ready, initialize the game
-                console.log('🚀 Starting student game initialization...');
-                if (typeof init === 'function') {
-                    init();
-                } else {
-                    console.error('❌ init() function not found!');
-                }
+                // Give JavaScript time to finish evaluating all scripts
+                setTimeout(function() {
+                    console.log('🚀 Starting student game initialization...');
+                    if (typeof init === 'function') {
+                        init();
+                    } else {
+                        console.error('❌ init() function not found!');
+                    }
+                }, 100); // Wait 100ms for all scripts to evaluate
             }
             
             tryInit();
