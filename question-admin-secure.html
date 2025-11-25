@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Admin - Secure Version</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg-secondary: #12121a;
+            --text: #e4e4e7;
+            --text-secondary: #71717a;
+            --accent: #6366f1;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border: #27272a;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: black;
+        }
+        
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .log {
+            background: #000;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.875rem;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        
+        .log-entry {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #222;
+        }
+        
+        .log-entry.success { color: var(--success); }
+        .log-entry.error { color: var(--error); }
+        .log-entry.warning { color: var(--warning); }
+        .log-entry.info { color: var(--accent); }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat {
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s;
+        }
+        
+        .structure-info {
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.8rem;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-secure { background: var(--success); color: white; }
+        .badge-warning { background: var(--warning); color: black; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Question Admin - Secure Version</h1>
+        <p class="subtitle">Separerer spørsmål og løsninger for sikker testing</p>
+        
+        <!-- Firebase Status -->
+        <div class="card">
+            <h2>📡 Firebase Status</h2>
+            <div id="firebase-status">Kobler til...</div>
+            <div id="auth-status" style="margin-top: 0.5rem; color: var(--text-secondary);"></div>
+        </div>
+        
+        <!-- Database Structure -->
+        <div class="card">
+            <h2>🗂️ Database Struktur <span class="badge badge-secure">SIKKER</span></h2>
+            <div class="structure-info">
+Firebase Database:
+├── questions/                  ← Spørsmålsdata (synlig for alle)
+│   └── corporate_finance/
+│       └── {topic}/
+│           └── {difficulty}/
+│               └── {id}/
+│                   ├── id, title, question
+│                   ├── options (for MC)
+│                   └── data, input_fields (for calc)
+│                   ❌ INGEN hints/explanation/solution
+│
+└── solutions/                  ← Fasit (hentes on-demand)
+    └── corporate_finance/
+        └── {id}/
+            ├── correct         ← Fasit
+            ├── hints[]         ← Hentes ved klikk
+            ├── explanation     ← Hentes etter svar
+            └── formula
+            </div>
+        </div>
+        
+        <!-- Seed Controls -->
+        <div class="card">
+            <h2>🌱 Seed Corporate Finance</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Seeder spørsmål og løsninger til SEPARATE paths i Firebase.
+            </p>
+            
+            <div class="stats" id="seed-stats">
+                <div class="stat">
+                    <div class="stat-value" id="stat-questions">0</div>
+                    <div class="stat-label">Spørsmål</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="stat-solutions">0</div>
+                    <div class="stat-label">Løsninger</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="stat-topics">0</div>
+                    <div class="stat-label">Temaer</div>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="seedAll()" id="btn-seed">
+                    🌱 Seed Alt (Spørsmål + Løsninger)
+                </button>
+                <button class="btn btn-warning" onclick="seedQuestionsOnly()">
+                    📝 Kun Spørsmål
+                </button>
+                <button class="btn btn-warning" onclick="seedSolutionsOnly()">
+                    🔐 Kun Løsninger
+                </button>
+                <button class="btn btn-danger" onclick="clearAll()">
+                    🗑️ Slett Alt
+                </button>
+            </div>
+            
+            <div class="progress-bar" id="progress-bar" style="display: none;">
+                <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+            </div>
+        </div>
+        
+        <!-- Log -->
+        <div class="card">
+            <h2>📋 Log</h2>
+            <div class="log" id="log">
+                <div class="log-entry info">Klar til å seede...</div>
+            </div>
+        </div>
+        
+        <!-- Verification -->
+        <div class="card">
+            <h2>✅ Verifikasjon</h2>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="verifyQuestions()">
+                    🔍 Sjekk Spørsmål
+                </button>
+                <button class="btn btn-primary" onclick="verifySolutions()">
+                    🔍 Sjekk Løsninger
+                </button>
+                <button class="btn btn-success" onclick="testHintFetch()">
+                    💡 Test Hint-henting
+                </button>
+            </div>
+            <div id="verification-result" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/seed-corporate-finance-secure.js"></script>
+    
+    <script>
+        var db = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initFirebase();
+            updateStats();
+        });
+        
+        function initFirebase() {
+            try {
+                db = firebase.database();
+                document.getElementById('firebase-status').innerHTML = 
+                    '<span style="color: var(--success);">✅ Tilkoblet Firebase</span>';
+                
+                // Auth
+                firebase.auth().signInAnonymously()
+                    .then(function(result) {
+                        document.getElementById('auth-status').textContent = 
+                            'Autentisert: ' + result.user.uid;
+                    })
+                    .catch(function(error) {
+                        document.getElementById('auth-status').textContent = 
+                            'Auth feil: ' + error.message;
+                    });
+            } catch (e) {
+                document.getElementById('firebase-status').innerHTML = 
+                    '<span style="color: var(--error);">❌ Firebase feil: ' + e.message + '</span>';
+            }
+        }
+        
+        function updateStats() {
+            if (typeof CorporateFinanceSeed !== 'undefined') {
+                var questions = CorporateFinanceSeed.getAllQuestions();
+                var solutions = CorporateFinanceSeed.getAllSolutions();
+                var topics = Object.keys(CorporateFinanceSeed.questions);
+                
+                document.getElementById('stat-questions').textContent = questions.length;
+                document.getElementById('stat-solutions').textContent = Object.keys(solutions).length;
+                document.getElementById('stat-topics').textContent = topics.length;
+            }
+        }
+        
+        function log(message, type) {
+            var logEl = document.getElementById('log');
+            var entry = document.createElement('div');
+            entry.className = 'log-entry ' + (type || '');
+            entry.textContent = '[' + new Date().toLocaleTimeString() + '] ' + message;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+        
+        function showProgress(show) {
+            document.getElementById('progress-bar').style.display = show ? 'block' : 'none';
+        }
+        
+        function setProgress(percent) {
+            document.getElementById('progress-fill').style.width = percent + '%';
+        }
+        
+        // ==================== SEED FUNCTIONS ====================
+        
+        async function seedAll() {
+            document.getElementById('btn-seed').disabled = true;
+            showProgress(true);
+            log('Starting full seed (questions + solutions)...', 'info');
+            
+            try {
+                await seedQuestionsToFirebase();
+                await seedSolutionsToFirebase();
+                log('✅ Full seed complete!', 'success');
+            } catch (error) {
+                log('❌ Seed failed: ' + error.message, 'error');
+            }
+            
+            showProgress(false);
+            document.getElementById('btn-seed').disabled = false;
+        }
+        
+        async function seedQuestionsOnly() {
+            showProgress(true);
+            log('Seeding questions only...', 'info');
+            
+            try {
+                await seedQuestionsToFirebase();
+                log('✅ Questions seeded!', 'success');
+            } catch (error) {
+                log('❌ Failed: ' + error.message, 'error');
+            }
+            
+            showProgress(false);
+        }
+        
+        async function seedSolutionsOnly() {
+            showProgress(true);
+            log('Seeding solutions only...', 'info');
+            
+            try {
+                await seedSolutionsToFirebase();
+                log('✅ Solutions seeded!', 'success');
+            } catch (error) {
+                log('❌ Failed: ' + error.message, 'error');
+            }
+            
+            showProgress(false);
+        }
+        
+        async function seedQuestionsToFirebase() {
+            var questions = CorporateFinanceSeed.getAllQuestions();
+            var total = questions.length;
+            var count = 0;
+            
+            for (var i = 0; i < questions.length; i++) {
+                var q = questions[i];
+                var path = 'questions/' + q.module + '/' + q.topic + '/' + q.difficulty + '/' + q.id;
+                
+                // Fjern eventuell løsningsdata fra spørsmålet
+                var cleanQuestion = Object.assign({}, q);
+                delete cleanQuestion.solution;
+                delete cleanQuestion.hints;
+                delete cleanQuestion.explanation;
+                delete cleanQuestion.correct;
+                
+                await db.ref(path).set(cleanQuestion);
+                count++;
+                setProgress((count / total) * 50);
+                
+                if (count % 5 === 0) {
+                    log('Questions: ' + count + '/' + total, 'info');
+                }
+            }
+            
+            log('✅ ' + count + ' questions uploaded to questions/', 'success');
+        }
+        
+        async function seedSolutionsToFirebase() {
+            var solutions = CorporateFinanceSeed.getAllSolutions();
+            var keys = Object.keys(solutions);
+            var total = keys.length;
+            var count = 0;
+            
+            for (var i = 0; i < keys.length; i++) {
+                var id = keys[i];
+                var solution = solutions[id];
+                var path = 'solutions/corporate_finance/' + id;
+                
+                await db.ref(path).set(solution);
+                count++;
+                setProgress(50 + (count / total) * 50);
+                
+                if (count % 5 === 0) {
+                    log('Solutions: ' + count + '/' + total, 'info');
+                }
+            }
+            
+            log('✅ ' + count + ' solutions uploaded to solutions/', 'success');
+        }
+        
+        async function clearAll() {
+            if (!confirm('Er du sikker på at du vil slette ALT? Dette kan ikke angres!')) {
+                return;
+            }
+            
+            log('Sletter data...', 'warning');
+            
+            try {
+                await db.ref('questions/corporate_finance').remove();
+                log('Questions deleted', 'warning');
+                
+                await db.ref('solutions/corporate_finance').remove();
+                log('Solutions deleted', 'warning');
+                
+                log('✅ All data cleared', 'success');
+            } catch (error) {
+                log('❌ Delete failed: ' + error.message, 'error');
+            }
+        }
+        
+        // ==================== VERIFICATION ====================
+        
+        async function verifyQuestions() {
+            var resultEl = document.getElementById('verification-result');
+            resultEl.innerHTML = 'Checking questions...';
+            
+            try {
+                var snapshot = await db.ref('questions/corporate_finance').once('value');
+                var data = snapshot.val();
+                
+                if (!data) {
+                    resultEl.innerHTML = '<span style="color: var(--error);">❌ No questions found</span>';
+                    return;
+                }
+                
+                var count = 0;
+                var topics = Object.keys(data);
+                
+                topics.forEach(function(topic) {
+                    Object.keys(data[topic]).forEach(function(diff) {
+                        count += Object.keys(data[topic][diff]).length;
+                    });
+                });
+                
+                // Check that questions don't contain solutions
+                var hasSolutions = JSON.stringify(data).includes('"hints"');
+                
+                resultEl.innerHTML = 
+                    '<span style="color: var(--success);">✅ Found ' + count + ' questions in ' + topics.length + ' topics</span>' +
+                    '<br>' +
+                    (hasSolutions 
+                        ? '<span style="color: var(--error);">⚠️ WARNING: Questions contain solution data!</span>'
+                        : '<span style="color: var(--success);">✅ Clean: No solution data in questions</span>');
+                
+            } catch (error) {
+                resultEl.innerHTML = '<span style="color: var(--error);">❌ Error: ' + error.message + '</span>';
+            }
+        }
+        
+        async function verifySolutions() {
+            var resultEl = document.getElementById('verification-result');
+            resultEl.innerHTML = 'Checking solutions...';
+            
+            try {
+                var snapshot = await db.ref('solutions/corporate_finance').once('value');
+                var data = snapshot.val();
+                
+                if (!data) {
+                    resultEl.innerHTML = '<span style="color: var(--error);">❌ No solutions found</span>';
+                    return;
+                }
+                
+                var count = Object.keys(data).length;
+                var withHints = 0;
+                var withExplanation = 0;
+                
+                Object.keys(data).forEach(function(id) {
+                    if (data[id].hints && data[id].hints.length > 0) withHints++;
+                    if (data[id].explanation) withExplanation++;
+                });
+                
+                resultEl.innerHTML = 
+                    '<span style="color: var(--success);">✅ Found ' + count + ' solutions</span>' +
+                    '<br>With hints: ' + withHints +
+                    '<br>With explanations: ' + withExplanation;
+                
+            } catch (error) {
+                resultEl.innerHTML = '<span style="color: var(--error);">❌ Error: ' + error.message + '</span>';
+            }
+        }
+        
+        async function testHintFetch() {
+            var resultEl = document.getElementById('verification-result');
+            resultEl.innerHTML = 'Testing hint fetch...';
+            
+            try {
+                // Test fetching a specific hint
+                var testId = 'cf_npv_mc_001';
+                var path = 'solutions/corporate_finance/' + testId + '/hints/0';
+                
+                var snapshot = await db.ref(path).once('value');
+                var hint = snapshot.val();
+                
+                if (hint) {
+                    resultEl.innerHTML = 
+                        '<span style="color: var(--success);">✅ Hint fetch works!</span>' +
+                        '<br><br><strong>Sample hint for ' + testId + ':</strong>' +
+                        '<br>' + (hint.text || hint);
+                } else {
+                    resultEl.innerHTML = '<span style="color: var(--warning);">⚠️ No hint found for ' + testId + '</span>';
+                }
+                
+            } catch (error) {
+                resultEl.innerHTML = '<span style="color: var(--error);">❌ Error: ' + error.message + '</span>';
+            }
+        }
+    </script>
+</body>
+</html>

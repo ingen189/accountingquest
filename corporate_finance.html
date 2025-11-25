@@ -12,6 +12,115 @@
         /* ==================== CORPORATE FINANCE SPECIFIC STYLES ==================== */
         /* Bruker variabler fra main.css */
 
+        /* ==================== EXCEL GRID STYLES ==================== */
+        .excel-grid-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            box-shadow: var(--shadow-md);
+            margin: var(--space-md) 0;
+        }
+
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Consolas', 'Monaco', monospace;
+            min-width: 600px;
+        }
+
+        .excel-table th {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .excel-table th.row-header {
+            width: 180px;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .excel-table td {
+            border: 1px solid var(--border-color);
+            padding: 0;
+            min-width: 100px;
+        }
+
+        .excel-table td.row-label {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 12px 15px;
+            font-weight: 500;
+        }
+
+        .excel-cell {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 12px;
+            font-size: 0.95em;
+            font-family: 'Consolas', 'Monaco', monospace;
+            text-align: right;
+            outline: none;
+            transition: all var(--transition-fast);
+        }
+
+        .excel-cell:focus {
+            outline: 2px solid var(--accent);
+            background: rgba(74, 222, 128, 0.05);
+            z-index: 5;
+        }
+
+        .excel-cell:hover:not(:focus):not(.readonly) {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .excel-cell.readonly {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .excel-cell.correct {
+            background: rgba(34, 197, 94, 0.2) !important;
+            color: var(--success);
+        }
+
+        .excel-cell.incorrect {
+            background: rgba(239, 68, 68, 0.2) !important;
+            color: var(--error);
+        }
+
+        .excel-cell.formula {
+            color: var(--accent);
+        }
+
+        /* Excel Grid Header Row */
+        .excel-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+        }
+
+        .excel-title {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .excel-hint {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+        }
+
         /* Topic Grid */
         .topic-grid {
             display: grid;
@@ -551,37 +660,166 @@
         /* Hint & Explanation Boxes */
         .hint-box, .explanation-box {
             background: var(--bg-secondary);
-            border-radius: var(--radius-sm);
-            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            padding: 0;
             display: none;
+            margin-top: var(--space-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
         }
 
         .hint-box.visible, .explanation-box.visible {
             display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .hint-box {
-            border-left: 4px solid var(--warning);
+            border: 2px solid var(--warning);
         }
 
-        .hint-box h4 {
-            color: var(--warning);
-            margin-bottom: var(--space-sm);
+        .hint-header, .explanation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) var(--space-lg);
+            border-bottom: 1px solid var(--border);
         }
 
-        .explanation-box {
-            border-left: 4px solid var(--success);
+        .hint-header {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 193, 7, 0.05));
         }
 
-        .explanation-box h4 {
-            color: var(--success);
-            margin-bottom: var(--space-sm);
+        .hint-close, .explanation-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .hint-close:hover, .explanation-close:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .hint-content {
+            padding: var(--space-lg);
+            display: flex;
+            gap: var(--space-md);
+            align-items: flex-start;
+        }
+
+        .hint-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .hint-content p {
+            margin: 0;
+            line-height: 1.6;
+            font-size: 1.05rem;
+        }
+
+        .hint-footer {
+            padding: var(--space-md) var(--space-lg);
+            border-top: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            display: flex;
+            justify-content: flex-end;
         }
 
         .hint-level {
-            color: var(--text-secondary);
-            font-size: 0.85em;
-            margin-bottom: 5px;
+            color: var(--warning);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .explanation-box {
+            border: 2px solid var(--success);
+        }
+
+        .explanation-header {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.15), rgba(40, 167, 69, 0.05));
+        }
+
+        .explanation-header h4 {
+            color: var(--success);
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .explanation-content {
+            padding: var(--space-lg);
+        }
+
+        .explanation-section {
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .explanation-formula {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: var(--space-md);
+            margin: var(--space-md) 0;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            border-left: 3px solid var(--accent);
+            display: none;
+        }
+
+        .explanation-formula.visible {
+            display: block;
+        }
+
+        .explanation-steps {
+            margin-top: var(--space-md);
+        }
+
+        .explanation-steps table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--space-sm) 0;
+            font-size: 0.95rem;
+        }
+
+        .explanation-steps th, .explanation-steps td {
+            padding: var(--space-sm) var(--space-md);
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .explanation-steps th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+        }
+
+        .aq-btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+
+        .aq-btn-info:hover {
+            background: linear-gradient(135deg, #138496, #117a8b);
+            transform: translateY(-1px);
+        }
+
+        .aq-btn-sm {
+            padding: var(--space-xs) var(--space-md);
+            font-size: 0.9rem;
         }
 
         /* Result Modal */
@@ -974,23 +1212,51 @@
 
                 <div class="options-container" id="options-container" style="display: none;"></div>
                 <div class="input-fields" id="input-fields" style="display: none;"></div>
+                <div class="excel-grid-container" id="excel-grid-container" style="display: none;">
+                    <div class="excel-header-row">
+                        <span class="excel-title">📊 Beregningstabell</span>
+                        <span class="excel-hint">Fyll inn de tomme cellene</span>
+                    </div>
+                    <div class="excel-grid-wrapper">
+                        <table class="excel-table" id="excel-table">
+                            <thead id="excel-thead"></thead>
+                            <tbody id="excel-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
 
                 <div class="controls">
                     <button class="aq-btn aq-btn-primary" onclick="checkAnswer()" id="btn-check">✓ Sjekk svar</button>
                     <button class="aq-btn aq-btn-warning" onclick="showHint()" id="btn-hint">💡 Hint</button>
+                    <button class="aq-btn aq-btn-info" onclick="toggleExplanation()" id="btn-explanation" style="display: none;">📖 Vis forklaring</button>
                     <button class="aq-btn aq-btn-ghost" onclick="toggleCalculator()">🔢 Kalkulator</button>
                     <button class="aq-btn aq-btn-secondary" onclick="nextQuestion()" id="btn-next" style="display: none;">Neste →</button>
                 </div>
 
                 <div class="hint-box" id="hint-box">
-                    <div class="hint-level" id="hint-level">Hint 1 av 3</div>
-                    <h4>💡 Hint</h4>
-                    <p id="hint-text"></p>
+                    <div class="hint-header">
+                        <div class="hint-level" id="hint-level">Hint 1 av 3</div>
+                        <button class="hint-close" onclick="closeHint()">×</button>
+                    </div>
+                    <div class="hint-content">
+                        <div class="hint-icon" id="hint-icon">💡</div>
+                        <p id="hint-text"></p>
+                    </div>
+                    <div class="hint-footer" id="hint-footer">
+                        <button class="aq-btn aq-btn-sm aq-btn-warning" onclick="showHint()" id="btn-next-hint">Neste hint →</button>
+                    </div>
                 </div>
 
                 <div class="explanation-box" id="explanation-box">
-                    <h4>📖 Forklaring</h4>
-                    <p id="explanation-text"></p>
+                    <div class="explanation-header">
+                        <h4>📖 Forklaring</h4>
+                        <button class="explanation-close" onclick="closeExplanation()">×</button>
+                    </div>
+                    <div class="explanation-content" id="explanation-content">
+                        <div class="explanation-section" id="explanation-main"></div>
+                        <div class="explanation-formula" id="explanation-formula"></div>
+                        <div class="explanation-steps" id="explanation-steps"></div>
+                    </div>
                 </div>
             </main>
         </div>
@@ -1078,6 +1344,7 @@
             questions: [],
             currentIndex: 0,
             currentQuestion: null,
+            currentGrid: null,
             selectedAnswer: null,
             answeredCorrectly: false,
             hintsUsed: 0,
@@ -1259,6 +1526,7 @@
         function loadQuestion(idx) {
             gameState.currentIndex = idx;
             gameState.currentQuestion = gameState.questions[idx];
+            gameState.currentGrid = null;
             gameState.selectedAnswer = null;
             gameState.answeredCorrectly = false;
             gameState.hintsUsed = 0;
@@ -1284,12 +1552,73 @@
             document.getElementById('options-container').style.display = 'none';
             document.getElementById('input-fields').style.display = 'none';
             document.getElementById('data-display').style.display = 'none';
+            document.getElementById('excel-grid-container').style.display = 'none';
+
+            // Show data table for ALL question types if data exists
+            if (q.data) {
+                renderDataTable(q.data);
+            }
 
             if (q.type === 'multiple_choice' || q.type === 'true_false') {
                 renderMultipleChoice(q);
+            } else if (q.type === 'excel_grid') {
+                renderExcelGrid(q);
             } else {
                 renderCalculation(q);
             }
+        }
+
+        function renderDataTable(data) {
+            document.getElementById('data-display').style.display = 'block';
+            var tbl = '';
+            
+            Object.keys(data).forEach(function(k) {
+                var v = data[k];
+                
+                // Handle arrays of objects (like assets with beta)
+                if (Array.isArray(v) && v.length > 0 && typeof v[0] === 'object') {
+                    // Create a sub-table for array data
+                    var headers = Object.keys(v[0]);
+                    tbl += '<tr><th colspan="2" style="color: var(--accent); padding-top: 15px;">' + formatLabel(k) + '</th></tr>';
+                    
+                    // Header row
+                    tbl += '<tr>';
+                    headers.forEach(function(h) {
+                        tbl += '<td style="font-weight: bold; color: var(--text-secondary);">' + formatLabel(h) + '</td>';
+                    });
+                    tbl += '</tr>';
+                    
+                    // Data rows
+                    v.forEach(function(item) {
+                        tbl += '<tr>';
+                        headers.forEach(function(h) {
+                            var val = item[h];
+                            tbl += '<td>' + (typeof val === 'number' ? formatNumber(val) : val) + '</td>';
+                        });
+                        tbl += '</tr>';
+                    });
+                }
+                // Handle simple arrays
+                else if (Array.isArray(v)) {
+                    tbl += '<tr><th>' + formatLabel(k) + '</th><td>' + v.join(', ') + '</td></tr>';
+                }
+                // Handle nested objects (like projects)
+                else if (typeof v === 'object' && v !== null) {
+                    tbl += '<tr><th colspan="2" style="color: var(--accent); padding-top: 15px;">' + formatLabel(k) + '</th></tr>';
+                    Object.keys(v).forEach(function(subKey) {
+                        var subVal = v[subKey];
+                        if (typeof subVal !== 'object') {
+                            tbl += '<tr><th style="padding-left: 20px;">' + formatLabel(subKey) + '</th><td>' + (typeof subVal === 'number' ? formatNumber(subVal) : subVal) + '</td></tr>';
+                        }
+                    });
+                }
+                // Handle simple values
+                else {
+                    tbl += '<tr><th>' + formatLabel(k) + '</th><td>' + (typeof v === 'number' ? formatNumber(v) : v) + '</td></tr>';
+                }
+            });
+            
+            document.getElementById('data-table').querySelector('tbody').innerHTML = tbl;
         }
 
         function renderMultipleChoice(q) {
@@ -1304,17 +1633,6 @@
         }
 
         function renderCalculation(q) {
-            if (q.data) {
-                document.getElementById('data-display').style.display = 'block';
-                var tbl = '';
-                Object.keys(q.data).forEach(function(k) {
-                    var v = q.data[k];
-                    if (typeof v !== 'object' || Array.isArray(v)) {
-                        tbl += '<tr><th>' + formatLabel(k) + '</th><td>' + (typeof v === 'number' ? formatNumber(v) : v) + '</td></tr>';
-                    }
-                });
-                document.getElementById('data-table').querySelector('tbody').innerHTML = tbl;
-            }
             document.getElementById('input-fields').style.display = 'grid';
             var fields = q.input_fields || [{id:'answer',label:'Svar',unit:''}];
             var html = '';
@@ -1324,13 +1642,145 @@
             document.getElementById('input-fields').innerHTML = html;
         }
 
+        // ==================== EXCEL GRID RENDERING ====================
+        
+        function renderExcelGrid(q) {
+            document.getElementById('excel-grid-container').style.display = 'block';
+            
+            var grid = q.grid || q.excel_grid;
+            if (!grid) {
+                // Auto-generate grid from input_fields
+                grid = generateGridFromFields(q);
+            }
+            
+            var thead = document.getElementById('excel-thead');
+            var tbody = document.getElementById('excel-tbody');
+            
+            // Build header
+            var headerHtml = '<tr><th class="row-header">' + (grid.rowHeader || 'Beskrivelse') + '</th>';
+            (grid.columns || ['Verdi']).forEach(function(col) {
+                headerHtml += '<th>' + col + '</th>';
+            });
+            headerHtml += '</tr>';
+            thead.innerHTML = headerHtml;
+            
+            // Build body
+            var bodyHtml = '';
+            (grid.rows || []).forEach(function(row, rowIndex) {
+                bodyHtml += '<tr>';
+                bodyHtml += '<td class="row-label">' + row.label + '</td>';
+                
+                (row.cells || []).forEach(function(cell, colIndex) {
+                    var cellId = 'cell-' + rowIndex + '-' + colIndex;
+                    var isReadonly = cell.readonly || cell.type === 'given';
+                    var value = cell.value !== undefined ? cell.value : '';
+                    
+                    if (isReadonly) {
+                        bodyHtml += '<td><input type="text" class="excel-cell readonly" id="' + cellId + '" value="' + formatNumber(value) + '" readonly></td>';
+                    } else {
+                        bodyHtml += '<td><input type="text" class="excel-cell" id="' + cellId + '" data-row="' + rowIndex + '" data-col="' + colIndex + '" placeholder="' + (cell.placeholder || '0') + '"></td>';
+                    }
+                });
+                
+                bodyHtml += '</tr>';
+            });
+            tbody.innerHTML = bodyHtml;
+            
+            // Store grid config for validation
+            gameState.currentGrid = grid;
+        }
+        
+        function generateGridFromFields(q) {
+            // Auto-generate a simple grid from input_fields
+            var fields = q.input_fields || [];
+            var rows = [];
+            
+            // Add data rows if available
+            if (q.data) {
+                Object.keys(q.data).forEach(function(key) {
+                    var val = q.data[key];
+                    if (typeof val === 'number' || typeof val === 'string') {
+                        rows.push({
+                            label: formatLabel(key),
+                            cells: [{ value: val, readonly: true, type: 'given' }]
+                        });
+                    }
+                });
+            }
+            
+            // Add input fields as editable rows
+            fields.forEach(function(f) {
+                rows.push({
+                    label: f.label + (f.unit ? ' (' + f.unit + ')' : ''),
+                    cells: [{ id: f.id, placeholder: '0' }]
+                });
+            });
+            
+            return {
+                rowHeader: 'Parameter',
+                columns: ['Verdi'],
+                rows: rows
+            };
+        }
+        
+        function checkExcelGrid() {
+            var q = gameState.currentQuestion;
+            var grid = gameState.currentGrid;
+            var allCorrect = true;
+            
+            if (!grid || !grid.rows) {
+                return checkCalc(); // Fallback
+            }
+            
+            grid.rows.forEach(function(row, rowIndex) {
+                (row.cells || []).forEach(function(cell, colIndex) {
+                    if (cell.readonly || cell.type === 'given') return;
+                    
+                    var cellId = 'cell-' + rowIndex + '-' + colIndex;
+                    var input = document.getElementById(cellId);
+                    if (!input) return;
+                    
+                    var userValue = parseFloat(input.value.replace(/\s/g, '').replace(',', '.'));
+                    var correctValue = cell.answer !== undefined ? cell.answer : (q.solution && q.solution[cell.id]);
+                    var tolerance = q.solution && q.solution.tolerance || 1;
+                    
+                    if (typeof correctValue === 'number') {
+                        var isCorrect = Math.abs(userValue - correctValue) <= tolerance;
+                        input.classList.remove('correct', 'incorrect');
+                        input.classList.add(isCorrect ? 'correct' : 'incorrect');
+                        if (!isCorrect) allCorrect = false;
+                    }
+                });
+            });
+            
+            return allCorrect;
+        }
+
         function renderVariables(q) {
             var container = document.getElementById('variable-list');
             if (!q.data) { container.innerHTML = '<p style="color:var(--text-secondary)">Ingen data</p>'; return; }
             var html = '<div class="formula-list">';
+            
             Object.keys(q.data).forEach(function(k) {
                 var v = q.data[k];
-                if (typeof v !== 'object' || Array.isArray(v)) {
+                
+                // Handle arrays of objects
+                if (Array.isArray(v) && v.length > 0 && typeof v[0] === 'object') {
+                    html += '<div class="formula-item"><div class="formula-name">' + formatLabel(k) + '</div>';
+                    v.forEach(function(item) {
+                        var itemStr = Object.keys(item).map(function(ik) {
+                            return formatLabel(ik) + ': ' + item[ik];
+                        }).join(', ');
+                        html += '<div class="formula-equation" style="font-size: 0.85em; margin-bottom: 3px;">' + itemStr + '</div>';
+                    });
+                    html += '</div>';
+                }
+                // Handle simple arrays
+                else if (Array.isArray(v)) {
+                    html += '<div class="formula-item"><div class="formula-name">' + formatLabel(k) + '</div><div class="formula-equation">' + v.join(', ') + '</div></div>';
+                }
+                // Handle simple values
+                else if (typeof v !== 'object') {
                     html += '<div class="formula-item"><div class="formula-name">' + formatLabel(k) + '</div><div class="formula-equation">' + (typeof v === 'number' ? formatNumber(v) : v) + '</div></div>';
                 }
             });
@@ -1348,14 +1798,56 @@
 
         function checkAnswer() {
             var q = gameState.currentQuestion;
-            var correct = (q.type === 'multiple_choice' || q.type === 'true_false') ? checkMC() : checkCalc();
-            if (correct) handleCorrect(); else handleIncorrect();
+            var module = q.module || 'corporate_finance';
+            
+            // Disable check button while loading
+            document.getElementById('btn-check').disabled = true;
+            document.getElementById('btn-check').textContent = '⏳ Sjekker...';
+            
+            // Hent fasit fra Firebase
+            var solutionPath = 'solutions/' + module + '/' + q.id;
+            
+            firebase.database().ref(solutionPath).once('value')
+                .then(function(snapshot) {
+                    var solution = snapshot.val();
+                    
+                    if (!solution) {
+                        alert('Kunne ikke finne fasit for dette spørsmålet.');
+                        document.getElementById('btn-check').disabled = false;
+                        document.getElementById('btn-check').textContent = '✓ Sjekk svar';
+                        return;
+                    }
+                    
+                    var correct;
+                    
+                    if (q.type === 'multiple_choice' || q.type === 'true_false') {
+                        correct = checkMCWithSolution(solution);
+                    } else if (q.type === 'excel_grid') {
+                        correct = checkExcelGridWithSolution(solution);
+                    } else {
+                        correct = checkCalcWithSolution(solution);
+                    }
+                    
+                    // Cache solution for explanation
+                    gameState.currentSolution = solution;
+                    
+                    if (correct) handleCorrect(); else handleIncorrect();
+                    
+                    document.getElementById('btn-check').disabled = false;
+                    document.getElementById('btn-check').textContent = '✓ Sjekk svar';
+                })
+                .catch(function(error) {
+                    console.error('Solution fetch error:', error);
+                    alert('Feil ved henting av fasit: ' + error.message);
+                    document.getElementById('btn-check').disabled = false;
+                    document.getElementById('btn-check').textContent = '✓ Sjekk svar';
+                });
         }
 
-        function checkMC() {
+        function checkMCWithSolution(solution) {
             if (!gameState.selectedAnswer) { alert('Velg et svar!'); return null; }
             var q = gameState.currentQuestion;
-            var correctId = q.type === 'true_false' ? q.solution.correct.toString() : q.solution.correct;
+            var correctId = q.type === 'true_false' ? solution.correct.toString() : solution.correct;
             document.querySelectorAll('.option-item').forEach(function(el) {
                 if (el.dataset.id === correctId) el.classList.add('correct');
                 else if (el.dataset.id === gameState.selectedAnswer) el.classList.add('incorrect');
@@ -1363,22 +1855,52 @@
             return gameState.selectedAnswer === correctId;
         }
 
-        function checkCalc() {
+        function checkCalcWithSolution(solution) {
             var q = gameState.currentQuestion;
             var fields = q.input_fields || [{id:'answer'}];
             var ok = true;
+            
+            // Sjekk om solution.correct er et objekt med flere felter
+            var correctValues = solution.correct || solution;
+            
             fields.forEach(function(f) {
                 var inp = document.getElementById('input-' + f.id);
                 if (!inp) return;
                 var user = parseFloat(inp.value.replace(/\s/g,'').replace(',','.'));
-                var corr = q.solution[f.id];
-                var tol = q.solution.tolerance || 1;
+                var corr = correctValues[f.id] || correctValues;
+                var tol = solution.tolerance || 1;
                 if (typeof corr === 'number') {
                     var isOk = Math.abs(user - corr) <= tol;
                     inp.classList.add(isOk ? 'correct' : 'incorrect');
                     if (!isOk) ok = false;
                 }
             });
+            return ok;
+        }
+
+        function checkExcelGridWithSolution(solution) {
+            // Bruk eksisterende excel grid check men med solution fra Firebase
+            var correctCells = solution.correct || {};
+            var ok = true;
+            var tolerance = solution.tolerance || 0.01;
+            
+            document.querySelectorAll('#excel-tbody input').forEach(function(inp) {
+                var row = inp.dataset.row;
+                var col = inp.dataset.col;
+                var key = row + ',' + col;
+                
+                if (correctCells[key] !== undefined) {
+                    var user = parseFloat(inp.value.replace(/\s/g,'').replace(',','.'));
+                    var corr = parseFloat(correctCells[key]);
+                    
+                    if (!isNaN(user) && !isNaN(corr)) {
+                        var isOk = Math.abs(user - corr) <= Math.abs(corr * tolerance) + 0.01;
+                        inp.classList.add(isOk ? 'correct' : 'incorrect');
+                        if (!isOk) ok = false;
+                    }
+                }
+            });
+            
             return ok;
         }
 
@@ -1389,34 +1911,192 @@
             gameState.score += Math.max(100 - gameState.hintsUsed * 25, 25);
             document.getElementById('nav-score').textContent = gameState.score;
             document.getElementById('nav-correct').textContent = gameState.correctCount;
-            showExplanation();
+            
+            // Show explanation button instead of auto-showing
+            document.getElementById('btn-explanation').style.display = 'inline-flex';
             document.getElementById('btn-check').style.display = 'none';
+            document.getElementById('btn-hint').style.display = 'none';
             document.getElementById('btn-next').style.display = 'inline-flex';
+            
             renderQuestionSelector();
-            if (gameState.answered.filter(Boolean).length === gameState.questions.length) setTimeout(showResults, 1000);
+            if (gameState.answered.filter(Boolean).length === gameState.questions.length) setTimeout(showResults, 1500);
         }
 
         function handleIncorrect() {
+            // Show first hint automatically on first wrong answer
             if (gameState.hintsUsed === 0) showHint();
+            
+            // Show explanation button after wrong answer too
+            document.getElementById('btn-explanation').style.display = 'inline-flex';
         }
 
+        // ==================== SECURE HINT/EXPLANATION FETCHING ====================
+        // Hints og forklaringer hentes ON-DEMAND fra Firebase solutions/
+        // Dette forhindrer juksing via DevTools
+        
         function showHint() {
-            var hints = gameState.currentQuestion.hints || [];
-            if (gameState.hintsUsed >= hints.length) { document.getElementById('btn-hint').disabled = true; return; }
-            var h = hints[gameState.hintsUsed];
-            document.getElementById('hint-level').textContent = 'Hint ' + (gameState.hintsUsed+1) + ' av ' + hints.length;
-            document.getElementById('hint-text').textContent = typeof h === 'string' ? h : h.text;
+            var q = gameState.currentQuestion;
+            var module = q.module || 'corporate_finance';
+            
+            // Vis loading state
+            document.getElementById('hint-text').textContent = 'Laster hint...';
             document.getElementById('hint-box').classList.add('visible');
-            gameState.hintsUsed++;
-            if (gameState.hintsUsed >= hints.length) document.getElementById('btn-hint').disabled = true;
+            
+            // Hent hint fra Firebase
+            var hintPath = 'solutions/' + module + '/' + q.id + '/hints/' + gameState.hintsUsed;
+            
+            firebase.database().ref(hintPath).once('value')
+                .then(function(snapshot) {
+                    var hint = snapshot.val();
+                    
+                    if (!hint) {
+                        document.getElementById('hint-text').textContent = 'Ingen flere hints tilgjengelig.';
+                        document.getElementById('btn-hint').disabled = true;
+                        document.getElementById('btn-next-hint').style.display = 'none';
+                        return;
+                    }
+                    
+                    var hintText = typeof hint === 'string' ? hint : hint.text;
+                    var level = gameState.hintsUsed + 1;
+                    
+                    // Hent totalt antall hints for å vise "X av Y"
+                    firebase.database().ref('solutions/' + module + '/' + q.id + '/hints').once('value')
+                        .then(function(allHintsSnap) {
+                            var allHints = allHintsSnap.val() || [];
+                            var totalHints = Array.isArray(allHints) ? allHints.length : Object.keys(allHints).length;
+                            
+                            // Update UI
+                            document.getElementById('hint-level').textContent = 'Hint ' + level + ' av ' + totalHints;
+                            
+                            var icons = ['💡', '📐', '✅'];
+                            document.getElementById('hint-icon').textContent = icons[Math.min(gameState.hintsUsed, 2)];
+                            document.getElementById('hint-text').textContent = hintText;
+                            
+                            gameState.hintsUsed++;
+                            
+                            // Update next hint button
+                            if (gameState.hintsUsed >= totalHints) {
+                                document.getElementById('btn-hint').disabled = true;
+                                document.getElementById('btn-next-hint').style.display = 'none';
+                            } else {
+                                document.getElementById('btn-next-hint').textContent = 'Neste hint (' + (gameState.hintsUsed + 1) + '/' + totalHints + ') →';
+                                document.getElementById('btn-next-hint').style.display = 'inline-flex';
+                            }
+                        });
+                })
+                .catch(function(error) {
+                    console.error('Hint fetch error:', error);
+                    document.getElementById('hint-text').textContent = 'Kunne ikke laste hint. Prøv igjen.';
+                });
+        }
+
+        function closeHint() {
+            document.getElementById('hint-box').classList.remove('visible');
+        }
+
+        function toggleExplanation() {
+            var box = document.getElementById('explanation-box');
+            if (box.classList.contains('visible')) {
+                closeExplanation();
+            } else {
+                showExplanation();
+            }
+        }
+
+        function closeExplanation() {
+            document.getElementById('explanation-box').classList.remove('visible');
+            document.getElementById('btn-explanation').textContent = '📖 Vis forklaring';
         }
 
         function showExplanation() {
-            var exp = gameState.currentQuestion.explanation || (gameState.currentQuestion.solution && gameState.currentQuestion.solution.explanation) || '';
-            if (exp) {
-                document.getElementById('explanation-text').textContent = exp;
-                document.getElementById('explanation-box').classList.add('visible');
+            var q = gameState.currentQuestion;
+            var module = q.module || 'corporate_finance';
+            
+            // Vis loading state
+            document.getElementById('explanation-main').innerHTML = '<em>Laster forklaring...</em>';
+            document.getElementById('explanation-box').classList.add('visible');
+            document.getElementById('btn-explanation').textContent = '📖 Skjul forklaring';
+            
+            // Hent forklaring fra Firebase
+            var solutionPath = 'solutions/' + module + '/' + q.id;
+            
+            firebase.database().ref(solutionPath).once('value')
+                .then(function(snapshot) {
+                    var solution = snapshot.val();
+                    
+                    if (!solution || !solution.explanation) {
+                        document.getElementById('explanation-main').innerHTML = '<em>Ingen forklaring tilgjengelig for dette spørsmålet.</em>';
+                        return;
+                    }
+                    
+                    // Format explanation
+                    var mainText = formatExplanation(solution.explanation);
+                    document.getElementById('explanation-main').innerHTML = mainText;
+                    
+                    // Show formula if available
+                    var formulaBox = document.getElementById('explanation-formula');
+                    if (solution.formula) {
+                        formulaBox.textContent = solution.formula;
+                        formulaBox.classList.add('visible');
+                    } else {
+                        formulaBox.classList.remove('visible');
+                    }
+                    
+                    // Show learning objectives if available
+                    if (solution.learning_objectives && solution.learning_objectives.length > 0) {
+                        var objHtml = '<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid var(--border);">';
+                        objHtml += '<strong style="color: var(--accent);">🎯 Læringsmål:</strong><ul style="margin: 0.5em 0 0 1.5em;">';
+                        solution.learning_objectives.forEach(function(obj) {
+                            objHtml += '<li>' + obj + '</li>';
+                        });
+                        objHtml += '</ul></div>';
+                        document.getElementById('explanation-main').innerHTML += objHtml;
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Explanation fetch error:', error);
+                    document.getElementById('explanation-main').innerHTML = '<em style="color: var(--error);">Kunne ikke laste forklaring. Prøv igjen.</em>';
+                });
+        }
+
+        function formatExplanation(text) {
+            // Convert **bold** to <strong>
+            text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            
+            // Convert markdown-style headers
+            text = text.replace(/^### (.+)$/gm, '<h5 style="color: var(--accent); margin: 1em 0 0.5em;">$1</h5>');
+            text = text.replace(/^## (.+)$/gm, '<h4 style="color: var(--success); margin: 1em 0 0.5em;">$1</h4>');
+            
+            // Convert bullet points
+            text = text.replace(/^• (.+)$/gm, '<div style="padding-left: 1em; margin: 0.25em 0;">• $1</div>');
+            text = text.replace(/^- (.+)$/gm, '<div style="padding-left: 1em; margin: 0.25em 0;">• $1</div>');
+            
+            // Convert simple tables (|...|...|)
+            if (text.includes('|')) {
+                text = text.replace(/\|(.+)\|/g, function(match) {
+                    var cells = match.split('|').filter(c => c.trim());
+                    if (cells.length > 0) {
+                        return '<tr>' + cells.map(c => '<td style="padding: 4px 8px; border: 1px solid var(--border);">' + c.trim() + '</td>').join('') + '</tr>';
+                    }
+                    return match;
+                });
+                
+                // Wrap consecutive table rows in table tags
+                text = text.replace(/(<tr>.*?<\/tr>\n?)+/g, '<table style="border-collapse: collapse; margin: 0.5em 0; font-size: 0.9em;">$&</table>');
             }
+            
+            // Convert newlines to breaks
+            text = text.replace(/\n\n/g, '</p><p style="margin: 0.75em 0;">');
+            text = text.replace(/\n/g, '<br>');
+            
+            // Wrap in paragraph
+            text = '<p style="margin: 0;">' + text + '</p>';
+            
+            // Highlight checkmark results
+            text = text.replace(/✅/g, '<span style="color: var(--success);">✅</span>');
+            text = text.replace(/❌/g, '<span style="color: var(--error);">❌</span>');
+            
+            return text;
         }
 
         function nextQuestion() {
