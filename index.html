@@ -1012,7 +1012,7 @@
                 <div class="stat-icon" aria-hidden="true">✅</div>
                 <div class="stat-value" id="completed-tasks" aria-label="Antall oppgaver løst">0</div>
                 <div class="stat-label">Oppgaver løst</div>
-                <div class="stat-sublabel" id="total-tasks">av 224 totalt</div>
+                <div class="stat-sublabel" id="total-tasks">av 170 totalt</div>
             </article>
             <article class="stat-card">
                 <div class="stat-icon" aria-hidden="true">🏆</div>
@@ -1168,6 +1168,34 @@
                         </div>
                         <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                             <div class="progress-fill" id="hjernetrim-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Module 6: Corporate Finance -->
+                <article class="module-card" onclick="navigateToModule('corporate_finance.html')" role="button" tabindex="0" aria-label="Corporate Finance modul">
+                    <div class="module-header">
+                        <div class="module-icon" aria-hidden="true">💹</div>
+                        <span class="status-badge new">Ny!</span>
+                    </div>
+                    <h3 class="module-title">Corporate Finance</h3>
+                    <p class="module-description">
+                        Mestre investering, verdivurdering og finansiell analyse med eksamensoppgaver fra BØK260.
+                    </p>
+                    <ul class="module-features">
+                        <li>NPV, IRR, Payback & PI</li>
+                        <li>Obligasjoner & Aksjer (DDM)</li>
+                        <li>WACC & Kapitalstruktur</li>
+                        <li>Portefølje, Beta & CAPM</li>
+                        <li>Finanskalkulator inkludert</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-label">
+                            <span>Fremgang</span>
+                            <span id="finance-progress">0%</span>
+                        </div>
+                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-fill" id="finance-bar" style="width: 0%"></div>
                         </div>
                     </div>
                 </article>
@@ -1502,9 +1530,21 @@
                 const caseTotal = 15;
                 updateProgress('case', caseProgress, caseTotal);
 
+                // Hjernetrim
+                const hjernetrim = JSON.parse(localStorage.getItem('hjernetrim_progress') || '{}');
+                const hjernetrimTasks = (hjernetrim.completedTasks || []).length;
+                const hjernetrimTotal = 10;
+                updateProgress('hjernetrim', hjernetrimTasks, hjernetrimTotal);
+
+                // Corporate Finance
+                const finance = JSON.parse(localStorage.getItem('corporate_finance_progress') || '{}');
+                const financeTasks = Object.keys(finance.completedTopics || {}).length;
+                const financeTotal = 8; // 8 topics
+                updateProgress('finance', financeTasks, financeTotal);
+
                 // Total stats
-                const totalCompleted = bokforingTasks + quizAnswered + analyseTasks + caseProgress;
-                const totalTasks = bokforingTotal + quizTotal + analyseTotal + caseTotal;
+                const totalCompleted = bokforingTasks + quizAnswered + analyseTasks + caseProgress + hjernetrimTasks + financeTasks;
+                const totalTasks = bokforingTotal + quizTotal + analyseTotal + caseTotal + hjernetrimTotal + financeTotal;
                 const totalPercent = Math.round((totalCompleted / totalTasks) * 100);
 
                 updateElement('total-progress', totalPercent + '%');
@@ -1516,7 +1556,9 @@
                     (bokforingTasks / bokforingTotal + 
                      quizAnswered / quizTotal + 
                      analyseTasks / analyseTotal + 
-                     caseProgress / caseTotal) / 4
+                     caseProgress / caseTotal +
+                     hjernetrimTasks / hjernetrimTotal +
+                     financeTasks / financeTotal) / 6
                 ) * 100);
                 updateProgress('unlock', avgProgress, 100);
 
