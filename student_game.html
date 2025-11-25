@@ -1125,13 +1125,6 @@
                 }
             });
         }
-        
-            document.getElementById('score').textContent = gameState.score;
-            
-            setTimeout(function() {
-                showFeedback(isCorrect, Math.round(points));
-            }, 500);
-        }
 
         function disableAllInputs() {
             document.querySelectorAll('button, input').forEach(function(el) {
