@@ -11,6 +11,10 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="js/firebase-config.js"></script>
     
         
     <!-- External CSS -->
@@ -471,10 +475,15 @@
         };
 
         function init() {
+            console.log('🚀 Initializing student game...');
+            
             var urlParams = new URLSearchParams(window.location.search);
             gameState.pin = urlParams.get('pin');
             gameState.playerName = urlParams.get('name');
             gameState.playerId = urlParams.get('id');
+
+            console.log('📌 Game PIN:', gameState.pin);
+            console.log('👤 Player:', gameState.playerName, '(ID:', gameState.playerId + ')');
 
             if (!gameState.pin || !gameState.playerName) {
                 alert('Ugyldig spillinformasjon');
@@ -482,9 +491,29 @@
                 return;
             }
 
+            // ⭐ CRITICAL: Authenticate with Firebase first!
+            console.log('🔐 Authenticating with Firebase...');
+            firebase.auth().signInAnonymously()
+                .then(function() {
+                    console.log('✅ Firebase authentication successful!');
+                    console.log('👤 User ID:', firebase.auth().currentUser.uid);
+                    
+                    // Now that we're authenticated, set up the game
+                    setupGame();
+                })
+                .catch(function(error) {
+                    console.error('🔥 Firebase authentication error:', error);
+                    alert('Kunne ikke koble til spillet: ' + error.message);
+                });
+        }
+
+        function setupGame() {
+            console.log('⚙️  Setting up game...');
+            
             // Get player info and restore score from Firebase
             db.ref('games/' + gameState.pin + '/players/' + gameState.playerId).once('value')
                 .then(function(snapshot) {
+                    console.log('📥 Player data received:', snapshot.val());
                     var player = snapshot.val();
                     if (player) {
                         gameState.playerAvatar = player.avatar || '😊';
@@ -494,12 +523,19 @@
                         document.getElementById('player-name').textContent = gameState.playerName;
                         document.getElementById('score').textContent = gameState.score;
                     }
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error fetching player data:', error);
                 });
 
             // Get time per question from quiz settings
             db.ref('games/' + gameState.pin + '/quiz/timePerQuestion').once('value')
                 .then(function(snapshot) {
                     gameState.timePerQuestion = snapshot.val() || 30;
+                    console.log('⏱️  Time per question:', gameState.timePerQuestion);
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error fetching time setting:', error);
                 });
 
             // Listen for question changes
@@ -507,34 +543,60 @@
             
             // Listen for game status
             listenForGameStatus();
+            
+            console.log('✅ Game setup complete! Ready for questions.');
         }
 
         function listenForQuestions() {
+            console.log('🔊 Listening for questions on game:', gameState.pin);
+            
             db.ref('games/' + gameState.pin + '/currentQuestion').on('value', function(snapshot) {
                 var questionData = snapshot.val();
+                console.log('📩 Received question data:', questionData);
+                console.log('📊 Current question index:', gameState.currentQuestionIndex);
                 
-                if (questionData && questionData.index !== gameState.currentQuestionIndex) {
-                    loadQuestion(questionData);
+                if (questionData) {
+                    console.log('✅ Question data exists, index:', questionData.index);
+                    
+                    if (questionData.index !== gameState.currentQuestionIndex) {
+                        console.log('🚀 Loading new question:', questionData.index);
+                        loadQuestion(questionData);
+                    } else {
+                        console.log('⏭️  Same question index, skipping');
+                    }
+                } else {
+                    console.log('❌ No question data received');
                 }
+            }, function(error) {
+                console.error('🔥 Firebase error:', error);
+                alert('Feil ved lytting til spørsmål: ' + error.message);
             });
         }
 
         function listenForGameStatus() {
             db.ref('games/' + gameState.pin + '/status').on('value', function(snapshot) {
                 var status = snapshot.val();
-                if (status === 'finished') {
+                console.log('🎮 Game status changed to:', status);
+                
+                if (status === 'playing') {
+                    console.log('▶️  Game started! Ready for questions.');
+                    // Game has started - waiting screen will be hidden when first question arrives
+                } else if (status === 'finished') {
+                    console.log('🏁 Game finished! Showing results.');
                     showResults();
                 }
             });
         }
 
         function hideAllScreens() {
+            console.log('🙈 Hiding all screens');
             document.querySelectorAll('.screen').forEach(function(s) {
                 s.classList.remove('show');
             });
         }
 
         function loadQuestion(questionData) {
+            console.log('📝 loadQuestion called with:', questionData);
             gameState.currentQuestionIndex = questionData.index;
             gameState.currentQuestion = questionData;
             gameState.totalQuestions = Math.max(gameState.totalQuestions, questionData.index + 1);
@@ -546,10 +608,13 @@
             gameState.analyseAnswer = '';
 
             // Check if already answered this question
+            console.log('🔍 Checking if already answered question', questionData.index);
             db.ref('games/' + gameState.pin + '/answers/' + gameState.playerId).once('value')
                 .then(function(snapshot) {
+                    console.log('✅ Answer check completed');
                     var existingAnswer = snapshot.val();
                     if (existingAnswer && existingAnswer.questionIndex === questionData.index) {
+                        console.log('⏭️  Already answered this question, showing waiting screen');
                         gameState.hasAnswered = true;
                         hideAllScreens();
                         document.getElementById('waiting-screen').classList.add('show');
@@ -557,9 +622,12 @@
                         return;
                     }
 
+                    console.log('🆕 New question, showing question screen');
                     gameState.hasAnswered = false;
+                    console.log('🎯 Showing question screen');
                     hideAllScreens();
                     document.getElementById('question-screen').classList.add('show');
+                    console.log('✅ Question screen should now be visible');
 
                     // Update question info
                     document.getElementById('question-number').textContent = 'Spørsmål ' + (questionData.index + 1);
@@ -581,6 +649,11 @@
                     } else {
                         startTimer(remaining);
                     }
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error checking answers:', error);
+                    alert('Feil ved lasting av spørsmål: ' + error.message);
+                });
                 });
         }
 

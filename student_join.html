@@ -41,6 +41,7 @@
             max-width: 500px;
             width: 100%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
         }
         .join-title {
             font-size: 2em;
@@ -79,9 +80,12 @@
         }
         .emoji-picker {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin-top: 15px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .emoji-option {
             background: var(--bg-primary);
@@ -92,6 +96,10 @@
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1;
         }
         .emoji-option:hover {
             border-color: var(--accent);
@@ -169,7 +177,14 @@
         @media (max-width: 768px) {
             .join-container { padding: 30px 20px; }
             .logo { font-size: 2em; }
-            .emoji-picker { grid-template-columns: repeat(4, 1fr); }
+            .emoji-picker { 
+                max-width: 320px;
+                gap: 8px;
+            }
+            .emoji-option {
+                padding: 12px;
+                font-size: 1.6em;
+            }
         }
     
     </style>
@@ -236,6 +251,10 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="js/firebase-config.js"></script>
     
     <script>
         // Firebase Config
@@ -292,8 +311,13 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="loading"></span> Kobler til...';
 
-            // Check if game exists in Firebase
-            db.ref('games/' + pin).once('value')
+            // ⭐ CRITICAL: Authenticate first!
+            firebase.auth().signInAnonymously()
+                .then(function() {
+                    console.log('✅ Firebase authenticated');
+                    // Check if game exists in Firebase
+                    return db.ref('games/' + pin).once('value');
+                })
                 .then(function(snapshot) {
                     if (!snapshot.exists()) {
                         showError('Ugyldig PIN-kode eller spillet har ikke startet ennå');
