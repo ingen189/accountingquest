@@ -492,19 +492,8 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
-        // Firebase Config
-        var firebaseConfig = {
-            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
-            authDomain: "accountingquest-multiplayer.firebaseapp.com",
-            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest-multiplayer",
-            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
-            messagingSenderId: "525417361926",
-            appId: "1:525417361926:web:ec9b737f82af9b21700987"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        var db = firebase.database();
+        // Firebase init and config happens at end of body
+        // window.db will be available after Firebase init completes
 
         // Question type labels
         var typeLabels = {
@@ -1376,16 +1365,33 @@
                     window.db = firebase.database();
                     console.log('✅ Database ready');
                     
-                    // Give JavaScript time to finish evaluating all scripts
-                    // before calling init()
-                    setTimeout(function() {
-                        console.log('🚀 Starting game initialization...');
-                        if (typeof init === 'function') {
-                            init();
-                        } else {
-                            console.error('❌ init() function not found!');
-                        }
-                    }, 100); // Wait 100ms for all scripts to evaluate
+                    // Wait for DOM to be fully loaded and all scripts evaluated
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', function() {
+                            console.log('🚀 DOM loaded, starting game initialization...');
+                            if (typeof init === 'function' && typeof gameState !== 'undefined') {
+                                init();
+                            } else {
+                                console.error('❌ init() or gameState not found!', {
+                                    initExists: typeof init === 'function',
+                                    gameStateExists: typeof gameState !== 'undefined'
+                                });
+                            }
+                        });
+                    } else {
+                        // DOM already loaded
+                        setTimeout(function() {
+                            console.log('🚀 Starting game initialization (DOM already loaded)...');
+                            if (typeof init === 'function' && typeof gameState !== 'undefined') {
+                                init();
+                            } else {
+                                console.error('❌ init() or gameState not found!', {
+                                    initExists: typeof init === 'function',
+                                    gameStateExists: typeof gameState !== 'undefined'
+                                });
+                            }
+                        }, 200); // Longer delay if DOM already loaded
+                    }
                 } catch (error) {
                     console.error('🔥 Firebase initialization error:', error);
                     alert('Firebase initialisering feilet: ' + error.message);

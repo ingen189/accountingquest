@@ -1242,15 +1242,33 @@
                 window.db = firebase.database();
                 console.log('✅ Database ready');
                 
-                // Give JavaScript time to finish evaluating all scripts
-                setTimeout(function() {
-                    console.log('🚀 Starting student game initialization...');
-                    if (typeof init === 'function') {
-                        init();
-                    } else {
-                        console.error('❌ init() function not found!');
-                    }
-                }, 100); // Wait 100ms for all scripts to evaluate
+                // Wait for DOM to be fully loaded and all scripts evaluated
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        console.log('🚀 DOM loaded, starting student game initialization...');
+                        if (typeof init === 'function' && typeof gameState !== 'undefined') {
+                            init();
+                        } else {
+                            console.error('❌ init() or gameState not found!', {
+                                initExists: typeof init === 'function',
+                                gameStateExists: typeof gameState !== 'undefined'
+                            });
+                        }
+                    });
+                } else {
+                    // DOM already loaded
+                    setTimeout(function() {
+                        console.log('🚀 Starting student game initialization (DOM already loaded)...');
+                        if (typeof init === 'function' && typeof gameState !== 'undefined') {
+                            init();
+                        } else {
+                            console.error('❌ init() or gameState not found!', {
+                                initExists: typeof init === 'function',
+                                gameStateExists: typeof gameState !== 'undefined'
+                            });
+                        }
+                    }, 200); // Longer delay if DOM already loaded
+                }
             }
             
             tryInit();
