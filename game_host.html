@@ -842,6 +842,24 @@
                     var game = snapshot.val();
                     gameState.quiz = game.quiz;
                     gameState.currentQuestion = game.currentQuestionIndex || 0;
+                    
+                    // ⭐ CRITICAL: Save hostId for score permissions
+                    var teacherUid = firebase.auth().currentUser.uid;
+                    if (!game.hostId) {
+                        console.log('📝 Setting hostId for this game...');
+                        db.ref('games/' + gameState.pin + '/hostId').set(teacherUid)
+                            .then(function() {
+                                console.log('✅ hostId saved:', teacherUid);
+                            })
+                            .catch(function(err) {
+                                console.warn('⚠️ Could not save hostId:', err.message);
+                            });
+                    } else {
+                        console.log('✅ hostId already exists:', game.hostId);
+                        if (game.hostId !== teacherUid) {
+                            console.warn('⚠️ You are not the original host! Some features may not work.');
+                        }
+                    }
 
                     document.getElementById('quiz-title').textContent = game.quiz.title;
                     document.getElementById('question-count').textContent = game.quiz.questions.length;
