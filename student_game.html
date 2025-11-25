@@ -536,6 +536,9 @@
             // Listen for game status
             listenForGameStatus();
             
+            // Listen for score updates from teacher
+            listenForScoreUpdates();
+            
             console.log('✅ Game setup complete! Ready for questions.');
         }
 
@@ -572,9 +575,37 @@
                 
                 if (status === 'playing') {
                     console.log('▶️  Game started! Ready for questions.');
+                    
+                    // Fjern pause overlay hvis det finnes
+                    var pauseOverlay = document.getElementById('pause-overlay');
+                    if (pauseOverlay) {
+                        pauseOverlay.remove();
+                        console.log('✅ Pause overlay removed - game resumed');
+                    }
+                    
                     // Game has started - waiting screen will be hidden when first question arrives
+                } else if (status === 'paused') {
+                    console.log('⏸️ Game paused by teacher');
+                    
+                    // Sjekk om overlay allerede eksisterer
+                    if (!document.getElementById('pause-overlay')) {
+                        // Show pause message
+                        var pauseMsg = document.createElement('div');
+                        pauseMsg.id = 'pause-overlay';
+                        pauseMsg.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+                        pauseMsg.innerHTML = '<div style="text-align: center; color: white; font-size: 2em;">⏸️<br>Spillet er på pause<br><div style="font-size: 0.5em; margin-top: 20px;">Venter på at læreren fortsetter...</div></div>';
+                        document.body.appendChild(pauseMsg);
+                    }
+                    
+                    // Pause timer hvis den kjører
+                    if (gameState.timer) clearInterval(gameState.timer);
                 } else if (status === 'finished') {
                     console.log('🏁 Game finished! Showing results.');
+                    
+                    // Fjern pause overlay hvis den finnes
+                    var pauseOverlay = document.getElementById('pause-overlay');
+                    if (pauseOverlay) pauseOverlay.remove();
+                    
                     showResults();
                 }
             });
@@ -1053,34 +1084,48 @@
             var elapsed = Math.floor((Date.now() - gameState.questionStartTime) / 1000);
             var timeLeft = Math.max(0, gameState.timePerQuestion - elapsed);
             
-            // Calculate points
-            var basePoints = gameState.currentQuestion.points || 200;
-            var timeBonus = Math.floor((timeLeft / gameState.timePerQuestion) * (basePoints / 2));
-            var points = basePoints / 2 + timeBonus; // Half points base, half for speed
+            console.log('📤 Submitting answer to Firebase:', {
+                questionIndex: gameState.currentQuestionIndex,
+                type: type,
+                answer: answer,
+                timeLeft: timeLeft
+            });
             
-            // For now, assume correct (real validation would be server-side)
-            var isCorrect = true; // TODO: Add proper validation
-            
-            if (isCorrect) {
-                gameState.score += Math.round(points);
-                gameState.correctCount++;
-            }
-            
-            // Save to Firebase
+            // Save answer to Firebase - TEACHER will validate and score
             db.ref('games/' + gameState.pin + '/answers/' + gameState.playerId).set({
                 questionIndex: gameState.currentQuestionIndex,
                 type: type,
                 answer: answer,
                 timeLeft: timeLeft,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
+                answeredAt: firebase.database.ServerValue.TIMESTAMP,
+                scored: false  // Will be set to true by teacher after validation
+            })
+                .then(function() {
+                    console.log('✅ Answer submitted successfully');
+                    // Show waiting screen
+                    showWaitingScreen();
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error submitting answer:', error);
+                    alert('Kunne ikke sende svar: ' + error.message);
+                });
+        }
+        
+        // Listen for score updates from teacher
+        function listenForScoreUpdates() {
+            db.ref('games/' + gameState.pin + '/players/' + gameState.playerId).on('value', function(snapshot) {
+                var player = snapshot.val();
+                if (player) {
+                    console.log('📊 Score updated from server:', player.score);
+                    gameState.score = player.score || 0;
+                    gameState.correctCount = player.correctCount || 0;
+                    
+                    // Update UI
+                    document.getElementById('score').textContent = gameState.score;
+                }
             });
-            
-            // Update player score
-            db.ref('games/' + gameState.pin + '/players/' + gameState.playerId).update({
-                score: gameState.score,
-                correctCount: gameState.correctCount
-            });
-            
+        }
+        
             document.getElementById('score').textContent = gameState.score;
             
             setTimeout(function() {
@@ -1151,20 +1196,38 @@
         }
 
         function showResults() {
+            console.log('🏁 Showing final results...');
             clearInterval(gameState.timer);
             hideAllScreens();
             document.getElementById('results-screen').classList.add('show');
             
-            document.getElementById('final-score').textContent = gameState.score;
-            document.getElementById('correct-count').textContent = gameState.correctCount;
-            
-            var accuracy = gameState.totalQuestions > 0 
-                ? Math.round((gameState.correctCount / gameState.totalQuestions) * 100) 
-                : 0;
-            document.getElementById('accuracy').textContent = accuracy + '%';
-            
-            // Get ranking
-            db.ref('games/' + gameState.pin + '/players').orderByChild('score').once('value')
+            // Fetch FRESH data from Firebase
+            db.ref('games/' + gameState.pin + '/players/' + gameState.playerId).once('value')
+                .then(function(snapshot) {
+                    var player = snapshot.val() || {};
+                    
+                    // Update gameState with server values
+                    gameState.score = player.score || 0;
+                    gameState.correctCount = player.correctCount || 0;
+                    
+                    console.log('📊 Final stats:', {
+                        score: gameState.score,
+                        correct: gameState.correctCount,
+                        total: gameState.totalQuestions
+                    });
+                    
+                    // Display stats
+                    document.getElementById('final-score').textContent = gameState.score;
+                    document.getElementById('correct-count').textContent = gameState.correctCount;
+                    
+                    var accuracy = gameState.totalQuestions > 0 
+                        ? Math.round((gameState.correctCount / gameState.totalQuestions) * 100) 
+                        : 0;
+                    document.getElementById('accuracy').textContent = accuracy + '%';
+                    
+                    // Get ranking
+                    return db.ref('games/' + gameState.pin + '/players').orderByChild('score').once('value');
+                })
                 .then(function(snapshot) {
                     var players = [];
                     snapshot.forEach(function(child) {
@@ -1174,9 +1237,16 @@
                     
                     var rank = players.findIndex(function(p) { return p.id === gameState.playerId; }) + 1;
                     
+                    console.log('🏆 Rank:', rank, 'of', players.length);
+                    
                     var medals = ['🥇', '🥈', '🥉'];
                     document.getElementById('rank-display').textContent = medals[rank - 1] || '🏅';
                     document.getElementById('rank-text').textContent = rank + '. plass av ' + players.length;
+                    
+                    console.log('✅ Results screen shown successfully');
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error loading results:', error);
                 });
         }
 
