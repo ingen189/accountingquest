@@ -618,6 +618,13 @@
             });
         }
 
+        function showWaitingScreen(message) {
+            console.log('⏳ Showing waiting screen');
+            hideAllScreens();
+            document.getElementById('waiting-screen').classList.add('show');
+            document.querySelector('#waiting-screen .waiting-text').textContent = message || 'Venter på neste spørsmål...';
+        }
+
         function loadQuestion(questionData) {
             console.log('📝 loadQuestion called with:', questionData);
             gameState.currentQuestionIndex = questionData.index;
@@ -1103,7 +1110,7 @@
                 .then(function() {
                     console.log('✅ Answer submitted successfully');
                     // Show waiting screen
-                    showWaitingScreen();
+                    showWaitingScreen('Svar sendt! Venter på neste spørsmål...');
                 })
                 .catch(function(error) {
                     console.error('🔥 Error submitting answer:', error);
