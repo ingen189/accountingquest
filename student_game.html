@@ -4,17 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spill - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
-            color: #e0e0e0;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -25,12 +34,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #4ade80;
+            border-bottom: 2px solid var(--accent);
         }
         .player-info { display: flex; align-items: center; gap: 10px; }
         .player-avatar { font-size: 2em; }
         .player-name { font-weight: bold; font-size: 1.2em; }
-        .score-display { font-size: 1.5em; color: #4ade80; font-weight: bold; }
+        .score-display { font-size: 1.5em; color: var(--accent); font-weight: bold; }
         .game-content {
             flex: 1;
             display: flex;
@@ -46,31 +55,31 @@
         .waiting-screen { text-align: center; }
         .waiting-icon { font-size: 5em; margin-bottom: 20px; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .waiting-text { font-size: 1.5em; color: #9ca3af; }
+        .waiting-text { font-size: 1.5em; color: var(--text-secondary); }
 
         /* Question Display */
         .question-display {
             background: rgba(45, 45, 45, 0.8);
-            border: 3px solid #4ade80;
+            border: 3px solid var(--accent);
             border-radius: 20px;
             padding: 30px;
             text-align: center;
             margin-bottom: 25px;
         }
         .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .question-number { font-size: 1.1em; color: #9ca3af; }
+        .question-number { font-size: 1.1em; color: var(--text-secondary); }
         .question-type-badge {
-            background: #4ade80;
+            background: var(--accent);
             color: #1a1a2e;
             padding: 5px 15px;
             border-radius: 20px;
             font-size: 0.9em;
             font-weight: bold;
         }
-        .question-text { font-size: 1.6em; color: #e0e0e0; line-height: 1.4; }
-        .timer-display { font-size: 3em; color: #4ade80; font-weight: bold; margin-top: 15px; }
-        .timer-display.warning { color: #f59e0b; animation: pulse 0.5s infinite; }
-        .timer-display.danger { color: #ef4444; }
+        .question-text { font-size: 1.6em; color: var(--text-primary); line-height: 1.4; }
+        .timer-display { font-size: 3em; color: var(--accent); font-weight: bold; margin-top: 15px; }
+        .timer-display.warning { color: var(--warning); animation: pulse 0.5s infinite; }
+        .timer-display.danger { color: var(--error); }
 
         /* Multiple Choice / True False Buttons */
         .answers-container {
@@ -84,26 +93,26 @@
         .answers-container.single-column { grid-template-columns: 1fr; max-width: 600px; }
         
         .answer-btn {
-            background: #2d2d2d;
-            border: 4px solid #404040;
+            background: var(--bg-secondary);
+            border: 4px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 30px 20px;
             font-size: 1.2em;
-            color: #e0e0e0;
+            color: var(--text-primary);
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
         }
         .answer-btn:hover:not(:disabled) { transform: scale(1.03); }
         .answer-btn:disabled { cursor: not-allowed; opacity: 0.6; }
-        .answer-btn.answer-a { border-color: #ef4444; }
-        .answer-btn.answer-a:hover:not(:disabled), .answer-btn.answer-a.selected { background: #ef4444; }
-        .answer-btn.answer-b { border-color: #3b82f6; }
-        .answer-btn.answer-b:hover:not(:disabled), .answer-btn.answer-b.selected { background: #3b82f6; }
-        .answer-btn.answer-c { border-color: #f59e0b; }
-        .answer-btn.answer-c:hover:not(:disabled), .answer-btn.answer-c.selected { background: #f59e0b; }
-        .answer-btn.answer-d { border-color: #22c55e; }
-        .answer-btn.answer-d:hover:not(:disabled), .answer-btn.answer-d.selected { background: #22c55e; }
+        .answer-btn.answer-a { border-color: var(--error); }
+        .answer-btn.answer-a:hover:not(:disabled), .answer-btn.answer-a.selected { background: var(--error); }
+        .answer-btn.answer-b { border-color: var(--info); }
+        .answer-btn.answer-b:hover:not(:disabled), .answer-btn.answer-b.selected { background: var(--info); }
+        .answer-btn.answer-c { border-color: var(--warning); }
+        .answer-btn.answer-c:hover:not(:disabled), .answer-btn.answer-c.selected { background: var(--warning); }
+        .answer-btn.answer-d { border-color: var(--accent-hover); }
+        .answer-btn.answer-d:hover:not(:disabled), .answer-btn.answer-d.selected { background: var(--accent-hover); }
         .answer-btn.selected { transform: scale(1.03); box-shadow: 0 0 30px rgba(74, 222, 128, 0.4); }
         .answer-label { font-size: 1.5em; font-weight: bold; margin-bottom: 10px; }
         .answer-text { font-size: 1em; }
@@ -111,8 +120,8 @@
         /* Multiple Select (checkboxes) */
         .checkbox-container { max-width: 700px; margin: 0 auto; }
         .checkbox-item {
-            background: #2d2d2d;
-            border: 3px solid #404040;
+            background: var(--bg-secondary);
+            border: 3px solid var(--bg-tertiary);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 12px;
@@ -122,8 +131,8 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .checkbox-item:hover { border-color: #4ade80; }
-        .checkbox-item.selected { border-color: #4ade80; background: rgba(74, 222, 128, 0.15); }
+        .checkbox-item:hover { border-color: var(--accent); }
+        .checkbox-item.selected { border-color: var(--accent); background: rgba(74, 222, 128, 0.15); }
         .checkbox-item input[type="checkbox"] { width: 25px; height: 25px; cursor: pointer; }
         .checkbox-item label { flex: 1; cursor: pointer; font-size: 1.1em; }
 
@@ -139,10 +148,10 @@
             transition: all 0.3s;
             border: 4px solid;
         }
-        .tf-btn.true { background: #2d2d2d; border-color: #22c55e; color: #22c55e; }
-        .tf-btn.true:hover, .tf-btn.true.selected { background: #22c55e; color: white; }
-        .tf-btn.false { background: #2d2d2d; border-color: #ef4444; color: #ef4444; }
-        .tf-btn.false:hover, .tf-btn.false.selected { background: #ef4444; color: white; }
+        .tf-btn.true { background: var(--bg-secondary); border-color: var(--accent-hover); color: var(--accent-hover); }
+        .tf-btn.true:hover, .tf-btn.true.selected { background: var(--accent-hover); color: white; }
+        .tf-btn.false { background: var(--bg-secondary); border-color: var(--error); color: var(--error); }
+        .tf-btn.false:hover, .tf-btn.false.selected { background: var(--error); color: white; }
 
         /* Drag and Drop */
         .dd-container { max-width: 900px; margin: 0 auto; }
@@ -154,25 +163,25 @@
         }
         .dd-category {
             background: #1a1a2e;
-            border: 3px dashed #404040;
+            border: 3px dashed var(--bg-tertiary);
             border-radius: 15px;
             min-height: 150px;
             padding: 15px;
         }
-        .dd-category.drag-over { border-color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+        .dd-category.drag-over { border-color: var(--accent); background: rgba(74, 222, 128, 0.1); }
         .dd-category-title {
             text-align: center;
-            color: #4ade80;
+            color: var(--accent);
             font-weight: bold;
             font-size: 1.1em;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #404040;
+            border-bottom: 2px solid var(--bg-tertiary);
         }
         .dd-category-items { min-height: 80px; }
         .dd-items-pool {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 20px;
             display: flex;
@@ -181,7 +190,7 @@
             justify-content: center;
         }
         .dd-item {
-            background: #404040;
+            background: var(--bg-tertiary);
             border: 2px solid #555;
             border-radius: 10px;
             padding: 12px 20px;
@@ -189,15 +198,15 @@
             transition: all 0.2s;
             font-size: 1em;
         }
-        .dd-item:hover { border-color: #4ade80; }
+        .dd-item:hover { border-color: var(--accent); }
         .dd-item.dragging { opacity: 0.5; cursor: grabbing; }
-        .dd-item.placed { background: #4ade80; color: #1a1a2e; border-color: #4ade80; }
+        .dd-item.placed { background: var(--accent); color: #1a1a2e; border-color: var(--accent); }
 
         /* Bokføring */
         .bokforing-container { max-width: 800px; margin: 0 auto; }
         .bokforing-scenario {
             background: #1a1a2e;
-            border: 2px solid #4ade80;
+            border: 2px solid var(--accent);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
@@ -207,7 +216,7 @@
         .bokforing-table {
             width: 100%;
             border-collapse: collapse;
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 10px;
             overflow: hidden;
         }
@@ -215,26 +224,26 @@
             background: #1a1a2e;
             padding: 15px;
             text-align: left;
-            color: #4ade80;
-            border-bottom: 2px solid #4ade80;
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
         }
         .bokforing-table th:nth-child(3),
         .bokforing-table th:nth-child(4) { text-align: right; }
-        .bokforing-table td { padding: 10px 15px; border-bottom: 1px solid #404040; }
+        .bokforing-table td { padding: 10px 15px; border-bottom: 1px solid var(--bg-tertiary); }
         .bokforing-table input {
             width: 100%;
             padding: 10px;
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 5px;
-            color: #e0e0e0;
+            color: var(--text-primary);
             font-size: 1em;
         }
-        .bokforing-table input:focus { outline: none; border-color: #4ade80; }
+        .bokforing-table input:focus { outline: none; border-color: var(--accent); }
         .bokforing-table input[type="number"] { text-align: right; }
         .add-row-btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             border: 2px dashed #555;
             padding: 15px;
             width: 100%;
@@ -243,18 +252,18 @@
             cursor: pointer;
             font-size: 1em;
         }
-        .add-row-btn:hover { border-color: #4ade80; color: #4ade80; }
+        .add-row-btn:hover { border-color: var(--accent); color: var(--accent); }
 
         /* Analyse */
         .analyse-container { max-width: 700px; margin: 0 auto; }
         .analyse-data {
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
         }
-        .analyse-data h4 { color: #4ade80; margin-bottom: 15px; }
+        .analyse-data h4 { color: var(--accent); margin-bottom: 15px; }
         .analyse-data-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -264,10 +273,10 @@
             display: flex;
             justify-content: space-between;
             padding: 10px;
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 5px;
         }
-        .analyse-data-item span:last-child { color: #4ade80; font-weight: bold; }
+        .analyse-data-item span:last-child { color: var(--accent); font-weight: bold; }
         .analyse-input-group {
             text-align: center;
             padding: 20px;
@@ -279,15 +288,15 @@
             font-size: 1.5em;
             text-align: center;
             background: #1a1a2e;
-            border: 3px solid #4ade80;
+            border: 3px solid var(--accent);
             border-radius: 10px;
-            color: #e0e0e0;
+            color: var(--text-primary);
         }
 
         /* Submit Button */
         .submit-container { text-align: center; margin-top: 25px; }
         .submit-btn {
-            background: #4ade80;
+            background: var(--accent);
             color: #1a1a2e;
             border: none;
             padding: 20px 60px;
@@ -297,20 +306,20 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .submit-btn:hover { background: #22c55e; transform: scale(1.05); }
+        .submit-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
         .submit-btn:disabled { background: #555; cursor: not-allowed; transform: none; }
 
         /* Feedback Screen */
         .feedback-screen { text-align: center; padding: 40px; }
         .feedback-icon { font-size: 6em; margin-bottom: 20px; }
         .feedback-text { font-size: 2em; margin-bottom: 15px; }
-        .feedback-points { font-size: 3em; color: #4ade80; font-weight: bold; }
-        .feedback-correct { color: #22c55e; }
-        .feedback-wrong { color: #ef4444; }
+        .feedback-points { font-size: 3em; color: var(--accent); font-weight: bold; }
+        .feedback-correct { color: var(--accent-hover); }
+        .feedback-wrong { color: var(--error); }
 
         /* Results Screen */
         .results-screen { text-align: center; padding: 30px; }
-        .results-title { font-size: 2.5em; color: #4ade80; margin-bottom: 30px; }
+        .results-title { font-size: 2.5em; color: var(--accent); margin-bottom: 30px; }
         .results-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -319,13 +328,13 @@
             margin: 0 auto 30px;
         }
         .stat-box {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 25px;
         }
-        .stat-value { font-size: 2.5em; color: #4ade80; font-weight: bold; }
-        .stat-label { color: #9ca3af; margin-top: 10px; }
+        .stat-value { font-size: 2.5em; color: var(--accent); font-weight: bold; }
+        .stat-label { color: var(--text-secondary); margin-top: 10px; }
         .rank-display {
             font-size: 4em;
             margin: 30px 0;
@@ -339,7 +348,9 @@
             .question-text { font-size: 1.3em; }
             .answer-btn { padding: 20px 15px; }
         }
+    
     </style>
+
 </head>
 <body>
     <div class="game-container">
@@ -405,7 +416,7 @@
                     </div>
                 </div>
                 <div class="rank-display" id="rank-display">🏆</div>
-                <p style="color: #9ca3af; font-size: 1.2em;" id="rank-text">Din plassering</p>
+                <p style="color: var(--text-secondary); font-size: 1.2em;" id="rank-text">Din plassering</p>
             </div>
         </div>
     </div>
@@ -664,7 +675,7 @@
             return '<div class="analyse-container">' +
                 '<div class="analyse-data">' +
                     '<h4>📜 Lovhenvisning: ' + (q.paragraphRef || 'Ukjent') + '</h4>' +
-                    '<p style="color: #9ca3af;">Skriv inn nøkkelordene du forbinder med denne paragrafen.</p>' +
+                    '<p style="color: var(--text-secondary);">Skriv inn nøkkelordene du forbinder med denne paragrafen.</p>' +
                 '</div>' +
                 '<div class="analyse-input-group">' +
                     '<label>Ditt svar:</label>' +
@@ -1058,13 +1069,13 @@
                 text.textContent = 'Bra jobbet!';
                 text.className = 'feedback-text feedback-correct';
                 pointsEl.textContent = '+' + points;
-                pointsEl.style.color = '#22c55e';
+                pointsEl.style.color = 'var(--accent-hover)';
             } else {
                 icon.textContent = '⏱️';
                 text.textContent = points === 0 ? 'Tiden er ute!' : 'Svaret er registrert';
                 text.className = 'feedback-text';
                 pointsEl.textContent = '+' + points;
-                pointsEl.style.color = '#f59e0b';
+                pointsEl.style.color = 'var(--warning)';
             }
             
             // Return to waiting after delay
@@ -1122,6 +1133,15 @@
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', init);
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        // Initialize theme after DOM loads
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
     </script>
 </body>
 </html>

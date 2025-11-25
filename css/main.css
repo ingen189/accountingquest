@@ -12,7 +12,7 @@
    ======================================== */
 
 :root {
-    /* === DARK THEME (Standard - fra bokføring/regnskapsanalyse) === */
+    /* === DARK THEME (Standard - fra bokfÃ¸ring/regnskapsanalyse) === */
     --bg-primary: #0f1419;
     --bg-secondary: #1a1f26;
     --bg-tertiary: #2d3748;
@@ -34,9 +34,12 @@
     
     /* Status farger */
     --success: #22c55e;
+    --success-light: #f0fdf4;
+    --success-bright: #5ef77c;
     --warning: #f59e0b;
     --error: #ef4444;
     --info: #3b82f6;
+    --info-light: #dbeafe;
     
     /* Shadows */
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -137,7 +140,7 @@
     --border-light: #404040;
 }
 
-/* === CHARCOAL THEME (Mørk grå) === */
+/* === CHARCOAL THEME (MÃ¸rk grÃ¥) === */
 [data-theme="charcoal"] {
     --bg-primary: #1a1a1a;
     --bg-secondary: #242424;
@@ -153,7 +156,7 @@
     --border-light: #4a4a4a;
 }
 
-/* === SLATE THEME (Blågrå) === */
+/* === SLATE THEME (BlÃ¥grÃ¥) === */
 [data-theme="slate"] {
     --bg-primary: #0f172a;
     --bg-secondary: #1e293b;
@@ -169,7 +172,7 @@
     --border-light: #475569;
 }
 
-/* === FOREST THEME (Mørk grønn) === */
+/* === FOREST THEME (MÃ¸rk grÃ¸nn) === */
 [data-theme="forest"] {
     --bg-primary: #0c1a14;
     --bg-secondary: #142b1f;

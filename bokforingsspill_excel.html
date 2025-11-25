@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bokføringsspill - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📒</text></svg>">
+    <meta name="theme-color" content="var(--bg-primary)">
+
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         * {
             margin: 0;
             padding: 0;
@@ -13,16 +22,16 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f1419;
-            color: #e0e0e0;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
         }
 
         /* Top Navigation Bar */
         .top-nav {
-            background: #1a1f26;
-            border-bottom: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
             padding: 12px 30px;
             display: flex;
             justify-content: space-between;
@@ -39,9 +48,9 @@
         }
 
         .back-btn {
-            background: #2d3748;
+            background: var(--border-color);
             border: none;
-            color: #e0e0e0;
+            color: var(--text-primary);
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
@@ -53,13 +62,13 @@
         }
 
         .back-btn:hover {
-            background: #374151;
+            background: var(--bg-tertiary);
         }
 
         .wiki-btn {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, var(--warning), #f59e0b);
             border: none;
-            color: white;
+            color: var(--text-primary);
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
@@ -69,11 +78,11 @@
 
         .wiki-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 4px 12px rgb(245 158 11 / 0.4);
         }
 
         .module-name {
-            color: #4ade80;
+            color: var(--accent);
             font-size: 0.9em;
         }
 
@@ -91,18 +100,18 @@
         }
 
         .nav-stat-label {
-            color: #9ca3af;
+            color: var(--text-secondary);
         }
 
         .nav-stat-value {
-            color: #4ade80;
+            color: var(--accent);
             font-weight: bold;
         }
 
         .theme-toggle {
-            background: #2d3748;
+            background: var(--border-color);
             border: none;
-            color: #f59e0b;
+            color: var(--warning);
             padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
@@ -111,7 +120,7 @@
         }
 
         .theme-toggle:hover {
-            background: #374151;
+            background: var(--bg-tertiary);
         }
 
         /* Main Menu */
@@ -127,7 +136,7 @@
         .main-menu h1 {
             font-size: 3.5em;
             margin-bottom: 15px;
-            background: linear-gradient(135deg, #4ade80, #3b82f6);
+            background: linear-gradient(135deg, var(--accent), var(--info));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-align: center;
@@ -136,7 +145,7 @@
         .main-menu p {
             font-size: 1.3em;
             margin-bottom: 50px;
-            color: #9ca3af;
+            color: var(--text-secondary);
             text-align: center;
         }
 
@@ -149,8 +158,8 @@
         }
 
         .menu-card {
-            background: #1a1f26;
-            border: 2px solid #2d3748;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
             border-radius: 12px;
             padding: 35px 25px;
             cursor: pointer;
@@ -167,7 +176,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #4ade80, #3b82f6);
+            background: linear-gradient(90deg, var(--accent), var(--info));
             transform: scaleX(0);
             transition: transform 0.3s;
         }
@@ -178,8 +187,8 @@
 
         .menu-card:hover {
             transform: translateY(-8px);
-            border-color: #4ade80;
-            box-shadow: 0 10px 40px rgba(74, 222, 128, 0.2);
+            border-color: var(--accent);
+            box-shadow: 0 10px 40px rgb(74 222 128 / 0.2);
         }
 
         .menu-card-icon {
@@ -190,12 +199,12 @@
         .menu-card h3 {
             font-size: 1.6em;
             margin-bottom: 12px;
-            color: #4ade80;
+            color: var(--accent);
         }
 
         .menu-card p {
             font-size: 1em;
-            color: #9ca3af;
+            color: var(--text-secondary);
             line-height: 1.5;
         }
 
@@ -209,23 +218,23 @@
         }
 
         .difficulty-easy {
-            background: rgba(74, 222, 128, 0.2);
-            color: #4ade80;
+            background: rgb(74 222 128 / 0.2);
+            color: var(--accent);
         }
 
         .difficulty-medium {
-            background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
+            background: rgb(245 158 11 / 0.2);
+            color: var(--warning);
         }
 
         .difficulty-hard {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
+            background: rgb(239 68 68 / 0.2);
+            color: var(--error);
         }
 
         .difficulty-challenge {
-            background: rgba(168, 85, 247, 0.2);
-            color: #a855f7;
+            background: rgb(168 85 247 / 0.2);
+            color: var(--accent);
         }
 
         /* Game Container */
@@ -237,11 +246,11 @@
         /* Progress Bar */
         .progress-section {
             padding: 20px 30px;
-            background: #1a1f26;
+            background: var(--bg-secondary);
         }
 
         .progress-bar-container {
-            background: #0f1419;
+            background: var(--bg-primary);
             border-radius: 10px;
             height: 30px;
             overflow: hidden;
@@ -250,12 +259,12 @@
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #4ade80, #3b82f6);
+            background: linear-gradient(90deg, var(--accent), var(--info));
             transition: width 0.5s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: var(--text-primary);
             font-weight: bold;
             font-size: 0.9em;
         }
@@ -270,8 +279,8 @@
         /* Sidebar */
         .sidebar {
             width: 320px;
-            background: #1a1f26;
-            border-right: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
             padding: 20px;
             overflow-y: auto;
             height: 100%;
@@ -284,25 +293,25 @@
         }
 
         .sidebar::-webkit-scrollbar-track {
-            background: #0f1419;
+            background: var(--bg-primary);
             border-radius: 5px;
         }
 
         .sidebar::-webkit-scrollbar-thumb {
-            background: #4ade80;
+            background: var(--accent);
             border-radius: 5px;
         }
 
         .sidebar::-webkit-scrollbar-thumb:hover {
-            background: #3bc46e;
+            background: var(--accent);
         }
 
         .sidebar h3 {
-            color: #4ade80;
+            color: var(--accent);
             margin-bottom: 15px;
             font-size: 1.1em;
             padding-bottom: 10px;
-            border-bottom: 2px solid #2d3748;
+            border-bottom: 2px solid var(--border-color);
         }
 
         .sidebar-tabs {
@@ -314,9 +323,9 @@
         .sidebar-tab {
             flex: 1;
             padding: 10px;
-            background: #0f1419;
-            border: 1px solid #2d3748;
-            color: #9ca3af;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
             cursor: pointer;
             border-radius: 6px;
             transition: all 0.3s;
@@ -324,9 +333,9 @@
         }
 
         .sidebar-tab.active {
-            background: #4ade80;
-            color: #0f1419;
-            border-color: #4ade80;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
             font-weight: bold;
         }
 
@@ -351,47 +360,47 @@
         }
 
         .sidebar::-webkit-scrollbar-track {
-            background: #2d3748;
+            background: var(--border-color);
             border-radius: 6px;
         }
 
         .sidebar::-webkit-scrollbar-thumb {
-            background: #4ade80;
+            background: var(--accent);
             border-radius: 6px;
-            border: 2px solid #2d3748;
+            border: 2px solid var(--border-color);
         }
 
         .sidebar::-webkit-scrollbar-thumb:hover {
-            background: #22c55e;
+            background: var(--accent-hover);
         }
 
         .account-group {
-            background: #0f1419;
-            border: 1px solid #2d3748;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             overflow: hidden;
         }
 
         .account-group-header {
             padding: 12px;
-            background: #1a1f26;
+            background: var(--bg-secondary);
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: 600;
-            color: #e0e0e0;
+            color: var(--text-primary);
             transition: background 0.2s;
             font-size: 0.95em;
         }
 
         .account-group-header:hover {
-            background: #2d3748;
+            background: var(--border-color);
         }
 
         .account-group-header.has-stars {
-            background: rgba(74, 222, 128, 0.1);
-            border-left: 3px solid #4ade80;
+            background: rgb(74 222 128 / 0.1);
+            border-left: 3px solid var(--accent);
         }
 
         .account-group-header .chevron {
@@ -414,10 +423,10 @@
         }
 
         .account-subgroup {
-            background: #16191e;
+            background: var(--bg-primary);
             padding: 8px 12px;
             font-size: 0.85em;
-            color: #9ca3af;
+            color: var(--text-secondary);
             font-weight: 600;
         }
 
@@ -438,22 +447,22 @@
         }
 
         .account-item:hover {
-            background: #2d3748;
-            border-left-color: #4ade80;
+            background: var(--border-color);
+            border-left-color: var(--accent);
         }
 
         .account-item.starred {
-            background: rgba(74, 222, 128, 0.05);
+            background: rgb(74 222 128 / 0.05);
         }
 
         .account-code {
-            color: #4ade80;
+            color: var(--accent);
             font-weight: bold;
             margin-right: 8px;
         }
 
         .account-star {
-            color: #f59e0b;
+            color: var(--warning);
             font-size: 1.1em;
         }
 
@@ -462,7 +471,7 @@
             flex: 1;
             padding: 30px;
             overflow-y: auto;
-            background: #0f1419;
+            background: var(--bg-primary);
             height: 100%;
         }
 
@@ -472,22 +481,22 @@
         }
 
         .workspace::-webkit-scrollbar-track {
-            background: #0f1419;
+            background: var(--bg-primary);
             border-radius: 5px;
         }
 
         .workspace::-webkit-scrollbar-thumb {
-            background: #4ade80;
+            background: var(--accent);
             border-radius: 5px;
         }
 
         .workspace::-webkit-scrollbar-thumb:hover {
-            background: #3bc46e;
+            background: var(--accent);
         }
 
         .task-header {
-            background: #1a1f26;
-            border: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 25px;
             margin-bottom: 25px;
@@ -495,17 +504,17 @@
 
         .task-title {
             font-size: 1.8em;
-            color: #4ade80;
+            color: var(--accent);
             margin-bottom: 15px;
         }
 
         .task-description {
-            background: #0f1419;
+            background: var(--bg-primary);
             padding: 20px;
             border-radius: 8px;
             line-height: 1.8;
-            border-left: 4px solid #4ade80;
-            color: #e0e0e0;
+            border-left: 4px solid var(--accent);
+            color: var(--text-primary);
         }
 
         /* Balance Display */
@@ -517,8 +526,8 @@
         }
 
         .balance-item {
-            background: #1a1f26;
-            border: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             padding: 20px;
             border-radius: 10px;
             text-align: center;
@@ -526,7 +535,7 @@
 
         .balance-label {
             font-size: 0.9em;
-            color: #9ca3af;
+            color: var(--text-secondary);
             margin-bottom: 8px;
         }
 
@@ -536,25 +545,25 @@
         }
 
         .balance-value.debit {
-            color: #3b82f6;
+            color: var(--info);
         }
 
         .balance-value.credit {
-            color: #f59e0b;
+            color: var(--warning);
         }
 
         .balance-value.balanced {
-            color: #4ade80;
+            color: var(--accent);
         }
 
         .balance-value.unbalanced {
-            color: #ef4444;
+            color: var(--error);
         }
 
         /* Spreadsheet */
         .spreadsheet-container {
-            background: #1a1f26;
-            border: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 25px;
@@ -564,7 +573,7 @@
         .excel-grid-wrapper {
             overflow-x: auto;
             border-radius: 8px;
-            background: #0f1419;
+            background: var(--bg-primary);
         }
 
         .excel-table {
@@ -574,23 +583,23 @@
         }
 
         .excel-table th {
-            background: #2d3748;
-            color: #9ca3af;
+            background: var(--border-color);
+            color: var(--text-secondary);
             padding: 12px;
-            border: 1px solid #374151;
+            border: 1px solid var(--bg-tertiary);
             text-align: center;
             font-weight: 600;
             font-size: 0.9em;
         }
 
         .excel-table td {
-            border: 1px solid #374151;
+            border: 1px solid var(--bg-tertiary);
             padding: 0;
         }
 
         .excel-table td.row-number {
-            background: #2d3748;
-            color: #9ca3af;
+            background: var(--border-color);
+            color: var(--text-secondary);
             text-align: center;
             font-weight: bold;
             padding: 12px;
@@ -607,7 +616,7 @@
             width: 100%;
             background: transparent;
             border: none;
-            color: #e0e0e0;
+            color: var(--text-primary);
             padding: 12px;
             font-size: 0.95em;
             font-family: 'Consolas', 'Monaco', monospace;
@@ -617,18 +626,18 @@
         }
 
         .excel-cell:focus {
-            outline: 2px solid #4ade80;
-            background: rgba(74, 222, 128, 0.05);
+            outline: 2px solid var(--accent);
+            background: rgb(74 222 128 / 0.05);
             z-index: 5;
         }
 
         .excel-cell:hover {
-            background: rgba(255,255,255,0.03);
+            background: rgb(255 255 255 / 0.03);
         }
 
         .excel-cell.readonly {
-            background: #2d3748;
-            color: #9ca3af;
+            background: var(--border-color);
+            color: var(--text-secondary);
             cursor: not-allowed;
         }
 
@@ -637,8 +646,8 @@
         }
 
         .excel-cell.drag-over {
-            background: rgba(74, 222, 128, 0.2) !important;
-            outline: 2px dashed #4ade80 !important;
+            background: rgb(74 222 128 / 0.2) !important;
+            outline: 2px dashed var(--accent) !important;
         }
 
         /* Fill Handle */
@@ -648,8 +657,8 @@
             bottom: 1px;
             width: 10px;
             height: 10px;
-            background: #4ade80;
-            border: 2px solid #0f1419;
+            background: var(--accent);
+            border: 2px solid var(--bg-primary);
             border-radius: 50%;
             cursor: crosshair;
             z-index: 25;
@@ -662,28 +671,28 @@
             height: 14px;
             right: -1px;
             bottom: -1px;
-            background: #5ef77c;
-            box-shadow: 0 3px 8px rgba(74, 222, 128, 0.8);
+            background: var(--success-bright, #5ef77c);
+            box-shadow: 0 3px 8px rgb(74 222 128 / 0.8);
         }
 
         .excel-cell.filling {
-            background: rgba(74, 222, 128, 0.15) !important;
+            background: rgb(74 222 128 / 0.15) !important;
         }
 
         .excel-cell.selecting-mode {
             cursor: crosshair;
-            background: rgba(59, 130, 246, 0.1);
+            background: rgb(59 130 246 / 0.1);
         }
 
         .excel-cell.selected-for-formula {
-            outline: 3px solid #3b82f6 !important;
+            outline: 3px solid var(--info) !important;
             background: rgba(59, 130, 246, 0.2) !important;
             animation: cellPulse 0.5s;
         }
 
         @keyframes cellPulse {
             0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
-            50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
+            50% { box-shadow: 0 0 15px rgb(59 130 246 / 0.8); }
         }
 
         /* Control Buttons */
@@ -708,60 +717,60 @@
         }
 
         .btn-primary {
-            background: #4ade80;
-            color: #0f1419;
+            background: var(--accent);
+            color: var(--bg-primary);
         }
 
         .btn-primary:hover {
-            background: #3bc46e;
+            background: var(--accent);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.4);
+            box-shadow: 0 4px 12px rgb(74 222 128 / 0.4);
         }
 
         .btn-secondary {
-            background: #f59e0b;
-            color: white;
+            background: var(--warning);
+            color: var(--text-primary);
         }
 
         .btn-secondary:hover {
-            background: #d97706;
+            background: #f59e0b;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 4px 12px rgb(245 158 11 / 0.4);
         }
 
         .btn-tertiary {
-            background: #2d3748;
-            color: #e0e0e0;
+            background: var(--border-color);
+            color: var(--text-primary);
         }
 
         .btn-tertiary:hover {
-            background: #374151;
+            background: var(--bg-tertiary);
         }
 
         .btn-danger {
-            background: #ef4444;
-            color: white;
+            background: var(--error);
+            color: var(--text-primary);
         }
 
         .btn-danger:hover {
-            background: #dc2626;
+            background: #ef4444;
         }
 
         .btn-next {
-            background: #3b82f6;
-            color: white;
+            background: var(--info);
+            color: var(--text-primary);
         }
 
         .btn-next:hover {
-            background: #2563eb;
+            background: #3b82f6;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
 
         /* Hint Box */
         .hint-box {
-            background: #1a1f26;
-            border-left: 4px solid #f59e0b;
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--warning);
             border-radius: 8px;
             padding: 20px;
             margin-top: 20px;
@@ -773,19 +782,19 @@
         }
 
         .hint-box strong {
-            color: #f59e0b;
+            color: var(--warning);
         }
 
         /* Calculator */
         .calculator {
-            background: #1a1f26;
-            border: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 15px;
         }
 
         .calc-display {
-            background: #0f1419;
+            background: var(--bg-primary);
             padding: 15px;
             margin-bottom: 12px;
             border-radius: 6px;
@@ -793,12 +802,12 @@
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 1.5em;
             min-height: 60px;
-            color: #e0e0e0;
+            color: var(--text-primary);
         }
 
         .calc-equation {
             font-size: 0.6em;
-            color: #9ca3af;
+            color: var(--text-secondary);
             min-height: 20px;
             margin-bottom: 5px;
         }
@@ -811,28 +820,28 @@
 
         .calc-btn {
             padding: 15px;
-            background: #2d3748;
+            background: var(--border-color);
             border: none;
             border-radius: 6px;
-            color: #e0e0e0;
+            color: var(--text-primary);
             font-size: 1.1em;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .calc-btn:hover {
-            background: #374151;
+            background: var(--bg-tertiary);
         }
 
         .calc-btn.operator {
-            background: #4ade80;
-            color: #0f1419;
+            background: var(--accent);
+            color: var(--bg-primary);
             font-weight: bold;
         }
 
         .calc-btn.equals {
-            background: #3b82f6;
-            color: white;
+            background: var(--info);
+            color: var(--text-primary);
             grid-column: span 2;
             font-weight: bold;
         }
@@ -847,7 +856,7 @@
                 width: 100%;
                 max-height: 400px;
                 border-right: none;
-                border-bottom: 1px solid #2d3748;
+                border-bottom: 1px solid var(--border-color);
             }
 
             .balance-display {
@@ -892,46 +901,46 @@
 
         /* Light Mode */
         body.light-mode {
-            background: #f3f4f6;
-            color: #1f2937;
+            background: var(--bg-card);
+            color: var(--bg-secondary);
         }
 
         body.light-mode .top-nav {
             background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--border-color);
         }
 
         body.light-mode .back-btn,
         body.light-mode .theme-toggle {
-            background: #f3f4f6;
-            color: #1f2937;
+            background: var(--bg-card);
+            color: var(--bg-secondary);
         }
 
         body.light-mode .back-btn:hover,
         body.light-mode .theme-toggle:hover {
-            background: #e5e7eb;
+            background: var(--border-color);
         }
 
         body.light-mode .nav-stat-label {
-            color: #6b7280;
+            color: var(--text-secondary);
         }
 
         body.light-mode .nav-stat-value {
-            color: #059669;
+            color: var(--accent);
         }
 
         body.light-mode .main-menu {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dbeafe 100%);
+            background: linear-gradient(135deg, var(--success-light, #f0fdf4) 0%, var(--info-light, #dbeafe) 100%);
         }
 
         body.light-mode .menu-card {
             background: #ffffff;
-            border: 2px solid #e5e7eb;
-            color: #1f2937;
+            border: 2px solid var(--border-color);
+            color: var(--bg-secondary);
         }
 
         body.light-mode .menu-card:hover {
-            border-color: #059669;
+            border-color: var(--accent);
             box-shadow: 0 10px 40px rgba(5, 150, 105, 0.2);
         }
 
@@ -940,202 +949,202 @@
         }
 
         body.light-mode .progress-bar-container {
-            background: #f3f4f6;
+            background: var(--bg-card);
         }
 
         body.light-mode .sidebar {
             background: #ffffff;
-            border-right: 1px solid #e5e7eb;
+            border-right: 1px solid var(--border-color);
         }
 
         body.light-mode .sidebar h3 {
-            color: #059669;
-            border-bottom: 2px solid #e5e7eb;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border-color);
         }
 
         body.light-mode .sidebar-tab {
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            color: #6b7280;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
         }
 
         body.light-mode .sidebar-tab.active {
-            background: #059669;
-            color: white;
-            border-color: #059669;
+            background: var(--accent);
+            color: var(--text-primary);
+            border-color: var(--accent);
         }
 
         body.light-mode .account-group {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
         }
 
         body.light-mode .account-group-header {
             background: #ffffff;
-            color: #1f2937;
+            color: var(--bg-secondary);
         }
 
         body.light-mode .account-group-header:hover {
-            background: #f9fafb;
+            background: var(--bg-card);
         }
 
         body.light-mode .account-group-header.has-stars {
             background: rgba(5, 150, 105, 0.1);
-            border-left: 3px solid #059669;
+            border-left: 3px solid var(--accent);
         }
 
         body.light-mode .account-subgroup {
-            background: #f3f4f6;
-            color: #6b7280;
+            background: var(--bg-card);
+            color: var(--text-secondary);
         }
 
         body.light-mode .account-item:hover {
-            background: #f3f4f6;
-            border-left-color: #059669;
+            background: var(--bg-card);
+            border-left-color: var(--accent);
         }
 
         body.light-mode .account-item.starred {
-            background: rgba(5, 150, 105, 0.05);
+            background: rgb(5 150 105 / 0.05);
         }
 
         body.light-mode .account-code {
-            color: #059669;
+            color: var(--accent);
         }
 
         body.light-mode .workspace {
-            background: #f9fafb;
+            background: var(--bg-card);
         }
 
         body.light-mode .task-header {
             background: #ffffff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-color);
         }
 
         body.light-mode .task-title {
-            color: #059669;
+            color: var(--accent);
         }
 
         body.light-mode .task-description {
-            background: #f9fafb;
-            border-left: 4px solid #059669;
-            color: #1f2937;
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent);
+            color: var(--bg-secondary);
         }
 
         body.light-mode .balance-item {
             background: #ffffff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-color);
         }
 
         body.light-mode .balance-label {
-            color: #6b7280;
+            color: var(--text-secondary);
         }
 
         body.light-mode .balance-value.debit {
-            color: #2563eb;
+            color: #3b82f6;
         }
 
         body.light-mode .balance-value.credit {
-            color: #d97706;
+            color: #f59e0b;
         }
 
         body.light-mode .balance-value.balanced {
-            color: #059669;
+            color: var(--accent);
         }
 
         body.light-mode .balance-value.unbalanced {
-            color: #dc2626;
+            color: #ef4444;
         }
 
         body.light-mode .spreadsheet-container {
             background: #ffffff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-color);
         }
 
         body.light-mode .excel-grid-wrapper {
-            background: #f9fafb;
+            background: var(--bg-card);
         }
 
         body.light-mode .excel-table th {
-            background: #f3f4f6;
-            color: #6b7280;
-            border: 1px solid #e5e7eb;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
         }
 
         body.light-mode .excel-table td {
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-color);
         }
 
         body.light-mode .excel-table td.row-number {
-            background: #f3f4f6;
-            color: #6b7280;
+            background: var(--bg-card);
+            color: var(--text-secondary);
         }
 
         body.light-mode .excel-cell {
-            color: #1f2937;
+            color: var(--bg-secondary);
         }
 
         body.light-mode .excel-cell:focus {
-            outline: 2px solid #059669;
-            background: rgba(5, 150, 105, 0.05);
+            outline: 2px solid var(--accent);
+            background: rgb(5 150 105 / 0.05);
         }
 
         body.light-mode .excel-cell.readonly {
-            background: #f3f4f6;
-            color: #6b7280;
+            background: var(--bg-card);
+            color: var(--text-secondary);
         }
 
         body.light-mode .btn-tertiary {
-            background: #f3f4f6;
-            color: #1f2937;
+            background: var(--bg-card);
+            color: var(--bg-secondary);
         }
 
         body.light-mode .btn-tertiary:hover {
-            background: #e5e7eb;
+            background: var(--border-color);
         }
 
         body.light-mode .hint-box {
             background: #ffffff;
-            border-left: 4px solid #d97706;
+            border-left: 4px solid #f59e0b;
         }
 
         body.light-mode .calculator {
             background: #ffffff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-color);
         }
 
         body.light-mode .calc-display {
-            background: #f9fafb;
-            color: #1f2937;
+            background: var(--bg-card);
+            color: var(--bg-secondary);
         }
 
         body.light-mode .calc-equation {
-            color: #6b7280;
+            color: var(--text-secondary);
         }
 
         body.light-mode .calc-btn {
-            background: #f3f4f6;
-            color: #1f2937;
+            background: var(--bg-card);
+            color: var(--bg-secondary);
         }
 
         body.light-mode .calc-btn:hover {
-            background: #e5e7eb;
+            background: var(--border-color);
         }
 
         body.light-mode .calc-btn.operator {
-            background: #059669;
-            color: white;
+            background: var(--accent);
+            color: var(--text-primary);
         }
 
         body.light-mode .calc-btn.equals {
-            background: #2563eb;
-            color: white;
+            background: #3b82f6;
+            color: var(--text-primary);
         }
 
         /* Task Selector */
         .task-selector-section {
             padding: 15px 30px;
-            background: #1a1f26;
-            border-bottom: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .task-selector-grid {
@@ -1147,8 +1156,8 @@
         }
 
         .task-selector-item {
-            background: #2d3748;
-            border: 2px solid #374151;
+            background: var(--border-color);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 8px;
             padding: 12px 8px;
             cursor: pointer;
@@ -1158,25 +1167,25 @@
         }
 
         .task-selector-item:hover {
-            background: #374151;
-            border-color: #4ade80;
+            background: var(--bg-tertiary);
+            border-color: var(--accent);
         }
 
         .task-selector-item.current {
-            background: #4ade80;
-            border-color: #4ade80;
-            color: #0f1419;
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
             font-weight: bold;
         }
 
         .task-selector-item.completed {
-            background: rgba(74, 222, 128, 0.2);
-            border-color: #4ade80;
+            background: rgb(74 222 128 / 0.2);
+            border-color: var(--accent);
         }
 
         .task-selector-item.completed::after {
             content: ' ✓';
-            color: #4ade80;
+            color: var(--accent);
         }
 
         /* Tutorial Modal */
@@ -1200,8 +1209,8 @@
         }
 
         .tutorial-content {
-            background: #1a1f26;
-            border: 2px solid #4ade80;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
             border-radius: 12px;
             padding: 40px;
             max-width: 800px;
@@ -1211,13 +1220,13 @@
         }
 
         .tutorial-content h2 {
-            color: #4ade80;
+            color: var(--accent);
             margin-bottom: 20px;
             font-size: 2em;
         }
 
         .tutorial-content h3 {
-            color: #3b82f6;
+            color: var(--info);
             margin-top: 25px;
             margin-bottom: 15px;
             font-size: 1.4em;
@@ -1226,7 +1235,7 @@
         .tutorial-content p {
             line-height: 1.8;
             margin-bottom: 15px;
-            color: #e0e0e0;
+            color: var(--text-primary);
         }
 
         .tutorial-content ul, .tutorial-content ol {
@@ -1236,25 +1245,25 @@
         }
 
         .tutorial-content code {
-            background: #0f1419;
+            background: var(--bg-primary);
             padding: 2px 6px;
             border-radius: 4px;
-            color: #4ade80;
+            color: var(--accent);
             font-family: 'Consolas', 'Monaco', monospace;
         }
 
         .tutorial-example {
-            background: #0f1419;
+            background: var(--bg-primary);
             padding: 15px;
             border-radius: 8px;
-            border-left: 4px solid #3b82f6;
+            border-left: 4px solid var(--info);
             margin: 15px 0;
         }
 
         .tutorial-close {
-            background: #4ade80;
+            background: var(--accent);
             border: none;
-            color: #0f1419;
+            color: var(--bg-primary);
             padding: 12px 24px;
             border-radius: 8px;
             cursor: pointer;
@@ -1265,7 +1274,7 @@
         }
 
         .tutorial-close:hover {
-            background: #3bc46e;
+            background: var(--accent);
             transform: translateY(-2px);
         }
 
@@ -1283,8 +1292,8 @@
         }
 
         .calculator {
-            background: #1a1f26;
-            border: 2px solid #2d3748;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
@@ -1297,19 +1306,19 @@
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #2d3748;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .calculator-title {
-            color: #4ade80;
+            color: var(--accent);
             font-weight: bold;
             font-size: 1.1em;
         }
 
         .calculator-close {
-            background: #ef4444;
+            background: var(--error);
             border: none;
-            color: white;
+            color: var(--text-primary);
             width: 24px;
             height: 24px;
             border-radius: 50%;
@@ -1320,11 +1329,11 @@
         }
 
         .calculator-close:hover {
-            background: #dc2626;
+            background: #ef4444;
         }
 
         .calc-display {
-            background: #0f1419;
+            background: var(--bg-primary);
             padding: 15px;
             margin-bottom: 12px;
             border-radius: 6px;
@@ -1332,12 +1341,12 @@
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 1.5em;
             min-height: 60px;
-            color: #e0e0e0;
+            color: var(--text-primary);
         }
 
         .calc-equation {
             font-size: 0.6em;
-            color: #9ca3af;
+            color: var(--text-secondary);
             min-height: 20px;
             margin-bottom: 5px;
         }
@@ -1350,32 +1359,34 @@
 
         .calc-btn {
             padding: 15px;
-            background: #2d3748;
+            background: var(--border-color);
             border: none;
             border-radius: 6px;
-            color: #e0e0e0;
+            color: var(--text-primary);
             font-size: 1.1em;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .calc-btn:hover {
-            background: #374151;
+            background: var(--bg-tertiary);
         }
 
         .calc-btn.operator {
-            background: #4ade80;
-            color: #0f1419;
+            background: var(--accent);
+            color: var(--bg-primary);
             font-weight: bold;
         }
 
         .calc-btn.equals {
-            background: #3b82f6;
-            color: white;
+            background: var(--info);
+            color: var(--text-primary);
             grid-column: span 2;
             font-weight: bold;
         }
+    
     </style>
+
 </head>
 <body>
     <!-- Top Navigation -->
@@ -1559,7 +1570,7 @@
                 <button class="calc-btn" onclick="calcInput('.')">.</button>
                 <button class="calc-btn equals" onclick="calcEquals()">=</button>
                 <button class="calc-btn operator" onclick="calcInput('+')">+</button>
-                <button class="calc-btn" onclick="calcClear()" style="grid-column: span 2; background: #ef4444; color: white;">C</button>
+                <button class="calc-btn" onclick="calcClear()" style="grid-column: span 2; background: var(--error); color: var(--text-primary);">C</button>
                 <button class="calc-btn" onclick="calcBackspace()" style="grid-column: span 2;">←</button>
             </div>
         </div>
@@ -1586,12 +1597,12 @@
                 <li><strong>📊 Excel</strong> - Slik bruker du regneark-funksjonene</li>
             </ul>
             
-            <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 20px 0;">
+            <div style="background: rgb(59 130 246 / 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid var(--info); margin: 20px 0;">
                 <p><strong>💡 Tips:</strong> Dra kontoer fra venstre-panel direkte inn i gridet!</p>
             </div>
             
             <button class="tutorial-close" onclick="closeWelcome()">Start spillet! 🚀</button>
-            <label style="display: flex; align-items: center; justify-content: center; margin-top: 15px; cursor: pointer; color: #9ca3af;">
+            <label style="display: flex; align-items: center; justify-content: center; margin-top: 15px; cursor: pointer; color: var(--text-secondary);">
                 <input type="checkbox" id="dont-show-again" style="margin-right: 8px;">
                 <span>Ikke vis denne meldingen igjen</span>
             </label>
@@ -3077,7 +3088,7 @@ function setupDragDrop() {
                 updateBalance();
                 
                 // Visual feedback
-                cell.style.background = 'rgba(74, 222, 128, 0.3)';
+                cell.style.background = 'rgb(74 222 128 / 0.3)';
                 setTimeout(() => {
                     cell.style.background = '';
                 }, 500);
@@ -3679,6 +3690,14 @@ updateUI = function() {
 
 console.log('✓ Bokføringsspill v3.0 loaded with all features!');
     
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.init();
+        }
     </script>
 </body>
 </html>

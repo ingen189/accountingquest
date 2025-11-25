@@ -4,18 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duell - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
+            background: linear-gradient(135deg, #1a1a2e 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
         }
         .container { max-width: 900px; margin: 0 auto; padding: 20px; }
@@ -25,15 +34,15 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px 0;
-            border-bottom: 2px solid #4ade80;
+            border-bottom: 2px solid var(--accent);
             margin-bottom: 30px;
         }
-        .logo { font-size: 1.8em; font-weight: bold; color: #4ade80; }
+        .logo { font-size: 1.8em; font-weight: bold; color: var(--accent); }
         .user-info { display: flex; align-items: center; gap: 15px; }
         .user-avatar { font-size: 2em; }
         .user-stats { text-align: right; }
         .user-name { font-weight: bold; }
-        .user-record { color: #9ca3af; font-size: 0.9em; }
+        .user-record { color: var(--text-secondary); font-size: 0.9em; }
 
         /* Screens */
         .screen { display: none; }
@@ -41,7 +50,7 @@
 
         /* Lobby */
         .lobby-title { text-align: center; font-size: 2.5em; margin-bottom: 30px; }
-        .lobby-title span { color: #4ade80; }
+        .lobby-title span { color: var(--accent); }
 
         .action-cards {
             display: grid;
@@ -50,18 +59,18 @@
             margin-bottom: 40px;
         }
         .action-card {
-            background: #2d2d2d;
-            border: 3px solid #404040;
+            background: var(--bg-secondary);
+            border: 3px solid var(--bg-tertiary);
             border-radius: 20px;
             padding: 40px 30px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
         }
-        .action-card:hover { border-color: #4ade80; transform: translateY(-5px); }
+        .action-card:hover { border-color: var(--accent); transform: translateY(-5px); }
         .action-card .icon { font-size: 4em; margin-bottom: 15px; }
         .action-card h3 { font-size: 1.5em; margin-bottom: 10px; }
-        .action-card p { color: #9ca3af; }
+        .action-card p { color: var(--text-secondary); }
 
         /* Category Selection */
         .category-grid {
@@ -71,8 +80,8 @@
             margin: 30px 0;
         }
         .category-btn {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 25px 15px;
             text-align: center;
@@ -80,15 +89,15 @@
             transition: all 0.3s;
         }
         .category-btn:hover, .category-btn.selected { 
-            border-color: #4ade80; 
+            border-color: var(--accent); 
             background: rgba(74, 222, 128, 0.1); 
         }
         .category-btn .icon { font-size: 2.5em; margin-bottom: 10px; display: block; }
 
         /* Waiting for opponent */
         .waiting-box {
-            background: #2d2d2d;
-            border: 3px solid #4ade80;
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent);
             border-radius: 20px;
             padding: 50px;
             text-align: center;
@@ -96,10 +105,10 @@
         }
         .waiting-icon { font-size: 5em; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .waiting-text { font-size: 1.5em; margin-top: 20px; color: #9ca3af; }
+        .waiting-text { font-size: 1.5em; margin-top: 20px; color: var(--text-secondary); }
         .cancel-btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             border: none;
             padding: 15px 40px;
             border-radius: 10px;
@@ -111,10 +120,10 @@
 
         /* Open Duels List */
         .duels-list { margin-top: 30px; }
-        .duels-list h3 { margin-bottom: 20px; color: #4ade80; }
+        .duels-list h3 { margin-bottom: 20px; color: var(--accent); }
         .duel-item {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 15px;
@@ -124,9 +133,9 @@
         }
         .duel-info { display: flex; align-items: center; gap: 15px; }
         .duel-challenger { font-weight: bold; font-size: 1.2em; }
-        .duel-category { color: #9ca3af; }
+        .duel-category { color: var(--text-secondary); }
         .join-btn {
-            background: #4ade80;
+            background: var(--accent);
             color: #1a1a2e;
             border: none;
             padding: 12px 30px;
@@ -135,7 +144,7 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .join-btn:hover { background: #22c55e; }
+        .join-btn:hover { background: var(--accent-hover); }
 
         /* Duel Arena */
         .arena-header {
@@ -145,44 +154,44 @@
             margin-bottom: 30px;
         }
         .player-box {
-            background: #2d2d2d;
-            border: 3px solid #404040;
+            background: var(--bg-secondary);
+            border: 3px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 20px 30px;
             text-align: center;
             min-width: 200px;
         }
-        .player-box.me { border-color: #4ade80; }
-        .player-box.opponent { border-color: #f59e0b; }
+        .player-box.me { border-color: var(--accent); }
+        .player-box.opponent { border-color: var(--warning); }
         .player-box .avatar { font-size: 3em; }
         .player-box .name { font-weight: bold; margin: 10px 0; }
-        .player-box .score { font-size: 2em; color: #4ade80; font-weight: bold; }
-        .vs-text { font-size: 3em; font-weight: bold; color: #ef4444; }
+        .player-box .score { font-size: 2em; color: var(--accent); font-weight: bold; }
+        .vs-text { font-size: 3em; font-weight: bold; color: var(--error); }
 
         .question-box {
-            background: #2d2d2d;
-            border: 3px solid #4ade80;
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent);
             border-radius: 20px;
             padding: 40px;
             text-align: center;
             margin-bottom: 30px;
         }
-        .question-number { color: #9ca3af; margin-bottom: 15px; }
+        .question-number { color: var(--text-secondary); margin-bottom: 15px; }
         .question-text { font-size: 1.8em; line-height: 1.4; }
         .timer-bar {
             height: 8px;
-            background: #404040;
+            background: var(--bg-tertiary);
             border-radius: 4px;
             margin-top: 20px;
             overflow: hidden;
         }
         .timer-fill {
             height: 100%;
-            background: #4ade80;
+            background: var(--accent);
             transition: width 0.1s linear;
         }
-        .timer-fill.warning { background: #f59e0b; }
-        .timer-fill.danger { background: #ef4444; }
+        .timer-fill.warning { background: var(--warning); }
+        .timer-fill.danger { background: var(--error); }
 
         .answers-grid {
             display: grid;
@@ -190,34 +199,34 @@
             gap: 15px;
         }
         .answer-btn {
-            background: #2d2d2d;
-            border: 3px solid #404040;
+            background: var(--bg-secondary);
+            border: 3px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 25px;
             font-size: 1.1em;
-            color: #e0e0e0;
+            color: var(--text-primary);
             cursor: pointer;
             transition: all 0.3s;
         }
-        .answer-btn:hover:not(:disabled) { border-color: #4ade80; }
-        .answer-btn.selected { background: #4ade80; color: #1a1a2e; border-color: #4ade80; }
-        .answer-btn.correct { background: #22c55e; border-color: #22c55e; }
-        .answer-btn.wrong { background: #ef4444; border-color: #ef4444; }
+        .answer-btn:hover:not(:disabled) { border-color: var(--accent); }
+        .answer-btn.selected { background: var(--accent); color: #1a1a2e; border-color: var(--accent); }
+        .answer-btn.correct { background: var(--accent-hover); border-color: var(--accent-hover); }
+        .answer-btn.wrong { background: var(--error); border-color: var(--error); }
         .answer-btn:disabled { cursor: not-allowed; opacity: 0.7; }
 
         /* Results */
         .result-box {
-            background: #2d2d2d;
-            border: 3px solid #4ade80;
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent);
             border-radius: 20px;
             padding: 50px;
             text-align: center;
         }
         .result-icon { font-size: 6em; margin-bottom: 20px; }
         .result-title { font-size: 2.5em; margin-bottom: 30px; }
-        .result-title.win { color: #4ade80; }
-        .result-title.lose { color: #ef4444; }
-        .result-title.draw { color: #f59e0b; }
+        .result-title.win { color: var(--accent); }
+        .result-title.lose { color: var(--error); }
+        .result-title.draw { color: var(--warning); }
         .final-scores {
             display: flex;
             justify-content: center;
@@ -227,9 +236,9 @@
         .final-score {
             text-align: center;
         }
-        .final-score .name { color: #9ca3af; margin-bottom: 10px; }
+        .final-score .name { color: var(--text-secondary); margin-bottom: 10px; }
         .final-score .score { font-size: 3em; font-weight: bold; }
-        .final-score.winner .score { color: #4ade80; }
+        .final-score.winner .score { color: var(--accent); }
 
         .action-buttons {
             display: flex;
@@ -245,33 +254,33 @@
             border: none;
             transition: all 0.3s;
         }
-        .btn-primary { background: #4ade80; color: #1a1a2e; font-weight: bold; }
-        .btn-primary:hover { background: #22c55e; }
-        .btn-secondary { background: #404040; color: #e0e0e0; }
+        .btn-primary { background: var(--accent); color: #1a1a2e; font-weight: bold; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
         .btn-secondary:hover { background: #555; }
 
         /* Leaderboard */
         .leaderboard {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 15px;
             padding: 25px;
             margin-top: 30px;
         }
-        .leaderboard h3 { color: #4ade80; margin-bottom: 20px; }
+        .leaderboard h3 { color: var(--accent); margin-bottom: 20px; }
         .lb-item {
             display: flex;
             align-items: center;
             padding: 15px;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--bg-tertiary);
             gap: 15px;
         }
         .lb-item:last-child { border-bottom: none; }
         .lb-rank { font-size: 1.5em; font-weight: bold; width: 40px; }
         .lb-rank.gold { color: #fbbf24; }
-        .lb-rank.silver { color: #9ca3af; }
-        .lb-rank.bronze { color: #d97706; }
+        .lb-rank.silver { color: var(--text-secondary); }
+        .lb-rank.bronze { color: var(--warning); }
         .lb-name { flex: 1; }
-        .lb-wins { color: #4ade80; font-weight: bold; }
+        .lb-wins { color: var(--accent); font-weight: bold; }
 
         @media (max-width: 768px) {
             .action-cards { grid-template-columns: 1fr; }
@@ -279,7 +288,9 @@
             .arena-header { flex-direction: column; gap: 20px; }
             .player-box { width: 100%; }
         }
+    
     </style>
+
 </head>
 <body>
     <div class="container">
@@ -314,7 +325,7 @@
             <div class="leaderboard">
                 <h3>🏆 Topp Duellister</h3>
                 <div id="leaderboard-list">
-                    <p style="color: #9ca3af; text-align: center; padding: 20px;">Laster...</p>
+                    <p style="color: var(--text-secondary); text-align: center; padding: 20px;">Laster...</p>
                 </div>
             </div>
         </div>
@@ -365,7 +376,7 @@
             <div class="waiting-box">
                 <div class="waiting-icon">⏳</div>
                 <div class="waiting-text">Venter på motstander...</div>
-                <p style="color: #9ca3af; margin-top: 15px;">Kategori: <span id="waiting-category">-</span></p>
+                <p style="color: var(--text-secondary); margin-top: 15px;">Kategori: <span id="waiting-category">-</span></p>
                 <button class="cancel-btn" onclick="cancelDuel()">✕ Avbryt</button>
             </div>
         </div>
@@ -375,7 +386,7 @@
             <h2 style="text-align: center; margin-bottom: 20px;">🔍 Åpne Dueller</h2>
             
             <div class="duels-list" id="duels-list">
-                <p style="color: #9ca3af; text-align: center;">Laster...</p>
+                <p style="color: var(--text-secondary); text-align: center;">Laster...</p>
             </div>
 
             <div style="text-align: center; margin-top: 30px;">
@@ -568,7 +579,7 @@
 
         function loadLeaderboard() {
             if (!firebaseReady || !db) {
-                document.getElementById('leaderboard-list').innerHTML = '<p style="color: #9ca3af; text-align: center;">Venter på tilkobling...</p>';
+                document.getElementById('leaderboard-list').innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Venter på tilkobling...</p>';
                 return;
             }
             
@@ -589,7 +600,7 @@
                     '</div>';
                 });
 
-                document.getElementById('leaderboard-list').innerHTML = html || '<p style="color: #9ca3af; text-align: center;">Ingen dueller ennå</p>';
+                document.getElementById('leaderboard-list').innerHTML = html || '<p style="color: var(--text-secondary); text-align: center;">Ingen dueller ennå</p>';
             });
         }
 
@@ -661,7 +672,7 @@
             showScreen('open-duels-screen');
             
             if (!firebaseReady || !db) {
-                document.getElementById('duels-list').innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 30px;">Venter på tilkobling...</p>';
+                document.getElementById('duels-list').innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 30px;">Venter på tilkobling...</p>';
                 return;
             }
             
@@ -676,7 +687,7 @@
 
                 var html = '';
                 if (duels.length === 0) {
-                    html = '<p style="color: #9ca3af; text-align: center; padding: 30px;">Ingen åpne dueller. Opprett en selv!</p>';
+                    html = '<p style="color: var(--text-secondary); text-align: center; padding: 30px;">Ingen åpne dueller. Opprett en selv!</p>';
                 } else {
                     duels.forEach(function(duel) {
                         html += '<div class="duel-item">' +
@@ -980,6 +991,15 @@
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', init);
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        // Initialize theme after DOM loads
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
     </script>
 </body>
 </html>

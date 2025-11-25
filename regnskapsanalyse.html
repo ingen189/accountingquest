@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Regnskapsanalyse - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         * {
             margin: 0;
             padding: 0;
@@ -13,16 +22,16 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f1419;
-            color: #e0e0e0;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
         }
 
         /* Top Navigation Bar */
         .top-nav {
-            background: #1a1f26;
-            border-bottom: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
             padding: 12px 30px;
             display: flex;
             justify-content: space-between;
@@ -39,9 +48,9 @@
         }
 
         .back-btn {
-            background: #2d3748;
+            background: var(--border-color);
             border: none;
-            color: #e0e0e0;
+            color: var(--text-primary);
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
@@ -57,7 +66,7 @@
         }
 
         .wiki-btn {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, var(--warning), #d97706);
             border: none;
             color: white;
             padding: 8px 16px;
@@ -73,7 +82,7 @@
         }
 
         .module-name {
-            color: #4ade80;
+            color: var(--accent);
             font-size: 0.9em;
         }
 
@@ -91,18 +100,18 @@
         }
 
         .nav-stat-label {
-            color: #9ca3af;
+            color: var(--text-secondary);
         }
 
         .nav-stat-value {
-            color: #4ade80;
+            color: var(--accent);
             font-weight: bold;
         }
 
         .theme-toggle {
-            background: #2d3748;
+            background: var(--border-color);
             border: none;
-            color: #f59e0b;
+            color: var(--warning);
             padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
@@ -117,11 +126,11 @@
         /* Progress Bar */
         .progress-section {
             padding: 20px 30px;
-            background: #1a1f26;
+            background: var(--bg-secondary);
         }
 
         .progress-bar-container {
-            background: #0f1419;
+            background: var(--bg-primary);
             border-radius: 10px;
             height: 30px;
             overflow: hidden;
@@ -130,7 +139,7 @@
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #4ade80, #3b82f6);
+            background: linear-gradient(90deg, var(--accent), var(--info));
             transition: width 0.5s ease;
             display: flex;
             align-items: center;
@@ -145,15 +154,15 @@
             display: flex;
             gap: 10px;
             padding: 0 30px 20px;
-            background: #1a1f26;
+            background: var(--bg-secondary);
         }
 
         .task-tab {
             padding: 12px 24px;
-            background: #2d3748;
+            background: var(--border-color);
             border: none;
             border-radius: 8px;
-            color: #9ca3af;
+            color: var(--text-secondary);
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -164,20 +173,20 @@
         }
 
         .task-tab.active {
-            background: #4ade80;
-            color: #0f1419;
+            background: var(--accent);
+            color: var(--bg-primary);
         }
 
         .task-tab.completed {
-            background: #22c55e;
-            color: #0f1419;
+            background: var(--accent-hover);
+            color: var(--bg-primary);
         }
 
         /* Workspace - Full width */
         .workspace {
             padding: 30px;
             overflow-y: auto;
-            background: #0f1419;
+            background: var(--bg-primary);
             min-height: calc(100vh - 180px);
             max-width: 1200px;
             margin: 0 auto;
@@ -188,18 +197,18 @@
         }
 
         .workspace::-webkit-scrollbar-track {
-            background: #0f1419;
+            background: var(--bg-primary);
             border-radius: 5px;
         }
 
         .workspace::-webkit-scrollbar-thumb {
-            background: #4ade80;
+            background: var(--accent);
             border-radius: 5px;
         }
 
         .task-header {
-            background: #1a1f26;
-            border: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 25px;
             margin-bottom: 25px;
@@ -207,23 +216,23 @@
 
         .task-title {
             font-size: 1.8em;
-            color: #4ade80;
+            color: var(--accent);
             margin-bottom: 15px;
         }
 
         .task-description {
-            background: #0f1419;
+            background: var(--bg-primary);
             padding: 20px;
             border-radius: 8px;
             line-height: 1.8;
-            border-left: 4px solid #4ade80;
-            color: #e0e0e0;
+            border-left: 4px solid var(--accent);
+            color: var(--text-primary);
         }
 
         /* Spreadsheet */
         .spreadsheet-container {
-            background: #1a1f26;
-            border: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 25px;
@@ -232,7 +241,7 @@
         .excel-grid-wrapper {
             overflow-x: auto;
             border-radius: 8px;
-            background: #0f1419;
+            background: var(--bg-primary);
         }
 
         .excel-table {
@@ -242,8 +251,8 @@
         }
 
         .excel-table th {
-            background: #2d3748;
-            color: #9ca3af;
+            background: var(--border-color);
+            color: var(--text-secondary);
             padding: 12px;
             border: 1px solid #374151;
             text-align: center;
@@ -257,8 +266,8 @@
         }
 
         .excel-table td.row-number {
-            background: #2d3748;
-            color: #9ca3af;
+            background: var(--border-color);
+            color: var(--text-secondary);
             text-align: center;
             font-weight: bold;
             padding: 12px;
@@ -276,7 +285,7 @@
             width: 100%;
             background: transparent;
             border: none;
-            color: #e0e0e0;
+            color: var(--text-primary);
             padding: 12px;
             font-size: 0.95em;
             font-family: 'Consolas', 'Monaco', monospace;
@@ -286,7 +295,7 @@
         }
 
         .excel-cell:focus {
-            outline: 2px solid #4ade80;
+            outline: 2px solid var(--accent);
             background: rgba(74, 222, 128, 0.05);
             z-index: 5;
         }
@@ -296,8 +305,8 @@
         }
 
         .excel-cell.readonly {
-            background: #2d3748;
-            color: #9ca3af;
+            background: var(--border-color);
+            color: var(--text-secondary);
             cursor: not-allowed;
         }
 
@@ -320,8 +329,8 @@
             bottom: 1px;
             width: 10px;
             height: 10px;
-            background: #4ade80;
-            border: 2px solid #0f1419;
+            background: var(--accent);
+            border: 2px solid var(--bg-primary);
             border-radius: 50%;
             cursor: crosshair;
             z-index: 25;
@@ -360,8 +369,8 @@
         }
 
         .btn-primary {
-            background: #4ade80;
-            color: #0f1419;
+            background: var(--accent);
+            color: var(--bg-primary);
         }
 
         .btn-primary:hover {
@@ -371,7 +380,7 @@
         }
 
         .btn-secondary {
-            background: #f59e0b;
+            background: var(--warning);
             color: white;
         }
 
@@ -381,8 +390,8 @@
         }
 
         .btn-tertiary {
-            background: #2d3748;
-            color: #e0e0e0;
+            background: var(--border-color);
+            color: var(--text-primary);
         }
 
         .btn-tertiary:hover {
@@ -390,7 +399,7 @@
         }
 
         .btn-next {
-            background: #3b82f6;
+            background: var(--info);
             color: white;
         }
 
@@ -402,8 +411,8 @@
 
         /* Hint Box */
         .hint-box {
-            background: #1a1f26;
-            border-left: 4px solid #f59e0b;
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--warning);
             border-radius: 8px;
             padding: 20px;
             margin-top: 20px;
@@ -415,20 +424,20 @@
         }
 
         .hint-box strong {
-            color: #f59e0b;
+            color: var(--warning);
         }
 
         .hint-box code {
-            background: #0f1419;
+            background: var(--bg-primary);
             padding: 2px 6px;
             border-radius: 4px;
-            color: #4ade80;
+            color: var(--accent);
         }
 
         /* Feedback */
         .feedback {
-            background: #1a1f26;
-            border: 1px solid #2d3748;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 15px 20px;
             margin-bottom: 15px;
@@ -438,8 +447,8 @@
         }
 
         .feedback.show { display: block; }
-        .feedback.correct { border-color: #4ade80; color: #4ade80; background: rgba(74, 222, 128, 0.1); }
-        .feedback.incorrect { border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .feedback.correct { border-color: var(--accent); color: var(--accent); background: rgba(74, 222, 128, 0.1); }
+        .feedback.incorrect { border-color: var(--error); color: var(--error); background: rgba(239, 68, 68, 0.1); }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -465,7 +474,9 @@
                 justify-content: center;
             }
         }
+    
     </style>
+
 </head>
 <body>
     <!-- Top Navigation -->
@@ -712,6 +723,14 @@
         function saveProgress() { localStorage.setItem('regnskapsanalyse_progress', JSON.stringify({ completedTasks: gameState.completedTasks, score: gameState.score })); }
         function loadProgress() { const s = localStorage.getItem('regnskapsanalyse_progress'); if (s) { const p = JSON.parse(s); gameState.completedTasks = p.completedTasks || []; gameState.score = p.score || 0; updateStats(); updateProgress(); renderTaskTabs(); }}
         window.onload = init;
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.init();
+        }
     </script>
 </body>
 </html>

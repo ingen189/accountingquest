@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AccountingQuest - Multiplayer</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         * {
             margin: 0;
             padding: 0;
@@ -13,8 +22,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
-            color: #e0e0e0;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -23,7 +32,7 @@
         .header {
             background: rgba(0,0,0,0.3);
             padding: 20px 40px;
-            border-bottom: 2px solid #4ade80;
+            border-bottom: 2px solid var(--accent);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -32,12 +41,12 @@
         .logo {
             font-size: 2em;
             font-weight: bold;
-            color: #4ade80;
+            color: var(--accent);
         }
 
         .back-btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             border: none;
             padding: 12px 25px;
             border-radius: 8px;
@@ -47,8 +56,8 @@
         }
 
         .back-btn:hover {
-            background: #4ade80;
-            color: #1e1e1e;
+            background: var(--accent);
+            color: var(--bg-primary);
             transform: translateY(-2px);
         }
 
@@ -68,14 +77,14 @@
 
         .welcome h1 {
             font-size: 3.5em;
-            color: #4ade80;
+            color: var(--accent);
             margin-bottom: 15px;
             text-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
         }
 
         .welcome p {
             font-size: 1.3em;
-            color: #9ca3af;
+            color: var(--text-secondary);
         }
 
         .options {
@@ -88,7 +97,7 @@
 
         .option-card {
             background: rgba(45, 45, 45, 0.8);
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 20px;
             padding: 40px;
             cursor: pointer;
@@ -105,13 +114,13 @@
             left: 0;
             right: 0;
             height: 5px;
-            background: linear-gradient(90deg, #4ade80, #22c55e);
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
             transform: scaleX(0);
             transition: transform 0.3s;
         }
 
         .option-card:hover {
-            border-color: #4ade80;
+            border-color: var(--accent);
             transform: translateY(-10px);
             box-shadow: 0 20px 40px rgba(74, 222, 128, 0.2);
         }
@@ -127,7 +136,7 @@
 
         .option-card.disabled:hover {
             transform: none;
-            border-color: #404040;
+            border-color: var(--bg-tertiary);
             box-shadow: none;
         }
 
@@ -142,14 +151,14 @@
 
         .option-title {
             font-size: 2em;
-            color: #4ade80;
+            color: var(--accent);
             margin-bottom: 15px;
             font-weight: bold;
         }
 
         .option-desc {
             font-size: 1.1em;
-            color: #9ca3af;
+            color: var(--text-secondary);
             line-height: 1.6;
             margin-bottom: 20px;
         }
@@ -158,13 +167,13 @@
             text-align: left;
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid #404040;
+            border-top: 1px solid var(--bg-tertiary);
             list-style: none;
         }
 
         .option-features li {
             margin: 8px 0;
-            color: #e0e0e0;
+            color: var(--text-primary);
             padding-left: 25px;
             position: relative;
         }
@@ -173,14 +182,14 @@
             content: '✓';
             position: absolute;
             left: 0;
-            color: #4ade80;
+            color: var(--accent);
             font-weight: bold;
         }
 
         .status-badge {
             display: inline-block;
-            background: #4ade80;
-            color: #1e1e1e;
+            background: var(--accent);
+            color: var(--bg-primary);
             padding: 5px 15px;
             border-radius: 20px;
             font-weight: bold;
@@ -189,7 +198,7 @@
         }
 
         .status-badge.coming-soon {
-            background: #f59e0b;
+            background: var(--warning);
         }
 
         @media (max-width: 768px) {
@@ -215,7 +224,9 @@
                 padding: 30px 20px;
             }
         }
+    
     </style>
+
 </head>
 <body>
     <div class="header">
@@ -282,5 +293,14 @@
             </div>
         </div>
     </div>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        // Initialize theme after DOM loads
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
+    </script>
 </body>
 </html>

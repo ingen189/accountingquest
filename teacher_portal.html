@@ -4,25 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lærerportal - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👨‍🏫</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #1a1a2e;
-            color: #e0e0e0;
+            color: var(--text-primary);
             min-height: 100vh;
         }
 
         .header {
-            background: #2d2d2d;
-            border-bottom: 2px solid #4ade80;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--accent);
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -37,14 +46,14 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #4ade80;
+            color: var(--accent);
         }
 
         .header-actions { display: flex; gap: 15px; flex-wrap: wrap; }
 
         .btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             border: 2px solid #555;
             padding: 12px 25px;
             border-radius: 8px;
@@ -54,10 +63,10 @@
             font-size: 0.95em;
         }
 
-        .btn:hover { background: #4a4a4a; border-color: #4ade80; }
-        .btn.primary { background: #4ade80; border-color: #4ade80; color: #1a1a2e; }
-        .btn.primary:hover { background: #22c55e; }
-        .btn.danger { background: #ef4444; border-color: #ef4444; color: white; }
+        .btn:hover { background: #4a4a4a; border-color: var(--accent); }
+        .btn.primary { background: var(--accent); border-color: var(--accent); color: #1a1a2e; }
+        .btn.primary:hover { background: var(--accent-hover); }
+        .btn.danger { background: var(--error); border-color: var(--error); color: white; }
 
         .container {
             max-width: 1400px;
@@ -74,9 +83,9 @@
         }
 
         .tab {
-            background: #2d2d2d;
-            border: 2px solid #404040;
-            color: #9ca3af;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            color: var(--text-secondary);
             padding: 15px 25px;
             border-radius: 10px 10px 0 0;
             cursor: pointer;
@@ -84,13 +93,13 @@
             transition: all 0.3s;
         }
 
-        .tab:hover { border-color: #4ade80; color: #e0e0e0; }
-        .tab.active { background: #4ade80; border-color: #4ade80; color: #1a1a2e; }
+        .tab:hover { border-color: var(--accent); color: var(--text-primary); }
+        .tab.active { background: var(--accent); border-color: var(--accent); color: #1a1a2e; }
 
         .tab-content {
             display: none;
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 0 10px 10px 10px;
             padding: 30px;
         }
@@ -106,7 +115,7 @@
 
         .card {
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 25px;
             cursor: pointer;
@@ -114,14 +123,14 @@
         }
 
         .card:hover {
-            border-color: #4ade80;
+            border-color: var(--accent);
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(74, 222, 128, 0.2);
         }
 
         .card-icon { font-size: 2.5em; margin-bottom: 15px; }
-        .card-title { font-size: 1.3em; color: #4ade80; margin-bottom: 10px; font-weight: bold; }
-        .card-desc { color: #9ca3af; font-size: 0.95em; line-height: 1.5; }
+        .card-title { font-size: 1.3em; color: var(--accent); margin-bottom: 10px; font-weight: bold; }
+        .card-desc { color: var(--text-secondary); font-size: 0.95em; line-height: 1.5; }
 
         /* Modal */
         .modal {
@@ -138,7 +147,7 @@
         .modal.active { display: flex; justify-content: center; align-items: flex-start; }
 
         .modal-content {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 20px;
             width: 100%;
             max-width: 900px;
@@ -149,17 +158,17 @@
         .modal-header {
             background: #1a1a2e;
             padding: 25px 30px;
-            border-bottom: 2px solid #404040;
+            border-bottom: 2px solid var(--bg-tertiary);
             border-radius: 20px 20px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .modal-header h2 { color: #4ade80; font-size: 1.5em; }
+        .modal-header h2 { color: var(--accent); font-size: 1.5em; }
 
         .modal-close {
-            background: #ef4444;
+            background: var(--error);
             color: white;
             border: none;
             width: 40px; height: 40px;
@@ -184,7 +193,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
-            color: #4ade80;
+            color: var(--accent);
         }
 
         .form-group input,
@@ -193,9 +202,9 @@
             width: 100%;
             padding: 12px 15px;
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 8px;
-            color: #e0e0e0;
+            color: var(--text-primary);
             font-size: 1em;
             transition: border-color 0.3s;
         }
@@ -204,7 +213,7 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #4ade80;
+            border-color: var(--accent);
         }
 
         .form-group textarea { min-height: 100px; resize: vertical; }
@@ -219,7 +228,7 @@
 
         .type-option {
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 20px 15px;
             text-align: center;
@@ -227,10 +236,10 @@
             transition: all 0.3s;
         }
 
-        .type-option:hover { border-color: #4ade80; }
-        .type-option.selected { border-color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+        .type-option:hover { border-color: var(--accent); }
+        .type-option.selected { border-color: var(--accent); background: rgba(74, 222, 128, 0.1); }
         .type-option .icon { font-size: 2em; margin-bottom: 10px; }
-        .type-option .label { font-size: 0.9em; color: #9ca3af; }
+        .type-option .label { font-size: 0.9em; color: var(--text-secondary); }
 
         /* Options Builder */
         .options-list { margin-top: 15px; }
@@ -254,7 +263,7 @@
         .option-item input[type="text"] { flex: 1; }
 
         .option-item .remove-btn {
-            background: #ef4444;
+            background: var(--error);
             color: white;
             border: none;
             width: 30px; height: 30px;
@@ -269,11 +278,11 @@
             gap: 20px;
         }
 
-        .dd-column h4 { color: #4ade80; margin-bottom: 15px; }
+        .dd-column h4 { color: var(--accent); margin-bottom: 15px; }
 
         .dd-item {
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 10px;
@@ -288,7 +297,7 @@
         /* Bokføring Builder */
         .bokforing-builder {
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 20px;
             margin-top: 15px;
@@ -305,10 +314,10 @@
         .posting-row input,
         .posting-row select {
             padding: 10px;
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 5px;
-            color: #e0e0e0;
+            color: var(--text-primary);
         }
 
         /* Quiz List */
@@ -316,7 +325,7 @@
 
         .quiz-item {
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 15px;
@@ -327,10 +336,10 @@
             gap: 15px;
         }
 
-        .quiz-item:hover { border-color: #4ade80; }
+        .quiz-item:hover { border-color: var(--accent); }
 
-        .quiz-info h3 { color: #4ade80; margin-bottom: 5px; }
-        .quiz-meta { color: #9ca3af; font-size: 0.9em; }
+        .quiz-info h3 { color: var(--accent); margin-bottom: 5px; }
+        .quiz-meta { color: var(--text-secondary); font-size: 0.9em; }
         .quiz-meta span { margin-right: 15px; }
 
         .quiz-actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -343,30 +352,30 @@
             font-weight: bold;
         }
 
-        .badge.public { background: #4ade80; color: #1a1a2e; }
-        .badge.private { background: #f59e0b; color: #1a1a2e; }
-        .badge.easy { background: #22c55e; color: white; }
-        .badge.medium { background: #f59e0b; color: #1a1a2e; }
-        .badge.hard { background: #ef4444; color: white; }
+        .badge.public { background: var(--accent); color: #1a1a2e; }
+        .badge.private { background: var(--warning); color: #1a1a2e; }
+        .badge.easy { background: var(--accent-hover); color: white; }
+        .badge.medium { background: var(--warning); color: #1a1a2e; }
+        .badge.hard { background: var(--error); color: white; }
         .badge.expert { background: #8b5cf6; color: white; }
 
         /* Questions Preview */
         .questions-preview {
             margin-top: 20px;
-            border-top: 2px solid #404040;
+            border-top: 2px solid var(--bg-tertiary);
             padding-top: 20px;
         }
 
         .question-preview-item {
             background: #1a1a2e;
-            border-left: 4px solid #4ade80;
+            border-left: 4px solid var(--accent);
             padding: 15px 20px;
             margin-bottom: 10px;
             border-radius: 0 8px 8px 0;
         }
 
-        .question-preview-item .q-number { color: #4ade80; font-weight: bold; }
-        .question-preview-item .q-type { color: #9ca3af; font-size: 0.85em; margin-left: 10px; }
+        .question-preview-item .q-number { color: var(--accent); font-weight: bold; }
+        .question-preview-item .q-type { color: var(--text-secondary); font-size: 0.85em; margin-left: 10px; }
         .question-preview-item .q-text { margin-top: 8px; }
 
         /* Save Actions */
@@ -376,7 +385,7 @@
             justify-content: flex-end;
             margin-top: 30px;
             padding-top: 20px;
-            border-top: 2px solid #404040;
+            border-top: 2px solid var(--bg-tertiary);
         }
 
         /* Responsive */
@@ -387,7 +396,9 @@
             .drag-drop-builder { grid-template-columns: 1fr; }
             .posting-row { grid-template-columns: 1fr; }
         }
+    
     </style>
+
 </head>
 <body>
     <header class="header">
@@ -409,9 +420,9 @@
 
         <!-- Mine Quizzer -->
         <div class="tab-content active" id="tab-mine">
-            <h2 style="color: #4ade80; margin-bottom: 20px;">Mine Quizzer</h2>
+            <h2 style="color: var(--accent); margin-bottom: 20px;">Mine Quizzer</h2>
             <div id="my-quizzes-list">
-                <p style="color: #9ca3af; text-align: center; padding: 40px;">
+                <p style="color: var(--text-secondary); text-align: center; padding: 40px;">
                     Laster quizzer...
                 </p>
             </div>
@@ -419,7 +430,7 @@
 
         <!-- Offentlige Quizzer -->
         <div class="tab-content" id="tab-public">
-            <h2 style="color: #4ade80; margin-bottom: 20px;">🌍 Offentlige Quizzer</h2>
+            <h2 style="color: var(--accent); margin-bottom: 20px;">🌍 Offentlige Quizzer</h2>
             <div class="form-row" style="margin-bottom: 20px;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <select id="filter-language" onchange="loadPublicQuizzes()">
@@ -442,7 +453,7 @@
                 </div>
             </div>
             <div id="public-quizzes-list">
-                <p style="color: #9ca3af; text-align: center; padding: 40px;">
+                <p style="color: var(--text-secondary); text-align: center; padding: 40px;">
                     Laster offentlige quizzer...
                 </p>
             </div>
@@ -450,10 +461,10 @@
 
         <!-- Start Spill -->
         <div class="tab-content" id="tab-start">
-            <h2 style="color: #4ade80; margin-bottom: 20px;">🎮 Start Multiplayer Spill</h2>
-            <p style="color: #9ca3af; margin-bottom: 30px;">Velg en quiz for å starte en live-konkurranse med PIN-kode.</p>
+            <h2 style="color: var(--accent); margin-bottom: 20px;">🎮 Start Multiplayer Spill</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">Velg en quiz for å starte en live-konkurranse med PIN-kode.</p>
             <div id="start-quiz-list">
-                <p style="color: #9ca3af; text-align: center; padding: 40px;">
+                <p style="color: var(--text-secondary); text-align: center; padding: 40px;">
                     Laster quizzer...
                 </p>
             </div>
@@ -461,8 +472,8 @@
 
         <!-- Statistikk -->
         <div class="tab-content" id="tab-stats">
-            <h2 style="color: #4ade80; margin-bottom: 20px;">📊 Spillstatistikk</h2>
-            <p style="color: #9ca3af;">Kommer snart: Se resultater fra tidligere spill, eksporter til Excel, og analyser elevprestasjoner.</p>
+            <h2 style="color: var(--accent); margin-bottom: 20px;">📊 Spillstatistikk</h2>
+            <p style="color: var(--text-secondary);">Kommer snart: Se resultater fra tidligere spill, eksporter til Excel, og analyser elevprestasjoner.</p>
         </div>
     </div>
 
@@ -533,11 +544,11 @@
 
                     <!-- Questions Preview -->
                     <div class="questions-preview" id="questions-preview">
-                        <h3 style="color: #4ade80; margin-bottom: 15px;">
+                        <h3 style="color: var(--accent); margin-bottom: 15px;">
                             Spørsmål (<span id="question-count">0</span>)
                         </h3>
                         <div id="questions-list">
-                            <p style="color: #9ca3af; text-align: center; padding: 20px;">
+                            <p style="color: var(--text-secondary); text-align: center; padding: 20px;">
                                 Ingen spørsmål lagt til ennå
                             </p>
                         </div>
@@ -564,7 +575,7 @@
             </div>
             <div class="modal-body">
                 <!-- Question Type Selection -->
-                <label style="color: #4ade80; font-weight: bold; margin-bottom: 15px; display: block;">
+                <label style="color: var(--accent); font-weight: bold; margin-bottom: 15px; display: block;">
                     Velg spørsmålstype:
                 </label>
                 <div class="type-grid" id="type-selector">
@@ -738,7 +749,7 @@
             var savedQuizzes = JSON.parse(localStorage.getItem('teacher_quizzes') || '[]');
             
             if (savedQuizzes.length === 0) {
-                container.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 40px;">Du har ingen quizzer ennå. Klikk "+ Ny Quiz" for å komme i gang!</p>';
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">Du har ingen quizzer ennå. Klikk "+ Ny Quiz" for å komme i gang!</p>';
                 return;
             }
 
@@ -772,7 +783,7 @@
             var container = document.getElementById('public-quizzes-list');
             
             if (!firebaseReady || !db) {
-                container.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 40px;">Kobler til database...</p>';
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">Kobler til database...</p>';
                 return;
             }
             
@@ -794,7 +805,7 @@
                     });
                     
                     if (quizzes.length === 0) {
-                        container.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 40px;">Ingen offentlige quizzer funnet.</p>';
+                        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">Ingen offentlige quizzer funnet.</p>';
                         return;
                     }
                     
@@ -823,7 +834,7 @@
                 })
                 .catch(function(error) {
                     console.error('Error loading public quizzes:', error);
-                    container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 40px;">Kunne ikke laste quizzer.</p>';
+                    container.innerHTML = '<p style="color: var(--error); text-align: center; padding: 40px;">Kunne ikke laste quizzer.</p>';
                 });
         }
 
@@ -959,8 +970,8 @@
         // Build Multiple Choice UI
         function buildMultipleChoiceUI(multiSelect) {
             var inputType = multiSelect ? 'checkbox' : 'radio';
-            return '<label style="color: #4ade80; font-weight: bold; margin-bottom: 10px; display: block;">Svaralternativer:</label>' +
-                '<p style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px;">' + 
+            return '<label style="color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block;">Svaralternativer:</label>' +
+                '<p style="color: var(--text-secondary); font-size: 0.9em; margin-bottom: 15px;">' + 
                 (multiSelect ? 'Kryss av for alle riktige svar' : 'Velg det riktige svaret') + '</p>' +
                 '<div class="options-list" id="options-list">' +
                     '<div class="option-item">' +
@@ -985,7 +996,7 @@
 
         // Build True/False UI
         function buildTrueFalseUI() {
-            return '<label style="color: #4ade80; font-weight: bold; margin-bottom: 10px; display: block;">Riktig svar:</label>' +
+            return '<label style="color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block;">Riktig svar:</label>' +
                 '<div class="form-group">' +
                     '<select id="tf-answer">' +
                         '<option value="true">✅ Sant</option>' +
@@ -996,11 +1007,11 @@
 
         // Build Paragraph UI
         function buildParagraphUI() {
-            return '<label style="color: #4ade80; font-weight: bold; margin-bottom: 10px; display: block;">Paragrafhenvisning:</label>' +
+            return '<label style="color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block;">Paragrafhenvisning:</label>' +
                 '<div class="form-group">' +
                     '<input type="text" id="para-ref" placeholder="F.eks. Bokføringsloven § 5">' +
                 '</div>' +
-                '<label style="color: #4ade80; font-weight: bold; margin-bottom: 10px; display: block;">Nøkkelord (kommaseparert):</label>' +
+                '<label style="color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block;">Nøkkelord (kommaseparert):</label>' +
                 '<div class="form-group">' +
                     '<input type="text" id="para-keywords" placeholder="F.eks. primærdokumentasjon, bilag, oppbevaring">' +
                 '</div>';
@@ -1045,7 +1056,7 @@
 
         // Build Bokføring UI
         function buildBokforingUI() {
-            return '<label style="color: #4ade80; font-weight: bold; margin-bottom: 10px; display: block;">Scenario/Bilag:</label>' +
+            return '<label style="color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block;">Scenario/Bilag:</label>' +
                 '<div class="form-group">' +
                     '<textarea id="bok-scenario" placeholder="Beskriv transaksjonen, f.eks: Bedriften kjøper kontorrekvisita for kr 5.000 eks. mva. Betalt kontant."></textarea>' +
                 '</div>' +
@@ -1069,8 +1080,8 @@
                     '</div>' +
                 '</div>' +
                 
-                '<label style="color: #4ade80; font-weight: bold; margin-bottom: 10px; display: block;">Forventede posteringer (fasit):</label>' +
-                '<p style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px;">Legg inn riktige posteringer som studentene skal finne frem til.</p>' +
+                '<label style="color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block;">Forventede posteringer (fasit):</label>' +
+                '<p style="color: var(--text-secondary); font-size: 0.9em; margin-bottom: 15px;">Legg inn riktige posteringer som studentene skal finne frem til.</p>' +
                 
                 '<div id="bok-builder-container">' +
                     buildFortegnskontoUI() +
@@ -1089,16 +1100,16 @@
                 '<table style="width: 100%; border-collapse: collapse;">' +
                     '<thead>' +
                         '<tr style="background: #1a1a2e;">' +
-                            '<th style="padding: 12px; text-align: left; color: #9ca3af; border-bottom: 2px solid #4ade80;">#</th>' +
-                            '<th style="padding: 12px; text-align: left; color: #9ca3af; border-bottom: 2px solid #4ade80;">Konto</th>' +
-                            '<th style="padding: 12px; text-align: right; color: #9ca3af; border-bottom: 2px solid #4ade80;">Debet</th>' +
-                            '<th style="padding: 12px; text-align: right; color: #9ca3af; border-bottom: 2px solid #4ade80;">Kredit</th>' +
+                            '<th style="padding: 12px; text-align: left; color: var(--text-secondary); border-bottom: 2px solid var(--accent);">#</th>' +
+                            '<th style="padding: 12px; text-align: left; color: var(--text-secondary); border-bottom: 2px solid var(--accent);">Konto</th>' +
+                            '<th style="padding: 12px; text-align: right; color: var(--text-secondary); border-bottom: 2px solid var(--accent);">Debet</th>' +
+                            '<th style="padding: 12px; text-align: right; color: var(--text-secondary); border-bottom: 2px solid var(--accent);">Kredit</th>' +
                             '<th style="padding: 12px; width: 50px;"></th>' +
                         '</tr>' +
                     '</thead>' +
                     '<tbody id="fortegn-rows">' +
                         '<tr class="posting-row-fortegn">' +
-                            '<td style="padding: 8px; color: #9ca3af;">1</td>' +
+                            '<td style="padding: 8px; color: var(--text-secondary);">1</td>' +
                             '<td style="padding: 8px;"><input type="text" placeholder="Kontonr" class="bok-konto" style="width: 100%;"></td>' +
                             '<td style="padding: 8px;"><input type="number" placeholder="0" class="bok-debet" style="width: 100%; text-align: right;"></td>' +
                             '<td style="padding: 8px;"><input type="number" placeholder="0" class="bok-kredit" style="width: 100%; text-align: right;"></td>' +
@@ -1114,7 +1125,7 @@
             return '<div class="bokforing-builder" id="postings-list">' +
                 '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">' +
                     '<div>' +
-                        '<h4 style="color: #4ade80; margin-bottom: 10px; text-align: center;">DEBET</h4>' +
+                        '<h4 style="color: var(--accent); margin-bottom: 10px; text-align: center;">DEBET</h4>' +
                         '<div id="tkonto-debet">' +
                             '<div class="tkonto-entry">' +
                                 '<input type="text" placeholder="Konto" class="tk-konto-d" style="width: 60%;">' +
@@ -1125,7 +1136,7 @@
                         '<button class="btn" onclick="addTkontoEntry(\'debet\')" style="margin-top: 10px; width: 100%;">+ Debet</button>' +
                     '</div>' +
                     '<div>' +
-                        '<h4 style="color: #ef4444; margin-bottom: 10px; text-align: center;">KREDIT</h4>' +
+                        '<h4 style="color: var(--error); margin-bottom: 10px; text-align: center;">KREDIT</h4>' +
                         '<div id="tkonto-kredit">' +
                             '<div class="tkonto-entry">' +
                                 '<input type="text" placeholder="Konto" class="tk-konto-k" style="width: 60%;">' +
@@ -1155,7 +1166,7 @@
             var rowNum = tbody.children.length + 1;
             var tr = document.createElement('tr');
             tr.className = 'posting-row-fortegn';
-            tr.innerHTML = '<td style="padding: 8px; color: #9ca3af;">' + rowNum + '</td>' +
+            tr.innerHTML = '<td style="padding: 8px; color: var(--text-secondary);">' + rowNum + '</td>' +
                 '<td style="padding: 8px;"><input type="text" placeholder="Kontonr" class="bok-konto" style="width: 100%;"></td>' +
                 '<td style="padding: 8px;"><input type="number" placeholder="0" class="bok-debet" style="width: 100%; text-align: right;"></td>' +
                 '<td style="padding: 8px;"><input type="number" placeholder="0" class="bok-kredit" style="width: 100%; text-align: right;"></td>' +
@@ -1190,7 +1201,7 @@
 
         // Build Analyse UI
         function buildAnalyseUI() {
-            return '<label style="color: #4ade80; font-weight: bold; margin-bottom: 10px; display: block;">Type analyse:</label>' +
+            return '<label style="color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block;">Type analyse:</label>' +
                 '<div class="form-group">' +
                     '<select id="analyse-type">' +
                         '<option value="nøkkeltall">Nøkkeltallsberegning</option>' +
@@ -1198,14 +1209,14 @@
                         '<option value="vertikal">Vertikal analyse</option>' +
                     '</select>' +
                 '</div>' +
-                '<label style="color: #4ade80; font-weight: bold; margin-bottom: 10px; display: block;">Oppgi tall:</label>' +
+                '<label style="color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block;">Oppgi tall:</label>' +
                 '<div class="form-row">' +
                     '<div class="form-group"><label>Omsetning</label><input type="number" id="a-omsetning" placeholder="0"></div>' +
                     '<div class="form-group"><label>Resultat</label><input type="number" id="a-resultat" placeholder="0"></div>' +
                     '<div class="form-group"><label>Eiendeler</label><input type="number" id="a-eiendeler" placeholder="0"></div>' +
                     '<div class="form-group"><label>Gjeld</label><input type="number" id="a-gjeld" placeholder="0"></div>' +
                 '</div>' +
-                '<label style="color: #4ade80; font-weight: bold; margin-bottom: 10px; display: block;">Forventet svar:</label>' +
+                '<label style="color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block;">Forventet svar:</label>' +
                 '<div class="form-group">' +
                     '<input type="text" id="a-expected" placeholder="F.eks. 15% eller 2.5">' +
                 '</div>';
@@ -1435,7 +1446,7 @@
             document.getElementById('question-count').textContent = currentQuestions.length;
             
             if (currentQuestions.length === 0) {
-                container.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 20px;">Ingen spørsmål lagt til ennå</p>';
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Ingen spørsmål lagt til ennå</p>';
                 return;
             }
             
@@ -1709,6 +1720,15 @@
             // Load local quizzes immediately
             loadMyQuizzes();
         });
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        // Initialize theme after DOM loads
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
     </script>
 </body>
 </html>

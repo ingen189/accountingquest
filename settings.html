@@ -7,7 +7,13 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
     <meta name="theme-color" content="#0f1419">
     
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         /* ========== THEME VARIABLES ========== */
         :root {
             --bg-primary: #0f1419;
@@ -493,7 +499,9 @@
                 padding: 15px;
             }
         }
+    
     </style>
+
 </head>
 <body>
     <!-- Header -->
@@ -825,6 +833,14 @@
             initUI();
             updateStorageInfo();
         });
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.init();
+        }
     </script>
 </body>
 </html>

@@ -4,17 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spill i gang - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
-            color: #e0e0e0;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
         }
         .game-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
@@ -22,39 +31,39 @@
         /* Lobby Screen */
         .lobby-screen { text-align: center; padding: 40px 20px; }
         .pin-display {
-            background: #2d2d2d;
-            border: 4px solid #4ade80;
+            background: var(--bg-secondary);
+            border: 4px solid var(--accent);
             border-radius: 20px;
             padding: 40px;
             margin: 30px auto;
             max-width: 600px;
         }
-        .pin-label { font-size: 1.5em; color: #9ca3af; margin-bottom: 15px; }
+        .pin-label { font-size: 1.5em; color: var(--text-secondary); margin-bottom: 15px; }
         .pin-code {
             font-size: 5em;
             font-weight: bold;
-            color: #4ade80;
+            color: var(--accent);
             letter-spacing: 15px;
             text-shadow: 0 0 30px rgba(74, 222, 128, 0.5);
         }
         .quiz-info {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 30px;
             margin: 30px auto;
             max-width: 800px;
         }
-        .quiz-title { font-size: 2em; color: #4ade80; margin-bottom: 15px; }
+        .quiz-title { font-size: 2em; color: var(--accent); margin-bottom: 15px; }
         .quiz-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin-top: 20px;
         }
-        .stat-box { background: #404040; padding: 15px; border-radius: 10px; text-align: center; }
-        .stat-value { font-size: 2em; color: #4ade80; font-weight: bold; }
-        .stat-label { color: #9ca3af; font-size: 0.9em; margin-top: 5px; }
+        .stat-box { background: var(--bg-tertiary); padding: 15px; border-radius: 10px; text-align: center; }
+        .stat-value { font-size: 2em; color: var(--accent); font-weight: bold; }
+        .stat-label { color: var(--text-secondary); font-size: 0.9em; margin-top: 5px; }
         .players-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -63,8 +72,8 @@
             max-width: 1200px;
         }
         .player-card {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 20px;
             text-align: center;
@@ -76,16 +85,16 @@
         }
         .player-avatar {
             width: 60px; height: 60px;
-            background: linear-gradient(135deg, #4ade80, #22c55e);
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
             border-radius: 50%;
             margin: 0 auto 10px;
             display: flex; align-items: center; justify-content: center;
             font-size: 2em;
         }
-        .player-name { font-weight: bold; color: #e0e0e0; }
+        .player-name { font-weight: bold; color: var(--text-primary); }
         .start-btn {
-            background: #4ade80;
-            color: #1e1e1e;
+            background: var(--accent);
+            color: var(--bg-primary);
             border: none;
             padding: 20px 60px;
             border-radius: 15px;
@@ -95,8 +104,8 @@
             transition: all 0.3s;
             margin-top: 30px;
         }
-        .start-btn:hover { background: #22c55e; transform: scale(1.05); }
-        .start-btn:disabled { background: #404040; color: #9ca3af; cursor: not-allowed; transform: none; }
+        .start-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
+        .start-btn:disabled { background: var(--bg-tertiary); color: var(--text-secondary); cursor: not-allowed; transform: none; }
 
         /* Question Screen */
         .question-screen { display: none; }
@@ -106,13 +115,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #4ade80;
+            border-bottom: 2px solid var(--accent);
             flex-wrap: wrap;
             gap: 15px;
         }
         .question-meta { display: flex; align-items: center; gap: 15px; }
         .question-type-badge {
-            background: #4ade80;
+            background: var(--accent);
             color: #1a1a2e;
             padding: 8px 20px;
             border-radius: 20px;
@@ -121,31 +130,31 @@
         .timer {
             font-size: 3em;
             font-weight: bold;
-            color: #4ade80;
+            color: var(--accent);
             width: 100px;
             height: 100px;
-            border: 5px solid #4ade80;
+            border: 5px solid var(--accent);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .timer.warning { color: #f59e0b; border-color: #f59e0b; }
-        .timer.danger { color: #ef4444; border-color: #ef4444; animation: pulse 0.5s infinite; }
+        .timer.warning { color: var(--warning); border-color: var(--warning); }
+        .timer.danger { color: var(--error); border-color: var(--error); animation: pulse 0.5s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         
         .question-content { padding: 40px; text-align: center; }
-        .question-text { font-size: 2.2em; margin-bottom: 40px; color: #e0e0e0; line-height: 1.4; }
+        .question-text { font-size: 2.2em; margin-bottom: 40px; color: var(--text-primary); line-height: 1.4; }
         
         /* Answer Stats Display */
         .answer-stats {
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 30px;
         }
-        .answer-stats h3 { color: #4ade80; margin-bottom: 15px; }
+        .answer-stats h3 { color: var(--accent); margin-bottom: 15px; }
         .stats-bar {
             display: flex;
             align-items: center;
@@ -156,13 +165,13 @@
         .stats-bar-fill {
             flex: 1;
             height: 30px;
-            background: #404040;
+            background: var(--bg-tertiary);
             border-radius: 5px;
             overflow: hidden;
         }
         .stats-bar-inner {
             height: 100%;
-            background: #4ade80;
+            background: var(--accent);
             transition: width 0.3s;
             display: flex;
             align-items: center;
@@ -188,10 +197,10 @@
             gap: 15px;
             transition: all 0.3s;
         }
-        .answer-a { background: #ef4444; }
-        .answer-b { background: #3b82f6; }
-        .answer-c { background: #f59e0b; }
-        .answer-d { background: #22c55e; }
+        .answer-a { background: var(--error); }
+        .answer-b { background: var(--info); }
+        .answer-c { background: var(--warning); }
+        .answer-d { background: var(--accent-hover); }
         .answer-box.correct { box-shadow: 0 0 30px rgba(74, 222, 128, 0.8); transform: scale(1.05); }
         .answer-count {
             background: rgba(0,0,0,0.3);
@@ -217,8 +226,8 @@
             border-radius: 20px;
             text-align: center;
         }
-        .tf-option.true { background: #22c55e; }
-        .tf-option.false { background: #ef4444; }
+        .tf-option.true { background: var(--accent-hover); }
+        .tf-option.false { background: var(--error); }
         .tf-option .count { font-size: 3em; font-weight: bold; }
         .tf-option .label { font-size: 1.5em; margin-top: 10px; }
 
@@ -231,12 +240,12 @@
         }
         .dd-category-box {
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 15px;
             padding: 20px;
             min-height: 150px;
         }
-        .dd-category-title { color: #4ade80; font-weight: bold; margin-bottom: 15px; text-align: center; }
+        .dd-category-title { color: var(--accent); font-weight: bold; margin-bottom: 15px; text-align: center; }
         .dd-expected-items {
             display: flex;
             flex-wrap: wrap;
@@ -244,7 +253,7 @@
             justify-content: center;
         }
         .dd-expected-item {
-            background: #404040;
+            background: var(--bg-tertiary);
             padding: 8px 15px;
             border-radius: 8px;
             font-size: 0.9em;
@@ -254,7 +263,7 @@
         .bokforing-display { max-width: 800px; margin: 0 auto; }
         .bokforing-scenario {
             background: #1a1a2e;
-            border: 2px solid #4ade80;
+            border: 2px solid var(--accent);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
@@ -262,12 +271,12 @@
             font-size: 1.1em;
         }
         .bokforing-fasit {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 10px;
             overflow: hidden;
         }
         .bokforing-fasit h4 {
-            background: #4ade80;
+            background: var(--accent);
             color: #1a1a2e;
             padding: 15px;
             font-size: 1.1em;
@@ -279,22 +288,22 @@
         .bokforing-fasit th, .bokforing-fasit td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--bg-tertiary);
         }
-        .bokforing-fasit th { background: #1a1a2e; color: #9ca3af; }
+        .bokforing-fasit th { background: #1a1a2e; color: var(--text-secondary); }
         .bokforing-fasit td:nth-child(3), .bokforing-fasit td:nth-child(4) { text-align: right; }
 
         /* Analyse Display */
         .analyse-display { max-width: 700px; margin: 0 auto; }
         .analyse-data-box {
             background: #1a1a2e;
-            border: 2px solid #404040;
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
         }
         .analyse-expected {
-            background: #4ade80;
+            background: var(--accent);
             color: #1a1a2e;
             padding: 20px;
             border-radius: 10px;
@@ -312,8 +321,8 @@
             flex-wrap: wrap;
         }
         .control-btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             border: none;
             padding: 15px 30px;
             border-radius: 10px;
@@ -322,14 +331,14 @@
             transition: all 0.3s;
         }
         .control-btn:hover { background: #555; }
-        .control-btn.pause { background: #f59e0b; color: #1a1a2e; }
-        .control-btn.next { background: #4ade80; color: #1a1a2e; }
+        .control-btn.pause { background: var(--warning); color: #1a1a2e; }
+        .control-btn.next { background: var(--accent); color: #1a1a2e; }
 
         .auto-advance-notice {
             margin-top: 20px;
             padding: 15px 25px;
             background: rgba(74, 222, 128, 0.2);
-            border: 2px solid #4ade80;
+            border: 2px solid var(--accent);
             border-radius: 10px;
             font-size: 1.2em;
             display: none;
@@ -337,10 +346,10 @@
 
         /* Results Screen */
         .results-screen { display: none; text-align: center; padding: 40px 20px; }
-        .results-title { font-size: 3em; color: #4ade80; margin-bottom: 40px; }
+        .results-title { font-size: 3em; color: var(--accent); margin-bottom: 40px; }
         .leaderboard {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 20px;
             padding: 30px;
             max-width: 800px;
@@ -350,7 +359,7 @@
             display: flex;
             align-items: center;
             padding: 20px;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--bg-tertiary);
             gap: 20px;
         }
         .leaderboard-item:last-child { border-bottom: none; }
@@ -363,18 +372,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #404040;
+            background: var(--bg-tertiary);
         }
-        .rank.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1e1e1e; }
-        .rank.silver { background: linear-gradient(135deg, #9ca3af, #6b7280); color: #1e1e1e; }
-        .rank.bronze { background: linear-gradient(135deg, #d97706, #b45309); color: #1e1e1e; }
+        .rank.gold { background: linear-gradient(135deg, #fbbf24, var(--warning)); color: var(--bg-primary); }
+        .rank.silver { background: linear-gradient(135deg, var(--text-secondary), var(--text-secondary)); color: var(--bg-primary); }
+        .rank.bronze { background: linear-gradient(135deg, var(--warning), #b45309); color: var(--bg-primary); }
         .player-info { flex: 1; text-align: left; }
         .player-name-lb { font-size: 1.3em; font-weight: bold; }
-        .player-score { font-size: 1.5em; color: #4ade80; font-weight: bold; }
+        .player-score { font-size: 1.5em; color: var(--accent); font-weight: bold; }
         .action-buttons { margin-top: 40px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
         .action-btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             border: none;
             padding: 15px 40px;
             border-radius: 10px;
@@ -383,8 +392,8 @@
             transition: all 0.3s;
         }
         .action-btn:hover { background: #555; }
-        .action-btn.primary { background: #4ade80; color: #1e1e1e; }
-        .action-btn.primary:hover { background: #22c55e; }
+        .action-btn.primary { background: var(--accent); color: var(--bg-primary); }
+        .action-btn.primary:hover { background: var(--accent-hover); }
 
         @media (max-width: 768px) {
             .pin-code { font-size: 3em; letter-spacing: 8px; }
@@ -393,13 +402,15 @@
             .tf-display { flex-direction: column; }
             .dd-categories-display { grid-template-columns: 1fr; }
         }
+    
     </style>
+
 </head>
 <body>
     <div class="game-container">
         <!-- Lobby Screen -->
         <div class="lobby-screen" id="lobby-screen">
-            <h1 style="font-size: 2.5em; color: #4ade80; margin-bottom: 20px;">🎮 Venter på spillere</h1>
+            <h1 style="font-size: 2.5em; color: var(--accent); margin-bottom: 20px;">🎮 Venter på spillere</h1>
             
             <div class="pin-display">
                 <div class="pin-label">Gå til accountingquest.app/student_join.html og skriv inn:</div>
@@ -425,7 +436,7 @@
             </div>
 
             <div class="players-grid" id="players-grid">
-                <div style="text-align: center; color: #9ca3af; padding: 40px; grid-column: 1/-1;">
+                <div style="text-align: center; color: var(--text-secondary); padding: 40px; grid-column: 1/-1;">
                     Venter på spillere...
                 </div>
             </div>
@@ -584,7 +595,7 @@
                 // Update players grid
                 var grid = document.getElementById('players-grid');
                 if (playerCount === 0) {
-                    grid.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 40px; grid-column: 1/-1;">Venter på spillere...</div>';
+                    grid.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px; grid-column: 1/-1;">Venter på spillere...</div>';
                 } else {
                     var html = '';
                     Object.values(gameState.players).forEach(function(player) {
@@ -632,7 +643,7 @@
             
             // Reset pause button
             document.getElementById('pause-btn').innerHTML = '⏸️ Pause';
-            document.getElementById('pause-btn').style.background = '#f59e0b';
+            document.getElementById('pause-btn').style.background = 'var(--warning)';
             
             var question = gameState.quiz.questions[index];
             var type = question.type || 'multiple_choice';
@@ -741,12 +752,12 @@
         function buildParagraphDisplay(q) {
             return '<div class="analyse-display">' +
                 '<div class="analyse-data-box">' +
-                    '<h4 style="color: #4ade80; margin-bottom: 10px;">📜 Lovhenvisning</h4>' +
+                    '<h4 style="color: var(--accent); margin-bottom: 10px;">📜 Lovhenvisning</h4>' +
                     '<p style="font-size: 1.3em;">' + (q.paragraphRef || q.lawReference || 'Ukjent') + '</p>' +
                 '</div>' +
                 '<div class="answer-stats" id="paragraph-stats">' +
                     '<h3>📝 Svar mottas...</h3>' +
-                    '<p style="color: #9ca3af;">Studentene skriver inn nøkkelord</p>' +
+                    '<p style="color: var(--text-secondary);">Studentene skriver inn nøkkelord</p>' +
                 '</div>' +
             '</div>';
         }
@@ -819,13 +830,13 @@
             var html = '<div class="analyse-display">';
             
             html += '<div class="analyse-data-box">' +
-                '<h4 style="color: #4ade80; margin-bottom: 15px;">📊 Regnskapsdata</h4>' +
+                '<h4 style="color: var(--accent); margin-bottom: 15px;">📊 Regnskapsdata</h4>' +
                 '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">';
             
-            if (data.omsetning) html += '<div style="background: #2d2d2d; padding: 10px; border-radius: 5px;"><span>Omsetning:</span> <strong style="color: #4ade80;">kr ' + formatNumber(data.omsetning) + '</strong></div>';
-            if (data.resultat) html += '<div style="background: #2d2d2d; padding: 10px; border-radius: 5px;"><span>Resultat:</span> <strong style="color: #4ade80;">kr ' + formatNumber(data.resultat) + '</strong></div>';
-            if (data.eiendeler) html += '<div style="background: #2d2d2d; padding: 10px; border-radius: 5px;"><span>Eiendeler:</span> <strong style="color: #4ade80;">kr ' + formatNumber(data.eiendeler) + '</strong></div>';
-            if (data.gjeld) html += '<div style="background: #2d2d2d; padding: 10px; border-radius: 5px;"><span>Gjeld:</span> <strong style="color: #4ade80;">kr ' + formatNumber(data.gjeld) + '</strong></div>';
+            if (data.omsetning) html += '<div style="background: var(--bg-secondary); padding: 10px; border-radius: 5px;"><span>Omsetning:</span> <strong style="color: var(--accent);">kr ' + formatNumber(data.omsetning) + '</strong></div>';
+            if (data.resultat) html += '<div style="background: var(--bg-secondary); padding: 10px; border-radius: 5px;"><span>Resultat:</span> <strong style="color: var(--accent);">kr ' + formatNumber(data.resultat) + '</strong></div>';
+            if (data.eiendeler) html += '<div style="background: var(--bg-secondary); padding: 10px; border-radius: 5px;"><span>Eiendeler:</span> <strong style="color: var(--accent);">kr ' + formatNumber(data.eiendeler) + '</strong></div>';
+            if (data.gjeld) html += '<div style="background: var(--bg-secondary); padding: 10px; border-radius: 5px;"><span>Gjeld:</span> <strong style="color: var(--accent);">kr ' + formatNumber(data.gjeld) + '</strong></div>';
             
             html += '</div></div>';
             
@@ -1095,11 +1106,11 @@
             
             if (gameState.isPaused) {
                 btn.innerHTML = '▶️ Fortsett';
-                btn.style.background = '#4ade80';
+                btn.style.background = 'var(--accent)';
                 if (gameState.autoAdvanceTimer) clearInterval(gameState.autoAdvanceTimer);
             } else {
                 btn.innerHTML = '⏸️ Pause';
-                btn.style.background = '#f59e0b';
+                btn.style.background = 'var(--warning)';
                 if (gameState.allAnswered) startAutoAdvance();
             }
         }
@@ -1270,6 +1281,15 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', init);
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        // Initialize theme after DOM loads
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
     </script>
 </body>
 </html>

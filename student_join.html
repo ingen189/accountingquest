@@ -4,12 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bli med i spill - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
-            color: #e0e0e0;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -20,13 +29,13 @@
         .logo {
             font-size: 3em;
             font-weight: bold;
-            color: #4ade80;
+            color: var(--accent);
             margin-bottom: 50px;
             text-align: center;
         }
         .join-container {
-            background: #2d2d2d;
-            border: 3px solid #4ade80;
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent);
             border-radius: 20px;
             padding: 50px;
             max-width: 500px;
@@ -35,23 +44,23 @@
         }
         .join-title {
             font-size: 2em;
-            color: #4ade80;
+            color: var(--accent);
             text-align: center;
             margin-bottom: 30px;
         }
         .form-group { margin-bottom: 25px; }
         .form-label {
             display: block;
-            color: #9ca3af;
+            color: var(--text-secondary);
             margin-bottom: 10px;
             font-weight: bold;
             font-size: 1.1em;
         }
         .form-input {
             width: 100%;
-            background: #1e1e1e;
-            border: 2px solid #404040;
-            color: #e0e0e0;
+            background: var(--bg-primary);
+            border: 2px solid var(--bg-tertiary);
+            color: var(--text-primary);
             padding: 15px;
             border-radius: 10px;
             font-size: 1.2em;
@@ -60,7 +69,7 @@
         }
         .form-input:focus {
             outline: none;
-            border-color: #4ade80;
+            border-color: var(--accent);
             box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
         }
         .form-input.pin-input {
@@ -75,8 +84,8 @@
             margin-top: 15px;
         }
         .emoji-option {
-            background: #1e1e1e;
-            border: 2px solid #404040;
+            background: var(--bg-primary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 15px;
             font-size: 2em;
@@ -85,17 +94,17 @@
             text-align: center;
         }
         .emoji-option:hover {
-            border-color: #4ade80;
+            border-color: var(--accent);
             transform: scale(1.1);
         }
         .emoji-option.selected {
-            border-color: #4ade80;
+            border-color: var(--accent);
             background: rgba(74, 222, 128, 0.2);
         }
         .join-btn {
             width: 100%;
-            background: #4ade80;
-            color: #1e1e1e;
+            background: var(--accent);
+            color: var(--bg-primary);
             border: none;
             padding: 20px;
             border-radius: 10px;
@@ -106,20 +115,20 @@
             margin-top: 30px;
         }
         .join-btn:hover {
-            background: #22c55e;
+            background: var(--accent-hover);
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
         }
         .join-btn:disabled {
-            background: #404040;
-            color: #9ca3af;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
             cursor: not-allowed;
             transform: none;
         }
         .error-message {
             background: rgba(239, 68, 68, 0.2);
-            border: 2px solid #ef4444;
-            color: #ef4444;
+            border: 2px solid var(--error);
+            color: var(--error);
             padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
@@ -128,7 +137,7 @@
         }
         .error-message.show { display: block; }
         .back-link { text-align: center; margin-top: 30px; }
-        .back-link a { color: #4ade80; text-decoration: none; font-weight: bold; }
+        .back-link a { color: var(--accent); text-decoration: none; font-weight: bold; }
         .back-link a:hover { text-decoration: underline; }
         .waiting-screen { display: none; text-align: center; }
         .waiting-screen.show { display: block; }
@@ -143,26 +152,28 @@
         }
         .waiting-text {
             font-size: 1.5em;
-            color: #9ca3af;
+            color: var(--text-secondary);
             margin-bottom: 20px;
         }
         .player-info {
-            background: #2d2d2d;
-            border: 2px solid #4ade80;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
             border-radius: 15px;
             padding: 30px;
             margin: 30px 0;
         }
         .player-avatar-large { font-size: 5em; margin-bottom: 15px; }
-        .player-name-large { font-size: 2em; color: #4ade80; font-weight: bold; }
-        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid #1e1e1e; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .player-name-large { font-size: 2em; color: var(--accent); font-weight: bold; }
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--bg-primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @media (max-width: 768px) {
             .join-container { padding: 30px 20px; }
             .logo { font-size: 2em; }
             .emoji-picker { grid-template-columns: repeat(4, 1fr); }
         }
+    
     </style>
+
 </head>
 <body>
     <div class="logo">🎮 AccountingQuest</div>
@@ -217,7 +228,7 @@
 
         <div class="waiting-animation">⏳</div>
         <div class="waiting-text">Venter på at læreren starter spillet...</div>
-        <div style="color: #9ca3af; margin-top: 10px;">
+        <div style="color: var(--text-secondary); margin-top: 10px;">
             <span id="player-count-display">0</span> spillere pålogget
         </div>
     </div>
@@ -383,6 +394,15 @@
                 db.ref('games/' + gamePin + '/players/' + playerId).remove();
             }
         });
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        // Initialize theme after DOM loads
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
     </script>
 </body>
 </html>

@@ -4,9 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📚 Regnskapswiki - Lover, Regler & Formler</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+
     <script src="wiki-data.js" defer></script>
     <script src="wiki-app.js" defer></script>
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         * {
             margin: 0;
             padding: 0;
@@ -15,15 +24,15 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1e1e1e;
-            color: #e0e0e0;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
         }
 
         /* Header */
         .wiki-header {
-            background: #2d2d2d;
-            border-bottom: 2px solid #404040;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--bg-tertiary);
             padding: 20px 30px;
             position: sticky;
             top: 0;
@@ -39,15 +48,15 @@
 
         .wiki-title {
             font-size: 1.8em;
-            color: #4ade80;
+            color: var(--accent);
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
         .back-btn {
-            background: #404040;
-            color: #e0e0e0;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
@@ -57,8 +66,8 @@
         }
 
         .back-btn:hover {
-            background: #4ade80;
-            color: #1e1e1e;
+            background: var(--accent);
+            color: var(--bg-primary);
         }
 
         /* Search Bar */
@@ -70,16 +79,16 @@
         .search-input {
             width: 100%;
             padding: 12px 45px 12px 15px;
-            background: #1e1e1e;
-            border: 2px solid #404040;
+            background: var(--bg-primary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 8px;
-            color: #e0e0e0;
+            color: var(--text-primary);
             font-size: 1em;
         }
 
         .search-input:focus {
             outline: none;
-            border-color: #4ade80;
+            border-color: var(--accent);
         }
 
         .search-icon {
@@ -87,7 +96,7 @@
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #9ca3af;
+            color: var(--text-secondary);
             font-size: 1.2em;
         }
 
@@ -100,8 +109,8 @@
         /* Sidebar Navigation */
         .wiki-sidebar {
             width: 320px;
-            background: #2d2d2d;
-            border-right: 2px solid #404040;
+            background: var(--bg-secondary);
+            border-right: 2px solid var(--bg-tertiary);
             overflow-y: auto;
             padding: 20px;
         }
@@ -111,12 +120,12 @@
         }
 
         .nav-section-title {
-            color: #4ade80;
+            color: var(--accent);
             font-size: 1.1em;
             font-weight: bold;
             margin-bottom: 12px;
             padding-bottom: 8px;
-            border-bottom: 2px solid #404040;
+            border-bottom: 2px solid var(--bg-tertiary);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -129,7 +138,7 @@
         .nav-item {
             padding: 10px 15px;
             margin-bottom: 5px;
-            background: #404040;
+            background: var(--bg-tertiary);
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
@@ -138,12 +147,12 @@
 
         .nav-item:hover {
             background: #4a4a4a;
-            border-left-color: #4ade80;
+            border-left-color: var(--accent);
         }
 
         .nav-item.active {
             background: rgba(74, 222, 128, 0.2);
-            border-left-color: #4ade80;
+            border-left-color: var(--accent);
         }
 
         .sub-nav {
@@ -169,7 +178,7 @@
 
         .sub-nav-item:hover {
             background: #454545;
-            color: #4ade80;
+            color: var(--accent);
         }
 
         /* Article Content */
@@ -180,8 +189,8 @@
         }
 
         .article-header {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 25px;
             margin-bottom: 25px;
@@ -189,12 +198,12 @@
 
         .article-title {
             font-size: 2.2em;
-            color: #4ade80;
+            color: var(--accent);
             margin-bottom: 10px;
         }
 
         .article-meta {
-            color: #9ca3af;
+            color: var(--text-secondary);
             font-size: 0.95em;
             display: flex;
             gap: 20px;
@@ -208,24 +217,24 @@
         }
 
         .article-body {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 30px;
             line-height: 1.8;
         }
 
         .article-body h2 {
-            color: #4ade80;
+            color: var(--accent);
             font-size: 1.6em;
             margin-top: 25px;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #404040;
+            border-bottom: 2px solid var(--bg-tertiary);
         }
 
         .article-body h3 {
-            color: #3b82f6;
+            color: var(--info);
             font-size: 1.3em;
             margin-top: 20px;
             margin-bottom: 12px;
@@ -246,8 +255,8 @@
 
         /* Law Text Box */
         .law-text {
-            background: #1e1e1e;
-            border-left: 4px solid #4ade80;
+            background: var(--bg-primary);
+            border-left: 4px solid var(--accent);
             padding: 20px;
             margin: 20px 0;
             border-radius: 5px;
@@ -257,7 +266,7 @@
         .law-text::before {
             content: "📜 Lovtekst:";
             display: block;
-            color: #4ade80;
+            color: var(--accent);
             font-weight: bold;
             font-style: normal;
             margin-bottom: 10px;
@@ -266,7 +275,7 @@
         /* Info Boxes */
         .info-box {
             background: rgba(59, 130, 246, 0.1);
-            border-left: 4px solid #3b82f6;
+            border-left: 4px solid var(--info);
             padding: 15px;
             margin: 15px 0;
             border-radius: 5px;
@@ -279,7 +288,7 @@
 
         .info-box.tip {
             background: rgba(74, 222, 128, 0.1);
-            border-left-color: #4ade80;
+            border-left-color: var(--accent);
         }
 
         .info-box-title {
@@ -292,8 +301,8 @@
 
         /* Formula Box */
         .formula-box {
-            background: #1e1e1e;
-            border: 2px solid #3b82f6;
+            background: var(--bg-primary);
+            border: 2px solid var(--info);
             border-radius: 8px;
             padding: 20px;
             margin: 20px 0;
@@ -301,7 +310,7 @@
         }
 
         .formula-title {
-            color: #3b82f6;
+            color: var(--info);
             font-weight: bold;
             margin-bottom: 15px;
             font-size: 1.1em;
@@ -310,41 +319,41 @@
         .formula {
             font-family: 'Consolas', monospace;
             font-size: 1.3em;
-            color: #4ade80;
+            color: var(--accent);
             margin: 10px 0;
         }
 
         .formula-explanation {
-            color: #9ca3af;
+            color: var(--text-secondary);
             font-size: 0.95em;
             margin-top: 10px;
         }
 
         /* Code/Account References */
         code {
-            background: #1e1e1e;
+            background: var(--bg-primary);
             padding: 2px 8px;
             border-radius: 4px;
-            color: #3b82f6;
+            color: var(--info);
             font-family: 'Consolas', monospace;
         }
 
         /* Links */
         .wiki-link {
-            color: #3b82f6;
+            color: var(--info);
             text-decoration: none;
-            border-bottom: 1px dotted #3b82f6;
+            border-bottom: 1px dotted var(--info);
             transition: all 0.3s;
         }
 
         .wiki-link:hover {
-            color: #4ade80;
-            border-bottom-color: #4ade80;
+            color: var(--accent);
+            border-bottom-color: var(--accent);
         }
 
         /* External Link */
         .external-link {
-            color: #f59e0b;
+            color: var(--warning);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -357,15 +366,15 @@
 
         /* Related Content */
         .related-content {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 20px;
             margin-top: 25px;
         }
 
         .related-title {
-            color: #4ade80;
+            color: var(--accent);
             font-weight: bold;
             margin-bottom: 15px;
             font-size: 1.1em;
@@ -378,7 +387,7 @@
         }
 
         .related-link-item {
-            background: #404040;
+            background: var(--bg-tertiary);
             padding: 12px;
             border-radius: 5px;
             cursor: pointer;
@@ -396,8 +405,8 @@
             top: 100%;
             left: 0;
             right: 0;
-            background: #2d2d2d;
-            border: 2px solid #4ade80;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
             border-radius: 8px;
             margin-top: 5px;
             max-height: 400px;
@@ -411,13 +420,13 @@
 
         .search-result-item {
             padding: 15px;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--bg-tertiary);
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .search-result-item:hover {
-            background: #404040;
+            background: var(--bg-tertiary);
         }
 
         .search-result-item:last-child {
@@ -425,18 +434,18 @@
         }
 
         .result-title {
-            color: #4ade80;
+            color: var(--accent);
             font-weight: bold;
             margin-bottom: 5px;
         }
 
         .result-excerpt {
-            color: #9ca3af;
+            color: var(--text-secondary);
             font-size: 0.9em;
         }
 
         .result-path {
-            color: #3b82f6;
+            color: var(--info);
             font-size: 0.85em;
             margin-top: 5px;
         }
@@ -454,13 +463,13 @@
 
         .welcome-title {
             font-size: 2.5em;
-            color: #4ade80;
+            color: var(--accent);
             margin-bottom: 15px;
         }
 
         .welcome-text {
             font-size: 1.2em;
-            color: #9ca3af;
+            color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto 30px;
             line-height: 1.6;
@@ -474,8 +483,8 @@
         }
 
         .quick-link-card {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
             border-radius: 10px;
             padding: 25px;
             cursor: pointer;
@@ -483,7 +492,7 @@
         }
 
         .quick-link-card:hover {
-            border-color: #4ade80;
+            border-color: var(--accent);
             transform: translateY(-5px);
         }
 
@@ -493,14 +502,14 @@
         }
 
         .quick-link-title {
-            color: #4ade80;
+            color: var(--accent);
             font-weight: bold;
             font-size: 1.1em;
             margin-bottom: 8px;
         }
 
         .quick-link-desc {
-            color: #9ca3af;
+            color: var(--text-secondary);
             font-size: 0.9em;
         }
 
@@ -526,18 +535,20 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #1e1e1e;
+            background: var(--bg-primary);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #404040;
+            background: var(--bg-tertiary);
             border-radius: 5px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #4ade80;
+            background: var(--accent);
         }
+    
     </style>
+
 </head>
 <body>
     <!-- Header -->
@@ -719,5 +730,14 @@
             </div>
         </div>
     </div>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        // Initialize theme after DOM loads
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
+    </script>
 </body>
 </html>

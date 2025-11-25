@@ -4,33 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🧠 Hjernetrim - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+
+        
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
+        /* ===== PAGE SPECIFIC STYLES ===== */
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        :root {
-            --bg-primary: #1e1e1e;
-            --bg-secondary: #2d2d2d;
-            --bg-tertiary: #404040;
-            --text-primary: #e0e0e0;
-            --text-secondary: #9ca3af;
-            --border-color: #404040;
-            --accent: #4ade80;
-            --accent-hover: #22c55e;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --info: #3b82f6;
-        }
+        
 
-        [data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f3f4f6;
-            --bg-tertiary: #e5e7eb;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #d1d5db;
-            --accent: #10b981;
-            --accent-hover: #059669;
-        }
+        
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -71,12 +59,12 @@
         }
 
         .wiki-btn {
-            background: #f59e0b;
+            background: var(--warning);
             color: white;
         }
 
         .wiki-btn:hover {
-            background: #d97706;
+            background: var(--warning);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
         }
@@ -181,8 +169,8 @@
             margin-bottom: 8px;
         }
 
-        .difficulty-master { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-        .difficulty-expert { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .difficulty-master { background: rgba(239, 68, 68, 0.2); color: var(--error); }
+        .difficulty-expert { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
 
         .task-item {
             background: var(--bg-tertiary);
@@ -215,7 +203,7 @@
             margin-top: 8px;
         }
 
-        .status-badge.completed { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .status-badge.completed { background: rgba(34, 197, 94, 0.2); color: var(--accent-hover); }
         .status-badge.not-started { background: rgba(107, 114, 128, 0.2); color: var(--text-secondary); }
 
         /* Workspace */
@@ -263,7 +251,7 @@
         .excel-grid-wrapper {
             overflow-x: auto;
             border-radius: 10px;
-            background: #1e1e1e;
+            background: var(--bg-primary);
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
             margin: 20px 0;
         }
@@ -275,16 +263,16 @@
         }
 
         .excel-table th {
-            background: #404040;
-            color: #a0a0a0;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
             padding: 12px;
-            border: 1px solid #404040;
+            border: 1px solid var(--bg-tertiary);
             text-align: center;
             font-weight: 600;
         }
 
         .excel-table td {
-            border: 1px solid #404040;
+            border: 1px solid var(--bg-tertiary);
             padding: 0;
         }
 
@@ -298,7 +286,7 @@
             width: 100%;
             background: transparent;
             border: none;
-            color: #eaeaea;
+            color: var(--text-primary);
             padding: 12px;
             font-size: 0.95em;
             font-family: 'Consolas', 'Monaco', monospace;
@@ -308,7 +296,7 @@
         }
 
         .excel-cell:focus {
-            outline: 2px solid #4ade80;
+            outline: 2px solid var(--accent);
             background: rgba(255,255,255,0.05);
             z-index: 5;
         }
@@ -318,8 +306,8 @@
         }
 
         .excel-cell.readonly {
-            background: #404040;
-            color: #a0a0a0;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
             cursor: not-allowed;
         }
 
@@ -334,8 +322,8 @@
             bottom: 1px;
             width: 10px;
             height: 10px;
-            background: #4ade80;
-            border: 2px solid #1e1e1e;
+            background: var(--accent);
+            border: 2px solid var(--bg-primary);
             border-radius: 50%;
             cursor: crosshair;
             z-index: 25;
@@ -362,7 +350,7 @@
         }
 
         .excel-cell.selected-for-formula {
-            outline: 3px solid #3b82f6 !important;
+            outline: 3px solid var(--info) !important;
             background: rgba(59, 130, 246, 0.2) !important;
             animation: cellPulse 0.5s;
         }
@@ -377,14 +365,14 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #2d2d2d;
-            border: 2px solid #4ade80;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
             border-radius: 12px;
             padding: 25px;
             z-index: 1000;
             text-align: center;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            color: #eaeaea;
+            color: var(--text-primary);
         }
 
         /* Action Buttons */
@@ -406,12 +394,12 @@
         }
 
         .action-btn.hint {
-            background: #f59e0b;
+            background: var(--warning);
             color: white;
         }
 
         .action-btn.hint:hover {
-            background: #d97706;
+            background: var(--warning);
             transform: translateY(-2px);
         }
 
@@ -583,7 +571,7 @@
         }
 
         .calc-btn.operator {
-            background: #3b82f6;
+            background: var(--info);
             color: white;
         }
 
@@ -609,7 +597,9 @@
         .calc-btn.clear:hover {
             background: #dc2626;
         }
+    
     </style>
+
 </head>
 <body>
     <!-- Lock Screen -->
@@ -704,7 +694,7 @@
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="action-btn" onclick="toggleCalculator()" style="background: #3b82f6; color: white;">🔢 Kalkulator</button>
+                <button class="action-btn" onclick="toggleCalculator()" style="background: var(--info); color: white;">🔢 Kalkulator</button>
                 <button class="action-btn hint" onclick="showHint()">💡 Hint</button>
                 <button class="action-btn reset" onclick="resetTask()">🔄 Reset</button>
                 <button class="action-btn check" onclick="checkAnswer()">✓ Sjekk svar</button>
@@ -1754,6 +1744,15 @@
             
             init();
         };
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        // Initialize theme after DOM loads
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
     </script>
 </body>
 </html>
