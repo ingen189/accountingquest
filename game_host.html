@@ -1326,8 +1326,7 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', init);
+        // Initialize - will be called by Firebase init callback
     </script>
     
     <!-- Firebase SDK - loaded at end of body for reliable loading -->
@@ -1376,6 +1375,14 @@
                     
                     window.db = firebase.database();
                     console.log('✅ Database ready');
+                    
+                    // Now that Firebase is ready, initialize the game
+                    console.log('🚀 Starting game initialization...');
+                    if (typeof init === 'function') {
+                        init();
+                    } else {
+                        console.error('❌ init() function not found!');
+                    }
                 } catch (error) {
                     console.error('🔥 Firebase initialization error:', error);
                     alert('Firebase initialisering feilet: ' + error.message);

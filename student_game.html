@@ -1195,8 +1195,7 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         }
 
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', init);
+        // Initialize - will be called by Firebase init callback
     </script>
     
     <!-- Firebase SDK -->
@@ -1242,6 +1241,14 @@
                 
                 window.db = firebase.database();
                 console.log('✅ Database ready');
+                
+                // Now that Firebase is ready, initialize the game
+                console.log('🚀 Starting student game initialization...');
+                if (typeof init === 'function') {
+                    init();
+                } else {
+                    console.error('❌ init() function not found!');
+                }
             }
             
             tryInit();
