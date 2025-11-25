@@ -8,12 +8,6 @@
     <meta name="theme-color" content="#0f1419">
 
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    
-        
     <!-- External CSS -->
     <link rel="stylesheet" href="css/main.css">
     
@@ -418,25 +412,26 @@
                 </div>
                 <div class="rank-display" id="rank-display">🏆</div>
                 <p style="color: var(--text-secondary); font-size: 1.2em;" id="rank-text">Din plassering</p>
+                
+                <button onclick="window.location.href='student_join.html'" style="
+                    margin-top: 30px;
+                    background: var(--accent);
+                    color: var(--bg-primary);
+                    border: none;
+                    padding: 15px 40px;
+                    border-radius: 10px;
+                    font-size: 1.2em;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                " onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent)'">
+                    ← Tilbake til lobby
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // Firebase Config
-        var firebaseConfig = {
-            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
-            authDomain: "accountingquest-multiplayer.firebaseapp.com",
-            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest-multiplayer",
-            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
-            messagingSenderId: "525417361926",
-            appId: "1:525417361926:web:ec9b737f82af9b21700987"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        var db = firebase.database();
-
         // Game State
         var gameState = {
             pin: '',
@@ -1200,30 +1195,84 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         }
 
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', init);
+        // Initialize - will be called by Firebase init callback
     </script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     
     <!-- Firebase Initialization -->
     <script>
-        // Initialize Firebase
-        var firebaseConfig = {
-            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
-            authDomain: "accountingquest-multiplayer.firebaseapp.com",
-            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest-multiplayer",
-            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
-            messagingSenderId: "525417361926",
-            appId: "1:525417361926:web:ec9b737f82af9b21700987"
-        };
-        
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-            console.log('✅ Firebase initialized');
-        }
-        
-        var db = firebase.database();
-        console.log('✅ Database ready');
+        // Wait for Firebase to load
+        (function initFirebase() {
+            var attempts = 0;
+            var maxAttempts = 50;
+            
+            function tryInit() {
+                attempts++;
+                
+                if (typeof firebase === 'undefined') {
+                    if (attempts < maxAttempts) {
+                        setTimeout(tryInit, 100);
+                    } else {
+                        console.error('❌ Firebase not loaded after 5 seconds');
+                        alert('Firebase kunne ikke lastes. Sjekk internettforbindelsen.');
+                    }
+                    return;
+                }
+                
+                // Initialize Firebase
+                var firebaseConfig = {
+                    apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+                    authDomain: "accountingquest-multiplayer.firebaseapp.com",
+                    databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+                    projectId: "accountingquest-multiplayer",
+                    storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+                    messagingSenderId: "525417361926",
+                    appId: "1:525417361926:web:ec9b737f82af9b21700987"
+                };
+                
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                    console.log('✅ Firebase initialized');
+                }
+                
+                window.db = firebase.database();
+                console.log('✅ Database ready');
+                
+                // Wait for DOM to be fully loaded and all scripts evaluated
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        console.log('🚀 DOM loaded, starting student game initialization...');
+                        if (typeof init === 'function' && typeof gameState !== 'undefined') {
+                            init();
+                        } else {
+                            console.error('❌ init() or gameState not found!', {
+                                initExists: typeof init === 'function',
+                                gameStateExists: typeof gameState !== 'undefined'
+                            });
+                        }
+                    });
+                } else {
+                    // DOM already loaded
+                    setTimeout(function() {
+                        console.log('🚀 Starting student game initialization (DOM already loaded)...');
+                        if (typeof init === 'function' && typeof gameState !== 'undefined') {
+                            init();
+                        } else {
+                            console.error('❌ init() or gameState not found!', {
+                                initExists: typeof init === 'function',
+                                gameStateExists: typeof gameState !== 'undefined'
+                            });
+                        }
+                    }, 200); // Longer delay if DOM already loaded
+                }
+            }
+            
+            tryInit();
+        })();
     </script>
     
     <!-- Theme Manager -->

@@ -249,26 +249,39 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <script defer>
+        // Wait for Firebase to load
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (typeof firebase === 'undefined') {
+                    console.error('❌ Firebase not loaded!');
+                    alert('Firebase kunne ikke lastes. Sjekk internettforbindelsen.');
+                    return;
+                }
+                
+                // Firebase Config
+                var firebaseConfig = {
+                    apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+                    authDomain: "accountingquest-multiplayer.firebaseapp.com",
+                    databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+                    projectId: "accountingquest-multiplayer",
+                    storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+                    messagingSenderId: "525417361926",
+                    appId: "1:525417361926:web:ec9b737f82af9b21700987"
+                };
+                
+                firebase.initializeApp(firebaseConfig);
+                window.db = firebase.database();
+                console.log('✅ Firebase initialized');
+            }, 100); // Give Firebase SDK 100ms to load
+        });
+    </script>
     
     <script>
-        // Firebase Config
-        var firebaseConfig = {
-            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
-            authDomain: "accountingquest-multiplayer.firebaseapp.com",
-            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest-multiplayer",
-            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
-            messagingSenderId: "525417361926",
-            appId: "1:525417361926:web:ec9b737f82af9b21700987"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        var db = firebase.database();
-        console.log('🔥 Firebase initialized');
-
         var selectedEmoji = '😊';
         var gamePin = '';
         var playerName = '';
