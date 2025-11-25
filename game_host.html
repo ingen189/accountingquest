@@ -11,6 +11,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     
         
     <!-- External CSS -->
@@ -538,6 +539,8 @@
         };
 
         function init() {
+            console.log('🎮 Initializing game host...');
+            
             var urlParams = new URLSearchParams(window.location.search);
             gameState.pin = urlParams.get('pin');
 
@@ -547,17 +550,39 @@
                 return;
             }
 
+            console.log('📌 Game PIN:', gameState.pin);
             document.getElementById('pin-display').textContent = gameState.pin;
 
+            // ⭐ CRITICAL: Authenticate with Firebase first!
+            console.log('🔐 Authenticating teacher with Firebase...');
+            firebase.auth().signInAnonymously()
+                .then(function() {
+                    console.log('✅ Teacher authenticated!');
+                    console.log('👤 Teacher UID:', firebase.auth().currentUser.uid);
+                    
+                    // Now load the game
+                    return loadGame();
+                })
+                .catch(function(error) {
+                    console.error('🔥 Firebase authentication error:', error);
+                    alert('Kunne ikke koble til Firebase: ' + error.message);
+                });
+        }
+
+        function loadGame() {
+            console.log('📥 Loading game from Firebase...');
+            
             // Load game from Firebase
             db.ref('games/' + gameState.pin).once('value')
                 .then(function(snapshot) {
                     if (!snapshot.exists()) {
+                        console.error('❌ Game not found');
                         alert('Spill ikke funnet');
                         window.location.href = 'teacher_portal.html';
                         return;
                     }
 
+                    console.log('✅ Game loaded successfully');
                     var game = snapshot.val();
                     gameState.quiz = game.quiz;
                     gameState.currentQuestion = game.currentQuestionIndex || 0;
@@ -568,20 +593,24 @@
 
                     // Check game status and restore state
                     if (game.status === 'playing' && game.currentQuestion) {
+                        console.log('🎯 Game already playing, restoring state...');
                         document.getElementById('lobby-screen').style.display = 'none';
                         document.getElementById('question-screen').style.display = 'block';
                         gameState.currentQuestion = game.currentQuestion.index;
                         showQuestion(gameState.currentQuestion);
                     } else if (game.status === 'finished') {
+                        console.log('🏁 Game finished, showing results...');
                         showResults();
+                    } else {
+                        console.log('⏳ Game in lobby, waiting for players...');
                     }
 
                     // Listen for players
                     listenForPlayers();
                 })
                 .catch(function(error) {
-                    console.error('Error loading game:', error);
-                    alert('Kunne ikke laste spill');
+                    console.error('🔥 Error loading game:', error);
+                    alert('Kunne ikke laste spill: ' + error.message);
                 });
         }
 
@@ -627,7 +656,10 @@
         }
 
         function showQuestion(index) {
+            console.log('📤 Sending question', index, 'to students...');
+            
             if (index >= gameState.quiz.questions.length) {
+                console.log('🏁 No more questions, showing results');
                 showResults();
                 return;
             }
@@ -648,8 +680,22 @@
             var question = gameState.quiz.questions[index];
             var type = question.type || 'multiple_choice';
 
+            console.log('📝 Question data:', {
+                index: index,
+                text: question.text,
+                type: type
+            });
+
             // Save to Firebase
-            db.ref('games/' + gameState.pin + '/currentQuestionIndex').set(index);
+            console.log('💾 Saving to Firebase...');
+            db.ref('games/' + gameState.pin + '/currentQuestionIndex').set(index)
+                .then(function() {
+                    console.log('✅ currentQuestionIndex saved:', index);
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error saving currentQuestionIndex:', error);
+                });
+                
             db.ref('games/' + gameState.pin + '/currentQuestion').set({
                 index: index,
                 text: question.text,
@@ -664,7 +710,14 @@
                 points: question.points || 200,
                 shuffle: question.shuffle !== false,
                 startedAt: firebase.database.ServerValue.TIMESTAMP
-            });
+            })
+                .then(function() {
+                    console.log('✅ currentQuestion saved to Firebase!');
+                    console.log('📡 Students should now receive this question');
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error saving currentQuestion:', error);
+                });
 
             // Clear previous answers
             db.ref('games/' + gameState.pin + '/answers').remove();
@@ -1281,6 +1334,28 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', init);
+    </script>
+    
+    <!-- Firebase Initialization -->
+    <script>
+        // Initialize Firebase
+        var firebaseConfig = {
+            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+            authDomain: "accountingquest-multiplayer.firebaseapp.com",
+            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest-multiplayer",
+            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+            messagingSenderId: "525417361926",
+            appId: "1:525417361926:web:ec9b737f82af9b21700987"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+            console.log('✅ Firebase initialized');
+        }
+        
+        var db = firebase.database();
+        console.log('✅ Database ready');
     </script>
     
     <!-- Theme Manager -->
