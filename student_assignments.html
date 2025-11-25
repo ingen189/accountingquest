@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mine oppgaver - AccountingQuest</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .classroom-header {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .classroom-name {
+            font-size: 2.5em;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .classroom-teacher {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+        }
+        
+        .my-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        
+        .stat-box {
+            background: var(--bg-primary);
+            padding: 20px 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 25px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            border-color: var(--accent);
+        }
+        
+        .filter-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+        
+        .assignments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .assignment-card {
+            background: var(--bg-secondary);
+            border: 3px solid var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .assignment-card:hover {
+            transform: translateX(5px);
+            border-color: var(--accent);
+        }
+        
+        .assignment-card.completed {
+            border-color: var(--success);
+        }
+        
+        .assignment-card.overdue {
+            border-color: var(--danger);
+        }
+        
+        .assignment-icon {
+            font-size: 4em;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .assignment-content {
+            flex: 1;
+        }
+        
+        .assignment-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .assignment-description {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        
+        .assignment-meta {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+        }
+        
+        .assignment-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .start-btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .start-btn.primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .start-btn.success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status-not-started {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        .status-in-progress {
+            background: var(--warning);
+            color: var(--bg-primary);
+        }
+        
+        .status-completed {
+            background: var(--success);
+            color: white;
+        }
+        
+        .status-overdue {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .score-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 6em;
+            margin-bottom: 20px;
+        }
+        
+        .empty-text {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        .pro-banner {
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .pro-banner h3 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        
+        .pro-banner a {
+            color: white;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-button" onclick="window.location.href='student_classroom.html'">← Mine klasserom</div>
+            <h1>📚 Mine oppgaver</h1>
+        </div>
+
+        <!-- Classroom Header -->
+        <div class="classroom-header" id="classroom-header">
+            <div class="classroom-name" id="classroom-name">Laster...</div>
+            <div class="classroom-teacher" id="classroom-teacher"></div>
+            
+            <div class="my-stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="completed-count">0</div>
+                    <div class="stat-label">Fullført</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="total-points">0</div>
+                    <div class="stat-label">Poeng</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="accuracy">0%</div>
+                    <div class="stat-label">Nøyaktighet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterAssignments('all')">Alle</button>
+            <button class="filter-btn" onclick="filterAssignments('not-started')">Ikke startet</button>
+            <button class="filter-btn" onclick="filterAssignments('in-progress')">Pågående</button>
+            <button class="filter-btn" onclick="filterAssignments('completed')">Fullført</button>
+            <button class="filter-btn" onclick="filterAssignments('overdue')">Forsinkede</button>
+        </div>
+
+        <!-- Assignments List -->
+        <div class="assignments-list" id="assignments-list">
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <div class="empty-text">Ingen oppgaver ennå</div>
+                <p>Læreren har ikke tildelt noen oppgaver ennå.</p>
+            </div>
+        </div>
+
+        <!-- Pro Banner -->
+        <div class="pro-banner">
+            <h3>💎 Vil du trene mer?</h3>
+            <p>Sjekk ut <a href="hjernetrim.html">Hjernetrim</a> og <a href="case_studies_fixed.html">Case Studies</a> for ekstra utfordringer!</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Første 3 forsøk er gratis – eller få ubegrenset tilgang med PRO (79 kr/år)</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Firebase init
+        (function initFirebase() {
+            var attempts = 0;
+            var maxAttempts = 50;
+            
+            function tryInit() {
+                attempts++;
+                
+                if (typeof firebase === 'undefined') {
+                    if (attempts < maxAttempts) {
+                        setTimeout(tryInit, 100);
+                    }
+                    return;
+                }
+                
+                try {
+                    var firebaseConfig = {
+                        apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+                        authDomain: "accountingquest-multiplayer.firebaseapp.com",
+                        databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+                        projectId: "accountingquest-multiplayer",
+                        storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+                        messagingSenderId: "525417361926",
+                        appId: "1:525417361926:web:ec9b737f82af9b21700987"
+                    };
+                    
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                    }
+                    
+                    window.db = firebase.database();
+                    
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', init);
+                    } else {
+                        setTimeout(init, 100);
+                    }
+                } catch (error) {
+                    console.error('🔥 Firebase error:', error);
+                }
+            }
+            
+            tryInit();
+        })();
+        
+        var currentUser = null;
+        var classroomId = null;
+        var classroom = null;
+        var assignments = [];
+        var myProgress = {};
+        var currentFilter = 'all';
+        
+        function init() {
+            console.log('🚀 Init student assignments...');
+            
+            // Get classroom ID from URL
+            var params = new URLSearchParams(window.location.search);
+            classroomId = params.get('classroom');
+            
+            if (!classroomId) {
+                alert('Ingen klasserom ID');
+                window.location.href = 'student_classroom.html';
+                return;
+            }
+            
+            // Authenticate
+            firebase.auth().signInAnonymously()
+                .then(function() {
+                    currentUser = firebase.auth().currentUser;
+                    loadClassroom();
+                });
+        }
+        
+        function loadClassroom() {
+            console.log('📚 Loading classroom...');
+            
+            db.ref('classrooms/' + classroomId).once('value')
+                .then(function(snapshot) {
+                    if (!snapshot.exists()) {
+                        alert('Klasserom ikke funnet');
+                        window.location.href = 'student_classroom.html';
+                        return;
+                    }
+                    
+                    classroom = snapshot.val();
+                    
+                    // Update header
+                    document.getElementById('classroom-name').textContent = classroom.name;
+                    document.getElementById('classroom-teacher').textContent = '👨‍🏫 ' + classroom.teacherName;
+                    
+                    // Load assignments
+                    loadAssignments();
+                    
+                    // Load my progress
+                    loadMyProgress();
+                });
+        }
+        
+        function loadAssignments() {
+            console.log('📝 Loading assignments...');
+            
+            db.ref('assignments').orderByChild('classroomId').equalTo(classroomId)
+                .once('value')
+                .then(function(snapshot) {
+                    assignments = [];
+                    
+                    snapshot.forEach(function(child) {
+                        var assignment = child.val();
+                        assignment.id = child.key;
+                        
+                        // Only show active assignments
+                        if (assignment.status === 'active') {
+                            assignments.push(assignment);
+                        }
+                    });
+                    
+                    console.log('✅ Loaded', assignments.length, 'assignments');
+                    renderAssignments();
+                });
+        }
+        
+        function loadMyProgress() {
+            console.log('📊 Loading my progress...');
+            
+            db.ref('classroom_progress/' + classroomId + '/' + currentUser.uid)
+                .once('value')
+                .then(function(snapshot) {
+                    if (snapshot.exists()) {
+                        myProgress = snapshot.val();
+                        updateStats();
+                    }
+                });
+        }
+        
+        function updateStats() {
+            var completed = myProgress.completedAssignments || 0;
+            var points = myProgress.totalPoints || 0;
+            var accuracy = 0; // Calculate from assignments
+            
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('total-points').textContent = points;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+        
+        function renderAssignments() {
+            var list = document.getElementById('assignments-list');
+            
+            if (assignments.length === 0) {
+                list.innerHTML =
+                    '<div class="empty-state">' +
+                        '<div class="empty-icon">📝</div>' +
+                        '<div class="empty-text">Ingen oppgaver ennå</div>' +
+                        '<p>Læreren har ikke tildelt noen oppgaver ennå.</p>' +
+                    '</div>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            
+            var now = Date.now();
+            
+            assignments.forEach(function(assignment) {
+                // Determine status
+                var progress = myProgress.assignments && myProgress.assignments[assignment.id];
+                var status = 'not-started';
+                var statusText = 'Ikke startet';
+                var statusClass = 'status-not-started';
+                var buttonText = 'Start oppgave';
+                var buttonClass = 'primary';
+                
+                if (progress) {
+                    if (progress.completed) {
+                        status = 'completed';
+                        statusText = 'Fullført';
+                        statusClass = 'status-completed';
+                        buttonText = 'Se resultat';
+                        buttonClass = 'success';
+                    } else {
+                        status = 'in-progress';
+                        statusText = 'Pågående';
+                        statusClass = 'status-in-progress';
+                        buttonText = 'Fortsett';
+                        buttonClass = 'primary';
+                    }
+                }
+                
+                // Check if overdue
+                if (assignment.dueDate && assignment.dueDate < now && status !== 'completed') {
+                    status = 'overdue';
+                    statusText = 'Forsinket';
+                    statusClass = 'status-overdue';
+                }
+                
+                // Filter
+                if (currentFilter !== 'all' && currentFilter !== status) {
+                    return;
+                }
+                
+                var typeIcons = {
+                    quiz: '❓',
+                    bokforing: '📊',
+                    analyse: '📈',
+                    case: '📑'
+                };
+                
+                var icon = typeIcons[assignment.type] || '📝';
+                
+                var dueText = assignment.dueDate ? 
+                    '📅 ' + new Date(assignment.dueDate).toLocaleDateString('no') : 
+                    '📅 Ingen frist';
+                
+                var attemptsText = assignment.maxAttempts === 'unlimited' ? 
+                    'Ubegrenset forsøk' : 
+                    '🔄 ' + assignment.maxAttempts + ' forsøk';
+                
+                var card = document.createElement('div');
+                card.className = 'assignment-card';
+                if (status === 'completed') card.classList.add('completed');
+                if (status === 'overdue') card.classList.add('overdue');
+                
+                var scoreDisplay = '';
+                if (progress && progress.score !== undefined) {
+                    scoreDisplay = '<div class="score-display">' + progress.score + ' / ' + assignment.points + ' poeng</div>';
+                }
+                
+                card.innerHTML =
+                    '<div class="assignment-icon">' + icon + '</div>' +
+                    '<div class="assignment-content">' +
+                        '<div class="assignment-title">' + assignment.title + '</div>' +
+                        '<div class="assignment-description">' + (assignment.description || '') + '</div>' +
+                        '<div class="assignment-meta">' +
+                            '<div class="meta-item">' + dueText + '</div>' +
+                            '<div class="meta-item">💎 ' + assignment.points + ' poeng</div>' +
+                            '<div class="meta-item">' + attemptsText + '</div>' +
+                            '<div class="status-badge ' + statusClass + '">' + statusText + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="assignment-action">' +
+                        scoreDisplay +
+                        '<button class="start-btn ' + buttonClass + '" onclick="startAssignment(\'' + assignment.id + '\')">' +
+                            buttonText +
+                        '</button>' +
+                    '</div>';
+                
+                list.appendChild(card);
+            });
+        }
+        
+        function filterAssignments(filter) {
+            currentFilter = filter;
+            
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderAssignments();
+        }
+        
+        function startAssignment(assignmentId) {
+            // Find assignment
+            var assignment = assignments.find(function(a) { return a.id === assignmentId; });
+            
+            if (!assignment) return;
+            
+            // Check if already completed
+            var progress = myProgress.assignments && myProgress.assignments[assignmentId];
+            if (progress && progress.completed) {
+                // Show results
+                alert('Resultat:\nPoeng: ' + progress.score + ' / ' + assignment.points + '\nFullført: ' + new Date(progress.submittedAt).toLocaleString('no'));
+                return;
+            }
+            
+            // Start assignment based on type
+            if (assignment.type === 'quiz' && assignment.content && assignment.content.quiz) {
+                // Open quiz assignment
+                window.location.href = 'assignment_quiz.html?id=' + assignmentId + '&classroom=' + classroomId;
+            } else if (assignment.type === 'bokforing') {
+                // Open bokføring assignment
+                alert('Bokføring oppgaver kommer snart!');
+                // TODO: window.location.href = 'assignment_bokforing.html?id=' + assignmentId + '&classroom=' + classroomId;
+            } else if (assignment.type === 'analyse') {
+                // Open analyse assignment
+                alert('Analyse oppgaver kommer snart!');
+                // TODO: window.location.href = 'assignment_analyse.html?id=' + assignmentId + '&classroom=' + classroomId;
+            } else if (assignment.type === 'case') {
+                // Open case study assignment
+                alert('Case study oppgaver kommer snart!');
+                // TODO: window.location.href = 'assignment_case.html?id=' + assignmentId + '&classroom=' + classroomId;
+            } else {
+                alert('Denne oppgave-typen er ikke implementert ennå.\n\nType: ' + assignment.type);
+            }
+        }
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
+    </script>
+</body>
+</html>

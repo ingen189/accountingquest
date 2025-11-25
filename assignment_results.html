@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oppgave resultater - AccountingQuest</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .results-container {
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+        
+        .assignment-header {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .assignment-title {
+            font-size: 2.5em;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .assignment-meta {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            color: var(--text-secondary);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: var(--bg-primary);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+        }
+        
+        .actions-bar {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-btn.primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .action-btn.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .submissions-table {
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: var(--bg-primary);
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-content {
+            padding: 20px;
+        }
+        
+        .submission-row {
+            display: grid;
+            grid-template-columns: 50px 2fr 1fr 1fr 1fr 1fr 150px;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--bg-tertiary);
+            transition: all 0.3s;
+        }
+        
+        .submission-row:hover {
+            background: var(--bg-primary);
+        }
+        
+        .submission-row:last-child {
+            border-bottom: none;
+        }
+        
+        .submission-avatar {
+            font-size: 2em;
+        }
+        
+        .submission-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .submission-score {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .submission-accuracy {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .accuracy-high {
+            background: var(--success);
+            color: white;
+        }
+        
+        .accuracy-medium {
+            background: var(--warning);
+            color: var(--bg-primary);
+        }
+        
+        .accuracy-low {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .submission-time {
+            color: var(--text-secondary);
+        }
+        
+        .view-details-btn {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .view-details-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 6em;
+            margin-bottom: 20px;
+        }
+        
+        .empty-text {
+            font-size: 1.5em;
+        }
+        
+        .chart-container {
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 200px;
+        }
+        
+        .bar {
+            flex: 1;
+            background: var(--accent);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .bar:hover {
+            transform: translateY(-5px);
+        }
+        
+        .bar-value {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-tab {
+            padding: 10px 20px;
+            background: var(--bg-tertiary);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+        
+        .filter-tab.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-button" onclick="goBack()">← Tilbake</div>
+            <h1>📊 Oppgave resultater</h1>
+        </div>
+
+        <div class="results-container">
+            <!-- Assignment Header -->
+            <div class="assignment-header">
+                <div class="assignment-title" id="assignment-title">Laster...</div>
+                <div class="assignment-meta" id="assignment-meta"></div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="submission-count">0</div>
+                        <div class="stat-label">Innleveringer</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="average-score">0%</div>
+                        <div class="stat-label">Gjennomsnitt</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completion-rate">0%</div>
+                        <div class="stat-label">Fullført</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="average-time">0:00</div>
+                        <div class="stat-label">Gj.snitt tid</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions-bar">
+                <button class="action-btn primary" onclick="exportToExcel()">
+                    📥 Eksporter til Excel
+                </button>
+                <button class="action-btn secondary" onclick="downloadPDF()">
+                    📄 Last ned PDF
+                </button>
+                <button class="action-btn secondary" onclick="sendReminder()">
+                    📧 Send påminnelse
+                </button>
+            </div>
+
+            <!-- Score Distribution Chart -->
+            <div class="chart-container" id="chart-container" style="display: none;">
+                <div class="chart-title">📊 Score fordeling</div>
+                <div class="bar-chart" id="score-chart"></div>
+            </div>
+
+            <!-- Submissions Table -->
+            <div class="submissions-table">
+                <div class="table-header">
+                    <span>Innleveringer</span>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterSubmissions('all')">Alle</button>
+                        <button class="filter-tab" onclick="filterSubmissions('high')">Høy</button>
+                        <button class="filter-tab" onclick="filterSubmissions('medium')">Medium</button>
+                        <button class="filter-tab" onclick="filterSubmissions('low')">Lav</button>
+                    </div>
+                </div>
+                
+                <div class="table-content" id="submissions-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">Ingen innleveringer ennå</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    
+    <script>
+        // Firebase init
+        (function initFirebase() {
+            var attempts = 0;
+            var maxAttempts = 50;
+            
+            function tryInit() {
+                attempts++;
+                
+                if (typeof firebase === 'undefined') {
+                    if (attempts < maxAttempts) {
+                        setTimeout(tryInit, 100);
+                    }
+                    return;
+                }
+                
+                try {
+                    var firebaseConfig = {
+                        apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+                        authDomain: "accountingquest-multiplayer.firebaseapp.com",
+                        databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+                        projectId: "accountingquest-multiplayer",
+                        storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+                        messagingSenderId: "525417361926",
+                        appId: "1:525417361926:web:ec9b737f82af9b21700987"
+                    };
+                    
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                    }
+                    
+                    window.db = firebase.database();
+                    
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', init);
+                    } else {
+                        setTimeout(init, 100);
+                    }
+                } catch (error) {
+                    console.error('🔥 Firebase error:', error);
+                }
+            }
+            
+            tryInit();
+        })();
+        
+        var currentUser = null;
+        var assignmentId = null;
+        var classroomId = null;
+        var assignment = null;
+        var classroom = null;
+        var submissions = [];
+        var students = {};
+        var currentFilter = 'all';
+        
+        function init() {
+            console.log('🚀 Init assignment results...');
+            
+            // Get IDs from URL
+            var params = new URLSearchParams(window.location.search);
+            assignmentId = params.get('id');
+            
+            if (!assignmentId) {
+                alert('Mangler assignment ID');
+                window.history.back();
+                return;
+            }
+            
+            // Authenticate
+            firebase.auth().signInAnonymously()
+                .then(function() {
+                    currentUser = firebase.auth().currentUser;
+                    loadData();
+                });
+        }
+        
+        function loadData() {
+            console.log('📚 Loading data...');
+            
+            // Load assignment
+            db.ref('assignments/' + assignmentId).once('value')
+                .then(function(snapshot) {
+                    if (!snapshot.exists()) {
+                        alert('Oppgave ikke funnet');
+                        window.history.back();
+                        return;
+                    }
+                    
+                    assignment = snapshot.val();
+                    classroomId = assignment.classroomId;
+                    
+                    // Update header
+                    updateHeader();
+                    
+                    // Load classroom
+                    return db.ref('classrooms/' + classroomId).once('value');
+                })
+                .then(function(snapshot) {
+                    classroom = snapshot.val();
+                    students = classroom.students || {};
+                    
+                    // Load submissions
+                    return db.ref('submissions').orderByChild('assignmentId').equalTo(assignmentId).once('value');
+                })
+                .then(function(snapshot) {
+                    submissions = [];
+                    snapshot.forEach(function(child) {
+                        var submission = child.val();
+                        submission.id = child.key;
+                        submissions.push(submission);
+                    });
+                    
+                    console.log('✅ Loaded', submissions.length, 'submissions');
+                    
+                    updateStats();
+                    renderChart();
+                    renderSubmissions();
+                });
+        }
+        
+        function updateHeader() {
+            document.getElementById('assignment-title').textContent = assignment.title;
+            
+            var meta = [];
+            if (assignment.dueDate) {
+                meta.push('📅 Frist: ' + new Date(assignment.dueDate).toLocaleDateString('no'));
+            }
+            meta.push('💎 ' + assignment.points + ' poeng');
+            meta.push('🔄 ' + (assignment.maxAttempts === 'unlimited' ? 'Ubegrenset forsøk' : assignment.maxAttempts + ' forsøk'));
+            
+            document.getElementById('assignment-meta').innerHTML = meta.join(' · ');
+        }
+        
+        function updateStats() {
+            var studentCount = Object.keys(students).length;
+            var submissionCount = submissions.length;
+            
+            document.getElementById('submission-count').textContent = submissionCount;
+            document.getElementById('completion-rate').textContent = studentCount > 0 ? Math.round((submissionCount / studentCount) * 100) + '%' : '0%';
+            
+            if (submissions.length > 0) {
+                var totalScore = 0;
+                var totalTime = 0;
+                
+                submissions.forEach(function(sub) {
+                    totalScore += sub.score || 0;
+                    totalTime += sub.timeSpent || 0;
+                });
+                
+                var avgScore = Math.round((totalScore / (submissions.length * assignment.points)) * 100);
+                document.getElementById('average-score').textContent = avgScore + '%';
+                
+                var avgTime = Math.floor(totalTime / submissions.length);
+                var minutes = Math.floor(avgTime / 60);
+                var seconds = avgTime % 60;
+                document.getElementById('average-time').textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            }
+        }
+        
+        function renderChart() {
+            if (submissions.length === 0) return;
+            
+            document.getElementById('chart-container').style.display = 'block';
+            
+            // Create score distribution (0-20%, 20-40%, 40-60%, 60-80%, 80-100%)
+            var distribution = [0, 0, 0, 0, 0];
+            
+            submissions.forEach(function(sub) {
+                var percentage = (sub.score / assignment.points) * 100;
+                var index = Math.min(Math.floor(percentage / 20), 4);
+                distribution[index]++;
+            });
+            
+            var maxCount = Math.max.apply(null, distribution);
+            var chart = document.getElementById('score-chart');
+            chart.innerHTML = '';
+            
+            var labels = ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%'];
+            
+            distribution.forEach(function(count, index) {
+                var height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                
+                var bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = height + '%';
+                bar.innerHTML =
+                    '<div class="bar-value">' + count + '</div>' +
+                    '<div class="bar-label">' + labels[index] + '</div>';
+                
+                chart.appendChild(bar);
+            });
+        }
+        
+        function renderSubmissions() {
+            var container = document.getElementById('submissions-list');
+            
+            if (submissions.length === 0) {
+                container.innerHTML =
+                    '<div class="empty-state">' +
+                        '<div class="empty-icon">📭</div>' +
+                        '<div class="empty-text">Ingen innleveringer ennå</div>' +
+                    '</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Sort by score descending
+            var sorted = submissions.slice().sort(function(a, b) {
+                return (b.score || 0) - (a.score || 0);
+            });
+            
+            sorted.forEach(function(submission, index) {
+                var student = students[submission.studentId] || { name: 'Ukjent' };
+                var accuracy = submission.accuracy || 0;
+                
+                var accuracyClass = 'accuracy-high';
+                if (accuracy < 50) accuracyClass = 'accuracy-low';
+                else if (accuracy < 70) accuracyClass = 'accuracy-medium';
+                
+                // Filter
+                if (currentFilter !== 'all') {
+                    if (currentFilter === 'high' && accuracy < 70) return;
+                    if (currentFilter === 'medium' && (accuracy < 50 || accuracy >= 70)) return;
+                    if (currentFilter === 'low' && accuracy >= 50) return;
+                }
+                
+                var submittedDate = new Date(submission.submittedAt).toLocaleString('no');
+                
+                var row = document.createElement('div');
+                row.className = 'submission-row';
+                row.innerHTML =
+                    '<div class="submission-avatar">😊</div>' +
+                    '<div class="submission-name">' + student.name + '</div>' +
+                    '<div class="submission-score">' + (submission.score || 0) + ' / ' + assignment.points + '</div>' +
+                    '<div class="submission-accuracy ' + accuracyClass + '">' + accuracy + '%</div>' +
+                    '<div>' + (submission.correctCount || 0) + ' / ' + (submission.totalQuestions || 0) + ' riktige</div>' +
+                    '<div class="submission-time">' + submittedDate + '</div>' +
+                    '<div><button class="view-details-btn" onclick="viewDetails(\'' + submission.id + '\')">Se detaljer</button></div>';
+                
+                container.appendChild(row);
+            });
+        }
+        
+        function filterSubmissions(filter) {
+            currentFilter = filter;
+            
+            // Update tabs
+            document.querySelectorAll('.filter-tab').forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderSubmissions();
+        }
+        
+        function viewDetails(submissionId) {
+            var submission = submissions.find(function(s) { return s.id === submissionId; });
+            if (!submission) return;
+            
+            var student = students[submission.studentId] || { name: 'Ukjent' };
+            
+            alert(
+                'Student: ' + student.name + '\n\n' +
+                'Score: ' + submission.score + ' / ' + assignment.points + '\n' +
+                'Riktige svar: ' + submission.correctCount + ' / ' + submission.totalQuestions + '\n' +
+                'Nøyaktighet: ' + submission.accuracy + '%\n' +
+                'Tid brukt: ' + formatTime(submission.timeSpent) + '\n' +
+                'Innlevert: ' + new Date(submission.submittedAt).toLocaleString('no')
+            );
+        }
+        
+        function formatTime(seconds) {
+            var minutes = Math.floor(seconds / 60);
+            var secs = seconds % 60;
+            return minutes + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+        
+        function exportToExcel() {
+            if (submissions.length === 0) {
+                alert('Ingen innleveringer å eksportere');
+                return;
+            }
+            
+            console.log('📥 Exporting to Excel...');
+            
+            // Prepare data
+            var data = [
+                ['Student', 'Score', 'Max poeng', 'Prosent', 'Riktige', 'Totalt', 'Nøyaktighet', 'Tid brukt', 'Innlevert']
+            ];
+            
+            submissions.forEach(function(submission) {
+                var student = students[submission.studentId] || { name: 'Ukjent' };
+                
+                data.push([
+                    student.name,
+                    submission.score || 0,
+                    assignment.points,
+                    Math.round((submission.score / assignment.points) * 100) + '%',
+                    submission.correctCount || 0,
+                    submission.totalQuestions || 0,
+                    (submission.accuracy || 0) + '%',
+                    formatTime(submission.timeSpent || 0),
+                    new Date(submission.submittedAt).toLocaleString('no')
+                ]);
+            });
+            
+            // Create workbook
+            var wb = XLSX.utils.book_new();
+            var ws = XLSX.utils.aoa_to_sheet(data);
+            
+            // Auto-width columns
+            var colWidths = [
+                { wch: 20 }, { wch: 8 }, { wch: 10 }, { wch: 10 },
+                { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 20 }
+            ];
+            ws['!cols'] = colWidths;
+            
+            XLSX.utils.book_append_sheet(wb, ws, 'Resultater');
+            
+            // Download
+            var filename = 'Resultater_' + assignment.title.replace(/[^a-z0-9]/gi, '_') + '.xlsx';
+            XLSX.writeFile(wb, filename);
+            
+            console.log('✅ Exported:', filename);
+        }
+        
+        function downloadPDF() {
+            alert('PDF export kommer snart!');
+        }
+        
+        function sendReminder() {
+            var notSubmitted = Object.keys(students).filter(function(studentId) {
+                return !submissions.find(function(s) { return s.studentId === studentId; });
+            });
+            
+            if (notSubmitted.length === 0) {
+                alert('Alle har levert inn!');
+                return;
+            }
+            
+            alert('Sender påminnelse til ' + notSubmitted.length + ' elever som ikke har levert inn.\n\n(E-post funksjonalitet kommer snart)');
+        }
+        
+        function goBack() {
+            window.location.href = 'classroom_manage.html?id=' + classroomId;
+        }
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
+    </script>
+</body>
+</html>

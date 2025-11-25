@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Lite - AccountingQuest</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .hero {
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            color: white;
+            padding: 80px 40px;
+            text-align: center;
+            border-radius: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .hero-title {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.8em;
+            opacity: 0.95;
+            margin-bottom: 30px;
+        }
+        
+        .hero-price {
+            font-size: 3.5em;
+            font-weight: bold;
+            margin: 30px 0;
+        }
+        
+        .hero-price-period {
+            font-size: 0.5em;
+            opacity: 0.8;
+        }
+        
+        .hero-cta {
+            background: white;
+            color: var(--accent);
+            padding: 20px 50px;
+            font-size: 1.5em;
+            border-radius: 50px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .hero-cta:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+        
+        .hero-note {
+            margin-top: 20px;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+        
+        .section {
+            margin-bottom: 80px;
+        }
+        
+        .section-title {
+            font-size: 3em;
+            text-align: center;
+            color: var(--accent);
+            margin-bottom: 50px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent);
+            border-radius: 25px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .feature-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+        
+        .feature-desc {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .comparison-table {
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 25px;
+            overflow: hidden;
+            margin-bottom: 60px;
+        }
+        
+        .comparison-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+            background: var(--accent);
+            color: white;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+        
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 20px;
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+        
+        .comparison-row:last-child {
+            border-bottom: none;
+        }
+        
+        .comparison-row:nth-child(even) {
+            background: var(--bg-primary);
+        }
+        
+        .comparison-feature {
+            font-weight: bold;
+        }
+        
+        .comparison-value {
+            text-align: center;
+        }
+        
+        .check {
+            color: var(--success);
+            font-size: 1.5em;
+        }
+        
+        .cross {
+            color: var(--danger);
+            font-size: 1.5em;
+        }
+        
+        .testimonials {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .testimonial {
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 35px;
+        }
+        
+        .testimonial-text {
+            font-size: 1.15em;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .testimonial-avatar {
+            font-size: 3em;
+        }
+        
+        .testimonial-info {
+            flex: 1;
+        }
+        
+        .testimonial-name {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .testimonial-role {
+            color: var(--text-secondary);
+        }
+        
+        .faq-section {
+            background: var(--bg-secondary);
+            border-radius: 25px;
+            padding: 50px;
+            margin-bottom: 60px;
+        }
+        
+        .faq-item {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+        
+        .faq-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .faq-question {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .faq-answer {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+        
+        .final-cta {
+            background: var(--accent);
+            color: white;
+            padding: 80px 50px;
+            border-radius: 30px;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .final-cta-title {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .final-cta-text {
+            font-size: 1.4em;
+            margin-bottom: 40px;
+            opacity: 0.95;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-title">🎮 Teacher Lite</div>
+            <div class="hero-subtitle">Multiplayer Quiz for Klasserommet</div>
+            <div class="hero-price">
+                299 kr
+                <span class="hero-price-period">/år</span>
+            </div>
+            <button class="hero-cta" onclick="window.location.href='teacher_registration.html?plan=lite'">
+                Start 14 dagers gratis prøveperiode
+            </button>
+            <div class="hero-note">✨ Ingen kredittkort nødvendig for prøveperioden</div>
+        </div>
+
+        <div class="content-container">
+            <!-- What You Get -->
+            <div class="section">
+                <div class="section-title">Hva får du?</div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎮</div>
+                        <div class="feature-title">Multiplayer Quiz</div>
+                        <div class="feature-desc">
+                            Kjør live quiz-konkurranser i klasserommet. Elevene deltar på sine enheter, akkurat som Kahoot!
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <div class="feature-title">Opptil 50 Elever</div>
+                        <div class="feature-desc">
+                            Perfekt for de fleste klasserom. Alle elever kan delta samtidig i samme quiz-session.
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🏆</div>
+                        <div class="feature-title">Live Leaderboard</div>
+                        <div class="feature-desc">
+                            Se hvem som leder i sanntid! Podium for topp 3, konkurranseelement som motiverer elevene.
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-title">Basic Statistikk</div>
+                        <div class="feature-desc">
+                            Se hvem som vant, totale scores, og nøyaktighet per spørsmål. Enkel oversikt etter hver session.
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">✏️</div>
+                        <div class="feature-title">Lag Egne Quizzer</div>
+                        <div class="feature-desc">
+                            Enkelt verktøy for å lage dine egne quiz-spørsmål. Tilpass til pensum og læringsmål.
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">⏸️</div>
+                        <div class="feature-title">Pause & Kontroll</div>
+                        <div class="feature-desc">
+                            Pause quizen når som helst for diskusjoner. Full kontroll over tempo og flyt i undervisningen.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="section">
+                <div class="section-title">Teacher Lite vs Teacher Pro</div>
+                <div class="comparison-table">
+                    <div class="comparison-header">
+                        <div>Feature</div>
+                        <div>Teacher Lite<br>299 kr/år</div>
+                        <div>Teacher Pro<br>999 kr/år</div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-feature">Multiplayer quiz (Kahoot-style)</div>
+                        <div class="comparison-value"><span class="check">✓</span></div>
+                        <div class="comparison-value"><span class="check">✓</span></div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-feature">Max elever per session</div>
+                        <div class="comparison-value">50</div>
+                        <div class="comparison-value">∞</div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-feature">Live leaderboard & podium</div>
+                        <div class="comparison-value"><span class="check">✓</span></div>
+                        <div class="comparison-value"><span class="check">✓</span></div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-feature">Lag egne quizzer</div>
+                        <div class="comparison-value"><span class="check">✓</span></div>
+                        <div class="comparison-value"><span class="check">✓</span></div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-feature">Klasserom administrasjon</div>
+                        <div class="comparison-value"><span class="cross">✗</span></div>
+                        <div class="comparison-value"><span class="check">✓</span></div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-feature">Tildele assignments</div>
+                        <div class="comparison-value"><span class="cross">✗</span></div>
+                        <div class="comparison-value"><span class="check">✓</span></div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-feature">Progress tracking per elev</div>
+                        <div class="comparison-value"><span class="cross">✗</span></div>
+                        <div class="comparison-value"><span class="check">✓</span></div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-feature">Analytics & charts</div>
+                        <div class="comparison-value">Basic</div>
+                        <div class="comparison-value">Advanced</div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-feature">Excel export</div>
+                        <div class="comparison-value"><span class="cross">✗</span></div>
+                        <div class="comparison-value"><span class="check">✓</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonials -->
+            <div class="section">
+                <div class="section-title">Hva lærere sier</div>
+                <div class="testimonials">
+                    <div class="testimonial">
+                        <div class="testimonial-text">
+                            "Teacher Lite er perfekt for meg! Jeg trengte bare multiplayer for å gjøre timene mer engasjerende. 299 kr er en brøkdel av hva skolen ville brukt på Kahoot."
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">👨‍🏫</div>
+                            <div class="testimonial-info">
+                                <div class="testimonial-name">Ole Hansen</div>
+                                <div class="testimonial-role">Lektor, Stavanger VGS</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial">
+                        <div class="testimonial-text">
+                            "Elevene elsker konkurranseelementet! Live leaderboard gjør at alle er engasjerte. Enkel å bruke, og prisen er helt riktig."
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">👩‍🏫</div>
+                            <div class="testimonial-info">
+                                <div class="testimonial-name">Kari Nordmann</div>
+                                <div class="testimonial-role">Lærer, Bergen Handelshøyskole</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial">
+                        <div class="testimonial-text">
+                            "Jeg startet med Lite, men oppgraderte til Pro etter ett semester. Verdt hver krone! Men Lite er perfekt for å komme i gang."
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">👨‍🏫</div>
+                            <div class="testimonial-info">
+                                <div class="testimonial-name">Per Olsen</div>
+                                <div class="testimonial-role">Universitetslektor, UiO</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="section">
+                <div class="section-title">Ofte stilte spørsmål</div>
+                <div class="faq-section">
+                    <div class="faq-item">
+                        <div class="faq-question">Hva er forskjellen på Teacher Lite og Teacher Pro?</div>
+                        <div class="faq-answer">
+                            Teacher Lite fokuserer KUN på multiplayer quiz - perfekt hvis du bare vil ha live quiz-konkurranser i klasserommet. Teacher Pro gir deg i tillegg full klasserom-administrasjon, assignments, progress tracking, og avansert analytics. Se sammenligningstabell over for detaljer.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">Kan jeg oppgradere fra Lite til Pro senere?</div>
+                        <div class="faq-answer">
+                            Ja! Du kan når som helst oppgradere til Teacher Pro. Du betaler kun differansen for gjenværende periode, og får umiddelbar tilgang til alle Pro-features.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">Må elevene betale noe?</div>
+                        <div class="faq-answer">
+                            Nei! Når du har Teacher Lite kan elevene delta i multiplayer-sessions helt gratis. De trenger bare en enhet og internett-tilgang.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">Hvordan fungerer prøveperioden?</div>
+                        <div class="faq-answer">
+                            Du får 14 dager gratis tilgang til Teacher Lite. Ingen kredittkort nødvendig. Etter prøveperioden kan du velge å fortsette med 299 kr/år, oppgradere til Pro, eller avslutte uten kostnad.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">Kan jeg bruke egne spørsmål?</div>
+                        <div class="faq-answer">
+                            Ja! Teacher Lite inkluderer verktøy for å lage dine egne quiz-spørsmål. Du kan også bruke ferdige quizzer fra vår database.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">Hvor mange elever kan delta samtidig?</div>
+                        <div class="faq-answer">
+                            Opptil 50 elever per session med Teacher Lite. Hvis du trenger flere, kan du oppgradere til Teacher Pro som har ubegrenset antall elever.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Final CTA -->
+            <div class="final-cta">
+                <div class="final-cta-title">Klar til å prøve?</div>
+                <div class="final-cta-text">
+                    Start din 14 dagers gratis prøveperiode i dag.<br>
+                    Ingen kredittkort nødvendig. Avbryt når som helst.
+                </div>
+                <button class="hero-cta" onclick="window.location.href='teacher_registration.html?plan=lite'">
+                    Start gratis prøveperiode →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
+    </script>
+</body>
+</html>

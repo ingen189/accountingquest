@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bli med i klasserom - AccountingQuest</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .join-container {
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 40px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .join-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+        
+        .join-title {
+            font-size: 2.5em;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .join-subtitle {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+        
+        .code-input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .code-digit {
+            width: 60px;
+            height: 70px;
+            font-size: 2em;
+            text-align: center;
+            border: 3px solid var(--bg-tertiary);
+            border-radius: 15px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        
+        .code-digit:focus {
+            border-color: var(--accent);
+            outline: none;
+            transform: scale(1.1);
+        }
+        
+        .name-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 15px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 20px 0;
+        }
+        
+        .email-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 15px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 15px 0;
+        }
+        
+        .classroom-info {
+            background: var(--bg-primary);
+            border: 2px solid var(--success);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            display: none;
+        }
+        
+        .classroom-info.show {
+            display: block;
+            animation: slideIn 0.5s;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .classroom-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .classroom-teacher {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        
+        .classroom-students {
+            font-size: 1em;
+            color: var(--text-secondary);
+        }
+        
+        .my-classrooms {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            display: none;
+        }
+        
+        .my-classrooms.show {
+            display: block;
+        }
+        
+        .classrooms-title {
+            font-size: 2em;
+            color: var(--accent);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .classroom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .classroom-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .classroom-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+        
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .card-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .card-teacher {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        
+        .card-stats {
+            display: flex;
+            gap: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--bg-tertiary);
+        }
+        
+        .card-stat {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .card-stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .card-stat-label {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+        
+        .error-message {
+            background: var(--danger);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-button" onclick="window.location.href='index.html'">← Tilbake</div>
+            <h1>📚 Klasserom</h1>
+        </div>
+
+        <!-- Join Classroom -->
+        <div class="join-container" id="join-container">
+            <div class="join-icon">🎓</div>
+            <div class="join-title">Bli med i klasserom</div>
+            <div class="join-subtitle">Skriv inn klasseromskoden du fikk av læreren</div>
+            
+            <div class="code-input-group">
+                <input type="text" class="code-digit" id="code1" maxlength="1">
+                <input type="text" class="code-digit" id="code2" maxlength="1">
+                <input type="text" class="code-digit" id="code3" maxlength="1">
+                <input type="text" class="code-digit" id="code4" maxlength="1">
+                <input type="text" class="code-digit" id="code5" maxlength="1">
+                <input type="text" class="code-digit" id="code6" maxlength="1">
+            </div>
+            
+            <button class="btn primary" onclick="verifyCode()" style="width: 100%; padding: 15px; font-size: 1.2em;">
+                Finn klasserom
+            </button>
+            
+            <div class="error-message" id="error-message"></div>
+            
+            <!-- Classroom info shown after verification -->
+            <div class="classroom-info" id="classroom-info">
+                <div class="classroom-name" id="classroom-name"></div>
+                <div class="classroom-teacher" id="classroom-teacher"></div>
+                <div class="classroom-students" id="classroom-students"></div>
+                
+                <input type="text" class="name-input" id="student-name" placeholder="Ditt navn *" maxlength="50">
+                <input type="email" class="email-input" id="student-email" placeholder="Din e-post (valgfri)">
+                
+                <button class="btn success" onclick="joinClassroom()" style="width: 100%; padding: 15px; font-size: 1.2em; margin-top: 20px;">
+                    ✅ Bli med
+                </button>
+            </div>
+        </div>
+
+        <!-- My Classrooms -->
+        <div class="my-classrooms" id="my-classrooms">
+            <div class="classrooms-title">📚 Mine klasserom</div>
+            <div class="classroom-grid" id="classrooms-grid"></div>
+            
+            <button class="btn secondary" onclick="showJoinForm()" style="margin: 30px auto; display: block; padding: 15px 40px;">
+                ➕ Bli med i nytt klasserom
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Wait for Firebase to load
+        (function initFirebase() {
+            var attempts = 0;
+            var maxAttempts = 50;
+            
+            function tryInit() {
+                attempts++;
+                
+                if (typeof firebase === 'undefined') {
+                    if (attempts < maxAttempts) {
+                        setTimeout(tryInit, 100);
+                    } else {
+                        console.error('❌ Firebase not loaded');
+                        alert('Firebase kunne ikke lastes');
+                    }
+                    return;
+                }
+                
+                try {
+                    var firebaseConfig = {
+                        apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+                        authDomain: "accountingquest-multiplayer.firebaseapp.com",
+                        databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+                        projectId: "accountingquest-multiplayer",
+                        storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+                        messagingSenderId: "525417361926",
+                        appId: "1:525417361926:web:ec9b737f82af9b21700987"
+                    };
+                    
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                        console.log('✅ Firebase initialized');
+                    }
+                    
+                    window.db = firebase.database();
+                    console.log('✅ Database ready');
+                    
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', init);
+                    } else {
+                        setTimeout(init, 100);
+                    }
+                } catch (error) {
+                    console.error('🔥 Firebase init error:', error);
+                }
+            }
+            
+            tryInit();
+        })();
+        
+        var currentUser = null;
+        var currentClassroom = null;
+        var myClassrooms = [];
+        
+        function init() {
+            console.log('🚀 Init student classroom...');
+            
+            // Setup code input auto-advance
+            setupCodeInputs();
+            
+            // Authenticate
+            firebase.auth().signInAnonymously()
+                .then(function() {
+                    currentUser = firebase.auth().currentUser;
+                    console.log('✅ Authenticated:', currentUser.uid);
+                    
+                    // Check if student already in classrooms
+                    loadMyClassrooms();
+                })
+                .catch(function(error) {
+                    console.error('🔥 Auth error:', error);
+                });
+        }
+        
+        function setupCodeInputs() {
+            var inputs = document.querySelectorAll('.code-digit');
+            inputs.forEach(function(input, index) {
+                input.addEventListener('input', function(e) {
+                    var value = e.target.value.toUpperCase();
+                    e.target.value = value;
+                    
+                    // Auto-advance to next
+                    if (value && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+                
+                // Handle backspace
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+        }
+        
+        function getCode() {
+            var code = '';
+            for (var i = 1; i <= 6; i++) {
+                code += document.getElementById('code' + i).value;
+            }
+            return code.toUpperCase();
+        }
+        
+        function showError(message) {
+            var errorEl = document.getElementById('error-message');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+            setTimeout(function() {
+                errorEl.classList.remove('show');
+            }, 3000);
+        }
+        
+        function verifyCode() {
+            var code = getCode();
+            if (code.length !== 6) {
+                showError('Skriv inn en 6-sifret kode');
+                return;
+            }
+            
+            console.log('🔍 Verifying code:', code);
+            
+            // Find classroom with this code
+            db.ref('classrooms').orderByChild('code').equalTo(code).once('value')
+                .then(function(snapshot) {
+                    if (!snapshot.exists()) {
+                        showError('Ugyldig klasseromskode');
+                        return;
+                    }
+                    
+                    snapshot.forEach(function(child) {
+                        currentClassroom = child.val();
+                        currentClassroom.id = child.key;
+                        
+                        // Show classroom info
+                        document.getElementById('classroom-name').textContent = currentClassroom.name;
+                        document.getElementById('classroom-teacher').textContent = '👨‍🏫 ' + currentClassroom.teacherName;
+                        
+                        var studentCount = currentClassroom.students ? Object.keys(currentClassroom.students).length : 0;
+                        document.getElementById('classroom-students').textContent = '👥 ' + studentCount + ' elever';
+                        
+                        document.getElementById('classroom-info').classList.add('show');
+                    });
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error:', error);
+                    showError('Kunne ikke finne klasserom');
+                });
+        }
+        
+        function joinClassroom() {
+            var name = document.getElementById('student-name').value.trim();
+            if (!name) {
+                showError('Skriv inn ditt navn');
+                return;
+            }
+            
+            var email = document.getElementById('student-email').value.trim();
+            
+            var student = {
+                name: name,
+                email: email,
+                joinedAt: Date.now(),
+                totalPoints: 0
+            };
+            
+            console.log('📝 Joining classroom:', currentClassroom.id);
+            
+            // Add student to classroom
+            db.ref('classrooms/' + currentClassroom.id + '/students/' + currentUser.uid).set(student)
+                .then(function() {
+                    console.log('✅ Joined classroom!');
+                    alert('Velkommen til ' + currentClassroom.name + '! 🎉');
+                    
+                    // Reload to show my classrooms
+                    loadMyClassrooms();
+                    
+                    // Hide join form
+                    document.getElementById('join-container').style.display = 'none';
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error joining:', error);
+                    showError('Kunne ikke bli med: ' + error.message);
+                });
+        }
+        
+        function loadMyClassrooms() {
+            console.log('📚 Loading my classrooms...');
+            
+            db.ref('classrooms').once('value')
+                .then(function(snapshot) {
+                    myClassrooms = [];
+                    
+                    snapshot.forEach(function(child) {
+                        var classroom = child.val();
+                        classroom.id = child.key;
+                        
+                        // Check if current user is a student
+                        if (classroom.students && classroom.students[currentUser.uid]) {
+                            myClassrooms.push(classroom);
+                        }
+                    });
+                    
+                    if (myClassrooms.length > 0) {
+                        // Show my classrooms
+                        document.getElementById('join-container').style.display = 'none';
+                        document.getElementById('my-classrooms').classList.add('show');
+                        renderMyClassrooms();
+                    } else {
+                        // Show join form
+                        document.getElementById('join-container').style.display = 'block';
+                        document.getElementById('my-classrooms').classList.remove('show');
+                    }
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error loading classrooms:', error);
+                });
+        }
+        
+        function renderMyClassrooms() {
+            var grid = document.getElementById('classrooms-grid');
+            grid.innerHTML = '';
+            
+            myClassrooms.forEach(function(classroom) {
+                var studentCount = classroom.students ? Object.keys(classroom.students).length : 0;
+                
+                var card = document.createElement('div');
+                card.className = 'classroom-card';
+                card.onclick = function() {
+                    window.location.href = 'student_assignments.html?classroom=' + classroom.id;
+                };
+                
+                card.innerHTML =
+                    '<div class="card-icon">📖</div>' +
+                    '<div class="card-name">' + classroom.name + '</div>' +
+                    '<div class="card-teacher">👨‍🏫 ' + classroom.teacherName + '</div>' +
+                    '<div class="card-stats">' +
+                        '<div class="card-stat">' +
+                            '<div class="card-stat-value">0</div>' +
+                            '<div class="card-stat-label">Oppgaver</div>' +
+                        '</div>' +
+                        '<div class="card-stat">' +
+                            '<div class="card-stat-value">' + studentCount + '</div>' +
+                            '<div class="card-stat-label">Elever</div>' +
+                        '</div>' +
+                    '</div>';
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        function showJoinForm() {
+            document.getElementById('join-container').style.display = 'block';
+            document.getElementById('my-classrooms').classList.remove('show');
+            document.getElementById('classroom-info').classList.remove('show');
+            
+            // Clear inputs
+            for (var i = 1; i <= 6; i++) {
+                document.getElementById('code' + i).value = '';
+            }
+            document.getElementById('student-name').value = '';
+            document.getElementById('student-email').value = '';
+            
+            document.getElementById('code1').focus();
+        }
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
+    </script>
+</body>
+</html>

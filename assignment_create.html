@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opprett oppgave - AccountingQuest</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .create-container {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+        
+        .create-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 40px;
+        }
+        
+        .create-title {
+            font-size: 2.5em;
+            color: var(--accent);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .form-section {
+            margin-bottom: 35px;
+        }
+        
+        .form-section-title {
+            font-size: 1.3em;
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--text-secondary);
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 12px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .type-option {
+            background: var(--bg-primary);
+            border: 3px solid var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .type-option:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+        }
+        
+        .type-option.selected {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .type-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .type-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .quiz-selector {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .quiz-selector.show {
+            display: block;
+        }
+        
+        .quiz-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .quiz-item {
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quiz-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .quiz-item.selected {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .quiz-item-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .quiz-item-meta {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+        
+        .quiz-item.selected .quiz-item-meta {
+            color: var(--bg-primary);
+            opacity: 0.8;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+        }
+        
+        .btn-create {
+            flex: 2;
+            padding: 18px;
+            font-size: 1.2em;
+        }
+        
+        .btn-cancel {
+            flex: 1;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        .preview-section {
+            background: var(--bg-primary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .preview-title {
+            font-size: 1.3em;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .preview-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--bg-tertiary);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+        
+        .preview-label {
+            color: var(--text-secondary);
+        }
+        
+        .preview-value {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-button" onclick="goBack()">← Tilbake</div>
+            <h1>📝 Opprett oppgave</h1>
+        </div>
+
+        <div class="create-container">
+            <div class="create-card">
+                <div class="create-title">Ny oppgave</div>
+                
+                <!-- Basic Info -->
+                <div class="form-section">
+                    <div class="form-section-title">📋 Grunnleggende informasjon</div>
+                    
+                    <div class="form-group">
+                        <label>Tittel *</label>
+                        <input type="text" id="assignment-title" placeholder="F.eks. Kapittel 3 - Bokføring" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Beskrivelse</label>
+                        <textarea id="assignment-description" placeholder="Beskriv oppgaven..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Type Selection -->
+                <div class="form-section">
+                    <div class="form-section-title">🎯 Velg type</div>
+                    
+                    <div class="type-selector">
+                        <div class="type-option" onclick="selectType('quiz')">
+                            <div class="type-icon">❓</div>
+                            <div class="type-name">Quiz</div>
+                        </div>
+                        <div class="type-option" onclick="selectType('bokforing')">
+                            <div class="type-icon">📊</div>
+                            <div class="type-name">Bokføring</div>
+                        </div>
+                        <div class="type-option" onclick="selectType('analyse')">
+                            <div class="type-icon">📈</div>
+                            <div class="type-name">Analyse</div>
+                        </div>
+                        <div class="type-option" onclick="selectType('case')">
+                            <div class="type-icon">📑</div>
+                            <div class="type-name">Case Study</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Selector -->
+                    <div class="quiz-selector" id="quiz-selector">
+                        <label style="font-weight: bold; margin-bottom: 10px; display: block;">Velg quiz:</label>
+                        <div class="quiz-list" id="quiz-list">
+                            <p style="text-align: center; color: var(--text-secondary);">Laster quizzer...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="form-section">
+                    <div class="form-section-title">⚙️ Innstillinger</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Frist</label>
+                            <input type="datetime-local" id="assignment-due">
+                            <small>Valgfri - la stå tom for ingen frist</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Poeng</label>
+                            <input type="number" id="assignment-points" value="100" min="0">
+                            <small>Total poeng for oppgaven</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Max forsøk</label>
+                            <select id="assignment-attempts">
+                                <option value="1">1 forsøk</option>
+                                <option value="2">2 forsøk</option>
+                                <option value="3" selected>3 forsøk</option>
+                                <option value="5">5 forsøk</option>
+                                <option value="unlimited">Ubegrenset</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="assignment-status">
+                                <option value="active">Aktiv (synlig for elever)</option>
+                                <option value="draft">Utkast (ikke synlig)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview -->
+                <div class="preview-section" id="preview-section" style="display: none;">
+                    <div class="preview-title">👁️ Forhåndsvisning</div>
+                    <div id="preview-content"></div>
+                </div>
+
+                <!-- Actions -->
+                <div class="action-buttons">
+                    <button class="btn btn-cancel" onclick="goBack()">Avbryt</button>
+                    <button class="btn primary btn-create" onclick="createAssignment()">Publiser oppgave</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Firebase init
+        (function initFirebase() {
+            var attempts = 0;
+            var maxAttempts = 50;
+            
+            function tryInit() {
+                attempts++;
+                
+                if (typeof firebase === 'undefined') {
+                    if (attempts < maxAttempts) {
+                        setTimeout(tryInit, 100);
+                    }
+                    return;
+                }
+                
+                try {
+                    var firebaseConfig = {
+                        apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+                        authDomain: "accountingquest-multiplayer.firebaseapp.com",
+                        databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+                        projectId: "accountingquest-multiplayer",
+                        storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+                        messagingSenderId: "525417361926",
+                        appId: "1:525417361926:web:ec9b737f82af9b21700987"
+                    };
+                    
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                    }
+                    
+                    window.db = firebase.database();
+                    
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', init);
+                    } else {
+                        setTimeout(init, 100);
+                    }
+                } catch (error) {
+                    console.error('🔥 Firebase error:', error);
+                }
+            }
+            
+            tryInit();
+        })();
+        
+        var currentUser = null;
+        var classroomId = null;
+        var selectedType = null;
+        var selectedQuiz = null;
+        var availableQuizzes = [];
+        
+        function init() {
+            console.log('🚀 Init assignment create...');
+            
+            // Get classroom ID from URL
+            var params = new URLSearchParams(window.location.search);
+            classroomId = params.get('classroom');
+            
+            if (!classroomId) {
+                alert('Ingen klasserom ID');
+                window.location.href = 'classroom_dashboard.html';
+                return;
+            }
+            
+            // Authenticate
+            firebase.auth().signInAnonymously()
+                .then(function() {
+                    currentUser = firebase.auth().currentUser;
+                    
+                    // Load teacher's quizzes
+                    loadQuizzes();
+                    
+                    // Add event listeners
+                    addEventListeners();
+                });
+        }
+        
+        function addEventListeners() {
+            // Update preview on input change
+            ['assignment-title', 'assignment-description', 'assignment-due', 'assignment-points', 'assignment-attempts'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', updatePreview);
+                    el.addEventListener('change', updatePreview);
+                }
+            });
+        }
+        
+        function loadQuizzes() {
+            console.log('📚 Loading quizzes...');
+            
+            // Load from localStorage (teacher_quizzes)
+            var quizzes = JSON.parse(localStorage.getItem('teacher_quizzes') || '[]');
+            availableQuizzes = quizzes;
+            
+            console.log('✅ Loaded', quizzes.length, 'quizzes');
+        }
+        
+        function selectType(type) {
+            selectedType = type;
+            
+            // Update UI
+            document.querySelectorAll('.type-option').forEach(function(el) {
+                el.classList.remove('selected');
+            });
+            event.target.closest('.type-option').classList.add('selected');
+            
+            // Show quiz selector if quiz type
+            if (type === 'quiz') {
+                document.getElementById('quiz-selector').classList.add('show');
+                renderQuizList();
+            } else {
+                document.getElementById('quiz-selector').classList.remove('show');
+                selectedQuiz = null;
+            }
+            
+            updatePreview();
+        }
+        
+        function renderQuizList() {
+            var list = document.getElementById('quiz-list');
+            
+            if (availableQuizzes.length === 0) {
+                list.innerHTML = 
+                    '<p style="text-align: center; color: var(--text-secondary);">' +
+                    'Ingen quizzer funnet.<br>' +
+                    '<a href="teacher_portal.html" style="color: var(--accent);">Opprett en quiz først</a>' +
+                    '</p>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            
+            availableQuizzes.forEach(function(quiz, index) {
+                var item = document.createElement('div');
+                item.className = 'quiz-item';
+                item.onclick = function() { selectQuiz(index); };
+                
+                var questionCount = quiz.questions ? quiz.questions.length : 0;
+                
+                item.innerHTML =
+                    '<div class="quiz-item-title">' + quiz.title + '</div>' +
+                    '<div class="quiz-item-meta">' +
+                        questionCount + ' spørsmål · ' +
+                        (quiz.timePerQuestion || 30) + ' sek per spørsmål' +
+                    '</div>';
+                
+                list.appendChild(item);
+            });
+        }
+        
+        function selectQuiz(index) {
+            selectedQuiz = availableQuizzes[index];
+            
+            // Update UI
+            document.querySelectorAll('.quiz-item').forEach(function(el) {
+                el.classList.remove('selected');
+            });
+            document.querySelectorAll('.quiz-item')[index].classList.add('selected');
+            
+            updatePreview();
+        }
+        
+        function updatePreview() {
+            var title = document.getElementById('assignment-title').value;
+            var type = selectedType;
+            var points = document.getElementById('assignment-points').value;
+            var due = document.getElementById('assignment-due').value;
+            var attempts = document.getElementById('assignment-attempts').value;
+            
+            if (!title || !type) {
+                document.getElementById('preview-section').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('preview-section').style.display = 'block';
+            
+            var typeNames = {
+                quiz: 'Quiz',
+                bokforing: 'Bokføring',
+                analyse: 'Analyse',
+                case: 'Case Study'
+            };
+            
+            var dueText = due ? new Date(due).toLocaleString('no') : 'Ingen frist';
+            var attemptsText = attempts === 'unlimited' ? 'Ubegrenset' : attempts + ' forsøk';
+            
+            var content = 
+                '<div class="preview-item">' +
+                    '<span class="preview-label">Tittel:</span>' +
+                    '<span class="preview-value">' + title + '</span>' +
+                '</div>' +
+                '<div class="preview-item">' +
+                    '<span class="preview-label">Type:</span>' +
+                    '<span class="preview-value">' + typeNames[type] + '</span>' +
+                '</div>';
+            
+            if (type === 'quiz' && selectedQuiz) {
+                content +=
+                    '<div class="preview-item">' +
+                        '<span class="preview-label">Quiz:</span>' +
+                        '<span class="preview-value">' + selectedQuiz.title + '</span>' +
+                    '</div>' +
+                    '<div class="preview-item">' +
+                        '<span class="preview-label">Spørsmål:</span>' +
+                        '<span class="preview-value">' + (selectedQuiz.questions ? selectedQuiz.questions.length : 0) + '</span>' +
+                    '</div>';
+            }
+            
+            content +=
+                '<div class="preview-item">' +
+                    '<span class="preview-label">Poeng:</span>' +
+                    '<span class="preview-value">' + points + '</span>' +
+                '</div>' +
+                '<div class="preview-item">' +
+                    '<span class="preview-label">Frist:</span>' +
+                    '<span class="preview-value">' + dueText + '</span>' +
+                '</div>' +
+                '<div class="preview-item">' +
+                    '<span class="preview-label">Forsøk:</span>' +
+                    '<span class="preview-value">' + attemptsText + '</span>' +
+                '</div>';
+            
+            document.getElementById('preview-content').innerHTML = content;
+        }
+        
+        function createAssignment() {
+            var title = document.getElementById('assignment-title').value.trim();
+            
+            if (!title) {
+                alert('Skriv inn en tittel!');
+                return;
+            }
+            
+            if (!selectedType) {
+                alert('Velg en type!');
+                return;
+            }
+            
+            if (selectedType === 'quiz' && !selectedQuiz) {
+                alert('Velg en quiz!');
+                return;
+            }
+            
+            var due = document.getElementById('assignment-due').value;
+            var dueDate = due ? new Date(due).getTime() : null;
+            
+            var assignment = {
+                classroomId: classroomId,
+                title: title,
+                description: document.getElementById('assignment-description').value,
+                type: selectedType,
+                points: parseInt(document.getElementById('assignment-points').value) || 100,
+                maxAttempts: document.getElementById('assignment-attempts').value,
+                dueDate: dueDate,
+                status: document.getElementById('assignment-status').value,
+                createdAt: Date.now(),
+                createdBy: currentUser.uid
+            };
+            
+            // Add content based on type
+            if (selectedType === 'quiz') {
+                assignment.content = {
+                    quizId: selectedQuiz.id || 'local_' + Date.now(),
+                    quiz: selectedQuiz
+                };
+            }
+            
+            console.log('📝 Creating assignment:', assignment);
+            
+            // Save to Firebase
+            db.ref('assignments').push(assignment)
+                .then(function() {
+                    console.log('✅ Assignment created!');
+                    alert('Oppgave opprettet! 🎉');
+                    goBack();
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error:', error);
+                    alert('Kunne ikke opprette oppgave: ' + error.message);
+                });
+        }
+        
+        function goBack() {
+            window.location.href = 'classroom_manage.html?id=' + classroomId;
+        }
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
+    </script>
+</body>
+</html>

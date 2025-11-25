@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrer klasserom - AccountingQuest</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .classroom-header {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .classroom-title {
+            font-size: 2.5em;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .classroom-code {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.3em;
+            letter-spacing: 2px;
+            margin: 15px 0;
+        }
+        
+        .classroom-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .stat-box {
+            flex: 1;
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--bg-tertiary);
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            color: var(--accent);
+        }
+        
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .student-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .student-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+        }
+        
+        .student-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .student-avatar {
+            font-size: 3em;
+        }
+        
+        .student-info {
+            flex: 1;
+        }
+        
+        .student-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .student-email {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+        
+        .student-stats {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-top: 1px solid var(--bg-tertiary);
+        }
+        
+        .student-stat {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .student-stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .student-stat-label {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+        
+        .assignments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .assignment-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        
+        .assignment-icon {
+            font-size: 3em;
+        }
+        
+        .assignment-info {
+            flex: 1;
+        }
+        
+        .assignment-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .assignment-meta {
+            display: flex;
+            gap: 20px;
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+        
+        .assignment-stats {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            background: var(--bg-primary);
+            border-radius: 10px;
+        }
+        
+        .assignment-stat {
+            text-align: center;
+        }
+        
+        .assignment-stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .assignment-stat-label {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+        
+        .assignment-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .action-btn.primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .action-btn.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+        
+        .empty-text {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background: var(--success);
+            color: white;
+        }
+        
+        .status-closed {
+            background: var(--text-secondary);
+            color: white;
+        }
+        
+        .status-upcoming {
+            background: var(--warning);
+            color: var(--bg-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-button" onclick="window.location.href='classroom_dashboard.html'">← Alle klasserom</div>
+            <h1>📚 Administrer klasserom</h1>
+            <button class="btn secondary" onclick="archiveClassroom()" style="margin-left: auto;">
+                📦 Arkiver klasserom
+            </button>
+        </div>
+
+        <!-- Classroom Header -->
+        <div class="classroom-header" id="classroom-header">
+            <div class="classroom-title" id="classroom-name">Laster...</div>
+            <div class="classroom-code" id="classroom-code">ABC123</div>
+            <p id="classroom-description" style="color: var(--text-secondary); margin-top: 10px;"></p>
+            
+            <div class="classroom-stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="student-count">0</div>
+                    <div class="stat-label">Elever</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="assignment-count">0</div>
+                    <div class="stat-label">Oppgaver</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="completion-rate">0%</div>
+                    <div class="stat-label">Gjennomføring</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('students')">👥 Elever</button>
+            <button class="tab" onclick="switchTab('assignments')">📝 Oppgaver</button>
+            <button class="tab" onclick="switchTab('analytics')">📊 Statistikk</button>
+        </div>
+
+        <!-- Students Tab -->
+        <div class="tab-content active" id="students-tab">
+            <div class="students-grid" id="students-grid">
+                <div class="empty-state">
+                    <div class="empty-icon">👥</div>
+                    <div class="empty-text">Ingen elever ennå</div>
+                    <p>Del klasseromskoden med elevene dine!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignments Tab -->
+        <div class="tab-content" id="assignments-tab">
+            <div class="assignments-list" id="assignments-list">
+                <div class="empty-state">
+                    <div class="empty-icon">📝</div>
+                    <div class="empty-text">Ingen oppgaver ennå</div>
+                    <p>Opprett din første oppgave ved å klikke på + knappen!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div class="tab-content" id="analytics-tab">
+            <div style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 5em; margin-bottom: 20px;">📊</div>
+                <div style="font-size: 1.5em; margin-bottom: 20px;">Statistikk kommer snart!</div>
+                <p style="color: var(--text-secondary);">
+                    Her vil du kunne se:<br>
+                    - Gjennomsnittlig score per elev<br>
+                    - Hvem trenger ekstra hjelp<br>
+                    - Mest utfordrende oppgaver<br>
+                    - Tidsbruk per oppgave
+                </p>
+            </div>
+        </div>
+
+        <!-- FAB (Floating Action Button) -->
+        <button class="fab" onclick="createAssignment()" title="Opprett oppgave">+</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Wait for Firebase
+        (function initFirebase() {
+            var attempts = 0;
+            var maxAttempts = 50;
+            
+            function tryInit() {
+                attempts++;
+                
+                if (typeof firebase === 'undefined') {
+                    if (attempts < maxAttempts) {
+                        setTimeout(tryInit, 100);
+                    }
+                    return;
+                }
+                
+                try {
+                    var firebaseConfig = {
+                        apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+                        authDomain: "accountingquest-multiplayer.firebaseapp.com",
+                        databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+                        projectId: "accountingquest-multiplayer",
+                        storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+                        messagingSenderId: "525417361926",
+                        appId: "1:525417361926:web:ec9b737f82af9b21700987"
+                    };
+                    
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                    }
+                    
+                    window.db = firebase.database();
+                    
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', init);
+                    } else {
+                        setTimeout(init, 100);
+                    }
+                } catch (error) {
+                    console.error('🔥 Firebase error:', error);
+                }
+            }
+            
+            tryInit();
+        })();
+        
+        var currentUser = null;
+        var classroomId = null;
+        var classroom = null;
+        var students = [];
+        var assignments = [];
+        
+        function init() {
+            console.log('🚀 Init classroom manage...');
+            
+            // Get classroom ID from URL
+            var params = new URLSearchParams(window.location.search);
+            classroomId = params.get('id');
+            
+            if (!classroomId) {
+                alert('Ingen klasserom ID');
+                window.location.href = 'classroom_dashboard.html';
+                return;
+            }
+            
+            // Authenticate
+            firebase.auth().signInAnonymously()
+                .then(function() {
+                    currentUser = firebase.auth().currentUser;
+                    loadClassroom();
+                });
+        }
+        
+        function loadClassroom() {
+            console.log('📚 Loading classroom:', classroomId);
+            
+            db.ref('classrooms/' + classroomId).once('value')
+                .then(function(snapshot) {
+                    if (!snapshot.exists()) {
+                        alert('Klasserom ikke funnet');
+                        window.location.href = 'classroom_dashboard.html';
+                        return;
+                    }
+                    
+                    classroom = snapshot.val();
+                    
+                    // Update header
+                    document.getElementById('classroom-name').textContent = classroom.name;
+                    document.getElementById('classroom-code').textContent = '📌 ' + classroom.code;
+                    document.getElementById('classroom-description').textContent = classroom.description || '';
+                    
+                    // Load students
+                    loadStudents();
+                    
+                    // Load assignments
+                    loadAssignments();
+                });
+        }
+        
+        function loadStudents() {
+            students = [];
+            var studentsObj = classroom.students || {};
+            
+            Object.keys(studentsObj).forEach(function(studentId) {
+                var student = studentsObj[studentId];
+                student.id = studentId;
+                students.push(student);
+            });
+            
+            document.getElementById('student-count').textContent = students.length;
+            renderStudents();
+        }
+        
+        function renderStudents() {
+            var grid = document.getElementById('students-grid');
+            
+            if (students.length === 0) {
+                grid.innerHTML = 
+                    '<div class="empty-state">' +
+                        '<div class="empty-icon">👥</div>' +
+                        '<div class="empty-text">Ingen elever ennå</div>' +
+                        '<p>Del klasseromskoden med elevene dine!</p>' +
+                    '</div>';
+                return;
+            }
+            
+            grid.innerHTML = '';
+            
+            students.forEach(function(student) {
+                var card = document.createElement('div');
+                card.className = 'student-card';
+                card.style.cursor = 'pointer';
+                card.onclick = function() {
+                    window.location.href = 'student_detail.html?classroom=' + classroomId + '&student=' + student.id;
+                };
+                
+                var joinDate = new Date(student.joinedAt).toLocaleDateString('no');
+                
+                card.innerHTML =
+                    '<div class="student-header">' +
+                        '<div class="student-avatar">😊</div>' +
+                        '<div class="student-info">' +
+                            '<div class="student-name">' + student.name + '</div>' +
+                            '<div class="student-email">' + (student.email || 'Ingen e-post') + '</div>' +
+                            '<div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 5px;">Ble med: ' + joinDate + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="student-stats">' +
+                        '<div class="student-stat">' +
+                            '<div class="student-stat-value">0</div>' +
+                            '<div class="student-stat-label">Oppgaver</div>' +
+                        '</div>' +
+                        '<div class="student-stat">' +
+                            '<div class="student-stat-value">' + (student.totalPoints || 0) + '</div>' +
+                            '<div class="student-stat-label">Poeng</div>' +
+                        '</div>' +
+                    '</div>';
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        function loadAssignments() {
+            console.log('📝 Loading assignments...');
+            
+            db.ref('assignments').orderByChild('classroomId').equalTo(classroomId)
+                .once('value')
+                .then(function(snapshot) {
+                    assignments = [];
+                    
+                    snapshot.forEach(function(child) {
+                        var assignment = child.val();
+                        assignment.id = child.key;
+                        assignments.push(assignment);
+                    });
+                    
+                    document.getElementById('assignment-count').textContent = assignments.length;
+                    renderAssignments();
+                });
+        }
+        
+        function renderAssignments() {
+            var list = document.getElementById('assignments-list');
+            
+            if (assignments.length === 0) {
+                list.innerHTML =
+                    '<div class="empty-state">' +
+                        '<div class="empty-icon">📝</div>' +
+                        '<div class="empty-text">Ingen oppgaver ennå</div>' +
+                        '<p>Opprett din første oppgave ved å klikke på + knappen!</p>' +
+                    '</div>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            
+            assignments.forEach(function(assignment) {
+                // Load submissions for this assignment
+                loadSubmissionStats(assignment.id, function(stats) {
+                    renderAssignmentCard(assignment, stats);
+                });
+            });
+        }
+        
+        function loadSubmissionStats(assignmentId, callback) {
+            db.ref('submissions').orderByChild('assignmentId').equalTo(assignmentId)
+                .once('value')
+                .then(function(snapshot) {
+                    var submitted = 0;
+                    var started = 0;
+                    
+                    snapshot.forEach(function(child) {
+                        var submission = child.val();
+                        if (submission.status === 'submitted') {
+                            submitted++;
+                        }
+                        started++;
+                    });
+                    
+                    callback({ submitted: submitted, started: started });
+                });
+        }
+        
+        function renderAssignmentCard(assignment, stats) {
+            var list = document.getElementById('assignments-list');
+            
+            var dueDate = assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString('no') : 'Ingen frist';
+            var now = Date.now();
+            var status = 'active';
+            var statusText = 'Aktiv';
+            
+            if (assignment.status === 'closed') {
+                status = 'closed';
+                statusText = 'Stengt';
+            } else if (assignment.dueDate && assignment.dueDate < now) {
+                status = 'closed';
+                statusText = 'Utløpt';
+            } else if (assignment.dueDate && assignment.dueDate > now) {
+                status = 'active';
+                statusText = 'Aktiv';
+            }
+            
+            var typeIcons = {
+                quiz: '❓',
+                bokforing: '📊',
+                analyse: '📈',
+                case: '📑'
+            };
+            
+            var icon = typeIcons[assignment.type] || '📝';
+            
+            var card = document.createElement('div');
+            card.className = 'assignment-card';
+            
+            card.innerHTML =
+                '<div class="assignment-icon">' + icon + '</div>' +
+                '<div class="assignment-info">' +
+                    '<div class="assignment-title">' + assignment.title + '</div>' +
+                    '<div class="assignment-meta">' +
+                        '<span>📅 Frist: ' + dueDate + '</span>' +
+                        '<span>💎 ' + (assignment.points || 100) + ' poeng</span>' +
+                        '<span class="status-badge status-' + status + '">' + statusText + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="assignment-stats">' +
+                    '<div class="assignment-stat">' +
+                        '<div class="assignment-stat-value">' + stats.submitted + '</div>' +
+                        '<div class="assignment-stat-label">Fullført</div>' +
+                    '</div>' +
+                    '<div class="assignment-stat">' +
+                        '<div class="assignment-stat-value">' + (stats.started - stats.submitted) + '</div>' +
+                        '<div class="assignment-stat-label">Påbegynt</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="assignment-actions">' +
+                    '<button class="action-btn primary" onclick="viewAssignment(\'' + assignment.id + '\')">Se detaljer</button>' +
+                    '<button class="action-btn secondary" onclick="duplicateAssignment(\'' + assignment.id + '\')">📋 Dupliser</button>' +
+                    '<button class="action-btn secondary" onclick="editAssignment(\'' + assignment.id + '\')">Rediger</button>' +
+                '</div>';
+            
+            list.appendChild(card);
+        }
+        
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(function(content) {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+        
+        function createAssignment() {
+            window.location.href = 'assignment_create.html?classroom=' + classroomId;
+        }
+        
+        function viewAssignment(assignmentId) {
+            window.location.href = 'assignment_results.html?id=' + assignmentId;
+        }
+        
+        function editAssignment(assignmentId) {
+            window.location.href = 'assignment_create.html?edit=' + assignmentId;
+        }
+        
+        function duplicateAssignment(assignmentId) {
+            var assignment = assignments.find(function(a) { return a.id === assignmentId; });
+            if (!assignment) return;
+            
+            if (confirm('Vil du duplisere "' + assignment.title + '" til dette klasserommet?')) {
+                console.log('📋 Duplicating assignment...');
+                
+                // Create copy
+                var copy = JSON.parse(JSON.stringify(assignment));
+                copy.title = assignment.title + ' (Kopi)';
+                copy.createdAt = Date.now();
+                copy.status = 'draft';
+                delete copy.id;
+                
+                // Save to Firebase
+                db.ref('assignments').push(copy)
+                    .then(function() {
+                        console.log('✅ Assignment duplicated!');
+                        alert('Oppgave duplisert! 📋');
+                        loadAssignments();
+                    })
+                    .catch(function(error) {
+                        console.error('🔥 Error:', error);
+                        alert('Kunne ikke duplisere oppgave: ' + error.message);
+                    });
+            }
+        }
+        
+        function archiveClassroom() {
+            if (!confirm('Er du sikker på at du vil arkivere dette klasserommet?\n\nArkiverte klasserom kan gjenopprettes senere.')) {
+                return;
+            }
+            
+            console.log('📦 Archiving classroom...');
+            
+            // Set archived flag
+            db.ref('classrooms/' + classroomId + '/archived').set(true)
+                .then(function() {
+                    console.log('✅ Classroom archived!');
+                    alert('Klasserom arkivert! 📦\n\nDu kan finne det i "Arkiverte klasserom" i dashboardet.');
+                    window.location.href = 'classroom_dashboard.html';
+                })
+                .catch(function(error) {
+                    console.error('🔥 Error:', error);
+                    alert('Kunne ikke arkivere klasserom: ' + error.message);
+                });
+        }
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
+    </script>
+</body>
+</html>

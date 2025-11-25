@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min progresjon - AccountingQuest</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .progress-container {
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+        
+        .overview-card {
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            color: white;
+            border-radius: 25px;
+            padding: 50px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .overview-title {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .overview-stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .overview-stat-value {
+            font-size: 3.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .overview-stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .section {
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .classrooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .classroom-card {
+            background: var(--bg-primary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .classroom-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+        
+        .classroom-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .classroom-teacher {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        
+        .classroom-stats {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 15px;
+            border-top: 1px solid var(--bg-tertiary);
+        }
+        
+        .classroom-stat {
+            text-align: center;
+        }
+        
+        .classroom-stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .classroom-stat-label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+        
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .achievement {
+            background: var(--bg-primary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .achievement.unlocked {
+            border-color: var(--accent);
+        }
+        
+        .achievement.locked {
+            opacity: 0.5;
+        }
+        
+        .achievement:hover {
+            transform: scale(1.05);
+        }
+        
+        .achievement-icon {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+        }
+        
+        .achievement-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .achievement-desc {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+        
+        .chart-container {
+            background: var(--bg-primary);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 15px;
+            height: 250px;
+        }
+        
+        .bar {
+            flex: 1;
+            background: var(--accent);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .bar:hover {
+            transform: translateY(-5px);
+            background: var(--success);
+        }
+        
+        .bar-value {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .bar-label {
+            position: absolute;
+            bottom: -30px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-button" onclick="window.location.href='student_classroom.html'">← Mine klasserom</div>
+            <h1>📊 Min progresjon</h1>
+        </div>
+
+        <div class="progress-container">
+            <!-- Overview Card -->
+            <div class="overview-card">
+                <div class="overview-title">👋 Hei, <span id="student-name">Student</span>!</div>
+                <p style="font-size: 1.2em; opacity: 0.9;">Her er en oversikt over din læring</p>
+                
+                <div class="overview-stats">
+                    <div class="overview-stat">
+                        <div class="overview-stat-value" id="total-classrooms">0</div>
+                        <div class="overview-stat-label">Klasserom</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="overview-stat-value" id="total-completed">0</div>
+                        <div class="overview-stat-label">Fullført</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="overview-stat-value" id="total-points">0</div>
+                        <div class="overview-stat-label">Poeng</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="overview-stat-value" id="overall-accuracy">0%</div>
+                        <div class="overview-stat-label">Nøyaktighet</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Classrooms -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">📚 Mine klasserom</div>
+                </div>
+                <div class="classrooms-grid" id="classrooms-grid">
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <div>Ingen klasserom ennå</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Chart -->
+            <div class="section" id="chart-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">📈 Ukentlig aktivitet</div>
+                </div>
+                <div class="chart-container">
+                    <div class="bar-chart" id="activity-chart"></div>
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">🏆 Prestasjoner</div>
+                </div>
+                <div class="achievements-grid" id="achievements-grid">
+                    <!-- Achievements will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Firebase init
+        (function initFirebase() {
+            var attempts = 0;
+            var maxAttempts = 50;
+            
+            function tryInit() {
+                attempts++;
+                
+                if (typeof firebase === 'undefined') {
+                    if (attempts < maxAttempts) {
+                        setTimeout(tryInit, 100);
+                    }
+                    return;
+                }
+                
+                try {
+                    var firebaseConfig = {
+                        apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+                        authDomain: "accountingquest-multiplayer.firebaseapp.com",
+                        databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+                        projectId: "accountingquest-multiplayer",
+                        storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+                        messagingSenderId: "525417361926",
+                        appId: "1:525417361926:web:ec9b737f82af9b21700987"
+                    };
+                    
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                    }
+                    
+                    window.db = firebase.database();
+                    
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', init);
+                    } else {
+                        setTimeout(init, 100);
+                    }
+                } catch (error) {
+                    console.error('🔥 Firebase error:', error);
+                }
+            }
+            
+            tryInit();
+        })();
+        
+        var currentUser = null;
+        var classrooms = [];
+        var totalPoints = 0;
+        var totalCompleted = 0;
+        var submissions = [];
+        
+        function init() {
+            console.log('🚀 Init student progress...');
+            
+            // Authenticate
+            firebase.auth().signInAnonymously()
+                .then(function() {
+                    currentUser = firebase.auth().currentUser;
+                    
+                    // Set student name from localStorage
+                    var studentName = localStorage.getItem('student_name') || 'Student';
+                    document.getElementById('student-name').textContent = studentName;
+                    
+                    loadData();
+                });
+        }
+        
+        function loadData() {
+            console.log('📚 Loading data...');
+            
+            // Load all classrooms where user is member
+            db.ref('classrooms').once('value')
+                .then(function(snapshot) {
+                    classrooms = [];
+                    
+                    snapshot.forEach(function(child) {
+                        var classroom = child.val();
+                        if (classroom.students && classroom.students[currentUser.uid]) {
+                            classroom.id = child.key;
+                            classrooms.push(classroom);
+                        }
+                    });
+                    
+                    console.log('✅ Found', classrooms.length, 'classrooms');
+                    
+                    // Load progress for each classroom
+                    loadProgress();
+                });
+        }
+        
+        function loadProgress() {
+            var promises = classrooms.map(function(classroom) {
+                return db.ref('classroom_progress/' + classroom.id + '/' + currentUser.uid).once('value')
+                    .then(function(snapshot) {
+                        classroom.progress = snapshot.val() || { totalPoints: 0, completedAssignments: 0 };
+                        totalPoints += classroom.progress.totalPoints || 0;
+                        totalCompleted += classroom.progress.completedAssignments || 0;
+                    });
+            });
+            
+            Promise.all(promises).then(function() {
+                updateOverview();
+                renderClassrooms();
+                loadSubmissions();
+                checkAchievements();
+            });
+        }
+        
+        function loadSubmissions() {
+            db.ref('submissions').orderByChild('studentId').equalTo(currentUser.uid)
+                .once('value')
+                .then(function(snapshot) {
+                    submissions = [];
+                    snapshot.forEach(function(child) {
+                        submissions.push(child.val());
+                    });
+                    
+                    renderActivityChart();
+                });
+        }
+        
+        function updateOverview() {
+            document.getElementById('total-classrooms').textContent = classrooms.length;
+            document.getElementById('total-completed').textContent = totalCompleted;
+            document.getElementById('total-points').textContent = totalPoints;
+            
+            // Calculate overall accuracy
+            var totalCorrect = 0;
+            var totalQuestions = 0;
+            
+            submissions.forEach(function(sub) {
+                totalCorrect += sub.correctCount || 0;
+                totalQuestions += sub.totalQuestions || 0;
+            });
+            
+            var accuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+            document.getElementById('overall-accuracy').textContent = accuracy + '%';
+        }
+        
+        function renderClassrooms() {
+            var grid = document.getElementById('classrooms-grid');
+            
+            if (classrooms.length === 0) {
+                grid.innerHTML =
+                    '<div class="empty-state">' +
+                        '<div class="empty-icon">📚</div>' +
+                        '<div>Ingen klasserom ennå</div>' +
+                        '<p style="margin-top: 10px;"><a href="student_classroom.html" style="color: var(--accent);">Bli med i et klasserom</a></p>' +
+                    '</div>';
+                return;
+            }
+            
+            grid.innerHTML = '';
+            
+            classrooms.forEach(function(classroom) {
+                var card = document.createElement('div');
+                card.className = 'classroom-card';
+                card.onclick = function() {
+                    window.location.href = 'student_assignments.html?classroom=' + classroom.id;
+                };
+                
+                card.innerHTML =
+                    '<div class="classroom-name">' + classroom.name + '</div>' +
+                    '<div class="classroom-teacher">👨‍🏫 ' + classroom.teacherName + '</div>' +
+                    '<div class="classroom-stats">' +
+                        '<div class="classroom-stat">' +
+                            '<div class="classroom-stat-value">' + (classroom.progress.completedAssignments || 0) + '</div>' +
+                            '<div class="classroom-stat-label">Fullført</div>' +
+                        '</div>' +
+                        '<div class="classroom-stat">' +
+                            '<div class="classroom-stat-value">' + (classroom.progress.totalPoints || 0) + '</div>' +
+                            '<div class="classroom-stat-label">Poeng</div>' +
+                        '</div>' +
+                    '</div>';
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        function renderActivityChart() {
+            if (submissions.length === 0) return;
+            
+            document.getElementById('chart-section').style.display = 'block';
+            
+            // Get last 7 days
+            var days = [];
+            var now = new Date();
+            
+            for (var i = 6; i >= 0; i--) {
+                var date = new Date(now);
+                date.setDate(date.getDate() - i);
+                date.setHours(0, 0, 0, 0);
+                days.push({
+                    date: date,
+                    count: 0,
+                    label: date.toLocaleDateString('no', { weekday: 'short' })
+                });
+            }
+            
+            // Count submissions per day
+            submissions.forEach(function(sub) {
+                var subDate = new Date(sub.submittedAt);
+                subDate.setHours(0, 0, 0, 0);
+                
+                days.forEach(function(day) {
+                    if (day.date.getTime() === subDate.getTime()) {
+                        day.count++;
+                    }
+                });
+            });
+            
+            // Find max
+            var maxCount = Math.max.apply(null, days.map(function(d) { return d.count; }));
+            if (maxCount === 0) maxCount = 1;
+            
+            // Render bars
+            var chart = document.getElementById('activity-chart');
+            chart.innerHTML = '';
+            
+            days.forEach(function(day) {
+                var height = (day.count / maxCount) * 100;
+                
+                var bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = height + '%';
+                bar.innerHTML =
+                    '<div class="bar-value">' + day.count + '</div>' +
+                    '<div class="bar-label">' + day.label + '</div>';
+                
+                chart.appendChild(bar);
+            });
+        }
+        
+        function checkAchievements() {
+            var achievements = [
+                { id: 'first_submission', name: 'Første innlevering', desc: 'Lever inn din første oppgave', icon: '🎯', unlocked: submissions.length >= 1 },
+                { id: 'five_submissions', name: '5 innleveringer', desc: 'Lever inn 5 oppgaver', icon: '🔥', unlocked: submissions.length >= 5 },
+                { id: 'ten_submissions', name: '10 innleveringer', desc: 'Lever inn 10 oppgaver', icon: '💪', unlocked: submissions.length >= 10 },
+                { id: 'perfect_score', name: 'Perfekt score', desc: 'Få 100% på en quiz', icon: '🏆', unlocked: submissions.some(function(s) { return s.accuracy === 100; }) },
+                { id: 'hundred_points', name: '100 poeng', desc: 'Oppnå 100 poeng totalt', icon: '💎', unlocked: totalPoints >= 100 },
+                { id: 'five_hundred_points', name: '500 poeng', desc: 'Oppnå 500 poeng totalt', icon: '💰', unlocked: totalPoints >= 500 },
+                { id: 'early_bird', name: 'Morgensprek', desc: 'Lever inn før 8:00', icon: '🌅', unlocked: submissions.some(function(s) { return new Date(s.submittedAt).getHours() < 8; }) },
+                { id: 'night_owl', name: 'Nattugle', desc: 'Lever inn etter 23:00', icon: '🦉', unlocked: submissions.some(function(s) { return new Date(s.submittedAt).getHours() >= 23; }) }
+            ];
+            
+            var grid = document.getElementById('achievements-grid');
+            grid.innerHTML = '';
+            
+            achievements.forEach(function(achievement) {
+                var div = document.createElement('div');
+                div.className = 'achievement ' + (achievement.unlocked ? 'unlocked' : 'locked');
+                
+                div.innerHTML =
+                    '<div class="achievement-icon">' + achievement.icon + '</div>' +
+                    '<div class="achievement-name">' + achievement.name + '</div>' +
+                    '<div class="achievement-desc">' + achievement.desc + '</div>';
+                
+                grid.appendChild(div);
+            });
+        }
+    </script>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
+    </script>
+</body>
+</html>
