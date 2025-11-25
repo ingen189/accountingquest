@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Theme Test - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        body {
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .test-box {
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: var(--radius-lg);
+        }
+        .test-box h2 {
+            color: var(--accent);
+            margin-top: 0;
+        }
+        .info-line {
+            background: var(--bg-secondary);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--accent);
+        }
+        .info-line strong {
+            color: var(--accent);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition-normal);
+        }
+        button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+        .back-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .status-ok {
+            color: #4ade80;
+            font-weight: bold;
+        }
+        .status-error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Theme Persistens Test</h1>
+    <p>Denne siden viser nøyaktig hva som er lagret og applisert.</p>
+
+    <!-- Current State -->
+    <div class="test-box">
+        <h2>📊 Nåværende Status</h2>
+        <div class="info-line">
+            <strong>HTML data-theme:</strong> 
+            <span id="current-theme" class="status-ok">...</span>
+        </div>
+        <div class="info-line">
+            <strong>HTML data-accent:</strong> 
+            <span id="current-accent" class="status-ok">...</span>
+        </div>
+        <div class="info-line">
+            <strong>localStorage 'aq_theme':</strong> 
+            <span id="storage-theme" class="status-ok">...</span>
+        </div>
+        <div class="info-line">
+            <strong>localStorage 'aq_accent':</strong> 
+            <span id="storage-accent" class="status-ok">...</span>
+        </div>
+    </div>
+
+    <!-- Test Actions -->
+    <div class="test-box">
+        <h2>🎨 Test Tema-bytte</h2>
+        <p>Klikk på en knapp for å endre tema/accent:</p>
+        
+        <h3>Temaer:</h3>
+        <div class="btn-group">
+            <button onclick="testTheme('dark')">🌙 Mørk</button>
+            <button onclick="testTheme('light')">☀️ Lys</button>
+            <button onclick="testTheme('forest')">🌲 Skog</button>
+            <button onclick="testTheme('midnight')">🌑 Svart</button>
+        </div>
+        
+        <h3>Accent-farger:</h3>
+        <div class="btn-group">
+            <button onclick="testAccent('green')">💚 Grønn</button>
+            <button onclick="testAccent('blue')">💙 Blå</button>
+            <button onclick="testAccent('purple')">💜 Lilla</button>
+            <button onclick="testAccent('orange')">🧡 Oransje</button>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="test-box">
+        <h2>✅ Test-prosedyre</h2>
+        <ol>
+            <li><strong>Velg et tema</strong> (f.eks. 🌲 Skog)</li>
+            <li><strong>Velg en accent</strong> (f.eks. 💜 Lilla)</li>
+            <li><strong>Sjekk at verdiene oppdateres</strong> i "Nåværende Status" over</li>
+            <li><strong>Gå til en annen side</strong> (f.eks. <a href="index.html" style="color: var(--accent)">Hjem</a> eller <a href="bokforingsspill_excel.html" style="color: var(--accent)">Bokføring</a>)</li>
+            <li><strong>Verifiser</strong> at samme tema og accent vises der også!</li>
+        </ol>
+    </div>
+
+    <!-- Navigation -->
+    <div class="test-box">
+        <h2>🔗 Naviger til andre sider</h2>
+        <div class="btn-group">
+            <button class="back-btn" onclick="location.href='index.html'">← Hjem</button>
+            <button class="back-btn" onclick="location.href='bokforingsspill_excel.html'">📒 Bokføring</button>
+            <button class="back-btn" onclick="location.href='settings.html'">⚙️ Innstillinger</button>
+            <button class="back-btn" onclick="location.href='quiz_updated.html'">❓ Quiz</button>
+        </div>
+    </div>
+
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        // Initialize
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.init) {
+            ThemeManager.init();
+        }
+
+        function updateDisplay() {
+            // Get current values
+            const htmlTheme = document.documentElement.getAttribute('data-theme') || 'ikke satt';
+            const htmlAccent = document.documentElement.getAttribute('data-accent') || 'ikke satt';
+            const storageTheme = localStorage.getItem('aq_theme') || 'ikke satt';
+            const storageAccent = localStorage.getItem('aq_accent') || 'ikke satt';
+
+            // Update display
+            document.getElementById('current-theme').textContent = htmlTheme;
+            document.getElementById('current-accent').textContent = htmlAccent;
+            document.getElementById('storage-theme').textContent = storageTheme;
+            document.getElementById('storage-accent').textContent = storageAccent;
+
+            // Check if they match
+            const themeMatch = htmlTheme === storageTheme;
+            const accentMatch = htmlAccent === storageAccent;
+
+            // Update status colors
+            document.getElementById('current-theme').className = themeMatch ? 'status-ok' : 'status-error';
+            document.getElementById('current-accent').className = accentMatch ? 'status-ok' : 'status-error';
+        }
+
+        function testTheme(theme) {
+            console.log('Setting theme to:', theme);
+            ThemeManager.setTheme(theme);
+            setTimeout(updateDisplay, 100);
+        }
+
+        function testAccent(accent) {
+            console.log('Setting accent to:', accent);
+            ThemeManager.setAccent(accent);
+            setTimeout(updateDisplay, 100);
+        }
+
+        // Initial update
+        updateDisplay();
+
+        // Update every second to show real-time changes
+        setInterval(updateDisplay, 1000);
+    </script>
+</body>
+</html>
