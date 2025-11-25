@@ -14,7 +14,7 @@
  * FirebaseConfig.getAuth()        - Hent auth-referanse
  * FirebaseConfig.isReady()        - Sjekk om Firebase er klar
  * FirebaseConfig.signInAnon()     - Logg inn anonymt
- * FirebaseConfig.getCurrentUser() - Hent nåværende bruker
+ * FirebaseConfig.getCurrentUser() - Hent nÃ¥vÃ¦rende bruker
  */
 
 var FirebaseConfig = (function() {
@@ -68,7 +68,7 @@ var FirebaseConfig = (function() {
                     auth = firebase.auth();
                     ready = true;
                     
-                    console.log('🔥 Firebase initialisert');
+                    console.log('ðŸ”¥ Firebase initialisert');
                     
                     // Varsle listeners
                     listeners.forEach(function(cb) {
@@ -97,7 +97,7 @@ var FirebaseConfig = (function() {
      */
     function getDb() {
         if (!ready) {
-            console.warn('Firebase ikke klar ennå. Kall init() først.');
+            console.warn('Firebase ikke klar ennÃ¥. Kall init() fÃ¸rst.');
         }
         return db;
     }
@@ -107,7 +107,7 @@ var FirebaseConfig = (function() {
      */
     function getAuth() {
         if (!ready) {
-            console.warn('Firebase ikke klar ennå. Kall init() først.');
+            console.warn('Firebase ikke klar ennÃ¥. Kall init() fÃ¸rst.');
         }
         return auth;
     }
@@ -126,20 +126,20 @@ var FirebaseConfig = (function() {
         return init().then(function() {
             return auth.signInAnonymously();
         }).then(function(result) {
-            console.log('👤 Logget inn anonymt:', result.user.uid);
+            console.log('ðŸ‘¤ Logget inn anonymt:', result.user.uid);
             return result.user;
         });
     }
     
     /**
-     * Hent nåværende bruker
+     * Hent nÃ¥vÃ¦rende bruker
      */
     function getCurrentUser() {
         return auth ? auth.currentUser : null;
     }
     
     /**
-     * Vent på at Firebase er klar
+     * Vent pÃ¥ at Firebase er klar
      */
     function onReady(callback) {
         if (ready) {
@@ -150,7 +150,7 @@ var FirebaseConfig = (function() {
     }
     
     /**
-     * Kjør database-operasjon med sikkerhet
+     * KjÃ¸r database-operasjon med sikkerhet
      */
     function withDb(callback) {
         return init().then(function() {
@@ -159,7 +159,7 @@ var FirebaseConfig = (function() {
     }
     
     /**
-     * Kjør auth-operasjon med sikkerhet
+     * KjÃ¸r auth-operasjon med sikkerhet
      */
     function withAuth(callback) {
         return init().then(function() {
@@ -167,7 +167,7 @@ var FirebaseConfig = (function() {
         });
     }
     
-    // Auto-init når script lastes
+    // Auto-init nÃ¥r script lastes
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
             init().catch(function(err) {

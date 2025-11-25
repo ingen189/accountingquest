@@ -1,6 +1,6 @@
 /**
  * AccountingQuest - Theme Manager
- * Håndterer tema-bytte og brukerpreferanser
+ * HÃ¥ndterer tema-bytte og brukerpreferanser
  * 
  * BRUK:
  * <script src="js/theme-manager.js"></script>
@@ -9,35 +9,35 @@
  * ThemeManager.setTheme('dark')     // dark, light, dark-blue, midnight
  * ThemeManager.setAccent('green')   // green, blue, purple, pink, orange, cyan, red
  * ThemeManager.toggle()             // Bytt mellom dark/light
- * ThemeManager.getTheme()           // Hent nåværende tema
- * ThemeManager.getAccent()          // Hent nåværende accent
+ * ThemeManager.getTheme()           // Hent nÃ¥vÃ¦rende tema
+ * ThemeManager.getAccent()          // Hent nÃ¥vÃ¦rende accent
  */
 
 var ThemeManager = (function() {
     // Tilgjengelige temaer
     var themes = [
-        'dark',         // Standard mørk
+        'dark',         // Standard mÃ¸rk
         'light',        // Myk lys
         'cream',        // Varm kremfarget
-        'dark-blue',    // Navy blå
+        'dark-blue',    // Navy blÃ¥
         'midnight',     // Ekte svart
-        'charcoal',     // Mørk grå
-        'slate',        // Blågrå
-        'forest',       // Mørk grønn
-        'purple-night'  // Mørk lilla
+        'charcoal',     // MÃ¸rk grÃ¥
+        'slate',        // BlÃ¥grÃ¥
+        'forest',       // MÃ¸rk grÃ¸nn
+        'purple-night'  // MÃ¸rk lilla
     ];
     
     var accents = [
-        'green',    // 💚 Standard
-        'blue',     // 💙 
-        'purple',   // 💜
-        'pink',     // 💗
-        'orange',   // 🧡
-        'cyan',     // 🩵
-        'red',      // ❤️
-        'yellow',   // 💛
-        'teal',     // 🌊
-        'indigo'    // 💎
+        'green',    // ðŸ’š Standard
+        'blue',     // ðŸ’™ 
+        'purple',   // ðŸ’œ
+        'pink',     // ðŸ’—
+        'orange',   // ðŸ§¡
+        'cyan',     // ðŸ©µ
+        'red',      // â¤ï¸
+        'yellow',   // ðŸ’›
+        'teal',     // ðŸŒŠ
+        'indigo'    // ðŸ’Ž
     ];
     
     // Storage keys
@@ -64,7 +64,7 @@ var ThemeManager = (function() {
         setTheme(savedTheme || defaultTheme);
         setAccent(savedAccent || defaultAccent);
         
-        // Lytt på system-endringer
+        // Lytt pÃ¥ system-endringer
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
             if (!localStorage.getItem(THEME_KEY)) {
                 setTheme(e.matches ? 'dark' : 'light');
@@ -129,14 +129,14 @@ var ThemeManager = (function() {
     }
     
     /**
-     * Hent nåværende tema
+     * Hent nÃ¥vÃ¦rende tema
      */
     function getTheme() {
         return document.documentElement.getAttribute('data-theme') || defaultTheme;
     }
     
     /**
-     * Hent nåværende accent
+     * Hent nÃ¥vÃ¦rende accent
      */
     function getAccent() {
         return document.documentElement.getAttribute('data-accent') || defaultAccent;
@@ -172,20 +172,20 @@ var ThemeManager = (function() {
         if (!container) return;
         
         var themeLabels = {
-            'dark': '🌙 Mørk',
-            'light': '☀️ Lys',
-            'dark-blue': '🌊 Blå',
-            'midnight': '🌑 Midnight'
+            'dark': 'ðŸŒ™ MÃ¸rk',
+            'light': 'â˜€ï¸ Lys',
+            'dark-blue': 'ðŸŒŠ BlÃ¥',
+            'midnight': 'ðŸŒ‘ Midnight'
         };
         
         var accentLabels = {
-            'green': '💚 Grønn',
-            'blue': '💙 Blå',
-            'purple': '💜 Lilla',
-            'pink': '💗 Rosa',
-            'orange': '🧡 Oransje',
-            'cyan': '🩵 Cyan',
-            'red': '❤️ Rød'
+            'green': 'ðŸ’š GrÃ¸nn',
+            'blue': 'ðŸ’™ BlÃ¥',
+            'purple': 'ðŸ’œ Lilla',
+            'pink': 'ðŸ’— Rosa',
+            'orange': 'ðŸ§¡ Oransje',
+            'cyan': 'ðŸ©µ Cyan',
+            'red': 'â¤ï¸ RÃ¸d'
         };
         
         var currentTheme = getTheme();
@@ -195,7 +195,7 @@ var ThemeManager = (function() {
         
         // Tema-valg
         html += '<div class="theme-section">';
-        html += '<h4>🎨 Tema</h4>';
+        html += '<h4>ðŸŽ¨ Tema</h4>';
         html += '<div class="theme-options">';
         themes.forEach(function(theme) {
             var isActive = theme === currentTheme ? ' active' : '';
@@ -205,7 +205,7 @@ var ThemeManager = (function() {
         
         // Accent-valg
         html += '<div class="theme-section">';
-        html += '<h4>✨ Accent-farge</h4>';
+        html += '<h4>âœ¨ Accent-farge</h4>';
         html += '<div class="accent-options">';
         accents.forEach(function(accent) {
             var isActive = accent === currentAccent ? ' active' : '';
@@ -221,7 +221,7 @@ var ThemeManager = (function() {
         container.querySelectorAll('.theme-option').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 setTheme(this.dataset.theme);
-                renderThemeSelector(containerId); // Re-render for å oppdatere active state
+                renderThemeSelector(containerId); // Re-render for Ã¥ oppdatere active state
             });
         });
         
@@ -233,7 +233,7 @@ var ThemeManager = (function() {
         });
     }
     
-    // Auto-init når DOM er klar
+    // Auto-init nÃ¥r DOM er klar
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
