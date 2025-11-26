@@ -503,15 +503,15 @@
     </div>
 
     <script>
-        // Firebase Config
+        // Firebase Config - accountingquest-multiplayer
         const firebaseConfig = {
-            apiKey: "AIzaSyBPnvICblMUOVXkNSwba7NUqDALNa3lEUg",
-            authDomain: "accountingquest.firebaseapp.com",
-            databaseURL: "https://accountingquest-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest",
-            storageBucket: "accountingquest.firebasestorage.app",
-            messagingSenderId: "495735037392",
-            appId: "1:495735037392:web:ff1dc9d8f498c6926fed2a"
+            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+            authDomain: "accountingquest-multiplayer.firebaseapp.com",
+            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest-multiplayer",
+            storageBucket: "accountingquest-multiplayer.appspot.com",
+            messagingSenderId: "155094858270",
+            appId: "1:155094858270:web:abc123"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -520,12 +520,20 @@
         let currentFilter = { quiz: 'all', bokforing: 'all' };
         let allData = { quiz: [], bokforing: [], wiki: [], users: [], teachers: [] };
 
+        // Admin UID - hardkodet for sikkerhet
+        const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
+
         // Auth
         auth.onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = 'auth.html'; return; }
             currentUser = user;
+            
+            // Check admin - by UID first, then by admins node
+            const isAdminByUID = user.uid === ADMIN_UID;
             const adminSnap = await db.ref('admins/' + user.uid).once('value');
-            if (!adminSnap.exists()) {
+            const isAdmin = isAdminByUID || adminSnap.exists();
+            
+            if (!isAdmin) {
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('access-denied').style.display = 'flex';
                 return;

@@ -637,6 +637,9 @@
             'admin': 'Admin'
         };
         
+        // Admin UID - hardkodet for sikkerhet
+        const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
+        
         // Check auth
         auth.onAuthStateChanged(async (user) => {
             if (!user) {
@@ -648,18 +651,21 @@
             document.getElementById('currentUser').textContent = user.email;
             document.getElementById('myUid').textContent = user.uid;
             
-            // Check if admin
+            // Check if admin - by UID or role in database
             const snap = await db.ref('users/' + user.uid).once('value');
-            const userData = snap.val();
+            const userData = snap.val() || {};
             
-            if (!userData || userData.role !== 'admin') {
+            const isAdmin = user.uid === ADMIN_UID || userData.role === 'admin';
+            
+            if (!isAdmin) {
                 alert('Du har ikke admin-tilgang');
                 window.location.href = 'index.html';
                 return;
             }
             
-            document.getElementById('myRole').textContent = ROLE_LABELS[userData.role] || userData.role;
-            document.getElementById('myRole').className = 'role-badge role-' + userData.role;
+            const displayRole = user.uid === ADMIN_UID ? 'admin' : userData.role;
+            document.getElementById('myRole').textContent = ROLE_LABELS[displayRole] || displayRole;
+            document.getElementById('myRole').className = 'role-badge role-admin';
             
             // Check test mode
             const testRole = localStorage.getItem('aq_test_role');
