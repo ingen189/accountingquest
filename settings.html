@@ -131,6 +131,11 @@
             background: #dc2626;
         }
 
+        .aq-btn-small {
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
+
         /* Badges */
         .aq-badge {
             display: inline-flex;
@@ -146,6 +151,10 @@
         .aq-badge-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
         .aq-badge-success { background: var(--success); color: white; }
         .aq-badge-info { background: var(--info); color: white; }
+        .aq-badge-warning { background: var(--warning); color: var(--bg-primary); }
+        .aq-badge-premium { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .aq-badge-admin { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        .aq-badge-teacher { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
 
         /* Progress */
         .aq-progress {
@@ -213,29 +222,35 @@
             background: var(--bg-tertiary);
             border: 3px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 10px;
-            text-align: center;
+            padding: 15px;
             cursor: pointer;
             transition: all var(--transition-normal);
+            text-align: center;
         }
 
         .theme-card:hover {
-            border-color: var(--border-light);
-            transform: translateY(-3px);
+            border-color: var(--accent);
+            transform: translateY(-2px);
         }
 
         .theme-card.active {
             border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
+            box-shadow: 0 0 15px var(--accent-glow);
         }
 
         .theme-preview {
             width: 100%;
             height: 50px;
             border-radius: var(--radius-sm);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
+        .theme-name {
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        /* Theme preview colors */
         .theme-preview-dark { background: linear-gradient(135deg, #0f1419, #1a1f26); }
         .theme-preview-light { background: linear-gradient(135deg, #f5f5f0, #fafaf8); }
         .theme-preview-cream { background: linear-gradient(135deg, #f9f6f1, #fffcf7); }
@@ -246,50 +261,30 @@
         .theme-preview-forest { background: linear-gradient(135deg, #0c1a14, #142b1f); }
         .theme-preview-purple-night { background: linear-gradient(135deg, #13111c, #1c1829); }
 
-        .theme-name {
-            font-weight: 600;
-            font-size: 0.9em;
-            color: var(--text-primary);
-        }
-
-        /* Accent grid */
+        /* Accent buttons */
         .accent-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            margin-bottom: 20px;
         }
 
         .accent-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: var(--radius-md);
-            border: 3px solid var(--border-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
             cursor: pointer;
             transition: all var(--transition-normal);
-            position: relative;
         }
 
         .accent-btn:hover {
-            transform: scale(1.15);
-            border-color: var(--border-light);
-        }
-
-        .accent-btn.active {
-            border-color: white;
-            box-shadow: 0 0 15px currentColor;
             transform: scale(1.1);
         }
 
-        .accent-btn.active::after {
-            content: '✓';
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3em;
-            color: white;
-            text-shadow: 0 0 3px rgba(0,0,0,0.5);
+        .accent-btn.active {
+            border-color: var(--text-primary);
+            box-shadow: 0 0 10px var(--accent-glow);
         }
 
         .accent-green { background: #4ade80; }
@@ -386,6 +381,9 @@
         .account-value {
             color: var(--text-primary);
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .account-actions {
@@ -393,6 +391,151 @@
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 15px;
+        }
+
+        /* Editable username */
+        .username-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .username-input-wrapper {
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .username-input-wrapper.active {
+            display: flex;
+        }
+
+        .username-display.hidden {
+            display: none;
+        }
+
+        .username-input {
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.95em;
+            width: 180px;
+        }
+
+        .username-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .edit-username-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1em;
+            transition: color var(--transition-fast);
+        }
+
+        .edit-username-btn:hover {
+            color: var(--accent);
+        }
+
+        /* Role display */
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .role-free {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .role-student {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid #3b82f6;
+        }
+
+        .role-pro {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+            color: #fbbf24;
+            border: 1px solid #f59e0b;
+        }
+
+        .role-teacher-lite {
+            background: rgba(139, 92, 246, 0.2);
+            color: #a78bfa;
+            border: 1px solid #8b5cf6;
+        }
+
+        .role-teacher-pro {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(124, 58, 237, 0.3));
+            color: #c4b5fd;
+            border: 1px solid #8b5cf6;
+        }
+
+        .role-admin {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+            color: #fca5a5;
+            border: 1px solid #ef4444;
+        }
+
+        /* Subscription info */
+        .subscription-info {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .subscription-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .subscription-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .subscription-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .feature-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        .feature-tag.active {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .feature-tag.locked {
+            opacity: 0.5;
         }
 
         /* Password form */
@@ -472,6 +615,33 @@
             margin-bottom: 15px;
         }
 
+        /* Upgrade CTA */
+        .upgrade-cta {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+            border: 1px solid #f59e0b;
+            border-radius: var(--radius-md);
+            padding: 15px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .upgrade-cta-text {
+            color: #fbbf24;
+        }
+
+        .upgrade-cta-text strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .upgrade-cta-text span {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
         @media (max-width: 600px) {
             .theme-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -482,7 +652,11 @@
             .account-row {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 5px;
+                gap: 8px;
+            }
+            .upgrade-cta {
+                flex-direction: column;
+                text-align: center;
             }
         }
     </style>
@@ -523,17 +697,52 @@
                         <span class="account-value" id="user-email">-</span>
                     </div>
                     <div class="account-row">
-                        <span class="account-label">Brukernavn</span>
-                        <span class="account-value" id="user-name">-</span>
+                        <span class="account-label">Kallenavn</span>
+                        <span class="account-value">
+                            <div class="username-display" id="username-display">
+                                <span id="user-name">-</span>
+                                <button class="edit-username-btn" onclick="startEditUsername()" title="Endre kallenavn">✏️</button>
+                            </div>
+                            <div class="username-input-wrapper" id="username-input-wrapper">
+                                <input type="text" class="username-input" id="username-input" maxlength="30" placeholder="Ditt kallenavn">
+                                <button class="aq-btn aq-btn-primary aq-btn-small" onclick="saveUsername()">Lagre</button>
+                                <button class="aq-btn aq-btn-secondary aq-btn-small" onclick="cancelEditUsername()">Avbryt</button>
+                            </div>
+                        </span>
                     </div>
                     <div class="account-row">
                         <span class="account-label">Rolle</span>
-                        <span class="account-value" id="user-role">-</span>
+                        <span class="account-value">
+                            <span class="role-badge role-free" id="user-role-badge">
+                                <span id="user-role-icon">👤</span>
+                                <span id="user-role-text">Gratis</span>
+                            </span>
+                        </span>
                     </div>
                     <div class="account-row">
                         <span class="account-label">Innloggingsmetode</span>
                         <span class="account-value" id="user-provider">-</span>
                     </div>
+                </div>
+
+                <!-- Abonnement/Features info -->
+                <div class="subscription-info" id="subscription-info">
+                    <div class="subscription-header">
+                        <span class="subscription-title">📋 Dine funksjoner</span>
+                        <span class="aq-badge aq-badge-secondary" id="plan-badge">Gratis</span>
+                    </div>
+                    <div class="subscription-features" id="features-list">
+                        <!-- Fylles dynamisk -->
+                    </div>
+                </div>
+
+                <!-- Upgrade CTA for free users -->
+                <div class="upgrade-cta" id="upgrade-cta" style="display: none;">
+                    <div class="upgrade-cta-text">
+                        <strong>⭐ Oppgrader til Pro</strong>
+                        <span>Få tilgang til alle funksjoner, ubegrenset øving og mer!</span>
+                    </div>
+                    <a href="pricing.html" class="aq-btn aq-btn-primary">Se priser</a>
                 </div>
 
                 <div class="account-actions">
@@ -631,31 +840,31 @@
                 <button class="accent-btn accent-indigo" data-accent="indigo" title="Indigo"></button>
             </div>
             
-            <!-- Preview -->
             <div class="preview-section">
-                <h4>Forhåndsvisning:</h4>
+                <h4>Forhåndsvisning</h4>
                 <div class="preview-components">
-                    <button class="aq-btn aq-btn-primary">Primær-knapp</button>
+                    <button class="aq-btn aq-btn-primary">Primær knapp</button>
                     <button class="aq-btn aq-btn-secondary">Sekundær</button>
                     <span class="aq-badge aq-badge-primary">Badge</span>
                     <div class="aq-progress" style="width: 150px;">
-                        <div class="aq-progress-bar" style="width: 70%;"></div>
+                        <div class="aq-progress-bar" style="width: 65%;"></div>
                     </div>
                 </div>
             </div>
         </section>
         
-        <!-- Brukerdata -->
+        <!-- Data & lagring -->
         <section class="settings-section">
-            <h3>💾 Data</h3>
+            <h3>💾 Data & Lagring</h3>
+            <p>Administrer din lokale data og fremgang.</p>
             
             <div class="storage-info">
                 <div class="storage-item">
-                    <span>Bokføring fremgang</span>
+                    <span>Bokføringsoppgaver</span>
                     <span id="bokforing-count">0 oppgaver</span>
                 </div>
                 <div class="storage-item">
-                    <span>Quiz fremgang</span>
+                    <span>Quiz-fremgang</span>
                     <span id="quiz-count">0 kategorier</span>
                 </div>
                 <div class="storage-item">
@@ -663,7 +872,7 @@
                     <span id="custom-quiz-count">0 quizzer</span>
                 </div>
                 <div class="storage-item">
-                    <span>Totalt lagret</span>
+                    <span>Total lagringsplass brukt</span>
                     <span id="total-storage">0 KB</span>
                 </div>
             </div>
@@ -672,90 +881,287 @@
                 <button class="aq-btn aq-btn-secondary" onclick="exportData()">
                     📥 Eksporter data
                 </button>
-                <button class="aq-btn aq-btn-secondary" onclick="document.getElementById('import-file').click()">
+                <label class="aq-btn aq-btn-secondary" style="cursor: pointer;">
                     📤 Importer data
-                </button>
-                <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
+                    <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
+                </label>
                 <button class="aq-btn aq-btn-danger" onclick="confirmResetData()">
-                    🗑️ Nullstill alt
+                    🗑️ Slett all data
                 </button>
             </div>
         </section>
         
-        <!-- Om -->
+        <!-- Om AccountingQuest -->
         <section class="settings-section">
             <h3>ℹ️ Om AccountingQuest</h3>
-            <p>
-                AccountingQuest er en gamifisert læringsplattform for norsk bokføring og regnskap.
-                Plattformen er designet for å gjøre det lettere å lære regnskapsføring gjennom
-                interaktive oppgaver basert på norske lover og standarder.
-            </p>
+            <p>Versjon 2.1.0 • Utviklet for norske regnskapsstudenter</p>
+            
             <div class="badges-row">
-                <span class="aq-badge aq-badge-secondary">Versjon 2.0</span>
-                <span class="aq-badge aq-badge-info">Firebase-støtte</span>
-                <span class="aq-badge aq-badge-success">Multiplayer</span>
+                <span class="aq-badge aq-badge-success">✅ Oppdatert</span>
+                <span class="aq-badge aq-badge-info">📱 Mobilvennlig</span>
+                <span class="aq-badge aq-badge-secondary">🇳🇴 Norsk</span>
             </div>
         </section>
     </div>
-    
+
     <script>
-        // ========== FIREBASE ==========
+        // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
-            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
-            authDomain: "accountingquest-multiplayer.firebaseapp.com",
-            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest-multiplayer",
-            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
-            messagingSenderId: "525417361926",
-            appId: "1:525417361926:web:ec9b737f82af9b21700987"
+            apiKey: "AIzaSyBPnvICblMUOVXkNSwba7NUqDALNa3lEUg",
+            authDomain: "accountingquest.firebaseapp.com",
+            databaseURL: "https://accountingquest-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest",
+            storageBucket: "accountingquest.firebasestorage.app",
+            messagingSenderId: "495735037392",
+            appId: "1:495735037392:web:ff1dc9d8f498c6926fed2a"
         };
-        
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
-
+        
         let currentUser = null;
+        let userData = null;
+
+        // ========== ROLE CONFIGURATION ==========
+        const ROLES = {
+            'free': { 
+                icon: '👤', 
+                label: 'Gratis', 
+                class: 'role-free',
+                badge: 'Gratis',
+                badgeClass: 'aq-badge-secondary'
+            },
+            'student': { 
+                icon: '🎓', 
+                label: 'Student', 
+                class: 'role-student',
+                badge: 'Student',
+                badgeClass: 'aq-badge-info'
+            },
+            'pro': { 
+                icon: '⭐', 
+                label: 'Pro', 
+                class: 'role-pro',
+                badge: 'Pro',
+                badgeClass: 'aq-badge-premium'
+            },
+            'teacher_lite': { 
+                icon: '👨‍🏫', 
+                label: 'Lærer Lite', 
+                class: 'role-teacher-lite',
+                badge: 'Lærer Lite',
+                badgeClass: 'aq-badge-teacher'
+            },
+            'teacher': { 
+                icon: '👨‍🏫', 
+                label: 'Lærer Pro', 
+                class: 'role-teacher-pro',
+                badge: 'Lærer Pro',
+                badgeClass: 'aq-badge-teacher'
+            },
+            'teacher_pro': { 
+                icon: '👨‍🏫', 
+                label: 'Lærer Pro', 
+                class: 'role-teacher-pro',
+                badge: 'Lærer Pro',
+                badgeClass: 'aq-badge-teacher'
+            },
+            'admin': { 
+                icon: '🛡️', 
+                label: 'Administrator', 
+                class: 'role-admin',
+                badge: 'Admin',
+                badgeClass: 'aq-badge-admin'
+            }
+        };
+
+        // Feature access by role
+        const FEATURES = {
+            'quiz': { label: 'Quiz', icon: '❓' },
+            'bokforing': { label: 'Bokføringsspill', icon: '📊' },
+            'analyse': { label: 'Analyse', icon: '📈' },
+            'case': { label: 'Case Studies', icon: '📋' },
+            'hjernetrim': { label: 'Hjernetrim', icon: '🧠' },
+            'multiplayer': { label: 'Multiplayer', icon: '👥' },
+            'duel': { label: 'Duell', icon: '⚔️' },
+            'wiki': { label: 'Wiki', icon: '📖' },
+            'classroom': { label: 'Klasserom', icon: '🏫' },
+            'export': { label: 'Eksporter', icon: '📥' },
+            'custom_quiz': { label: 'Lag quiz', icon: '✏️' }
+        };
+
+        const ROLE_FEATURES = {
+            'free': ['quiz', 'bokforing', 'wiki'],
+            'student': ['quiz', 'bokforing', 'analyse', 'case', 'hjernetrim', 'wiki', 'multiplayer'],
+            'pro': ['quiz', 'bokforing', 'analyse', 'case', 'hjernetrim', 'wiki', 'multiplayer', 'duel', 'custom_quiz', 'export'],
+            'teacher_lite': ['quiz', 'bokforing', 'analyse', 'case', 'hjernetrim', 'wiki', 'multiplayer', 'classroom'],
+            'teacher': ['quiz', 'bokforing', 'analyse', 'case', 'hjernetrim', 'wiki', 'multiplayer', 'duel', 'classroom', 'custom_quiz', 'export'],
+            'teacher_pro': ['quiz', 'bokforing', 'analyse', 'case', 'hjernetrim', 'wiki', 'multiplayer', 'duel', 'classroom', 'custom_quiz', 'export'],
+            'admin': Object.keys(FEATURES)
+        };
 
         // ========== AUTH STATE ==========
         auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            
-            if (user && !user.isAnonymous) {
-                // Logged in
+            if (user) {
+                currentUser = user;
                 document.getElementById('guest-view').style.display = 'none';
                 document.getElementById('user-view').style.display = 'block';
                 
-                // Email
+                // Display email
                 document.getElementById('user-email').textContent = user.email || '-';
                 
-                // Provider
-                const providers = user.providerData.map(p => {
-                    if (p.providerId === 'password') return 'E-post/Passord';
-                    if (p.providerId === 'google.com') return 'Google';
-                    return p.providerId;
-                });
-                document.getElementById('user-provider').textContent = providers.join(', ') || '-';
+                // Determine provider
+                const provider = user.providerData[0]?.providerId || 'unknown';
+                let providerName = 'Ukjent';
+                if (provider === 'password') providerName = 'E-post/Passord';
+                else if (provider === 'google.com') providerName = 'Google';
+                else if (provider === 'facebook.com') providerName = 'Facebook';
+                document.getElementById('user-provider').textContent = providerName;
                 
-                // Hide password change for Google-only users
+                // Show/hide password change button
                 const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
                 document.getElementById('change-password-btn').style.display = hasPasswordProvider ? 'inline-flex' : 'none';
                 
                 // Get user data from database
                 try {
                     const snap = await db.ref('users/' + user.uid).once('value');
-                    const data = snap.val();
-                    if (data) {
-                        document.getElementById('user-name').textContent = data.username || user.displayName || '-';
-                        document.getElementById('user-role').textContent = data.role === 'teacher' ? '👨‍🏫 Lærer' : '🎓 Student';
+                    userData = snap.val() || {};
+                    
+                    // Display username
+                    const username = userData.username || userData.displayName || user.displayName || '';
+                    document.getElementById('user-name').textContent = username || '(ikke satt)';
+                    
+                    // Display role
+                    const role = userData.role || 'free';
+                    updateRoleDisplay(role);
+                    
+                    // Update features list
+                    updateFeaturesDisplay(role);
+                    
+                    // Show upgrade CTA for free users
+                    if (role === 'free') {
+                        document.getElementById('upgrade-cta').style.display = 'flex';
                     }
+                    
                 } catch (e) {
                     console.error('Error fetching user data:', e);
+                    document.getElementById('user-name').textContent = user.displayName || '(ikke satt)';
+                    updateRoleDisplay('free');
+                    updateFeaturesDisplay('free');
                 }
                 
             } else {
                 // Guest or not logged in
                 document.getElementById('guest-view').style.display = 'block';
                 document.getElementById('user-view').style.display = 'none';
+            }
+        });
+
+        // ========== ROLE & FEATURES DISPLAY ==========
+        function updateRoleDisplay(role) {
+            const config = ROLES[role] || ROLES['free'];
+            const badge = document.getElementById('user-role-badge');
+            const icon = document.getElementById('user-role-icon');
+            const text = document.getElementById('user-role-text');
+            const planBadge = document.getElementById('plan-badge');
+            
+            // Update role badge
+            badge.className = 'role-badge ' + config.class;
+            icon.textContent = config.icon;
+            text.textContent = config.label;
+            
+            // Update plan badge
+            planBadge.textContent = config.badge;
+            planBadge.className = 'aq-badge ' + config.badgeClass;
+        }
+
+        function updateFeaturesDisplay(role) {
+            const container = document.getElementById('features-list');
+            const activeFeatures = ROLE_FEATURES[role] || ROLE_FEATURES['free'];
+            
+            container.innerHTML = '';
+            
+            Object.keys(FEATURES).forEach(key => {
+                const feature = FEATURES[key];
+                const isActive = activeFeatures.includes(key);
+                
+                const tag = document.createElement('span');
+                tag.className = 'feature-tag' + (isActive ? ' active' : ' locked');
+                tag.innerHTML = `${isActive ? '✓' : '🔒'} ${feature.icon} ${feature.label}`;
+                container.appendChild(tag);
+            });
+        }
+
+        // ========== USERNAME EDITING ==========
+        function startEditUsername() {
+            const display = document.getElementById('username-display');
+            const wrapper = document.getElementById('username-input-wrapper');
+            const input = document.getElementById('username-input');
+            const currentName = document.getElementById('user-name').textContent;
+            
+            display.classList.add('hidden');
+            wrapper.classList.add('active');
+            input.value = currentName === '(ikke satt)' ? '' : currentName;
+            input.focus();
+        }
+
+        function cancelEditUsername() {
+            const display = document.getElementById('username-display');
+            const wrapper = document.getElementById('username-input-wrapper');
+            
+            display.classList.remove('hidden');
+            wrapper.classList.remove('active');
+        }
+
+        async function saveUsername() {
+            const input = document.getElementById('username-input');
+            const newUsername = input.value.trim();
+            
+            if (!newUsername) {
+                alert('Kallenavn kan ikke være tomt');
+                return;
+            }
+            
+            if (newUsername.length > 30) {
+                alert('Kallenavn kan maks være 30 tegn');
+                return;
+            }
+            
+            if (!currentUser) {
+                alert('Du må være logget inn');
+                return;
+            }
+            
+            try {
+                // Update in Firebase
+                await db.ref('users/' + currentUser.uid).update({
+                    username: newUsername,
+                    updatedAt: Date.now()
+                });
+                
+                // Update display
+                document.getElementById('user-name').textContent = newUsername;
+                cancelEditUsername();
+                
+                // Show success briefly
+                const nameEl = document.getElementById('user-name');
+                nameEl.style.color = 'var(--success)';
+                setTimeout(() => {
+                    nameEl.style.color = '';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Error saving username:', error);
+                alert('Kunne ikke lagre kallenavn: ' + error.message);
+            }
+        }
+
+        // Allow Enter key to save username
+        document.getElementById('username-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                saveUsername();
+            } else if (e.key === 'Escape') {
+                cancelEditUsername();
             }
         });
 

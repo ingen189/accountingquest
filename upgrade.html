@@ -1,178 +1,316 @@
 <!DOCTYPE html>
-<html lang="no">
+<html lang="no" data-theme="dark" data-accent="green">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oppgrader til Premium - AccountingQuest</title>
+    <title>Oppgrader - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <link rel="stylesheet" href="css/main.css">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-            padding: 20px;
+            line-height: 1.6;
         }
 
+        /* Header */
+        .aq-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .aq-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .aq-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .aq-logo-icon { font-size: 1.8em; }
+
+        .aq-logo-text {
+            font-size: 1.4em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .aq-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .aq-btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .aq-btn-secondary:hover {
+            background: var(--border-light);
+        }
+
+        /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 40px 20px;
         }
 
-        .header {
+        /* Hero */
+        .hero {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
         }
 
-        .header h1 {
-            font-size: 3em;
-            background: linear-gradient(135deg, #4ade80, #3b82f6);
+        .hero h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--accent), #f59e0b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            background-clip: text;
         }
 
-        .header p {
-            color: #9ca3af;
+        .hero p {
+            color: var(--text-secondary);
             font-size: 1.2em;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        .pricing-cards {
+        /* Current Plan Badge */
+        .current-plan {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-full);
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .current-plan.premium {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+            border-color: #f59e0b;
+            color: #fbbf24;
+        }
+
+        /* Plans Grid */
+        .plans-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 30px;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
         }
 
-        .pricing-card {
-            background: #2d2d2d;
-            border: 2px solid #404040;
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            transition: all 0.3s;
+        .plan-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 35px;
             position: relative;
+            transition: all 0.3s;
         }
 
-        .pricing-card:hover {
-            transform: translateY(-10px);
-            border-color: #4ade80;
-            box-shadow: 0 20px 60px rgba(74, 222, 128, 0.3);
+        .plan-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 40px rgba(74, 222, 128, 0.15);
         }
 
-        .pricing-card.recommended {
-            border-color: #4ade80;
-            box-shadow: 0 10px 40px rgba(74, 222, 128, 0.2);
+        .plan-card.recommended {
+            border-color: var(--accent);
+            box-shadow: 0 8px 30px rgba(74, 222, 128, 0.2);
         }
 
-        .pricing-card.recommended::before {
+        .plan-card.recommended::before {
             content: '⭐ Anbefalt';
             position: absolute;
-            top: -15px;
+            top: -14px;
             left: 50%;
             transform: translateX(-50%);
-            background: #4ade80;
-            color: #1e1e1e;
-            padding: 5px 20px;
-            border-radius: 20px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 6px 20px;
+            border-radius: var(--radius-full);
             font-size: 0.85em;
-            font-weight: bold;
+            font-weight: 700;
         }
 
-        .tier-name {
-            font-size: 1.5em;
-            color: #4ade80;
-            margin-bottom: 10px;
+        .plan-card.teacher {
+            border-color: #8b5cf6;
         }
 
-        .price {
+        .plan-card.teacher:hover {
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2);
+        }
+
+        .plan-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .plan-icon {
             font-size: 3em;
-            font-weight: bold;
-            margin: 20px 0;
+            margin-bottom: 15px;
         }
 
-        .price-small {
+        .plan-name {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .plan-card.teacher .plan-name {
+            color: #a78bfa;
+        }
+
+        .plan-price {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .plan-price span {
             font-size: 0.4em;
-            color: #9ca3af;
+            color: var(--text-secondary);
+            font-weight: 400;
         }
 
-        .savings {
-            background: rgba(74, 222, 128, 0.2);
-            color: #4ade80;
-            padding: 8px 15px;
-            border-radius: 20px;
+        .plan-card.teacher .plan-price {
+            color: #a78bfa;
+        }
+
+        .plan-savings {
             display: inline-block;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--accent);
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 10px;
         }
 
-        .features {
+        .plan-features {
             list-style: none;
-            padding: 0;
-            margin: 30px 0;
-            text-align: left;
+            margin: 25px 0;
         }
 
-        .features li {
+        .plan-features li {
             padding: 12px 0;
-            border-bottom: 1px solid #404040;
-            font-size: 1em;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .features li:last-child {
+        .plan-features li:last-child {
             border-bottom: none;
         }
 
-        .features li::before {
-            content: '✓ ';
-            color: #4ade80;
-            font-weight: bold;
-            margin-right: 10px;
+        .plan-features li::before {
+            content: '✓';
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.1em;
         }
 
-        .btn-upgrade {
+        .plan-card.teacher .plan-features li::before {
+            color: #a78bfa;
+        }
+
+        .plan-btn {
             width: 100%;
-            padding: 18px;
-            background: #4ade80;
-            color: #1e1e1e;
+            padding: 16px;
+            background: var(--accent);
+            color: var(--bg-primary);
             border: none;
-            border-radius: 12px;
-            font-size: 1.2em;
-            font-weight: bold;
+            border-radius: var(--radius-md);
+            font-size: 1.1em;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
         }
 
-        .btn-upgrade:hover {
-            background: #3bc56f;
+        .plan-btn:hover {
+            background: var(--accent-hover);
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.4);
+            box-shadow: 0 8px 25px var(--accent-glow);
         }
 
-        .btn-upgrade:disabled {
+        .plan-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
 
-        .comparison {
-            background: #2d2d2d;
-            border: 2px solid #404040;
-            border-radius: 20px;
+        .plan-btn.teacher-btn {
+            background: #8b5cf6;
+        }
+
+        .plan-btn.teacher-btn:hover {
+            background: #7c3aed;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .plan-btn.current {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        /* Comparison Table */
+        .comparison-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
             padding: 40px;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
         }
 
-        .comparison h2 {
-            color: #4ade80;
+        .comparison-section h2 {
             text-align: center;
+            font-size: 1.8em;
             margin-bottom: 30px;
-            font-size: 2em;
+            color: var(--accent);
         }
 
         .comparison-table {
@@ -184,39 +322,72 @@
         .comparison-table td {
             padding: 15px;
             text-align: center;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .comparison-table th {
-            background: #404040;
-            color: #4ade80;
-            font-weight: bold;
+            background: var(--bg-tertiary);
+            font-weight: 600;
+        }
+
+        .comparison-table th:first-child,
+        .comparison-table td:first-child {
+            text-align: left;
         }
 
         .comparison-table tr:last-child td {
             border-bottom: none;
         }
 
-        .check {
-            color: #4ade80;
-            font-size: 1.5em;
+        .check { color: var(--accent); font-size: 1.3em; }
+        .cross { color: var(--error); font-size: 1.3em; }
+        .partial { color: var(--warning); font-size: 0.9em; }
+
+        /* FAQ */
+        .faq-section {
+            margin-bottom: 60px;
         }
 
-        .cross {
-            color: #ef4444;
-            font-size: 1.5em;
-        }
-
-        .payment-methods {
+        .faq-section h2 {
             text-align: center;
-            margin-top: 30px;
-            padding: 20px;
-            background: #404040;
-            border-radius: 10px;
+            font-size: 1.8em;
+            margin-bottom: 30px;
         }
 
-        .payment-methods p {
-            color: #9ca3af;
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .faq-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+        }
+
+        .faq-question {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        .faq-answer {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        /* Payment Methods */
+        .payment-section {
+            text-align: center;
+            padding: 30px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+        }
+
+        .payment-section p {
+            color: var(--text-secondary);
             margin-bottom: 15px;
         }
 
@@ -228,226 +399,306 @@
         }
 
         .payment-icon {
-            background: #2d2d2d;
+            background: var(--bg-card);
             padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: var(--radius-md);
+            font-weight: 600;
         }
 
-        .back-link {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .back-link a {
-            color: #9ca3af;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .back-link a:hover {
-            color: #4ade80;
-        }
-
-        .faq {
-            background: #2d2d2d;
-            border: 2px solid #404040;
-            border-radius: 20px;
+        /* Institution CTA */
+        .institution-cta {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid #3b82f6;
+            border-radius: var(--radius-xl);
             padding: 40px;
-            margin-bottom: 30px;
-        }
-
-        .faq h2 {
-            color: #4ade80;
-            margin-bottom: 30px;
             text-align: center;
-            font-size: 2em;
+            margin-bottom: 40px;
         }
 
-        .faq-item {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #404040;
-        }
-
-        .faq-item:last-child {
-            border-bottom: none;
-        }
-
-        .faq-question {
-            color: #e0e0e0;
-            font-weight: bold;
+        .institution-cta h3 {
+            font-size: 1.5em;
             margin-bottom: 10px;
-            font-size: 1.1em;
+            color: #60a5fa;
         }
 
-        .faq-answer {
-            color: #9ca3af;
-            line-height: 1.6;
+        .institution-cta p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .institution-cta .aq-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .institution-cta .aq-btn:hover {
+            background: #2563eb;
+        }
+
+        /* Already Premium Message */
+        .already-premium {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.1));
+            border: 2px solid var(--accent);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .already-premium h3 {
+            font-size: 1.8em;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .already-premium p {
+            color: var(--text-secondary);
         }
 
         @media (max-width: 768px) {
-            .pricing-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .header h1 {
-                font-size: 2em;
-            }
-
-            .price {
-                font-size: 2.5em;
-            }
+            .hero h1 { font-size: 2em; }
+            .plans-grid { grid-template-columns: 1fr; }
+            .faq-grid { grid-template-columns: 1fr; }
+            .comparison-table { font-size: 0.85em; }
+            .comparison-table th, .comparison-table td { padding: 10px 5px; }
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
+    <header class="aq-header">
+        <div class="aq-header-left">
+            <a href="index.html" class="aq-logo">
+                <span class="aq-logo-icon">📚</span>
+                <span class="aq-logo-text">AccountingQuest</span>
+            </a>
+        </div>
+        <div class="aq-header-right">
+            <a href="index.html" class="aq-btn aq-btn-secondary">← Tilbake</a>
+        </div>
+    </header>
+
     <div class="container">
-        <div class="header">
-            <h1>✨ Oppgrader til Premium</h1>
-            <p>Få full tilgang til alle funksjoner</p>
+        <!-- Hero -->
+        <div class="hero">
+            <h1>⭐ Velg din plan</h1>
+            <p>Få tilgang til alle funksjoner og lær regnskap på din måte</p>
+            <div class="current-plan" id="current-plan-badge">
+                <span>📊 Din plan:</span>
+                <strong id="current-plan-text">Laster...</strong>
+            </div>
         </div>
 
-        <div class="pricing-cards">
-            <!-- Monthly Plan -->
-            <div class="pricing-card">
-                <div class="tier-name">📅 Månedlig</div>
-                <div class="price">
-                    9 kr
-                    <span class="price-small">/mnd</span>
+        <!-- Already Premium (hidden by default) -->
+        <div class="already-premium" id="already-premium" style="display: none;">
+            <h3>🎉 Du har allerede Premium!</h3>
+            <p>Takk for at du støtter AccountingQuest. Du har full tilgang til alle funksjoner.</p>
+        </div>
+
+        <!-- Plans Grid -->
+        <div class="plans-grid" id="plans-grid">
+            <!-- Free Plan -->
+            <div class="plan-card">
+                <div class="plan-header">
+                    <div class="plan-icon">👤</div>
+                    <div class="plan-name">Gratis</div>
+                    <div class="plan-price">0 kr <span>/alltid</span></div>
                 </div>
-                <ul class="features">
-                    <li>Unlimited forsøk</li>
-                    <li>Alle case studies (15)</li>
-                    <li>Hjernetrim-oppgaver (10)</li>
-                    <li>Cloud-lagring</li>
-                    <li>Sync på tvers av enheter</li>
-                    <li>Prioritert support</li>
+                <ul class="plan-features">
+                    <li>Alle bokføringsoppgaver (36+)</li>
+                    <li>Quiz med 90+ spørsmål</li>
+                    <li>Wiki / oppslagsverk</li>
+                    <li>Lokal lagring av fremgang</li>
+                    <li>Basis tema-innstillinger</li>
                 </ul>
-                <button class="btn-upgrade" onclick="selectPlan('monthly')">
-                    Velg månedlig
-                </button>
+                <button class="plan-btn current" disabled id="btn-free">Nåværende plan</button>
             </div>
 
-            <!-- Yearly Plan (Recommended) -->
-            <div class="pricing-card recommended">
-                <div class="tier-name">🎓 Årlig</div>
-                <div class="savings">Spar 22 kr/år!</div>
-                <div class="price">
-                    79 kr
-                    <span class="price-small">/år</span>
+            <!-- Student Pro Plan (Recommended) -->
+            <div class="plan-card recommended">
+                <div class="plan-header">
+                    <div class="plan-icon">🎓</div>
+                    <div class="plan-name">Student Pro</div>
+                    <div class="plan-price">79 kr <span>/år</span></div>
+                    <div class="plan-savings">💰 Kun 6,58 kr/mnd</div>
                 </div>
-                <ul class="features">
-                    <li>Alt i Månedlig</li>
-                    <li>2 måneder gratis</li>
-                    <li>Kun 6,58 kr/mnd</li>
-                    <li>Bedre verdi for pengene</li>
-                    <li>Perfekt for studenter</li>
-                    <li>Garantert pris i ett år</li>
+                <ul class="plan-features">
+                    <li>Alt i Gratis</li>
+                    <li>Alle regnskapsanalyser (11)</li>
+                    <li>Alle case studies (15)</li>
+                    <li>Hjernetrim-oppgaver (10+)</li>
+                    <li>Multiplayer & dueller</li>
+                    <li>Cloud-lagring & sync</li>
+                    <li>Prioritert support</li>
                 </ul>
-                <button class="btn-upgrade" onclick="selectPlan('yearly')">
-                    Velg årlig (Anbefalt)
-                </button>
+                <button class="plan-btn" onclick="selectPlan('student_pro', 79)" id="btn-student-pro">Velg Student Pro</button>
             </div>
+
+            <!-- Teacher Lite -->
+            <div class="plan-card teacher">
+                <div class="plan-header">
+                    <div class="plan-icon">👨‍🏫</div>
+                    <div class="plan-name">Lærer Lite</div>
+                    <div class="plan-price">199 kr <span>/år</span></div>
+                </div>
+                <ul class="plan-features">
+                    <li>Alt i Student Pro</li>
+                    <li>Opprett 1 klasserom</li>
+                    <li>Inntil 30 elever</li>
+                    <li>Basis statistikk</li>
+                    <li>Kahoot-stil quiz-host</li>
+                </ul>
+                <button class="plan-btn teacher-btn" onclick="selectPlan('teacher_lite', 199)" id="btn-teacher-lite">Velg Lærer Lite</button>
+            </div>
+
+            <!-- Teacher Pro -->
+            <div class="plan-card teacher">
+                <div class="plan-header">
+                    <div class="plan-icon">🏫</div>
+                    <div class="plan-name">Lærer Pro</div>
+                    <div class="plan-price">499 kr <span>/år</span></div>
+                    <div class="plan-savings">🎓 For seriøse undervisere</div>
+                </div>
+                <ul class="plan-features">
+                    <li>Alt i Lærer Lite</li>
+                    <li>Ubegrenset klasserom</li>
+                    <li>Ubegrenset elever</li>
+                    <li>Avansert statistikk & eksport</li>
+                    <li>Lag egne oppgaver & quizzer</li>
+                    <li>Prioritert support</li>
+                </ul>
+                <button class="plan-btn teacher-btn" onclick="selectPlan('teacher_pro', 499)" id="btn-teacher-pro">Velg Lærer Pro</button>
+            </div>
+        </div>
+
+        <!-- Institution CTA -->
+        <div class="institution-cta">
+            <h3>🏛️ For universiteter og høyskoler</h3>
+            <p>Vi tilbyr spesialpriser for institusjoner med mange studenter. Kontakt oss for et tilbud.</p>
+            <a href="mailto:kontakt@accountingquest.app" class="aq-btn">📧 Kontakt oss</a>
         </div>
 
         <!-- Comparison Table -->
-        <div class="comparison">
-            <h2>📊 Sammenligning</h2>
+        <div class="comparison-section">
+            <h2>📊 Sammenligning av planer</h2>
             <table class="comparison-table">
                 <thead>
                     <tr>
-                        <th style="text-align: left;">Funksjon</th>
-                        <th>Free</th>
-                        <th style="color: #4ade80;">Premium</th>
+                        <th>Funksjon</th>
+                        <th>Gratis</th>
+                        <th>Student Pro</th>
+                        <th>Lærer Lite</th>
+                        <th>Lærer Pro</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="text-align: left;">Bokføringsoppgaver</td>
-                        <td><span class="check">✓</span> Alle 36</td>
-                        <td><span class="check">✓</span> Alle 36</td>
+                        <td>Bokføringsoppgaver</td>
+                        <td><span class="check">✓</span> Alle</td>
+                        <td><span class="check">✓</span> Alle</td>
+                        <td><span class="check">✓</span> Alle</td>
+                        <td><span class="check">✓</span> Alle</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left;">Quiz-spørsmål</td>
-                        <td><span class="check">✓</span> Alle 90</td>
-                        <td><span class="check">✓</span> Alle 90</td>
+                        <td>Quiz-spørsmål</td>
+                        <td><span class="check">✓</span> Alle</td>
+                        <td><span class="check">✓</span> Alle</td>
+                        <td><span class="check">✓</span> Alle</td>
+                        <td><span class="check">✓</span> Alle</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left;">Regnskapsanalyse</td>
-                        <td><span class="check">✓</span> 6 av 11</td>
-                        <td><span class="check">✓</span> Alle 11</td>
+                        <td>Regnskapsanalyse</td>
+                        <td><span class="partial">6 av 11</span></td>
+                        <td><span class="check">✓</span> Alle</td>
+                        <td><span class="check">✓</span> Alle</td>
+                        <td><span class="check">✓</span> Alle</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left;">Case Studies</td>
+                        <td>Case Studies</td>
                         <td><span class="cross">✗</span></td>
-                        <td><span class="check">✓</span> Alle 15</td>
+                        <td><span class="check">✓</span> Alle</td>
+                        <td><span class="check">✓</span> Alle</td>
+                        <td><span class="check">✓</span> Alle</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left;">Hjernetrim</td>
+                        <td>Hjernetrim</td>
                         <td><span class="cross">✗</span></td>
-                        <td><span class="check">✓</span> Alle 10</td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="check">✓</span></td>
                     </tr>
                     <tr>
-                        <td style="text-align: left;">Forsøk per dag</td>
-                        <td>3 feil/dag</td>
-                        <td><span class="check">✓</span> Unlimited</td>
+                        <td>Multiplayer</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="check">✓</span></td>
                     </tr>
                     <tr>
-                        <td style="text-align: left;">Cloud-lagring</td>
-                        <td><span class="cross">✗</span> Kun lokalt</td>
-                        <td><span class="check">✓</span> Permanent</td>
+                        <td>Cloud-lagring</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="check">✓</span></td>
                     </tr>
                     <tr>
-                        <td style="text-align: left;">Sync mellom enheter</td>
+                        <td>Klasserom</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span> 1</td>
+                        <td><span class="check">✓</span> ∞</td>
+                    </tr>
+                    <tr>
+                        <td>Lag egne oppgaver</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
                         <td><span class="cross">✗</span></td>
                         <td><span class="check">✓</span></td>
                     </tr>
                     <tr>
-                        <td style="text-align: left;">Support</td>
-                        <td>Standard</td>
-                        <td><span class="check">✓</span> Prioritert</td>
+                        <td>Eksport til Excel</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
         <!-- FAQ -->
-        <div class="faq">
+        <div class="faq-section">
             <h2>❓ Ofte stilte spørsmål</h2>
-            
-            <div class="faq-item">
-                <div class="faq-question">Kan jeg si opp når som helst?</div>
-                <div class="faq-answer">Ja! Du kan når som helst si opp abonnementet. Ved månedlig betaling stoppes neste trekk. Ved årlig betaling får du tilgang ut perioden du har betalt for.</div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">Hvordan betaler jeg?</div>
-                <div class="faq-answer">Vi aksepterer Vipps, kredittkort og debetkort. Alle betalinger er sikre og krypterte via Stripe.</div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">Får jeg faktura?</div>
-                <div class="faq-answer">Ja, du får automatisk kvittering på e-post ved hver betaling.</div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">Hva skjer med min progresjon hvis jeg oppgraderer?</div>
-                <div class="faq-answer">All din progresjon blir bevart! Du fortsetter akkurat der du slapp, men får tilgang til alle Premium-funksjoner.</div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">Er dette kun for studenter?</div>
-                <div class="faq-answer">Nei! Alle kan bruke AccountingQuest. Vi har studenter, regnskapsførere og privatpersoner som øver til fagprøver.</div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">Hva er institusjonsabonnement?</div>
-                <div class="faq-answer">Vi tilbyr spesialpriser for universiteter og høyskoler. Kontakt oss på kontakt@accountingquest.app for mer info.</div>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question">Kan jeg si opp når som helst?</div>
+                    <div class="faq-answer">Ja! Du kan si opp abonnementet når som helst. Du beholder tilgangen ut perioden du har betalt for.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Hvordan betaler jeg?</div>
+                    <div class="faq-answer">Vi aksepterer Vipps, kredittkort og debetkort. Alle betalinger er sikre og krypterte.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Hva skjer med progresjonen min?</div>
+                    <div class="faq-answer">All progresjon bevares! Ved oppgradering får du bare tilgang til flere funksjoner.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Er det studentrabatt?</div>
+                    <div class="faq-answer">Student Pro er allerede priset for studenter! For institusjonsavtaler, kontakt oss.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Kan jeg prøve Premium først?</div>
+                    <div class="faq-answer">Gratis-planen gir deg full tilgang til bokføring og quiz. Oppgrader når du er klar for mer!</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Hva med refusjon?</div>
+                    <div class="faq-answer">Vi tilbyr 14 dagers pengene-tilbake-garanti hvis du ikke er fornøyd.</div>
+                </div>
             </div>
         </div>
 
-        <div class="payment-methods">
+        <!-- Payment Methods -->
+        <div class="payment-section">
             <p>💳 Sikker betaling med:</p>
             <div class="payment-icons">
                 <div class="payment-icon">Vipps</div>
@@ -456,91 +707,136 @@
                 <div class="payment-icon">Stripe</div>
             </div>
         </div>
-
-        <div class="back-link">
-            <a href="index.html">← Tilbake til forsiden</a>
-        </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
     <script>
-        // VIKTIG: Bruk samme Firebase config som i auth.html
+        // Firebase config
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
+            apiKey: "AIzaSyBPnvICblMUOVXkNSwba7NUqDALNa3lEUg",
             authDomain: "accountingquest.firebaseapp.com",
+            databaseURL: "https://accountingquest-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "accountingquest",
-            storageBucket: "accountingquest.appspot.com",
-            messagingSenderId: "YOUR_ID",
-            appId: "YOUR_APP_ID",
-            databaseURL: "https://accountingquest-default-rtdb.europe-west1.firebasedatabase.app"
+            storageBucket: "accountingquest.firebasestorage.app",
+            messagingSenderId: "495735037392",
+            appId: "1:495735037392:web:ff1dc9d8f498c6926fed2a"
         };
 
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-        async function selectPlan(plan) {
-            // Sjekk om bruker er logget inn
-            const user = firebase.auth().currentUser;
+        let currentUser = null;
+        let currentRole = 'free';
+
+        const ROLE_LABELS = {
+            'free': 'Gratis',
+            'student': 'Student',
+            'pro': 'Student Pro',
+            'student_pro': 'Student Pro',
+            'teacher_lite': 'Lærer Lite',
+            'teacher': 'Lærer Pro',
+            'teacher_pro': 'Lærer Pro',
+            'admin': 'Administrator'
+        };
+
+        // Check auth state
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
             
-            if (!user) {
+            if (user) {
+                try {
+                    const snap = await db.ref('users/' + user.uid).once('value');
+                    const userData = snap.val() || {};
+                    currentRole = userData.role || 'free';
+                    
+                    updatePlanDisplay(currentRole);
+                } catch (e) {
+                    console.error('Error loading user:', e);
+                    updatePlanDisplay('free');
+                }
+            } else {
+                updatePlanDisplay('free');
+            }
+        });
+
+        function updatePlanDisplay(role) {
+            const planBadge = document.getElementById('current-plan-badge');
+            const planText = document.getElementById('current-plan-text');
+            const alreadyPremium = document.getElementById('already-premium');
+            
+            planText.textContent = ROLE_LABELS[role] || 'Gratis';
+            
+            // Highlight current plan button
+            const buttons = {
+                'free': 'btn-free',
+                'student_pro': 'btn-student-pro',
+                'pro': 'btn-student-pro',
+                'teacher_lite': 'btn-teacher-lite',
+                'teacher': 'btn-teacher-pro',
+                'teacher_pro': 'btn-teacher-pro'
+            };
+            
+            // Reset all buttons
+            document.querySelectorAll('.plan-btn').forEach(btn => {
+                btn.classList.remove('current');
+                btn.disabled = false;
+                if (btn.id !== 'btn-free') {
+                    btn.textContent = btn.textContent.replace('Nåværende plan', 'Velg');
+                }
+            });
+            
+            // Set current plan button
+            const currentBtn = document.getElementById(buttons[role]);
+            if (currentBtn) {
+                currentBtn.classList.add('current');
+                currentBtn.disabled = true;
+                currentBtn.textContent = 'Nåværende plan';
+            }
+            
+            // Show premium message if applicable
+            if (role !== 'free') {
+                planBadge.classList.add('premium');
+                alreadyPremium.style.display = 'block';
+            }
+        }
+
+        async function selectPlan(plan, price) {
+            if (!currentUser) {
                 if (confirm('Du må logge inn for å oppgradere. Vil du logge inn nå?')) {
-                    window.location.href = 'auth.html';
+                    window.location.href = 'auth.html?redirect=upgrade.html';
                 }
                 return;
             }
 
-            // VIKTIG: Her må du integrere med Stripe/Vipps
-            // Dette er et placeholder-eksempel
+            const planLabel = ROLE_LABELS[plan] || plan;
             
-            const prices = {
-                monthly: 9,
-                yearly: 79
-            };
-
-            const priceText = plan === 'monthly' ? '9 kr/mnd' : '79 kr/år';
-            
-            if (confirm(`Vil du oppgradere til Premium (${priceText})?`)) {
-                // TODO: Implementer Stripe Checkout eller Vipps
-                // For nå: simuler oppgradering
+            if (confirm(`Vil du oppgradere til ${planLabel} (${price} kr/år)?`)) {
+                // TODO: Implement Stripe/Vipps checkout
+                // For now, simulate upgrade
                 
                 try {
-                    await firebase.database()
-                        .ref(`users/${user.uid}/profile/subscription`)
-                        .set('premium');
-                    
-                    await firebase.database()
-                        .ref(`users/${user.uid}/subscription`)
-                        .set({
-                            tier: 'premium',
+                    await db.ref('users/' + currentUser.uid).update({
+                        role: plan,
+                        subscription: {
                             plan: plan,
+                            price: price,
                             startedAt: firebase.database.ServerValue.TIMESTAMP,
                             status: 'active'
-                        });
+                        },
+                        updatedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
                     
-                    alert('🎉 Gratulerer! Du har nå Premium!\n\nDu har full tilgang til alle funksjoner.');
+                    alert(`🎉 Gratulerer! Du har nå ${planLabel}!\n\nDu har full tilgang til alle funksjoner i din plan.`);
                     window.location.href = 'index.html';
+                    
                 } catch (error) {
+                    console.error('Upgrade error:', error);
                     alert('Oppgradering feilet: ' + error.message);
                 }
             }
         }
-
-        // Stripe integration (eksempel)
-        function redirectToStripeCheckout(plan) {
-            // Dette krever Stripe account og API keys
-            // Se Stripe dokumentasjon for full implementasjon
-            
-            const priceIds = {
-                monthly: 'price_XXXXXXXXX', // Ditt Stripe Price ID
-                yearly: 'price_YYYYYYYYY'
-            };
-
-            // Redirect til Stripe Checkout
-            window.location.href = `https://checkout.stripe.com/pay/${priceIds[plan]}`;
-        }
     </script>
+    
+    <script src="js/theme-manager.js"></script>
 </body>
 </html>

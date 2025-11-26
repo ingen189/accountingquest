@@ -1392,7 +1392,7 @@
     <!-- Top Navigation -->
     <div class="top-nav">
         <div class="nav-left">
-            <button class="back-btn" onclick="backToMenu()">← Tilbake</button>
+            <button class="back-btn" id="back-btn" onclick="handleBack()">🏠 Forsiden</button>
             <button class="wiki-btn" onclick="window.location.href='wiki.html'">📚 Wiki</button>
             <button class="wiki-btn" onclick="showTutorial('bokforing')">💡 Bokføring</button>
             <button class="wiki-btn" onclick="showTutorial('excel')">📊 Excel</button>
@@ -1455,6 +1455,13 @@
                 <p>Ekspert-nivå med tidsbegrensning</p>
                 <span class="difficulty-badge difficulty-challenge">3 liv • Tidsbegrenset</span>
             </div>
+        </div>
+        
+        <!-- Tilbake til forsiden -->
+        <div style="margin-top: 30px; text-align: center;">
+            <button class="back-btn" onclick="window.location.href='index.html'" style="padding: 14px 28px; font-size: 1.1em; background: var(--bg-tertiary); border: 1px solid var(--border-color);">
+                🏠 Tilbake til forsiden
+            </button>
         </div>
     </div>
 
@@ -3026,6 +3033,12 @@ function startGame(mode) {
     document.getElementById('main-menu').style.display = 'none';
     document.getElementById('game-container').style.display = 'block';
     
+    // Oppdater tilbake-knapp tekst
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) {
+        backBtn.innerHTML = '← Tilbake til meny';
+    }
+    
     initExcelGrid();
     loadTask();
     updateUI();
@@ -3326,9 +3339,30 @@ function gameComplete() {
     backToMenu();
 }
 
+function handleBack() {
+    const mainMenu = document.getElementById('main-menu');
+    const gameContainer = document.getElementById('game-container');
+    
+    // Sjekk om vi er i spillet eller på hovedmenyen
+    if (gameContainer && gameContainer.style.display !== 'none' && 
+        mainMenu && mainMenu.style.display === 'none') {
+        // Vi er i spillet - gå tilbake til hovedmenyen
+        backToMenu();
+    } else {
+        // Vi er på hovedmenyen - gå til forsiden
+        window.location.href = 'index.html';
+    }
+}
+
 function backToMenu() {
     document.getElementById('game-container').style.display = 'none';
     document.getElementById('main-menu').style.display = 'flex';
+    
+    // Oppdater tilbake-knapp tekst
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) {
+        backBtn.innerHTML = '🏠 Forsiden';
+    }
 }
 
 function loadProgress() {
