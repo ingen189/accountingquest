@@ -154,6 +154,50 @@
         .free-features ul { list-style: none; padding: 0; }
         .free-features li { padding: 8px 0; color: #9ca3af; font-size: 0.95em; }
         .free-features li::before { content: '✓ '; color: #4ade80; font-weight: bold; margin-right: 8px; }
+        
+        /* Forgot password link */
+        .forgot-password {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        .forgot-password a {
+            color: #9ca3af;
+            font-size: 0.85em;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .forgot-password a:hover { color: #4ade80; }
+
+        /* Back link */
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #9ca3af;
+            font-size: 0.9em;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .back-link a:hover { color: #4ade80; }
+
+        /* Reset form header */
+        .reset-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .reset-header h2 {
+            color: #4ade80;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .reset-header p {
+            color: #9ca3af;
+            font-size: 0.95em;
+        }
     </style>
 </head>
 <body>
@@ -165,75 +209,100 @@
 
         <div id="message" class="message"></div>
 
-        <div class="auth-tabs">
-            <button class="tab active" id="tab-login" onclick="showLogin()">Logg inn</button>
-            <button class="tab" id="tab-signup" onclick="showSignup()">Registrer</button>
-        </div>
+        <!-- Main auth tabs -->
+        <div id="main-auth">
+            <div class="auth-tabs">
+                <button class="tab active" id="tab-login" onclick="showLogin()">Logg inn</button>
+                <button class="tab" id="tab-signup" onclick="showSignup()">Registrer</button>
+            </div>
 
-        <!-- Login Form -->
-        <div id="login-form" class="auth-form active">
-            <div class="form-group">
-                <label>E-post</label>
-                <input type="email" id="login-email" placeholder="din@epost.no">
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <div class="form-group">
+                    <label>E-post</label>
+                    <input type="email" id="login-email" placeholder="din@epost.no">
+                </div>
+                <div class="form-group">
+                    <label>Passord</label>
+                    <input type="password" id="login-password" placeholder="••••••" onkeypress="if(event.key==='Enter') doLogin()">
+                </div>
+                <div class="forgot-password">
+                    <a href="#" onclick="showResetPassword(); return false;">Glemt passord?</a>
+                </div>
+                <button class="btn" id="login-btn" onclick="doLogin()">Logg inn</button>
+                <button class="btn btn-google" onclick="doGoogleLogin()">🔵 Logg inn med Google</button>
+                
+                <div class="divider">eller</div>
+                
+                <button class="btn btn-secondary" id="guest-btn" onclick="doGuestLogin()">🎮 Fortsett uten konto</button>
             </div>
-            <div class="form-group">
-                <label>Passord</label>
-                <input type="password" id="login-password" placeholder="••••••">
-            </div>
-            <button class="btn" id="login-btn" onclick="doLogin()">Logg inn</button>
-            <button class="btn btn-google" onclick="doGoogleLogin()">🔵 Logg inn med Google</button>
-        </div>
 
-        <!-- Signup Form -->
-        <div id="signup-form" class="auth-form">
-            <div class="form-group">
-                <label>Brukernavn</label>
-                <input type="text" id="signup-username" placeholder="OlaStudent">
-            </div>
-            <div class="form-group">
-                <label>E-post</label>
-                <input type="email" id="signup-email" placeholder="din@epost.no">
-            </div>
-            <div class="form-group">
-                <label>Passord (min 6 tegn)</label>
-                <input type="password" id="signup-password" placeholder="••••••">
-            </div>
-            <div class="form-group">
-                <label>Jeg er...</label>
-                <div class="role-selector">
-                    <div class="role-btn selected" id="role-student" onclick="selectRole('student')">
-                        <span class="icon">🎓</span>Student
-                    </div>
-                    <div class="role-btn" id="role-teacher" onclick="selectRole('teacher')">
-                        <span class="icon">👨‍🏫</span>Lærer
+            <!-- Signup Form -->
+            <div id="signup-form" class="auth-form">
+                <div class="form-group">
+                    <label>Brukernavn</label>
+                    <input type="text" id="signup-username" placeholder="OlaStudent">
+                </div>
+                <div class="form-group">
+                    <label>E-post</label>
+                    <input type="email" id="signup-email" placeholder="din@epost.no">
+                </div>
+                <div class="form-group">
+                    <label>Passord (min 6 tegn)</label>
+                    <input type="password" id="signup-password" placeholder="••••••">
+                </div>
+                <div class="form-group">
+                    <label>Jeg er...</label>
+                    <div class="role-selector">
+                        <div class="role-btn selected" id="role-student" onclick="selectRole('student')">
+                            <span class="icon">🎓</span>
+                            <span>Student</span>
+                        </div>
+                        <div class="role-btn" id="role-teacher" onclick="selectRole('teacher')">
+                            <span class="icon">👨‍🏫</span>
+                            <span>Lærer</span>
+                        </div>
                     </div>
                 </div>
+
+                <div class="free-features">
+                    <h3>✨ Gratis funksjoner</h3>
+                    <ul>
+                        <li>Alle quiz og bokføringsoppgaver</li>
+                        <li>Fremgang lagres i skyen</li>
+                        <li>Multiplayer og dueller</li>
+                        <li>Ingen reklame</li>
+                    </ul>
+                </div>
+
+                <button class="btn" id="signup-btn" onclick="doSignup()">Opprett konto (Gratis)</button>
             </div>
-            <button class="btn" id="signup-btn" onclick="doSignup()">Opprett konto (Gratis)</button>
-            <button class="btn btn-google" onclick="doGoogleLogin()">🔵 Registrer med Google</button>
         </div>
 
-        <div class="divider">eller</div>
-
-        <button class="btn btn-secondary" id="guest-btn" onclick="doGuestLogin()">
-            🎮 Fortsett uten konto
-        </button>
-
-        <div class="free-features">
-            <h3>✨ Helt gratis:</h3>
-            <ul>
-                <li>Alle bokføringsoppgaver (36 stk)</li>
-                <li>Alle quiz-spørsmål (245 stk)</li>
-                <li>Multiplayer quiz med klassen</li>
-            </ul>
+        <!-- Reset Password Form -->
+        <div id="reset-form" style="display: none;">
+            <div class="reset-header">
+                <h2>🔑 Glemt passord?</h2>
+                <p>Skriv inn e-postadressen din, så sender vi deg en lenke for å tilbakestille passordet.</p>
+            </div>
+            
+            <div class="form-group">
+                <label>E-post</label>
+                <input type="email" id="reset-email" placeholder="din@epost.no" onkeypress="if(event.key==='Enter') doResetPassword()">
+            </div>
+            
+            <button class="btn" id="reset-btn" onclick="doResetPassword()">Send tilbakestillingslenke</button>
+            
+            <div class="back-link">
+                <a href="#" onclick="hideResetPassword(); return false;">← Tilbake til innlogging</a>
+            </div>
         </div>
 
         <div class="skip-link">
-            <a href="index.html">← Tilbake til forsiden</a>
+            <a href="index.html">← Tilbake til hovedsiden</a>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -269,6 +338,20 @@
             document.getElementById('tab-login').classList.remove('active');
             document.getElementById('signup-form').classList.add('active');
             document.getElementById('login-form').classList.remove('active');
+            hideMessage();
+        }
+
+        // Reset password views
+        function showResetPassword() {
+            document.getElementById('main-auth').style.display = 'none';
+            document.getElementById('reset-form').style.display = 'block';
+            document.getElementById('reset-email').value = document.getElementById('login-email').value || '';
+            hideMessage();
+        }
+
+        function hideResetPassword() {
+            document.getElementById('main-auth').style.display = 'block';
+            document.getElementById('reset-form').style.display = 'none';
             hideMessage();
         }
 
@@ -328,13 +411,51 @@
 
             firebase.auth().createUserWithEmailAndPassword(email, password)
                 .then(function(result) {
-                    return firebase.database().ref('users/' + result.user.uid).set({
+                    // Create user profile
+                    var userData = {
                         username: username,
                         email: email,
                         role: selectedRole,
                         subscription: 'free',
                         createdAt: Date.now()
-                    });
+                    };
+
+                    // If teacher, also create teacher entry
+                    var promises = [
+                        firebase.database().ref('users/' + result.user.uid).set(userData)
+                    ];
+
+                    if (selectedRole === 'teacher') {
+                        promises.push(
+                            firebase.database().ref('teachers/' + result.user.uid).set({
+                                userId: result.user.uid,
+                                email: email,
+                                name: username,
+                                school: '',
+                                verified: false,
+                                createdAt: Date.now(),
+                                subscription: {
+                                    plan: 'lite',
+                                    status: 'trial',
+                                    startDate: Date.now(),
+                                    trialEndDate: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 days
+                                    features: {
+                                        maxClassrooms: 2,
+                                        maxStudents: 50,
+                                        multiplayer: true,
+                                        classroomAdmin: true,
+                                        assignments: true,
+                                        progressTracking: true,
+                                        analytics: 'basic',
+                                        excel: false,
+                                        emailNotifications: false
+                                    }
+                                }
+                            })
+                        );
+                    }
+
+                    return Promise.all(promises);
                 })
                 .then(function() {
                     showSuccess('Konto opprettet! Omdirigerer...');
@@ -344,6 +465,32 @@
                     showError(getErrorMsg(error.code));
                     btn.disabled = false;
                     btn.textContent = 'Opprett konto (Gratis)';
+                });
+        }
+
+        // Reset Password
+        function doResetPassword() {
+            var email = document.getElementById('reset-email').value;
+
+            if (!email) {
+                showError('Skriv inn e-postadressen din');
+                return;
+            }
+
+            var btn = document.getElementById('reset-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>';
+
+            firebase.auth().sendPasswordResetEmail(email)
+                .then(function() {
+                    showSuccess('📧 E-post sendt! Sjekk innboksen din (og søppelpost) for tilbakestillingslenken.');
+                    btn.disabled = false;
+                    btn.textContent = 'Send tilbakestillingslenke';
+                })
+                .catch(function(error) {
+                    showError(getErrorMsg(error.code));
+                    btn.disabled = false;
+                    btn.textContent = 'Send tilbakestillingslenke';
                 });
         }
 
@@ -421,7 +568,9 @@
                 'auth/email-already-in-use': 'E-posten er allerede registrert',
                 'auth/weak-password': 'Passordet er for svakt',
                 'auth/popup-closed-by-user': 'Innlogging avbrutt',
-                'auth/network-request-failed': 'Nettverksfeil - sjekk internett'
+                'auth/network-request-failed': 'Nettverksfeil - sjekk internett',
+                'auth/too-many-requests': 'For mange forsøk. Vent litt og prøv igjen.',
+                'auth/user-disabled': 'Denne kontoen er deaktivert'
             };
             return msgs[code] || 'En feil oppstod (' + code + ')';
         }

@@ -7,13 +7,14 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
     <meta name="theme-color" content="#0f1419">
     
-        
-    <!-- External CSS -->
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <link rel="stylesheet" href="css/main.css">
     
     <style>
-        /* ===== PAGE SPECIFIC STYLES ===== */
-
         /* Accent colors */
         [data-accent="green"] { --accent: #4ade80; --accent-hover: #22c55e; --accent-glow: rgba(74, 222, 128, 0.3); }
         [data-accent="blue"] { --accent: #3b82f6; --accent-hover: #2563eb; --accent-glow: rgba(59, 130, 246, 0.3); }
@@ -26,7 +27,6 @@
         [data-accent="teal"] { --accent: #14b8a6; --accent-hover: #0d9488; --accent-glow: rgba(20, 184, 166, 0.3); }
         [data-accent="indigo"] { --accent: #6366f1; --accent-hover: #4f46e5; --accent-glow: rgba(99, 102, 241, 0.3); }
 
-        /* ========== BASE STYLES ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -40,7 +40,7 @@
 
         a { color: var(--accent); text-decoration: none; }
 
-        /* ========== HEADER ========== */
+        /* Header */
         .aq-header {
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
@@ -85,7 +85,7 @@
             font-weight: 600;
         }
 
-        /* ========== BUTTONS ========== */
+        /* Buttons */
         .aq-btn {
             display: inline-flex;
             align-items: center;
@@ -131,7 +131,7 @@
             background: #dc2626;
         }
 
-        /* ========== BADGES ========== */
+        /* Badges */
         .aq-badge {
             display: inline-flex;
             align-items: center;
@@ -147,7 +147,7 @@
         .aq-badge-success { background: var(--success); color: white; }
         .aq-badge-info { background: var(--info); color: white; }
 
-        /* ========== PROGRESS ========== */
+        /* Progress */
         .aq-progress {
             background: var(--bg-tertiary);
             border-radius: var(--radius-full);
@@ -162,7 +162,7 @@
             transition: width 0.5s ease;
         }
 
-        /* ========== SETTINGS SPECIFIC ========== */
+        /* Settings */
         .settings-container {
             max-width: 800px;
             margin: 0 auto;
@@ -360,6 +360,118 @@
             margin-top: 15px;
         }
 
+        /* Account section styles */
+        .account-info {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .account-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .account-row:last-child { border-bottom: none; }
+
+        .account-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .account-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .account-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Password form */
+        .password-form {
+            display: none;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .password-form.show { display: block; }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            display: block;
+        }
+
+        .message.success {
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid #4ade80;
+            color: #4ade80;
+            display: block;
+        }
+
+        .guest-notice {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid #f59e0b;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .guest-notice p {
+            color: #f59e0b;
+            margin-bottom: 15px;
+        }
+
         @media (max-width: 600px) {
             .theme-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -367,10 +479,13 @@
             .settings-container {
                 padding: 15px;
             }
+            .account-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
         }
-    
     </style>
-
 </head>
 <body>
     <!-- Header -->
@@ -389,6 +504,69 @@
     
     <div class="settings-container">
         <h1 class="settings-title">⚙️ Innstillinger</h1>
+
+        <!-- Konto (dynamisk) -->
+        <section class="settings-section" id="account-section">
+            <h3>👤 Konto</h3>
+            
+            <!-- Gjest-visning -->
+            <div id="guest-view" class="guest-notice" style="display: none;">
+                <p>⚠️ Du er ikke logget inn. Opprett en konto for å lagre fremgangen din i skyen.</p>
+                <a href="auth.html" class="aq-btn aq-btn-primary">Logg inn / Registrer</a>
+            </div>
+            
+            <!-- Bruker-visning -->
+            <div id="user-view" style="display: none;">
+                <div class="account-info">
+                    <div class="account-row">
+                        <span class="account-label">E-post</span>
+                        <span class="account-value" id="user-email">-</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">Brukernavn</span>
+                        <span class="account-value" id="user-name">-</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">Rolle</span>
+                        <span class="account-value" id="user-role">-</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">Innloggingsmetode</span>
+                        <span class="account-value" id="user-provider">-</span>
+                    </div>
+                </div>
+
+                <div class="account-actions">
+                    <button class="aq-btn aq-btn-secondary" id="change-password-btn" onclick="togglePasswordForm()">
+                        🔑 Bytt passord
+                    </button>
+                    <button class="aq-btn aq-btn-danger" onclick="doLogout()">
+                        🚪 Logg ut
+                    </button>
+                </div>
+
+                <!-- Bytt passord form -->
+                <div class="password-form" id="password-form">
+                    <div id="password-message"></div>
+                    <div class="form-group">
+                        <label>Nåværende passord</label>
+                        <input type="password" id="current-password" placeholder="••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>Nytt passord (min 6 tegn)</label>
+                        <input type="password" id="new-password" placeholder="••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>Bekreft nytt passord</label>
+                        <input type="password" id="confirm-password" placeholder="••••••">
+                    </div>
+                    <div class="form-buttons">
+                        <button class="aq-btn aq-btn-primary" onclick="changePassword()">Lagre nytt passord</button>
+                        <button class="aq-btn aq-btn-secondary" onclick="togglePasswordForm()">Avbryt</button>
+                    </div>
+                </div>
+            </div>
+        </section>
         
         <!-- Tema -->
         <section class="settings-section">
@@ -521,7 +699,149 @@
     </div>
     
     <script>
-        // ========== THEME MANAGER (INLINE) ==========
+        // ========== FIREBASE ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+            authDomain: "accountingquest-multiplayer.firebaseapp.com",
+            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest-multiplayer",
+            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+            messagingSenderId: "525417361926",
+            appId: "1:525417361926:web:ec9b737f82af9b21700987"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let currentUser = null;
+
+        // ========== AUTH STATE ==========
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            
+            if (user && !user.isAnonymous) {
+                // Logged in
+                document.getElementById('guest-view').style.display = 'none';
+                document.getElementById('user-view').style.display = 'block';
+                
+                // Email
+                document.getElementById('user-email').textContent = user.email || '-';
+                
+                // Provider
+                const providers = user.providerData.map(p => {
+                    if (p.providerId === 'password') return 'E-post/Passord';
+                    if (p.providerId === 'google.com') return 'Google';
+                    return p.providerId;
+                });
+                document.getElementById('user-provider').textContent = providers.join(', ') || '-';
+                
+                // Hide password change for Google-only users
+                const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
+                document.getElementById('change-password-btn').style.display = hasPasswordProvider ? 'inline-flex' : 'none';
+                
+                // Get user data from database
+                try {
+                    const snap = await db.ref('users/' + user.uid).once('value');
+                    const data = snap.val();
+                    if (data) {
+                        document.getElementById('user-name').textContent = data.username || user.displayName || '-';
+                        document.getElementById('user-role').textContent = data.role === 'teacher' ? '👨‍🏫 Lærer' : '🎓 Student';
+                    }
+                } catch (e) {
+                    console.error('Error fetching user data:', e);
+                }
+                
+            } else {
+                // Guest or not logged in
+                document.getElementById('guest-view').style.display = 'block';
+                document.getElementById('user-view').style.display = 'none';
+            }
+        });
+
+        // ========== PASSWORD FUNCTIONS ==========
+        function togglePasswordForm() {
+            const form = document.getElementById('password-form');
+            form.classList.toggle('show');
+            
+            // Clear form
+            document.getElementById('current-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+            document.getElementById('password-message').innerHTML = '';
+        }
+
+        async function changePassword() {
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const msgEl = document.getElementById('password-message');
+
+            // Validation
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                msgEl.className = 'message error';
+                msgEl.textContent = 'Fyll inn alle feltene';
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                msgEl.className = 'message error';
+                msgEl.textContent = 'Nytt passord må være minst 6 tegn';
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                msgEl.className = 'message error';
+                msgEl.textContent = 'Passordene stemmer ikke overens';
+                return;
+            }
+
+            try {
+                // Re-authenticate user
+                const credential = firebase.auth.EmailAuthProvider.credential(
+                    currentUser.email,
+                    currentPassword
+                );
+                
+                await currentUser.reauthenticateWithCredential(credential);
+                
+                // Update password
+                await currentUser.updatePassword(newPassword);
+                
+                msgEl.className = 'message success';
+                msgEl.textContent = '✅ Passordet er oppdatert!';
+                
+                // Clear form after 2 seconds
+                setTimeout(() => {
+                    togglePasswordForm();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Password change error:', error);
+                let errorMsg = 'En feil oppstod';
+                
+                if (error.code === 'auth/wrong-password') {
+                    errorMsg = 'Nåværende passord er feil';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMsg = 'Nytt passord er for svakt';
+                } else if (error.code === 'auth/requires-recent-login') {
+                    errorMsg = 'Logg inn på nytt og prøv igjen';
+                }
+                
+                msgEl.className = 'message error';
+                msgEl.textContent = errorMsg;
+            }
+        }
+
+        function doLogout() {
+            if (confirm('Er du sikker på at du vil logge ut?')) {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                });
+            }
+        }
+
+        // ========== THEME MANAGER ==========
         var ThemeManager = (function() {
             var themes = ['dark', 'light', 'cream', 'dark-blue', 'midnight', 'charcoal', 'slate', 'forest', 'purple-night'];
             var accents = ['green', 'blue', 'purple', 'pink', 'orange', 'cyan', 'red', 'yellow', 'teal', 'indigo'];
@@ -565,12 +885,10 @@
             var currentTheme = ThemeManager.getTheme();
             var currentAccent = ThemeManager.getAccent();
 
-            // Update theme cards
             document.querySelectorAll('.theme-card').forEach(function(card) {
                 card.classList.toggle('active', card.dataset.theme === currentTheme);
             });
 
-            // Update accent buttons
             document.querySelectorAll('.accent-btn').forEach(function(btn) {
                 btn.classList.toggle('active', btn.dataset.accent === currentAccent);
             });
@@ -704,12 +1022,7 @@
         });
     </script>
     
-    <!-- Theme Manager -->
+    <!-- Theme Manager (external backup) -->
     <script src="js/theme-manager.js"></script>
-    <script>
-        if (typeof ThemeManager !== 'undefined') {
-            ThemeManager.init();
-        }
-    </script>
 </body>
 </html>

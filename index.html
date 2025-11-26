@@ -1,70 +1,37 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-    <!-- Essential Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
-    <!-- SEO Meta Tags -->  
     <title>AccountingQuest - Lær Norsk Bokføring og Regnskap</title>
     <meta name="description" content="Gamifisert læringsplattform for norsk bokføring og regnskap. Interaktive oppgaver basert på Bokføringsloven, Regnskapsloven, Skatteloven og MVA-loven.">
-    <meta name="keywords" content="bokføring, regnskap, regnskapsanalyse, norsk regnskap, bokføringsloven, regnskapsloven, MVA, accounting, læring">
     <meta name="author" content="AccountingQuest">
-    <meta name="robots" content="index, follow">
     
-    <!-- Open Graph / Social Media -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="AccountingQuest - Lær Norsk Bokføring">
-    <meta property="og:description" content="Gamifisert læringsplattform for norsk bokføring og regnskap med interaktive oppgaver.">
-    <meta property="og:site_name" content="AccountingQuest">
-    
-    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
-    
-    <!-- Apple Touch Icon -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="AccountingQuest">
-    
-    <!-- Theme Color -->
     <meta name="theme-color" content="#1a1a2e">
-    <meta name="msapplication-navbutton-color" content="#1a1a2e">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
-        
-    <!-- External CSS -->
     <link rel="stylesheet" href="css/main.css">
     
     <style>
-        /* ===== PAGE SPECIFIC STYLES ===== */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             color: var(--text-primary);
             min-height: 100vh;
-            overflow-x: hidden;
-            transition: all 0.3s ease;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Header */
         .header {
             background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border-bottom: 2px solid var(--border-color);
             padding: 15px 20px;
             position: sticky;
@@ -75,24 +42,16 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
+            cursor: pointer;
         }
 
-        .logo-icon {
-            font-size: 2em;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
-        }
+        .logo-icon { font-size: 2em; }
 
         .logo-text h1 {
             font-size: 1.5em;
@@ -102,17 +61,9 @@
             background-clip: text;
         }
 
-        .logo-text p {
-            font-size: 0.8em;
-            color: var(--text-secondary);
-            margin-top: 3px;
-            display: none;
-        }
-
         .header-actions {
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
             align-items: center;
         }
 
@@ -129,51 +80,54 @@
             align-items: center;
             gap: 6px;
             font-size: 0.9em;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
+            text-decoration: none;
         }
 
         .header-btn:hover {
             background: var(--accent);
             color: #1e1e1e;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.3);
-        }
-
-        .header-btn:active {
-            transform: translateY(0);
         }
 
         .header-btn.wiki {
             background: linear-gradient(135deg, #f59e0b, #ef4444);
-        }
-
-        .header-btn.wiki:hover {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-        }
-
-        .header-btn.multiplayer {
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
-        }
-
-        .header-btn.multiplayer:hover {
-            background: linear-gradient(135deg, #7c3aed, #db2777);
             color: white;
         }
 
         .header-btn.settings {
             background: var(--accent-secondary);
+            color: white;
         }
 
-        .header-btn.settings:hover {
-            background: #2563eb;
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .user-badge:hover {
+            background: var(--accent);
+            color: #1e1e1e;
+        }
+
+        .user-badge.teacher {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: white;
+        }
+
+        .user-badge.student {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             color: white;
         }
 
         /* Main Container */
         .main-container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 30px 20px;
         }
@@ -181,135 +135,229 @@
         /* Welcome Section */
         .welcome-section {
             text-align: center;
-            margin-bottom: 50px;
-            padding: 50px 30px;
+            margin-bottom: 40px;
+            padding: 40px 30px;
             background: var(--bg-card);
             border-radius: 20px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border: 2px solid var(--border-color);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
         .welcome-section h2 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
+            font-size: 2em;
+            margin-bottom: 15px;
             background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .welcome-section p {
-            font-size: 1.1em;
             color: var(--text-secondary);
-            line-height: 1.8;
-            max-width: 700px;
-            margin: 0 auto 25px;
+            line-height: 1.7;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        .feature-list {
+        .quick-stats {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
+            gap: 30px;
             margin-top: 25px;
+            flex-wrap: wrap;
         }
 
-        .feature-item {
-            background: var(--border-color);
-            padding: 12px 20px;
-            border-radius: 8px;
+        .quick-stat { text-align: center; }
+        .quick-stat-value { font-size: 1.8em; font-weight: bold; color: var(--accent); }
+        .quick-stat-label { font-size: 0.85em; color: var(--text-secondary); }
+
+        /* TEACHER SECTION */
+        .teacher-section {
+            margin-bottom: 40px;
+            display: none;
+        }
+
+        .teacher-section.show { display: block; }
+
+        .teacher-section h3 {
+            font-size: 1.5em;
+            color: #8b5cf6;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .teacher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .teacher-card {
+            background: var(--bg-card);
+            border: 2px solid #8b5cf6;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .teacher-card.new-classroom {
+            border-style: dashed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+            color: var(--text-secondary);
+        }
+
+        .teacher-card.new-classroom:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .teacher-card .icon { font-size: 3em; margin-bottom: 10px; }
+
+        .teacher-card h4 {
+            font-size: 1.2em;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-weight: 600;
-            transition: all 0.3s;
-            font-size: 0.95em;
         }
 
-        .feature-item:hover {
-            transform: scale(1.05);
-            background: var(--accent);
-            color: #1e1e1e;
+        .classroom-code {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-family: monospace;
         }
 
-        .feature-icon {
-            font-size: 1.3em;
-        }
-
-        /* Stats Overview */
-        .stats-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        .stats-row {
+            display: flex;
             gap: 20px;
-            margin-bottom: 50px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
         }
 
-        .stat-card {
+        .stats-row span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .teacher-quick-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .teacher-action-btn {
             background: var(--bg-card);
             border: 2px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .teacher-action-btn:hover {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        /* STUDENT SECTION */
+        .student-section {
+            margin-bottom: 40px;
+            display: none;
+        }
+
+        .student-section.show { display: block; }
+
+        .student-section h3 {
+            font-size: 1.5em;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .student-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .student-card {
+            background: var(--bg-card);
+            border: 2px solid var(--accent);
             border-radius: 15px;
-            padding: 25px;
-            text-align: center;
+            padding: 20px;
+            cursor: pointer;
             transition: all 0.3s;
         }
 
-        .stat-card:hover {
+        .student-card:hover {
             transform: translateY(-5px);
-            border-color: var(--accent);
             box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
         }
 
-        .stat-icon {
-            font-size: 2.5em;
-            margin-bottom: 12px;
+        .student-card h4 { font-size: 1.2em; margin-bottom: 8px; }
+        .student-card .teacher-name { color: var(--text-secondary); font-size: 0.9em; margin-bottom: 15px; }
+
+        .assignment-summary {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
         }
 
-        .stat-value {
-            font-size: 2.2em;
-            font-weight: bold;
-            color: var(--accent);
-            margin-bottom: 5px;
-        }
+        .assignment-summary .pending { color: #f59e0b; }
+        .assignment-summary .completed { color: var(--accent); }
 
-        .stat-label {
-            font-size: 1em;
-            color: var(--text-secondary);
-        }
-
-        .stat-sublabel {
+        .due-soon {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 8px;
             font-size: 0.85em;
-            color: var(--text-secondary);
-            margin-top: 5px;
         }
 
-        /* Modules Section */
-        .modules-section h2 {
-            font-size: 2.2em;
+        .due-soon-title { color: #f59e0b; font-weight: 600; margin-bottom: 5px; }
+
+        /* MODULES GRID */
+        .modules-section h3 {
+            font-size: 1.5em;
             color: var(--accent);
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             text-align: center;
         }
 
         .modules-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 25px;
-            margin-bottom: 50px;
         }
 
         .module-card {
             background: var(--bg-card);
             border: 2px solid var(--border-color);
             border-radius: 20px;
-            padding: 28px;
+            padding: 30px;
             cursor: pointer;
             transition: all 0.4s;
             position: relative;
             overflow: hidden;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .module-card::before {
@@ -319,119 +367,59 @@
             left: 0;
             width: 100%;
             height: 5px;
-            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
             transform: scaleX(0);
             transition: transform 0.4s;
         }
 
+        .module-card.grunnleggende::before { background: linear-gradient(90deg, #4ade80, #22c55e); }
+        .module-card.corporate::before { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+        .module-card.hjernetrim::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+        .module-card.multiplayer::before { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+
         .module-card:hover {
             transform: translateY(-8px);
             border-color: var(--accent);
-            box-shadow: 0 15px 40px rgba(74, 222, 128, 0.4);
+            box-shadow: 0 15px 40px rgba(74, 222, 128, 0.3);
         }
 
-        .module-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .module-card:active {
-            transform: translateY(-5px);
-        }
-
-        .module-card.locked {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .module-card.locked:hover {
-            transform: none;
-            box-shadow: none;
-        }
+        .module-card:hover::before { transform: scaleX(1); }
 
         .module-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 18px;
+            margin-bottom: 15px;
         }
 
-        .module-icon {
-            font-size: 3em;
-        }
+        .module-icon { font-size: 3em; }
 
         .status-badge {
-            padding: 5px 13px;
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 0.8em;
+            font-size: 0.75em;
             font-weight: bold;
         }
 
-        .status-badge.new {
-            background: rgba(74, 222, 128, 0.2);
-            color: var(--accent);
-        }
+        .status-badge.new { background: rgba(74, 222, 128, 0.2); color: var(--accent); }
+        .status-badge.popular { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
 
-        .status-badge.beta {
-            background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-        }
+        .module-title { font-size: 1.5em; margin-bottom: 10px; }
+        .module-description { color: var(--text-secondary); line-height: 1.6; margin-bottom: 15px; }
 
-        .status-badge.locked {
-            background: rgba(107, 114, 128, 0.2);
-            color: #9ca3af;
-        }
-
-        .module-title {
-            font-size: 1.6em;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-        }
-
-        .module-description {
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 18px;
-            font-size: 0.95em;
-        }
-
-        .module-features {
-            list-style: none;
-            margin-bottom: 18px;
-        }
-
-        .module-features li {
-            padding: 7px 0;
-            color: var(--text-secondary);
+        .module-stats {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9em;
-        }
-
-        .module-features li::before {
-            content: '✓';
-            color: var(--accent);
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        .module-progress {
-            margin-top: 18px;
-        }
-
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
+            gap: 20px;
             font-size: 0.85em;
             color: var(--text-secondary);
         }
 
+        .module-progress { margin-top: 15px; }
+
         .progress-bar {
             width: 100%;
-            height: 10px;
+            height: 8px;
             background: var(--bg-tertiary);
-            border-radius: 5px;
+            border-radius: 4px;
             overflow: hidden;
         }
 
@@ -439,1342 +427,259 @@
             height: 100%;
             background: linear-gradient(90deg, var(--accent), #22c55e);
             transition: width 0.5s ease;
-            border-radius: 5px;
         }
 
-        /* Modal */
-        .modal {
+        .progress-fill.blue { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+        .progress-fill.orange { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+        .progress-fill.purple { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+
+        /* Submodules */
+        .submodules {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s;
-            overflow-y: auto;
-            padding: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
         }
 
-        .modal.show {
-            display: flex;
-        }
+        .submodules.show { display: grid; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            border: 2px solid var(--accent);
-            border-radius: 20px;
-            padding: 35px;
-            max-width: 600px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s;
-            margin: auto;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .modal-header h2 {
-            font-size: 1.8em;
-            color: var(--accent);
-        }
-
-        .close-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.2em;
-            transition: all 0.3s;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .close-btn:hover {
-            background: #dc2626;
-        }
-
-        .setting-group {
+        .submodule-btn {
             background: var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 18px;
-        }
-
-        .setting-group h3 {
-            color: var(--accent);
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .setting-item:last-child {
-            border-bottom: none;
-        }
-
-        .setting-label {
-            flex: 1;
-        }
-
-        .setting-label strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .setting-label small {
-            color: var(--text-secondary);
-            font-size: 0.85em;
-        }
-
-        .toggle {
-            position: relative;
-            width: 60px;
-            height: 30px;
-            background: #555;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: background 0.3s;
-            flex-shrink: 0;
-        }
-
-        .toggle.active {
-            background: var(--accent);
-        }
-
-        .toggle::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.3s;
-        }
-
-        .toggle.active::after {
-            transform: translateX(30px);
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .input-group input {
-            background: var(--bg-tertiary);
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px 15px;
-            color: var(--text-primary);
-            font-size: 1em;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 10px 20px;
             border: none;
+            padding: 10px 15px;
             border-radius: 8px;
+            color: var(--text-primary);
             cursor: pointer;
-            font-weight: 600;
             transition: all 0.3s;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-primary {
+        .submodule-btn:hover {
             background: var(--accent);
             color: #1e1e1e;
-        }
-
-        .btn-primary:hover {
-            background: #22c55e;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
         }
 
         /* Footer */
         .footer {
-            background: var(--bg-card);
-            border-top: 2px solid var(--border-color);
-            padding: 30px 30px;
             text-align: center;
-            margin-top: 50px;
-        }
-
-        .footer p {
+            padding: 30px 20px;
             color: var(--text-secondary);
-            margin-bottom: 15px;
-            font-size: 0.95em;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
         }
 
         .footer-links {
+            margin-top: 15px;
             display: flex;
             justify-content: center;
             gap: 25px;
-            flex-wrap: wrap;
         }
 
         .footer-links a {
-            color: var(--accent);
+            color: var(--text-secondary);
             text-decoration: none;
-            transition: all 0.3s;
-            font-size: 0.95em;
         }
 
-        .footer-links a:hover {
-            color: #22c55e;
-            text-decoration: underline;
-        }
+        .footer-links a:hover { color: var(--accent); }
 
-        /* User Profile Badge */
-        .user-badge {
-            background: var(--border-color);
-            padding: 8px 14px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            font-size: 0.9em;
-            transition: all 0.3s;
-        }
-
-        .user-badge:hover {
-            background: #f59e0b;
-            color: #1e1e1e;
-            transform: translateY(-2px);
-        }
-
-        .pro-badge {
-            background: #555;
-            color: #888;
-            padding: 10px 18px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: all 0.3s;
-            opacity: 0.6;
-        }
-
-        .pro-badge:hover {
-            opacity: 1;
-            background: linear-gradient(135deg, #a855f7, #ec4899);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(168, 85, 247, 0.3);
-        }
-
-        .pro-badge.active {
-            background: linear-gradient(135deg, #a855f7, #ec4899);
-            color: white;
-            opacity: 1;
-        }
-
-        .pro-badge.active:hover {
-            background: linear-gradient(135deg, #9333ea, #db2777);
-        }
-
-        .user-badge .user-icon {
-            font-size: 1.3em;
-        }
-
-        /* Loading State */
-        .loading {
-            opacity: 0;
-            animation: fadeIn 0.3s forwards;
-        }
-
-        /* Desktop Specific */
-        @media (min-width: 769px) {
-            .logo-text p {
-                display: block;
-            }
-
-            .header {
-                padding: 20px 40px;
-            }
-
-            .welcome-section h2 {
-                font-size: 3em;
-            }
-
-            .stat-icon {
-                font-size: 3em;
-            }
-
-            .stat-value {
-                font-size: 2.5em;
-            }
-
-            .modules-section h2 {
-                font-size: 2.5em;
-            }
-        }
-
-        /* Tablet Specific */
-        @media (max-width: 768px) and (min-width: 481px) {
-            .modules-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .stats-overview {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* Mobile Responsive */
+        /* Responsive */
         @media (max-width: 768px) {
-            .header {
-                padding: 15px 15px;
-            }
-
-            .logo-text h1 {
-                font-size: 1.2em;
-            }
-
-            .header-btn {
-                padding: 8px 12px;
-                font-size: 0.85em;
-            }
-
-            .header-btn span {
-                display: none;
-            }
-
-            .header-btn::before {
-                font-size: 1.3em;
-            }
-
-            .welcome-section {
-                padding: 35px 20px;
-            }
-
-            .welcome-section h2 {
-                font-size: 1.8em;
-            }
-
-            .welcome-section p {
-                font-size: 1em;
-            }
-
-            .feature-list {
-                gap: 12px;
-            }
-
-            .feature-item {
-                padding: 10px 15px;
-                font-size: 0.85em;
-            }
-
-            .modules-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .stats-overview {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .stat-card {
-                padding: 20px;
-            }
-
-            .module-card {
-                padding: 22px;
-            }
-
-            .modal-content {
-                padding: 25px;
-            }
-
-            .setting-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .btn-group {
-                width: 100%;
-            }
-
-            .btn {
-                flex: 1;
-            }
+            .header-btn span:last-child { display: none; }
+            .modules-grid { grid-template-columns: 1fr; }
+            .submodules { grid-template-columns: 1fr; }
+            .teacher-grid, .student-cards { grid-template-columns: 1fr; }
         }
-
-        /* Very Small Mobile */
-        @media (max-width: 360px) {
-            .logo-icon {
-                font-size: 1.5em;
-            }
-
-            .logo-text h1 {
-                font-size: 1em;
-            }
-
-            .header-actions {
-                gap: 8px;
-            }
-
-            .header-btn {
-                padding: 8px 10px;
-            }
-
-            .welcome-section h2 {
-                font-size: 1.5em;
-            }
-
-            .stat-value {
-                font-size: 1.8em;
-            }
-
-            .module-icon {
-                font-size: 2.5em;
-            }
-
-            .module-title {
-                font-size: 1.3em;
-            }
-        }
-
-        /* Print Styles */
-        @media print {
-            .header-actions,
-            .footer,
-            .modal {
-                display: none !important;
-            }
-
-            body {
-                background: white;
-                color: black;
-            }
-        }
-
-        /* Reduced Motion */
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* High Contrast Mode */
-        @media (prefers-contrast: high) {
-            .module-card,
-            .stat-card {
-                border-width: 3px;
-            }
-        }
-
-        /* Dark Mode Preference */
-        @media (prefers-color-scheme: light) {
-            body:not([data-theme]) {
-                /* Users who prefer light mode will still start with dark, but they can toggle */
-            }
-        }
-    
     </style>
-
 </head>
-<body class="loading">
+<body>
     <!-- Header -->
-    <header class="header" role="banner">
-        <div class="logo">
-            <div class="logo-icon" aria-hidden="true">📚</div>
-            <div class="logo-text">
-                <h1>AccountingQuest</h1>
-                <p>Interaktiv læring i norsk regnskap</p>
-            </div>
+    <header class="header">
+        <div class="logo" onclick="location.reload()">
+            <div class="logo-icon">📚</div>
+            <div class="logo-text"><h1>AccountingQuest</h1></div>
         </div>
-        <nav class="header-actions" role="navigation" aria-label="Hovednavigasjon">
-            <div class="user-badge" id="user-badge" onclick="handleUserClick()" style="cursor: pointer;">
-                <span class="user-icon" aria-hidden="true">👤 </span>
+        <nav class="header-actions">
+            <div class="user-badge" id="user-badge" onclick="handleUserClick()">
+                <span id="user-icon">👤</span>
                 <span id="username-display">Gjest</span>
             </div>
-            <div class="pro-badge" id="pro-badge" onclick="window.location.href='upgrade.html'" title="Oppgrader til Premium">
-                <span>⭐ PRO</span>
-            </div>
-            <button class="header-btn wiki" onclick="navigateToModule('wiki.html')" aria-label="Åpne Wiki">
-                <span aria-hidden="true">📖 </span>
-                <span>Wiki</span>
-            </button>
-            <button class="header-btn multiplayer" onclick="navigateToModule('multiplayer_index.html')" aria-label="Multiplayer">
-                <span aria-hidden="true">🎮 </span>
-                <span>Multiplayer</span>
-            </button>
-            <button class="header-btn" onclick="showAchievements()" aria-label="Prestasjoner">
-                <span aria-hidden="true">🏆 </span>
-                <span>Prestasjoner</span>
-            </button>
-            <button class="header-btn settings" onclick="navigateToModule('settings.html')" aria-label="Innstillinger">
-                <span aria-hidden="true">⚙️ </span>
-                <span>Innstillinger</span>
-            </button>
+            <a href="wiki.html" class="header-btn wiki">
+                <span>📖</span><span>Wiki</span>
+            </a>
+            <a href="settings.html" class="header-btn settings">
+                <span>⚙️</span><span>Innstillinger</span>
+            </a>
         </nav>
     </header>
 
     <!-- Main Content -->
-    <main class="main-container" role="main">
+    <main class="main-container">
         <!-- Welcome Section -->
-        <section class="welcome-section" aria-labelledby="welcome-heading">
-            <h2 id="welcome-heading">🎓 Velkommen til AccountingQuest</h2>
-            <p>
-                Lær norsk bokføring, regnskapsanalyse og regnskap gjennom interaktive oppgaver, 
-                quiz og case-studier. Alle oppgaver er basert på norsk lovverk.
+        <section class="welcome-section">
+            <h2 id="welcome-title">🎓 Velkommen til AccountingQuest</h2>
+            <p id="welcome-text">
+                Lær norsk bokføring og regnskap gjennom interaktive oppgaver og quiz.
             </p>
-            <div class="feature-list" role="list">
-                <div class="feature-item" role="listitem">
-                    <span class="feature-icon" aria-hidden="true">✅ </span>
-                    <span>Bokføringsloven</span>
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <div class="quick-stat-value" id="total-progress">0%</div>
+                    <div class="quick-stat-label">Fremgang</div>
                 </div>
-                <div class="feature-item" role="listitem">
-                    <span class="feature-icon" aria-hidden="true">✅ </span>
-                    <span>Regnskapsloven</span>
+                <div class="quick-stat">
+                    <div class="quick-stat-value" id="completed-count">0</div>
+                    <div class="quick-stat-label">Oppgaver løst</div>
                 </div>
-                <div class="feature-item" role="listitem">
-                    <span class="feature-icon" aria-hidden="true">✅ </span>
-                    <span>Skatteloven</span>
-                </div>
-                <div class="feature-item" role="listitem">
-                    <span class="feature-icon" aria-hidden="true">✅ </span>
-                    <span>MVA-loven</span>
+                <div class="quick-stat">
+                    <div class="quick-stat-value" id="streak-count">0</div>
+                    <div class="quick-stat-label">Dager streak</div>
                 </div>
             </div>
         </section>
 
-        <!-- Stats Overview -->
-        <section class="stats-overview" aria-label="Statistikk oversikt">
-            <article class="stat-card">
-                <div class="stat-icon" aria-hidden="true">📊</div>
-                <div class="stat-value" id="total-progress" aria-label="Total progresjon">0%</div>
-                <div class="stat-label">Total progresjon</div>
-            </article>
-            <article class="stat-card">
-                <div class="stat-icon" aria-hidden="true">✅</div>
-                <div class="stat-value" id="completed-tasks" aria-label="Antall oppgaver løst">0</div>
-                <div class="stat-label">Oppgaver løst</div>
-                <div class="stat-sublabel" id="total-tasks">av 170 totalt</div>
-            </article>
-            <article class="stat-card">
-                <div class="stat-icon" aria-hidden="true">🏆</div>
-                <div class="stat-value" id="achievements" aria-label="Antall achievements">0</div>
-                <div class="stat-label">Achievements</div>
-                <div class="stat-sublabel">av 15 tilgjengelige</div>
-            </article>
-            <article class="stat-card">
-                <div class="stat-icon" aria-hidden="true">🔥</div>
-                <div class="stat-value" id="streak" aria-label="Dager på rad">0</div>
-                <div class="stat-label">Dager streak</div>
-                <div class="stat-sublabel">Fortsett å øve!</div>
-            </article>
+        <!-- TEACHER SECTION -->
+        <section class="teacher-section" id="teacher-section">
+            <h3>👨‍🏫 Mine klasserom</h3>
+            <div class="teacher-grid" id="teacher-classrooms"></div>
+            <div class="teacher-quick-actions">
+                <button class="teacher-action-btn" onclick="window.location.href='game_host.html'">
+                    <span>🎮</span> Start Live Quiz
+                </button>
+                <button class="teacher-action-btn" onclick="window.location.href='teacher_portal.html'">
+                    <span>📊</span> Full Lærerportal
+                </button>
+            </div>
         </section>
 
-        <!-- Modules Section -->
-        <section class="modules-section" aria-labelledby="modules-heading">
-            <h2 id="modules-heading">📖 Velg modul</h2>
+        <!-- STUDENT SECTION -->
+        <section class="student-section" id="student-section">
+            <h3>🎓 Mine kurs</h3>
+            <div class="student-cards" id="student-classrooms"></div>
+        </section>
+
+        <!-- Main Modules -->
+        <section class="modules-section">
+            <h3>📖 Velg modul</h3>
             <div class="modules-grid">
-                <!-- Module 1: Bokføring -->
-                <article class="module-card" onclick="navigateToModule('bokforingsspill_excel.html')" role="button" tabindex="0" aria-label="Bokføring modul">
+                
+                <!-- Grunnleggende Regnskap -->
+                <article class="module-card grunnleggende" onclick="toggleSubmodules(this)">
                     <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">📖</div>
-                        <span class="status-badge beta">Beta</span>
+                        <div class="module-icon">📚</div>
+                        <span class="status-badge popular">Populær</span>
                     </div>
-                    <h3 class="module-title">Bokføring</h3>
+                    <h3 class="module-title">Grunnleggende Regnskap</h3>
                     <p class="module-description">
-                        Lær grunnleggende bokføring gjennom interaktive oppgaver i et Excel-lignende miljø.
+                        Bokføring, quiz, regnskapsanalyse og case-oppgaver samlet i én modul.
                     </p>
-                    <ul class="module-features">
-                        <li>36+ oppgaver (lett, middels, vanskelig)</li>
-                        <li>Excel-lignende grensesnitt med formler</li>
-                        <li>Randomiserte beløp</li>
-                        <li>Flyttbar kalkulator</li>
-                        <li>3 liv per oppgave</li>
-                    </ul>
+                    <div class="module-stats">
+                        <span>📝 150+ oppgaver</span>
+                        <span>📊 4 områder</span>
+                    </div>
                     <div class="module-progress">
-                        <div class="progress-label">
-                            <span>Fremgang</span>
-                            <span id="bokforing-progress">0%</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="grunnleggende-bar" style="width: 0%"></div>
                         </div>
-                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-fill" id="bokforing-bar" style="width: 0%"></div>
-                        </div>
+                    </div>
+                    <div class="submodules">
+                        <button class="submodule-btn" onclick="event.stopPropagation(); window.location.href='bokforingsspill_excel.html'">
+                            <span>📖</span> Bokføring
+                        </button>
+                        <button class="submodule-btn" onclick="event.stopPropagation(); window.location.href='quiz_updated.html'">
+                            <span>❓</span> Quiz
+                        </button>
+                        <button class="submodule-btn" onclick="event.stopPropagation(); window.location.href='regnskapsanalyse.html'">
+                            <span>📊</span> Analyse
+                        </button>
+                        <button class="submodule-btn" onclick="event.stopPropagation(); window.location.href='case_studies_fixed.html'">
+                            <span>💼</span> Case
+                        </button>
                     </div>
                 </article>
 
-                <!-- Module 2: Quiz -->
-                <article class="module-card" onclick="navigateToModule('quiz_updated.html')" role="button" tabindex="0" aria-label="Quiz modul">
+                <!-- Corporate Finance -->
+                <article class="module-card corporate" onclick="window.location.href='corporate_finance.html'">
                     <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">❓</div>
-                        <span class="status-badge beta">Beta</span>
-                    </div>
-                    <h3 class="module-title">Quiz</h3>
-                    <p class="module-description">
-                        Test din kunnskap om regnskapsteori, lovverk og prinsipper.
-                    </p>
-                    <ul class="module-features">
-                        <li>90+ spørsmål fordelt på 5 temaer</li>
-                        <li>Paragraf-spørsmål</li>
-                        <li>Flervalg og sant/usant</li>
-                        <li>Dra & slipp oppgaver</li>
-                        <li>Lovhenvisninger og forklaringer</li>
-                    </ul>
-                    <div class="module-progress">
-                        <div class="progress-label">
-                            <span>Fremgang</span>
-                            <span id="quiz-progress">0%</span>
-                        </div>
-                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-fill" id="quiz-bar" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Module 3: Regnskapsanalyse -->
-                <article class="module-card" onclick="navigateToModule('regnskapsanalyse.html')" role="button" tabindex="0" aria-label="Regnskapsanalyse modul">
-                    <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">📊</div>
-                        <span class="status-badge beta">Beta</span>
-                    </div>
-                    <h3 class="module-title">Regnskapsanalyse</h3>
-                    <p class="module-description">
-                        Analyser regnskap med nøkkeltall, horisontal og vertikal analyse.
-                    </p>
-                    <ul class="module-features">
-                        <li>11 praktiske analyseoppgaver</li>
-                        <li>Horisontal & vertikal analyse</li>
-                        <li>Beregning av nøkkeltall</li>
-                        <li>Interaktive tabeller</li>
-                        <li>Automatiske formler</li>
-                    </ul>
-                    <div class="module-progress">
-                        <div class="progress-label">
-                            <span>Fremgang</span>
-                            <span id="analyse-progress">0%</span>
-                        </div>
-                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-fill" id="analyse-bar" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Module 4: Avanserte Case -->
-                <article class="module-card" onclick="navigateToModule('case_studies_fixed.html')" role="button" tabindex="0" aria-label="Avanserte Case modul">
-                    <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">💼</div>
-                        <span class="status-badge beta">Beta</span>
-                    </div>
-                    <h3 class="module-title">Avanserte Case</h3>
-                    <p class="module-description">
-                        Løs komplekse case-oppgaver med årsavslutning og resultatdisponering.
-                    </p>
-                    <ul class="module-features">
-                        <li>15+ case-oppgaver</li>
-                        <li>Resultatdisponering</li>
-                        <li>Årsavslutning</li>
-                        <li>Tilleggsposteringer</li>
-                        <li>Feilsøking</li>
-                    </ul>
-                    <div class="module-progress">
-                        <div class="progress-label">
-                            <span>Fremgang</span>
-                            <span id="case-progress">0%</span>
-                        </div>
-                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-fill" id="case-bar" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Module 5: Hjernetrim (Locked) -->
-                <article class="module-card" onclick="navigateToModule('hjernetrim.html')" role="button" tabindex="0" aria-label="Hjernetrim modul">
-                    <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">🧠</div>
-                        <span class="status-badge beta">Beta</span>
-                    </div>
-                    <h3 class="module-title">Hjernetrim</h3>
-                    <p class="module-description">
-                        Ekstra vanskelige case for de mest dedikerte regnskapsentusiastene.
-                    </p>
-                    <ul class="module-features">
-                        <li>10+ avanserte oppgaver</li>
-                        <li>Manipulasjon og røde flagg</li>
-                        <li>Skjulte reserver</li>
-                        <li>Multi-step problemløsning</li>
-                        <li>Master-level challenges</li>
-                    </ul>
-                    <div class="module-progress">
-                        <div class="progress-label">
-                            <span>Fremgang</span>
-                            <span id="hjernetrim-progress">0%</span>
-                        </div>
-                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-fill" id="hjernetrim-bar" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Module 6: Corporate Finance -->
-                <article class="module-card" onclick="navigateToModule('corporate_finance.html')" role="button" tabindex="0" aria-label="Corporate Finance modul">
-                    <div class="module-header">
-                        <div class="module-icon" aria-hidden="true">💹</div>
+                        <div class="module-icon">💹</div>
                         <span class="status-badge new">Ny!</span>
                     </div>
                     <h3 class="module-title">Corporate Finance</h3>
                     <p class="module-description">
-                        Mestre investering, verdivurdering og finansiell analyse med eksamensoppgaver fra BØK260.
+                        NPV, IRR, WACC, obligasjoner og porteføljeteori.
                     </p>
-                    <ul class="module-features">
-                        <li>NPV, IRR, Payback & PI</li>
-                        <li>Obligasjoner & Aksjer (DDM)</li>
-                        <li>WACC & Kapitalstruktur</li>
-                        <li>Portefølje, Beta & CAPM</li>
-                        <li>Finanskalkulator inkludert</li>
-                    </ul>
+                    <div class="module-stats">
+                        <span>📝 50+ oppgaver</span>
+                        <span>🧮 Kalkulator</span>
+                    </div>
                     <div class="module-progress">
-                        <div class="progress-label">
-                            <span>Fremgang</span>
-                            <span id="finance-progress">0%</span>
-                        </div>
-                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-fill" id="finance-bar" style="width: 0%"></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill blue" id="corporate-bar" style="width: 0%"></div>
                         </div>
                     </div>
                 </article>
+
+                <!-- Hjernetrim -->
+                <article class="module-card hjernetrim" onclick="window.location.href='hjernetrim.html'">
+                    <div class="module-header">
+                        <div class="module-icon">🧠</div>
+                        <span class="status-badge">Avansert</span>
+                    </div>
+                    <h3 class="module-title">Hjernetrim</h3>
+                    <p class="module-description">
+                        Ekstra vanskelige case med manipulasjon og røde flagg.
+                    </p>
+                    <div class="module-stats">
+                        <span>📝 10+ oppgaver</span>
+                        <span>🔥 Master-level</span>
+                    </div>
+                    <div class="module-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill orange" id="hjernetrim-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Multiplayer -->
+                <article class="module-card multiplayer" onclick="window.location.href='multiplayer_index.html'">
+                    <div class="module-header">
+                        <div class="module-icon">🎮</div>
+                        <span class="status-badge new">Live!</span>
+                    </div>
+                    <h3 class="module-title">Multiplayer</h3>
+                    <p class="module-description">
+                        Kahoot-stil quiz, 1v1 dueller og leaderboards.
+                    </p>
+                    <div class="module-stats">
+                        <span>👥 Sanntid</span>
+                        <span>🏆 Leaderboard</span>
+                    </div>
+                    <div class="module-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill purple" id="multiplayer-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </article>
+
             </div>
         </section>
     </main>
 
     <!-- Footer -->
-    <footer class="footer" role="contentinfo">
-        <p>© 2024 AccountingQuest - Norsk regnskapslæring</p>
-        <nav class="footer-links" aria-label="Footer navigasjon">
-            <a href="#" onclick="showAbout(); return false;">Om plattformen</a>
-            <a href="#" onclick="showHelp(); return false;">Hjelp</a>
-            <a href="#" onclick="showSettings(); return false;">Innstillinger</a>
-            <a href="#" onclick="openWiki(); return false;">Wiki</a>
+    <footer class="footer">
+        <p>© 2024 AccountingQuest</p>
+        <nav class="footer-links">
+            <a href="wiki.html">Wiki</a>
+            <a href="settings.html">Innstillinger</a>
+            <a href="#" onclick="alert('AccountingQuest v2.0'); return false;">Om</a>
         </nav>
     </footer>
 
-    <!-- Settings Modal -->
-    <div class="modal" id="settings-modal" role="dialog" aria-labelledby="settings-title" aria-modal="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="settings-title">⚙️ Innstillinger</h2>
-                <button class="close-btn" onclick="closeModal('settings-modal')" aria-label="Lukk">✕</button>
-            </div>
-
-            <div class="setting-group">
-                <h3>👤 Brukerprofil</h3>
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <strong>Brukernavn / Kallenavn</strong>
-                        <small>Vises i leaderboards og multiplayer</small>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" id="username-input" placeholder="Ditt kallenavn" maxlength="20" aria-label="Brukernavn">
-                        <button class="btn btn-primary" onclick="saveUsername()">Lagre</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="setting-group">
-                <h3>🎨 Utseende</h3>
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <strong>Mørk / Lys modus</strong>
-                        <small>Bytt mellom mørkt og lyst tema</small>
-                    </div>
-                    <button class="toggle" id="theme-toggle" onclick="toggleTheme()" role="switch" aria-checked="false" aria-label="Tema toggle"></button>
-                </div>
-            </div>
-
-            <div class="setting-group">
-                <h3>🔊 Lyd</h3>
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <strong>Bakgrunnsmusikk</strong>
-                        <small>Spill av rolig bakgrunnsmusikk</small>
-                    </div>
-                    <button class="toggle" id="music-toggle" onclick="toggleSetting('music')" role="switch" aria-checked="false" aria-label="Musikk toggle"></button>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <strong>Lydeffekter</strong>
-                        <small>Spill av lyder ved riktige/gale svar</small>
-                    </div>
-                    <button class="toggle" id="sound-toggle" onclick="toggleSetting('sound')" role="switch" aria-checked="false" aria-label="Lyd toggle"></button>
-                </div>
-            </div>
-
-            <div class="setting-group">
-                <h3>📊 Data</h3>
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <strong>Eksporter data</strong>
-                        <small>Last ned din progresjon</small>
-                    </div>
-                    <button class="btn btn-primary" onclick="exportData()">Last ned</button>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <strong>Nullstill fremgang</strong>
-                        <small style="color: #ef4444;">Dette sletter all progresjon</small>
-                    </div>
-                    <button class="btn btn-danger" onclick="resetProgress()">Nullstill</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Multiplayer Modal -->
-    <div class="modal" id="multiplayer-modal" role="dialog" aria-labelledby="multiplayer-title" aria-modal="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="multiplayer-title">🎮 Multiplayer</h2>
-                <button class="close-btn" onclick="closeModal('multiplayer-modal')" aria-label="Lukk">✕</button>
-            </div>
-
-            <div class="setting-group">
-                <h3>🎯 Peer-to-Peer Duell</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 15px;">
-                    Utfordr en venn til duell! Del koden og konkurer om hvem som løser oppgaven raskest og best.
-                </p>
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="createDuel()">Opprett duell</button>
-                    <button class="btn btn-primary" onclick="joinDuel()">Bli med i duell</button>
-                </div>
-            </div>
-
-            <div class="setting-group">
-                <h3>👨‍🏫 Klasserom-modus (Kahoot-stil)</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 15px;">
-                    For lærere: Opprett et spill som studentene kan delta i med PIN-kode.
-                </p>
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="createClassroom()">Opprett klasserom</button>
-                    <button class="btn btn-primary" onclick="joinClassroom()">Bli med (PIN)</button>
-                </div>
-            </div>
-
-            <div class="setting-group">
-                <h3>📊 Leaderboard</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 15px;">
-                    Se de beste spillerne i hver kategori.
-                </p>
-                <button class="btn btn-primary" onclick="viewLeaderboard()">Se leaderboard</button>
-            </div>
-
-            <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(245, 158, 11, 0.2); border-radius: 10px;">
-                <strong style="color: #f59e0b;">⚠️ Kommer snart!</strong>
-                <p style="color: var(--text-secondary); margin-top: 10px;">Multiplayer-funksjoner er under utvikling og vil være tilgjengelig snart.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Achievements Modal -->
-    <div class="modal" id="achievements-modal" role="dialog" aria-labelledby="achievements-title" aria-modal="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="achievements-title">🏆 Prestasjoner</h2>
-                <button class="close-btn" onclick="closeModal('achievements-modal')" aria-label="Lukk">✕</button>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;" id="achievements-grid" role="list">
-                <!-- Populated by JavaScript -->
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Settings state
-        let settings = {
-            username: 'Gjest',
-            theme: 'dark',
-            music: false,
-            sound: false
-        };
-
-        // Achievements
-        const achievements = [
-            { id: 'first_task', icon: '🎯', title: 'Første dag', desc: 'Fullført første oppgave', unlocked: false },
-            { id: 'streak_5', icon: '🔥', title: 'På streak!', desc: '5 dager på rad', unlocked: false },
-            { id: 'student', icon: '📚', title: 'Student', desc: 'Fullført 10 oppgaver', unlocked: false },
-            { id: 'mva_expert', icon: '💰', title: 'MVA-ekspert', desc: '10 MVA-oppgaver uten feil', unlocked: false },
-            { id: 'perfect_10', icon: '💯', title: 'Perfeksjonist', desc: '10 oppgaver uten feil', unlocked: false },
-            { id: 'speed_demon', icon: '⚡', title: 'Lynrask', desc: 'Løs oppgave under 30 sekunder', unlocked: false },
-            { id: 'candidate', icon: '🎓', title: 'Kandidat', desc: 'Fullført 25 oppgaver', unlocked: false },
-            { id: 'master', icon: '👨‍🎓', title: 'Master', desc: 'Fullført 100 oppgaver', unlocked: false },
-            { id: 'quiz_master', icon: '📝', title: 'Quiz-mester', desc: 'Besvart alle quiz-spørsmål', unlocked: false },
-            { id: 'analyst', icon: '📊', title: 'Analytiker', desc: 'Fullført alle analyseoppgaver', unlocked: false },
-            { id: 'case_solver', icon: '💼', title: 'Case-løser', desc: 'Fullført alle case-oppgaver', unlocked: false },
-            { id: 'brain_master', icon: '🧠', title: 'Hjernetrim-mester', desc: 'Låst opp hjernetrim', unlocked: false },
-            { id: 'completionist', icon: '🏆', title: 'Fullføringsentusiast', desc: '100% progresjon', unlocked: false },
-            { id: 'dedication', icon: '💫', title: 'Dedikert', desc: '30 dager streak', unlocked: false },
-            { id: 'perfection', icon: '⭐', title: 'Mesterverk', desc: '50 oppgaver uten feil', unlocked: false }
-        ];
-
-        // Initialize
-        function init() {
-            loadSettings();
-            loadAllProgress();
-            updateUserDisplay();
-            
-            // Remove loading class after content is loaded
-            setTimeout(() => {
-                document.body.classList.remove('loading');
-            }, 100);
-
-            // Add keyboard support for module cards
-            document.querySelectorAll('.module-card').forEach(card => {
-                card.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        card.click();
-                    }
-                });
-            });
-        }
-
-        // Settings functions
-        function loadSettings() {
-            const saved = localStorage.getItem('accountingquest_settings');
-            if (saved) {
-                try {
-                    settings = JSON.parse(saved);
-                    applySettings();
-                } catch (e) {
-                    console.error('Error loading settings:', e);
-                }
-            }
-        }
-
-        function applySettings() {
-            // Apply theme
-            if (settings.theme === 'light') {
-                document.body.setAttribute('data-theme', 'light');
-                const toggle = document.getElementById('theme-toggle');
-                if (toggle) {
-                    toggle.classList.add('active');
-                    toggle.setAttribute('aria-checked', 'true');
-                }
-            }
-
-            // Apply toggles
-            if (settings.music) {
-                const toggle = document.getElementById('music-toggle');
-                if (toggle) {
-                    toggle.classList.add('active');
-                    toggle.setAttribute('aria-checked', 'true');
-                }
-            }
-            if (settings.sound) {
-                const toggle = document.getElementById('sound-toggle');
-                if (toggle) {
-                    toggle.classList.add('active');
-                    toggle.setAttribute('aria-checked', 'true');
-                }
-            }
-
-            // Apply username
-            const input = document.getElementById('username-input');
-            if (input) {
-                input.value = settings.username;
-            }
-        }
-
-        function saveSettings() {
-            try {
-                localStorage.setItem('accountingquest_settings', JSON.stringify(settings));
-            } catch (e) {
-                console.error('Error saving settings:', e);
-                alert('Kunne ikke lagre innstillinger. Sjekk om localStorage er aktivert.');
-            }
-        }
-
-        function toggleTheme() {
-            settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
-            const toggle = document.getElementById('theme-toggle');
-            
-            if (settings.theme === 'light') {
-                document.body.setAttribute('data-theme', 'light');
-                toggle.classList.add('active');
-                toggle.setAttribute('aria-checked', 'true');
-            } else {
-                document.body.removeAttribute('data-theme');
-                toggle.classList.remove('active');
-                toggle.setAttribute('aria-checked', 'false');
-            }
-            saveSettings();
-        }
-
-        function toggleSetting(setting) {
-            settings[setting] = !settings[setting];
-            const toggle = document.getElementById(setting + '-toggle');
-            
-            if (settings[setting]) {
-                toggle.classList.add('active');
-                toggle.setAttribute('aria-checked', 'true');
-            } else {
-                toggle.classList.remove('active');
-                toggle.setAttribute('aria-checked', 'false');
-            }
-            
-            saveSettings();
-
-            // Play sound if enabled
-            if (setting === 'sound' && settings.sound) {
-                playSound('toggle');
-            }
-        }
-
-        function saveUsername() {
-            const input = document.getElementById('username-input').value.trim();
-            if (input && input.length > 0) {
-                settings.username = input;
-                saveSettings();
-                updateUserDisplay();
-                alert('✅ Brukernavn lagret!');
-            } else {
-                alert('⚠️ Vennligst skriv inn et brukernavn');
-            }
-        }
-
-        function updateUserDisplay() {
-            const display = document.getElementById('username-display');
-            if (display) {
-                display.textContent = settings.username;
-            }
-        }
-
-        // Progress loading
-        function loadAllProgress() {
-            try {
-                // Bokføring
-                const bokforing = JSON.parse(localStorage.getItem('bokforingsspill_progress') || '{}');
-                const bokforingTasks = bokforing.correctCount || 0;
-                const bokforingTotal = 36;
-                updateProgress('bokforing', bokforingTasks, bokforingTotal);
-
-                // Quiz
-                const quiz = JSON.parse(localStorage.getItem('quiz_v2') || '{}');
-                const quizAnswered = Object.keys(quiz.ans || {}).length;
-                const quizTotal = 90;
-                updateProgress('quiz', quizAnswered, quizTotal);
-
-                // Regnskapsanalyse
-                const analyse = JSON.parse(localStorage.getItem('regnskapsanalyse_progress') || '{}');
-                const analyseTasks = (analyse.completedTasks || []).length;
-                const analyseTotal = 11;
-                updateProgress('analyse', analyseTasks, analyseTotal);
-
-                // Case studies
-                const caseProgress = 0;
-                const caseTotal = 15;
-                updateProgress('case', caseProgress, caseTotal);
-
-                // Hjernetrim
-                const hjernetrim = JSON.parse(localStorage.getItem('hjernetrim_progress') || '{}');
-                const hjernetrimTasks = (hjernetrim.completedTasks || []).length;
-                const hjernetrimTotal = 10;
-                updateProgress('hjernetrim', hjernetrimTasks, hjernetrimTotal);
-
-                // Corporate Finance
-                const finance = JSON.parse(localStorage.getItem('corporate_finance_progress') || '{}');
-                const financeTasks = Object.keys(finance.completedTopics || {}).length;
-                const financeTotal = 8; // 8 topics
-                updateProgress('finance', financeTasks, financeTotal);
-
-                // Total stats
-                const totalCompleted = bokforingTasks + quizAnswered + analyseTasks + caseProgress + hjernetrimTasks + financeTasks;
-                const totalTasks = bokforingTotal + quizTotal + analyseTotal + caseTotal + hjernetrimTotal + financeTotal;
-                const totalPercent = Math.round((totalCompleted / totalTasks) * 100);
-
-                updateElement('total-progress', totalPercent + '%');
-                updateElement('completed-tasks', totalCompleted);
-                updateElement('total-tasks', `av ${totalTasks} totalt`);
-
-                // Unlock progress
-                const avgProgress = Math.round((
-                    (bokforingTasks / bokforingTotal + 
-                     quizAnswered / quizTotal + 
-                     analyseTasks / analyseTotal + 
-                     caseProgress / caseTotal +
-                     hjernetrimTasks / hjernetrimTotal +
-                     financeTasks / financeTotal) / 6
-                ) * 100);
-                updateProgress('unlock', avgProgress, 100);
-
-                // Check achievements
-                checkAchievements(totalCompleted);
-
-                // Streak (placeholder)
-                updateElement('streak', '0');
-            } catch (e) {
-                console.error('Error loading progress:', e);
-            }
-        }
-
-        function updateProgress(id, current, total) {
-            const percent = Math.round((current / total) * 100);
-            updateElement(id + '-progress', percent + '%');
-            
-            const bar = document.getElementById(id + '-bar');
-            if (bar) {
-                bar.style.width = percent + '%';
-                bar.parentElement.setAttribute('aria-valuenow', percent);
-            }
-        }
-
-        function updateElement(id, value) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.textContent = value;
-            }
-        }
-
-        function checkAchievements(total) {
-            let unlocked = 0;
-
-            if (total >= 1) achievements[0].unlocked = true;
-            if (total >= 10) achievements[2].unlocked = true;
-            if (total >= 25) achievements[6].unlocked = true;
-            if (total >= 100) achievements[7].unlocked = true;
-
-            unlocked = achievements.filter(a => a.unlocked).length;
-            updateElement('achievements', unlocked);
-        }
-
-        // Navigation
-        function navigateToModule(file) {
-            window.location.href = file;
-        }
-
-        function openWiki() {
-            navigateToModule('wiki.html');
-        }
-
-        // Modals
-        function showSettings() {
-            const modal = document.getElementById('settings-modal');
-            if (modal) {
-                modal.classList.add('show');
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
-        function showMultiplayer() {
-            const modal = document.getElementById('multiplayer-modal');
-            if (modal) {
-                modal.classList.add('show');
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
-        function showAchievements() {
-            renderAchievements();
-            const modal = document.getElementById('achievements-modal');
-            if (modal) {
-                modal.classList.add('show');
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
-        function closeModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) {
-                modal.classList.remove('show');
-                document.body.style.overflow = '';
-            }
-        }
-
-        function renderAchievements() {
-            const grid = document.getElementById('achievements-grid');
-            if (!grid) return;
-            
-            grid.innerHTML = achievements.map(a => `
-                <article style="background: var(--border-color); padding: 20px; border-radius: 15px; text-align: center; ${a.unlocked ? 'border: 2px solid var(--accent);' : 'opacity: 0.5;'}" role="listitem">
-                    <div style="font-size: 3em; margin-bottom: 10px; ${a.unlocked ? '' : 'filter: grayscale(1);'}" aria-hidden="true">${a.icon}</div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">${a.title}</div>
-                    <div style="font-size: 0.85em; color: var(--text-secondary);">${a.desc}</div>
-                </article>
-            `).join('');
-        }
-
-        // Data functions
-        function exportData() {
-            try {
-                const data = {
-                    settings: settings,
-                    bokforing: localStorage.getItem('bokforingsspill_progress'),
-                    quiz: localStorage.getItem('quiz_v2'),
-                    analyse: localStorage.getItem('regnskapsanalyse_progress'),
-                    exported: new Date().toISOString()
-                };
-
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'accountingquest-data-' + new Date().toISOString().split('T')[0] + '.json';
-                a.click();
-                URL.revokeObjectURL(url);
-            } catch (e) {
-                console.error('Error exporting data:', e);
-                alert('Kunne ikke eksportere data. Prøv igjen senere.');
-            }
-        }
-
-        function resetProgress() {
-            if (confirm('Er du sikker på at du vil slette ALL progresjon? Dette kan ikke angres!')) {
-                if (confirm('Siste sjanse! Er du helt sikker?')) {
-                    try {
-                        localStorage.clear();
-                        location.reload();
-                    } catch (e) {
-                        console.error('Error resetting progress:', e);
-                        alert('Kunne ikke nullstille progresjon.');
-                    }
-                }
-            }
-        }
-
-        // Multiplayer functions (placeholders)
-        function createDuel() {
-            alert('🎯 Opprett Duell\n\nKommer snart!\n\nDu vil kunne:\n• Velge oppgaver\n• Få delbar kode\n• Konkurrere i sanntid');
-        }
-
-        function joinDuel() {
-            const code = prompt('Skriv inn duell-koden:');
-            if (code) {
-                alert('Funksjonen kommer snart!');
-            }
-        }
-
-        function createClassroom() {
-            alert('👨‍🏫 Opprett Klasserom\n\nKommer snart!\n\nFor lærere:\n• Velg oppgaver\n• Få PIN-kode\n• Se studentresultater i sanntid');
-        }
-
-        function joinClassroom() {
-            const pin = prompt('Skriv inn klasserom PIN:');
-            if (pin) {
-                alert('Funksjonen kommer snart!');
-            }
-        }
-
-        function viewLeaderboard() {
-            alert('📊 Leaderboard\n\nKommer snart!\n\nSe rangering basert på:\n• Totale poeng\n• Oppgaver løst\n• Streak\n• Hastighet');
-        }
-
-        // Helper functions
-        function showAbout() {
-            alert('📚 AccountingQuest\n\nVersjon: 1.0 Beta\n\nEn gamifisert læringsplattform for norsk bokføring og regnskap.\n\nBasert på:\n• Bokføringsloven\n• Regnskapsloven\n• Skatteloven\n• Merverdiavgiftsloven\n\nLaget med ❤️ for studenter');
-        }
-
-        function showHelp() {
-            alert('❓ Hjelp\n\nSlik bruker du plattformen:\n\n1. Velg en modul fra hovedmenyen\n2. Løs oppgaver og quiz\n3. Se din progresjon i statistikk\n4. Lås opp achievements\n\nTips:\n• Bruk kalkulatoren (🔢-knappen)\n• Bruk formler med = i cellene\n• Klikk på hint-knappen ved behov\n• Se lovhenvisninger etter svar\n• Sjekk Wiki for teorien');
-        }
-
-        function playSound(type) {
-            // Placeholder for sound effects
-            if (!settings.sound) return;
-            console.log('Playing sound:', type);
-        }
-
-        // Close modals on outside click
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('show');
-                document.body.style.overflow = '';
-            }
-        };
-
-        // Close modals on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal.show').forEach(modal => {
-                    modal.classList.remove('show');
-                    document.body.style.overflow = '';
-                });
-            }
-        });
-
-        // Initialize on load
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-
-        // Service Worker registration (for PWA support in future)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // Uncomment when service worker is ready
-                // navigator.serviceWorker.register('/sw.js');
-            });
-        }
-
-        // ============================================
-        // FIREBASE AUTH
-        // ============================================
-        var firebaseConfig = {
+        // Firebase config
+        const firebaseConfig = {
             apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
             authDomain: "accountingquest-multiplayer.firebaseapp.com",
             databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
@@ -1785,67 +690,168 @@
         };
         
         firebase.initializeApp(firebaseConfig);
-        console.log('🔥 Firebase initialized');
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-        var currentUser = null;
+        let currentUser = null;
 
-        firebase.auth().onAuthStateChanged(function(user) {
+        // Auth state
+        auth.onAuthStateChanged(async (user) => {
             currentUser = user;
-            var usernameEl = document.getElementById('username-display');
-            var userBadge = document.getElementById('user-badge');
-            var proBadge = document.getElementById('pro-badge');
+            const userBadge = document.getElementById('user-badge');
+            const usernameEl = document.getElementById('username-display');
+            const userIcon = document.getElementById('user-icon');
             
-            if (user) {
-                if (user.isAnonymous) {
-                    usernameEl.textContent = 'Gjest';
+            if (user && !user.isAnonymous) {
+                // Check TEACHER
+                const isTeacher = await checkTeacherStatus(user.uid);
+                
+                if (isTeacher) {
+                    userBadge.classList.add('teacher');
+                    userIcon.textContent = '👨‍🏫';
+                    
+                    const snap = await db.ref('teachers/' + user.uid).once('value');
+                    usernameEl.textContent = snap.val()?.name || user.email?.split('@')[0];
+                    
+                    document.getElementById('welcome-title').textContent = '👨‍🏫 Lærerportal';
+                    document.getElementById('welcome-text').textContent = 'Administrer klasserom, lag oppgaver og følg elevenes fremgang.';
+                    
+                    loadTeacherClassrooms(user.uid);
                 } else {
-                    // Hent brukernavn og subscription fra database
-                    firebase.database().ref('users/' + user.uid).once('value')
-                        .then(function(snapshot) {
-                            var data = snapshot.val();
-                            if (data && data.username) {
-                                usernameEl.textContent = data.username;
-                            } else if (user.displayName) {
-                                usernameEl.textContent = user.displayName;
-                            } else if (user.email) {
-                                usernameEl.textContent = user.email.split('@')[0];
-                            }
-                            
-                            // Sjekk premium status
-                            if (data && data.subscription === 'premium') {
-                                proBadge.classList.add('active');
-                            }
-                        })
-                        .catch(function(error) {
-                            console.error('Error fetching user:', error);
-                        });
+                    // Check student classrooms
+                    const classrooms = await loadStudentClassrooms(user.uid);
+                    
+                    if (classrooms.length > 0) {
+                        userBadge.classList.add('student');
+                        userIcon.textContent = '🎓';
+                    }
+                    
+                    // Get name
+                    const userSnap = await db.ref('users/' + user.uid).once('value');
+                    const userData = userSnap.val();
+                    usernameEl.textContent = userData?.username || user.displayName || user.email?.split('@')[0] || 'Bruker';
                 }
             } else {
                 usernameEl.textContent = 'Gjest';
             }
         });
 
+        async function checkTeacherStatus(uid) {
+            const snap = await db.ref('teachers/' + uid).once('value');
+            return snap.exists();
+        }
+
+        async function loadTeacherClassrooms(uid) {
+            const snap = await db.ref('classrooms').orderByChild('teacherId').equalTo(uid).once('value');
+            const classrooms = [];
+            snap.forEach(c => classrooms.push({ id: c.key, ...c.val() }));
+            
+            renderTeacherClassrooms(classrooms);
+            document.getElementById('teacher-section').classList.add('show');
+        }
+
+        function renderTeacherClassrooms(classrooms) {
+            const container = document.getElementById('teacher-classrooms');
+            
+            let html = classrooms.map(c => {
+                const count = c.students ? Object.keys(c.students).length : 0;
+                return `
+                    <div class="teacher-card" onclick="window.location.href='classroom_dashboard.html?id=${c.id}'">
+                        <h4>📚 ${c.name} <span class="classroom-code">${c.code}</span></h4>
+                        <div class="stats-row">
+                            <span>👥 ${count} elever</span>
+                            <span>📋 ${c.assignmentCount || 0} oppgaver</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            html += `
+                <div class="teacher-card new-classroom" onclick="window.location.href='teacher_portal.html#create'">
+                    <div class="icon">➕</div>
+                    <div>Opprett nytt klasserom</div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        async function loadStudentClassrooms(uid) {
+            const snap = await db.ref('classrooms').once('value');
+            const classrooms = [];
+            
+            snap.forEach(c => {
+                const data = c.val();
+                if (data.students && data.students[uid]) {
+                    classrooms.push({ id: c.key, ...data });
+                }
+            });
+            
+            if (classrooms.length > 0) {
+                renderStudentClassrooms(classrooms);
+                document.getElementById('student-section').classList.add('show');
+            }
+            
+            return classrooms;
+        }
+
+        function renderStudentClassrooms(classrooms) {
+            const container = document.getElementById('student-classrooms');
+            
+            container.innerHTML = classrooms.map(c => `
+                <div class="student-card" onclick="window.location.href='student_classroom.html?id=${c.id}'">
+                    <h4>🎓 ${c.name}</h4>
+                    <div class="teacher-name">Lærer: ${c.teacherName || 'Ukjent'}</div>
+                    <div class="assignment-summary">
+                        <span class="pending">📋 ${c.pendingAssignments || 0} ventende</span>
+                        <span class="completed">✅ ${c.completedAssignments || 0} fullført</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         function handleUserClick() {
             if (currentUser && !currentUser.isAnonymous) {
-                // Bruker er logget inn - vis meny
                 if (confirm('Vil du logge ut?')) {
-                    firebase.auth().signOut().then(function() {
-                        location.reload();
-                    });
+                    auth.signOut().then(() => location.reload());
                 }
             } else {
-                // Ikke logget inn - gå til auth
                 window.location.href = 'auth.html';
             }
         }
+
+        function toggleSubmodules(card) {
+            const sub = card.querySelector('.submodules');
+            if (sub) sub.classList.toggle('show');
+        }
+
+        // Load progress
+        function loadProgress() {
+            let total = 0, completed = 0;
+            
+            try {
+                const bk = JSON.parse(localStorage.getItem('bokforingsspill_progress') || '{}');
+                completed += (bk.completedLessons || []).length;
+            } catch(e) {}
+            
+            try {
+                const qz = JSON.parse(localStorage.getItem('quiz_v2') || '{}');
+                if (qz.answeredQuestions) {
+                    Object.values(qz.answeredQuestions).forEach(cat => {
+                        completed += Object.keys(cat).length;
+                    });
+                }
+            } catch(e) {}
+            
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('total-progress').textContent = Math.min(100, Math.round(completed / 1.5)) + '%';
+            document.getElementById('grunnleggende-bar').style.width = Math.min(100, Math.round(completed / 1.5)) + '%';
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProgress);
     </script>
     
-    <!-- Theme Manager -->
     <script src="js/theme-manager.js"></script>
-    <script>
-        if (typeof ThemeManager !== 'undefined') {
-            ThemeManager.init();
-        }
-    </script>
+    <script>if (typeof ThemeManager !== 'undefined') ThemeManager.init();</script>
 </body>
 </html>
