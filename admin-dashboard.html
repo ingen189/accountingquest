@@ -119,7 +119,7 @@
             <nav class="sidebar">
                 <div class="sidebar-item active" onclick="showPage('dashboard', this)">📊 Dashboard</div>
                 <div class="sidebar-section">Innhold</div>
-                <div class="sidebar-item" onclick="showPage('quiz', this)">❓ Quiz (90+)</div>
+                <div class="sidebar-item" onclick="showPage('quiz', this)">❓ Quiz (113+)</div>
                 <div class="sidebar-item" onclick="showPage('bokforing', this)">📖 Bokføring (19)</div>
                 <div class="sidebar-item" onclick="showPage('wiki', this)">📚 Wiki</div>
                 <div class="sidebar-section">Brukere</div>
@@ -165,7 +165,9 @@
                         <button class="tab" onclick="filterQuiz('bokforing', this)">Bokføring</button>
                         <button class="tab" onclick="filterQuiz('mva', this)">MVA</button>
                         <button class="tab" onclick="filterQuiz('skatt', this)">Skatt</button>
-                        <button class="tab" onclick="filterQuiz('analyse', this)">Analyse</button>
+                        <button class="tab" onclick="filterQuiz('corporate-finance', this)">Corp. Finance</button>
+                        <button class="tab" onclick="filterQuiz('regnskapsanalyse', this)">Analyse</button>
+                        <button class="tab" onclick="filterQuiz('driftsregnskap', this)">Driftsregnskap</button>
                     </div>
                     <div class="table-container"><div id="quiz-list" class="loading"><div class="spinner"></div><span>Laster...</span></div></div>
                 </div>
@@ -224,7 +226,7 @@
                     <div class="stats-grid">
                         <div class="seed-card">
                             <h3>❓ Quiz-spørsmål</h3>
-                            <p><strong>90+</strong> spørsmål i 5 kategorier</p>
+                            <p><strong>113+</strong> spørsmål i 10+ kategorier</p>
                             <button class="btn btn-primary" onclick="seedQuiz()" id="btn-seed-quiz">🌱 Seed Quiz</button>
                             <div class="progress-bar"><div class="progress-fill" id="prog-quiz" style="width:0%"></div></div>
                         </div>
@@ -244,6 +246,45 @@
                             <h3>🚀 Alt på en gang</h3>
                             <p>Last opp alt innhold</p>
                             <button class="btn btn-primary" onclick="seedAll()">🚀 Seed Alt</button>
+                        </div>
+                    </div>
+                    
+                    <!-- JSON Import Section -->
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #2d333b;">
+                        <h3 style="color: #4ade80; margin-bottom: 20px;">📥 Importer fra JSON-fil</h3>
+                        <p style="color: #9ca3af; margin-bottom: 20px;">Last opp en JSON-fil med spørsmål. Støtter formatet fra quiz-seed-complete.json.</p>
+                        
+                        <div class="stats-grid">
+                            <div class="seed-card">
+                                <h3>📄 Last opp JSON</h3>
+                                <p>Velg en JSON-fil med quiz-spørsmål</p>
+                                <input type="file" id="json-file-input" accept=".json" style="display: none;" onchange="handleJsonFile(event)">
+                                <button class="btn btn-primary" onclick="document.getElementById('json-file-input').click()">📂 Velg fil</button>
+                            </div>
+                            <div class="seed-card">
+                                <h3>📋 Forhåndsvisning</h3>
+                                <p id="json-preview-count">Ingen fil valgt</p>
+                                <button class="btn btn-primary" onclick="importJsonToFirebase()" id="btn-import-json" disabled>⬆️ Importer til Firebase</button>
+                                <div class="progress-bar"><div class="progress-fill" id="prog-json-import" style="width:0%"></div></div>
+                            </div>
+                        </div>
+                        
+                        <div id="json-preview" style="margin-top: 20px; display: none;">
+                            <h4 style="color: #9ca3af; margin-bottom: 10px;">Kategorier funnet:</h4>
+                            <div id="json-categories" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                            <div class="table-container" style="margin-top: 15px; max-height: 300px;">
+                                <table class="data-table" id="json-preview-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Spørsmål</th>
+                                            <th>Kategori</th>
+                                            <th>Vanskelighet</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="json-preview-body"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -464,10 +505,13 @@
     <script>
         // Firebase Config
         const firebaseConfig = {
-            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
-            authDomain: "accountingquest-multiplayer.firebaseapp.com",
-            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest-multiplayer"
+            apiKey: "AIzaSyBPnvICblMUOVXkNSwba7NUqDALNa3lEUg",
+            authDomain: "accountingquest.firebaseapp.com",
+            databaseURL: "https://accountingquest-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest",
+            storageBucket: "accountingquest.firebasestorage.app",
+            messagingSenderId: "495735037392",
+            appId: "1:495735037392:web:ff1dc9d8f498c6926fed2a"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -1071,6 +1115,167 @@
             XLSX.utils.book_append_sheet(wb, wsUsers, 'Brukere');
             
             XLSX.writeFile(wb, 'AccountingQuest_Alt.xlsx');
+        }
+
+        // ============================================
+        // JSON IMPORT FUNCTIONS
+        // ============================================
+        let pendingJsonData = null;
+
+        function handleJsonFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    processJsonData(data, file.name);
+                } catch (err) {
+                    showMsg('seeder-message', '❌ Ugyldig JSON-fil: ' + err.message, 'error');
+                    pendingJsonData = null;
+                    document.getElementById('btn-import-json').disabled = true;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function processJsonData(data, filename) {
+            // Support different JSON structures
+            let questions = {};
+            
+            if (data.quizQuestions) {
+                // Format: { quizQuestions: { id: {...}, id2: {...} } }
+                questions = data.quizQuestions;
+            } else if (Array.isArray(data)) {
+                // Format: [ {...}, {...} ]
+                data.forEach((q, i) => {
+                    const id = q.id || `q_${i}_${Date.now()}`;
+                    questions[id] = q;
+                });
+            } else if (typeof data === 'object') {
+                // Format: { id: {...}, id2: {...} }
+                questions = data;
+            }
+
+            const count = Object.keys(questions).length;
+            
+            if (count === 0) {
+                showMsg('seeder-message', '❌ Ingen spørsmål funnet i filen', 'error');
+                return;
+            }
+
+            pendingJsonData = questions;
+            
+            // Update preview
+            document.getElementById('json-preview-count').textContent = `${count} spørsmål funnet`;
+            document.getElementById('btn-import-json').disabled = false;
+            document.getElementById('json-preview').style.display = 'block';
+
+            // Analyze categories
+            const categories = {};
+            Object.values(questions).forEach(q => {
+                const cat = q.category || 'ukjent';
+                categories[cat] = (categories[cat] || 0) + 1;
+            });
+
+            // Display categories
+            const catContainer = document.getElementById('json-categories');
+            catContainer.innerHTML = Object.entries(categories)
+                .map(([cat, count]) => `<span class="badge badge-blue">${cat}: ${count}</span>`)
+                .join('');
+
+            // Display preview table
+            const tbody = document.getElementById('json-preview-body');
+            const items = Object.entries(questions).slice(0, 20);
+            tbody.innerHTML = items.map(([id, q]) => `
+                <tr>
+                    <td>${id}</td>
+                    <td>${(q.question || q.q || '').substring(0, 60)}...</td>
+                    <td><span class="badge badge-blue">${q.category || '-'}</span></td>
+                    <td><span class="badge ${getDiffBadge(q.difficulty)}">${q.difficulty || '-'}</span></td>
+                </tr>
+            `).join('');
+
+            if (count > 20) {
+                tbody.innerHTML += `<tr><td colspan="4" style="text-align:center; color:#9ca3af;">... og ${count - 20} flere</td></tr>`;
+            }
+
+            showMsg('seeder-message', `✅ Fil lastet: ${filename} (${count} spørsmål)`, 'success');
+        }
+
+        function getDiffBadge(difficulty) {
+            if (!difficulty) return 'badge-secondary';
+            if (difficulty.includes('lett') || difficulty === 'easy') return 'badge-green';
+            if (difficulty.includes('middels') || difficulty === 'medium') return 'badge-orange';
+            if (difficulty.includes('vansk') || difficulty === 'hard') return 'badge-red';
+            return 'badge-purple';
+        }
+
+        async function importJsonToFirebase() {
+            if (!pendingJsonData) {
+                showMsg('seeder-message', '❌ Ingen data å importere', 'error');
+                return;
+            }
+
+            const count = Object.keys(pendingJsonData).length;
+            
+            if (!confirm(`Er du sikker på at du vil importere ${count} spørsmål til Firebase?\n\nEksisterende spørsmål med samme ID vil bli overskrevet.`)) {
+                return;
+            }
+
+            const prog = document.getElementById('prog-json-import');
+            const btn = document.getElementById('btn-import-json');
+            btn.disabled = true;
+            btn.textContent = '⏳ Importerer...';
+
+            try {
+                prog.style.width = '10%';
+                showMsg('seeder-message', '🔄 Importerer til Firebase...', 'info');
+
+                // Split into batches of 50 for progress updates
+                const entries = Object.entries(pendingJsonData);
+                const batchSize = 50;
+                let imported = 0;
+
+                for (let i = 0; i < entries.length; i += batchSize) {
+                    const batch = entries.slice(i, i + batchSize);
+                    const updates = {};
+                    
+                    batch.forEach(([id, question]) => {
+                        // Add timestamp if not present
+                        if (!question.createdAt) {
+                            question.createdAt = Date.now();
+                        }
+                        updates[id] = question;
+                    });
+
+                    await db.ref('quizQuestions').update(updates);
+                    
+                    imported += batch.length;
+                    prog.style.width = `${Math.round((imported / count) * 100)}%`;
+                }
+
+                prog.style.width = '100%';
+                showMsg('seeder-message', `✅ ${count} spørsmål importert til Firebase!`, 'success');
+                
+                // Reset
+                pendingJsonData = null;
+                document.getElementById('json-preview').style.display = 'none';
+                document.getElementById('json-preview-count').textContent = 'Ingen fil valgt';
+                document.getElementById('json-file-input').value = '';
+                btn.textContent = '⬆️ Importer til Firebase';
+                btn.disabled = true;
+
+                // Reload dashboard stats
+                loadDashboard();
+
+            } catch (error) {
+                console.error('Import error:', error);
+                showMsg('seeder-message', '❌ Feil ved import: ' + error.message, 'error');
+                btn.textContent = '⬆️ Importer til Firebase';
+                btn.disabled = false;
+            }
         }
     </script>
 </body>
