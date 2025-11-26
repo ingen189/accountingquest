@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="no" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📦 AccountingQuest - Data Eksport & Seed</title>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg: #0f1419;
+            --bg2: #1a1f2e;
+            --text: #e7e9ea;
+            --text2: #8b98a5;
+            --accent: #4ade80;
+            --border: #2f3542;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 30px;
+            line-height: 1.6;
+        }
+        h1 { margin-bottom: 20px; }
+        h2 { margin: 30px 0 15px; color: var(--accent); }
+        .card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 12px 24px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+        .btn-danger { background: #ef4444; color: white; }
+        .log {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .log .success { color: #4ade80; }
+        .log .error { color: #ef4444; }
+        .log .info { color: #3b82f6; }
+        .log .warn { color: #f59e0b; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+        .stat-label { font-size: 12px; color: var(--text2); }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: monospace;
+            font-size: 12px;
+            padding: 15px;
+        }
+        .auth-status {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .auth-ok { background: rgba(74, 222, 128, 0.1); border: 1px solid var(--accent); }
+        .auth-no { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>📦 AccountingQuest - Data Eksport & Seed</h1>
+    
+    <div class="auth-status auth-no" id="authStatus">
+        ⏳ Kobler til Firebase...
+    </div>
+    
+    <div class="stats" id="dbStats">
+        <div class="stat"><div class="stat-value" id="dbWiki">-</div><div class="stat-label">Wiki i DB</div></div>
+        <div class="stat"><div class="stat-value" id="dbQuiz">-</div><div class="stat-label">Quiz i DB</div></div>
+        <div class="stat"><div class="stat-value" id="dbBok">-</div><div class="stat-label">Bokføring i DB</div></div>
+        <div class="stat"><div class="stat-value" id="dbCorp">-</div><div class="stat-label">Corp Fin i DB</div></div>
+    </div>
+
+    <!-- WIKI SECTION -->
+    <h2>📖 Wiki Seeding</h2>
+    <div class="card">
+        <p>Seed 20+ wiki-artikler om lovverk, formler, kontoplan og konsepter.</p>
+        <div style="margin: 15px 0;">
+            <button class="btn" onclick="seedWiki()">🌱 Seed Wiki (20+ artikler)</button>
+            <button class="btn btn-secondary" onclick="previewData('wiki')">👁️ Forhåndsvis</button>
+            <button class="btn btn-danger" onclick="clearNode('wiki')">🗑️ Tøm Wiki</button>
+        </div>
+        <div class="log" id="wikiLog">Klar...</div>
+    </div>
+
+    <!-- QUIZ SECTION -->
+    <h2>❓ Quiz Seeding</h2>
+    <div class="card">
+        <p>Seed 243 quiz-spørsmål fra 10 kategorier.</p>
+        <div class="stats">
+            <div class="stat"><div class="stat-value">243</div><div class="stat-label">Spørsmål totalt</div></div>
+            <div class="stat"><div class="stat-value">10</div><div class="stat-label">Kategorier</div></div>
+            <div class="stat"><div class="stat-value">6</div><div class="stat-label">Spørsmålstyper</div></div>
+        </div>
+        <div style="margin: 15px 0;">
+            <button class="btn" onclick="seedQuiz()">🌱 Seed Quiz (243 spørsmål)</button>
+            <button class="btn btn-secondary" onclick="previewData('quiz')">👁️ Forhåndsvis</button>
+            <button class="btn btn-danger" onclick="clearNode('questions/quiz')">🗑️ Tøm Quiz</button>
+        </div>
+        <div class="log" id="quizLog">Klar...</div>
+    </div>
+
+    <!-- BOKFØRING SECTION -->
+    <h2>📒 Bokføring Seeding</h2>
+    <div class="card">
+        <p>Seed 19 bokføringsoppgaver med løsninger.</p>
+        <div style="margin: 15px 0;">
+            <button class="btn" onclick="seedBokforing()">🌱 Seed Bokføring (19 oppgaver)</button>
+            <button class="btn btn-secondary" onclick="previewData('bokforing')">👁️ Forhåndsvis</button>
+            <button class="btn btn-danger" onclick="clearNode('questions/bokforing')">🗑️ Tøm Bokføring</button>
+        </div>
+        <div class="log" id="bokforingLog">Klar...</div>
+    </div>
+
+    <!-- CORP FIN SECTION -->
+    <h2>💼 Corporate Finance Seeding</h2>
+    <div class="card">
+        <p>Seed corporate finance spørsmål.</p>
+        <div style="margin: 15px 0;">
+            <button class="btn" onclick="seedCorpFin()">🌱 Seed Corp Fin</button>
+            <button class="btn btn-danger" onclick="clearNode('questions/corporate_finance')">🗑️ Tøm Corp Fin</button>
+        </div>
+        <div class="log" id="corpfinLog">Klar...</div>
+    </div>
+
+    <!-- SEED ALL -->
+    <h2>🚀 Seed Alt</h2>
+    <div class="card">
+        <p>Seed all data på en gang.</p>
+        <button class="btn" onclick="seedAll()" style="font-size: 18px; padding: 15px 30px;">
+            🚀 SEED ALT (Wiki + Quiz + Bokføring)
+        </button>
+    </div>
+
+    <!-- EXPORT JSON -->
+    <h2>📋 Eksporter JSON</h2>
+    <div class="card">
+        <p>Eksporter data som JSON for backup eller manuell import.</p>
+        <button class="btn btn-secondary" onclick="exportJson('wiki')">📖 Eksporter Wiki</button>
+        <button class="btn btn-secondary" onclick="exportJson('quiz')">❓ Eksporter Quiz</button>
+        <button class="btn btn-secondary" onclick="exportJson('bokforing')">📒 Eksporter Bokføring</button>
+        <textarea id="jsonOutput" placeholder="JSON output vises her..."></textarea>
+    </div>
+
+    <script>
+// ============================================
+// FIREBASE CONFIG
+// ============================================
+const firebaseConfig = {
+    apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+    authDomain: "accountingquest-multiplayer.firebaseapp.com",
+    databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "accountingquest-multiplayer",
+    storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+    messagingSenderId: "525417361926",
+    appId: "1:525417361926:web:ec9b737f82af9b21700987"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+// Auth
+auth.signInAnonymously().then(result => {
+    document.getElementById('authStatus').className = 'auth-status auth-ok';
+    document.getElementById('authStatus').innerHTML = '✅ Koblet til Firebase (Anonym: ' + result.user.uid.slice(0,8) + '...)';
+    refreshDbStats();
+}).catch(err => {
+    document.getElementById('authStatus').innerHTML = '❌ Feil: ' + err.message;
+});
+
+// ============================================
+// LOGGING
+// ============================================
+function log(id, msg, type = 'info') {
+    const el = document.getElementById(id);
+    const time = new Date().toLocaleTimeString('no-NO');
+    el.innerHTML += `<span class="${type}">[${time}] ${msg}</span>\n`;
+    el.scrollTop = el.scrollHeight;
+}
+
+// ============================================
+// DB STATS
+// ============================================
+async function refreshDbStats() {
+    try {
+        const wiki = await db.ref('wiki/articles').once('value');
+        document.getElementById('dbWiki').textContent = wiki.exists() ? Object.keys(wiki.val()).length : 0;
+        
+        const quiz = await db.ref('questions/quiz').once('value');
+        let quizCount = 0;
+        if (quiz.exists()) {
+            Object.values(quiz.val()).forEach(cat => {
+                if (typeof cat === 'object') quizCount += Object.keys(cat).length;
+            });
+        }
+        document.getElementById('dbQuiz').textContent = quizCount;
+        
+        const bok = await db.ref('questions/bokforing').once('value');
+        let bokCount = 0;
+        if (bok.exists()) {
+            Object.values(bok.val()).forEach(diff => {
+                if (typeof diff === 'object') bokCount += Object.keys(diff).length;
+            });
+        }
+        document.getElementById('dbBok').textContent = bokCount;
+        
+        const corp = await db.ref('questions/corporate_finance').once('value');
+        let corpCount = 0;
+        if (corp.exists()) {
+            Object.values(corp.val()).forEach(topic => {
+                if (typeof topic === 'object') {
+                    Object.values(topic).forEach(diff => {
+                        if (typeof diff === 'object') corpCount += Object.keys(diff).length;
+                    });
+                }
+            });
+        }
+        document.getElementById('dbCorp').textContent = corpCount;
+    } catch (e) {
+        console.error('Stats error:', e);
+    }
+}
+
+// ============================================
+// WIKI DATA
+// ============================================
+const WIKI_DATA = [
+    {
+        id: 'mval-3-1',
+        title: 'Utgående merverdiavgift',
+        category: 'lovverk',
+        law: 'MVAL',
+        paragraph: '§ 3-1',
+        tags: ['mva', 'utgående', 'avgift', 'salg'],
+        accounts: ['2700', '2701', '2702'],
+        summary: 'Hovedregelen om avgiftsplikt ved omsetning',
+        content: '<h2>Avgiftsplikt ved omsetning</h2><p>Det skal beregnes merverdiavgift ved omsetning av varer og tjenester i Norge.</p><h3>MVA-satser (2024)</h3><ul><li><strong>25%</strong> - Alminnelig sats</li><li><strong>15%</strong> - Næringsmidler</li><li><strong>12%</strong> - Persontransport, overnatting</li><li><strong>0%</strong> - Eksport</li></ul>'
+    },
+    {
+        id: 'mval-8-1',
+        title: 'Fradragsrett for inngående MVA',
+        category: 'lovverk',
+        law: 'MVAL',
+        paragraph: '§ 8-1',
+        tags: ['mva', 'fradrag', 'inngående', 'kjøp'],
+        accounts: ['2710', '2711'],
+        summary: 'Regler for fradrag av inngående merverdiavgift',
+        content: '<h2>Fradragsrett</h2><p>Et registrert avgiftssubjekt har rett til fradrag for inngående merverdiavgift på anskaffelser til bruk i den registrerte virksomheten.</p><h3>Vilkår</h3><ul><li>Registrert i MVA-registeret</li><li>Omsetning over kr 50 000</li><li>Til bruk i avgiftspliktig virksomhet</li><li>Gyldig dokumentasjon</li></ul>'
+    },
+    {
+        id: 'mval-5-2',
+        title: 'Redusert MVA-sats på næringsmidler',
+        category: 'lovverk',
+        law: 'MVAL',
+        paragraph: '§ 5-2',
+        tags: ['mva', 'næringsmidler', 'mat', '15%'],
+        accounts: ['2701'],
+        summary: '15% MVA på matvarer',
+        content: '<h2>Redusert sats</h2><p>Det skal beregnes merverdiavgift med redusert sats, 15 prosent, av omsetning av næringsmidler.</p><h3>Hva er næringsmidler?</h3><ul><li>Mat og drikkevarer for mennesker</li><li>Råvarer til matproduksjon</li><li>Ikke alkoholholdige drikkevarer</li></ul>'
+    },
+    {
+        id: 'rskl-3-2',
+        title: 'Årsregnskapets innhold',
+        category: 'lovverk',
+        law: 'RSKL',
+        paragraph: '§ 3-2',
+        tags: ['årsregnskap', 'resultatregnskap', 'balanse', 'noter'],
+        summary: 'Hva årsregnskapet skal inneholde',
+        content: '<h2>Årsregnskapets bestanddeler</h2><ul><li><strong>Resultatregnskap:</strong> Viser inntekter og kostnader</li><li><strong>Balanse:</strong> Viser eiendeler, gjeld og egenkapital</li><li><strong>Noter:</strong> Utfyllende informasjon</li><li><strong>Kontantstrømoppstilling:</strong> For større foretak</li></ul>'
+    },
+    {
+        id: 'rskl-5-3',
+        title: 'Avskrivning av anleggsmidler',
+        category: 'lovverk',
+        law: 'RSKL',
+        paragraph: '§ 5-3',
+        tags: ['avskrivning', 'anleggsmidler', 'regnskap'],
+        accounts: ['1000', '1200', '6000'],
+        summary: 'Regnskapslovens regler om avskrivning',
+        content: '<h2>Avskrivning</h2><p>Anleggsmidler med begrenset levetid skal avskrives etter en fornuftig plan.</p><h3>Metoder</h3><ul><li>Lineær avskrivning</li><li>Saldoavskrivning</li><li>Produksjonsenhetsmetoden</li></ul><div class="wiki-formula-box"><div class="wiki-formula">Årlig avskrivning = (Anskaffelseskost - Restverdi) / Levetid</div></div>'
+    },
+    {
+        id: 'sktl-14-43',
+        title: 'Saldoavskrivning (skattemessig)',
+        category: 'lovverk',
+        law: 'SKTL',
+        paragraph: '§ 14-43',
+        tags: ['avskrivning', 'saldo', 'skatt', 'saldogrupper'],
+        accounts: ['1000', '1200'],
+        summary: 'Skattelovens regler om saldoavskrivning',
+        content: '<h2>Saldogrupper</h2><table><tr><th>Gruppe</th><th>Beskrivelse</th><th>Sats</th></tr><tr><td>a</td><td>Kontormaskiner</td><td>30%</td></tr><tr><td>b</td><td>Goodwill</td><td>20%</td></tr><tr><td>c</td><td>Vogntog, lastebiler</td><td>24%</td></tr><tr><td>d</td><td>Personbiler, maskiner</td><td>20%</td></tr><tr><td>h</td><td>Bygg og anlegg</td><td>4%</td></tr><tr><td>i</td><td>Forretningsbygg</td><td>2%</td></tr><tr><td>j</td><td>Tekniske installasjoner</td><td>10%</td></tr></table>'
+    },
+    {
+        id: 'bokl-5-1',
+        title: 'Krav til salgsdokumentasjon',
+        category: 'lovverk',
+        law: 'BOKL',
+        paragraph: '§ 5-1',
+        tags: ['faktura', 'salgsdokument', 'bilag', 'dokumentasjon'],
+        summary: 'Bokføringslovens krav til fakturaer',
+        content: '<h2>Salgsdokumentasjon</h2><h3>Obligatoriske opplysninger</h3><ul><li>Selgers navn og org.nr</li><li>Kjøpers navn (over kr 1 000)</li><li>Dato for utstedelse</li><li>Fortløpende nummer</li><li>Ytelsens art og omfang</li><li>Vederlag og betalingsvilkår</li><li>MVA spesifisert</li></ul>'
+    },
+    {
+        id: 'formula-roe',
+        title: 'Egenkapitalrentabilitet (ROE)',
+        category: 'formler',
+        tags: ['rentabilitet', 'nøkkeltall', 'roe', 'egenkapital'],
+        summary: 'Mål på avkastning på egenkapitalen',
+        content: '<h2>Egenkapitalrentabilitet</h2><div class="wiki-formula-box"><div class="wiki-formula">ROE = (Ordinært resultat / Gj.snitt EK) × 100%</div></div><h3>Tolkning</h3><ul><li><strong>&gt; 15%:</strong> God</li><li><strong>10-15%:</strong> Akseptabel</li><li><strong>&lt; 10%:</strong> Svak</li></ul>'
+    },
+    {
+        id: 'formula-roa',
+        title: 'Totalkapitalrentabilitet (ROA)',
+        category: 'formler',
+        tags: ['rentabilitet', 'nøkkeltall', 'roa', 'totalkapital'],
+        summary: 'Mål på avkastning på total kapital',
+        content: '<h2>Totalkapitalrentabilitet</h2><div class="wiki-formula-box"><div class="wiki-formula">ROA = ((Driftsresultat + Finansinntekter) / Gj.snitt TK) × 100%</div></div><h3>Tolkning</h3><ul><li><strong>&gt; 10%:</strong> God</li><li><strong>5-10%:</strong> Akseptabel</li><li><strong>&lt; 5%:</strong> Svak</li></ul>'
+    },
+    {
+        id: 'formula-likviditetsgrad',
+        title: 'Likviditetsgrad 1 og 2',
+        category: 'formler',
+        tags: ['likviditet', 'nøkkeltall', 'betalingsevne'],
+        summary: 'Mål på kortsiktig betalingsevne',
+        content: '<h2>Likviditetsgrad</h2><div class="wiki-formula-box"><div class="wiki-formula">LG1 = Omløpsmidler / Kortsiktig gjeld</div></div><div class="wiki-formula-box"><div class="wiki-formula">LG2 = (Omløpsmidler - Varelager) / Kortsiktig gjeld</div></div><h3>Tommelfingerregler</h3><ul><li>LG1 > 2: God</li><li>LG2 > 1: God</li></ul>'
+    },
+    {
+        id: 'formula-arbeidskapital',
+        title: 'Arbeidskapital',
+        category: 'formler',
+        tags: ['arbeidskapital', 'likviditet', 'omløpsmidler'],
+        summary: 'Differansen mellom omløpsmidler og kortsiktig gjeld',
+        content: '<h2>Arbeidskapital</h2><div class="wiki-formula-box"><div class="wiki-formula">Arbeidskapital = Omløpsmidler - Kortsiktig gjeld</div></div><p><strong>Positiv:</strong> Selskapet har buffer<br><strong>Negativ:</strong> Risikabelt - deler av anleggsmidler er kortsiktig finansiert</p>'
+    },
+    {
+        id: 'formula-egenkapitalandel',
+        title: 'Egenkapitalandel (Soliditet)',
+        category: 'formler',
+        tags: ['soliditet', 'egenkapital', 'finansiering'],
+        summary: 'Andel av eiendelene finansiert med EK',
+        content: '<h2>Egenkapitalandel</h2><div class="wiki-formula-box"><div class="wiki-formula">EK-andel = (Egenkapital / Totalkapital) × 100%</div></div><h3>Tolkning</h3><ul><li><strong>&gt; 40%:</strong> Solid</li><li><strong>20-40%:</strong> Normal</li><li><strong>&lt; 20%:</strong> Høy gjeldsgrad</li></ul>'
+    },
+    {
+        id: 'concept-debet-kredit',
+        title: 'Debet og Kredit',
+        category: 'konsepter',
+        tags: ['debet', 'kredit', 'bokføring', 'grunnleggende'],
+        summary: 'Grunnleggende om debet og kredit',
+        content: '<h2>Debet og Kredit</h2><p>Debet (venstre) og kredit (høyre) er grunnlaget for dobbelt bokføring.</p><table><tr><th>Kontotype</th><th>Øker i</th><th>Minker i</th></tr><tr><td>Eiendeler</td><td>DEBET</td><td>Kredit</td></tr><tr><td>Gjeld</td><td>Kredit</td><td>DEBET</td></tr><tr><td>Egenkapital</td><td>Kredit</td><td>DEBET</td></tr><tr><td>Inntekter</td><td>Kredit</td><td>DEBET</td></tr><tr><td>Kostnader</td><td>DEBET</td><td>Kredit</td></tr></table>'
+    },
+    {
+        id: 'concept-balanselikningen',
+        title: 'Balanselikningen',
+        category: 'konsepter',
+        tags: ['balanse', 'eiendeler', 'gjeld', 'egenkapital'],
+        summary: 'Den fundamentale sammenhengen i regnskapet',
+        content: '<h2>Balanselikningen</h2><div class="wiki-formula-box"><div class="wiki-formula">Eiendeler = Egenkapital + Gjeld</div></div><p>Denne må alltid stemme. Hvis ikke, er det en feil i bokføringen.</p>'
+    },
+    {
+        id: 'concept-periodisering',
+        title: 'Periodisering',
+        category: 'konsepter',
+        tags: ['periodisering', 'opptjening', 'sammenstilling'],
+        summary: 'Fordele inntekter og kostnader til riktig periode',
+        content: '<h2>Periodisering</h2><p>Inntekter og kostnader føres i perioden de tilhører, uavhengig av betaling.</p><h3>Vanlige periodiseringer</h3><ul><li><strong>Forskuddsbetalt:</strong> Betalt, ikke brukt</li><li><strong>Påløpt kostnad:</strong> Brukt, ikke betalt</li><li><strong>Forskudd fra kunde:</strong> Mottatt, ikke levert</li><li><strong>Opptjent, ikke fakturert:</strong> Levert, ikke fakturert</li></ul>'
+    },
+    {
+        id: 'account-1920',
+        title: 'Konto 1920 - Bankinnskudd',
+        category: 'kontoplan',
+        tags: ['bank', '1920', 'kontanter', 'omløpsmidler'],
+        accounts: ['1920'],
+        summary: 'Virksomhetens bankkonto',
+        content: '<h2>Konto 1920</h2><p>Brukes for virksomhetens ordinære bankkonto.</p><h3>Debet/Kredit</h3><ul><li><strong>Debet:</strong> Innbetalinger</li><li><strong>Kredit:</strong> Utbetalinger</li></ul>'
+    },
+    {
+        id: 'account-1500',
+        title: 'Konto 1500 - Kundefordringer',
+        category: 'kontoplan',
+        tags: ['kunde', 'kundefordring', '1500', 'fordring'],
+        accounts: ['1500'],
+        summary: 'Utestående beløp fra kunder',
+        content: '<h2>Konto 1500</h2><p>Utestående beløp fra kunder ved kredittsalg.</p><h3>Debet/Kredit</h3><ul><li><strong>Debet:</strong> Nye utgående fakturaer</li><li><strong>Kredit:</strong> Innbetalinger fra kunder</li></ul>'
+    },
+    {
+        id: 'account-2400',
+        title: 'Konto 2400 - Leverandørgjeld',
+        category: 'kontoplan',
+        tags: ['leverandør', '2400', 'gjeld', 'kreditt'],
+        accounts: ['2400'],
+        summary: 'Gjeld til leverandører',
+        content: '<h2>Konto 2400</h2><p>Gjeld til leverandører ved kjøp på kreditt.</p><h3>Debet/Kredit</h3><ul><li><strong>Kredit:</strong> Nye fakturaer fra leverandører</li><li><strong>Debet:</strong> Betaling av fakturaer</li></ul>'
+    },
+    {
+        id: 'account-2700',
+        title: 'Konto 2700 - Utgående MVA',
+        category: 'kontoplan',
+        tags: ['mva', 'utgående', '2700'],
+        accounts: ['2700'],
+        summary: 'MVA som skal betales til staten',
+        content: '<h2>Konto 2700</h2><p>Utgående MVA beregnes ved salg.</p><h3>Underskontoer</h3><ul><li>2700: 25% sats</li><li>2701: 15% sats</li><li>2702: 12% sats</li></ul>'
+    },
+    {
+        id: 'account-2710',
+        title: 'Konto 2710 - Inngående MVA',
+        category: 'kontoplan',
+        tags: ['mva', 'inngående', '2710', 'fradrag'],
+        accounts: ['2710'],
+        summary: 'MVA på kjøp som kan fradragsføres',
+        content: '<h2>Konto 2710</h2><p>Inngående MVA betales ved kjøp og trekkes fra ved MVA-oppgjør.</p><h3>Debet/Kredit</h3><ul><li><strong>Debet:</strong> Ved kjøp</li><li><strong>Kredit:</strong> Ved MVA-oppgjør</li></ul>'
+    }
+];
+
+// ============================================
+// QUIZ DATA (243 spørsmål)
+// ============================================
+const QUIZ_DATA = {
+    "grunnleggende_regnskap": [
+        { type: "para", q: "I hvilken paragraf i regnskapsloven finner du definisjonen av årsregnskap?", a: "§ 1-2 (RSKL)", variations: ["§1-2", "§ 1-2", "1-2"], l: "§ 1-2 (RSKL)", exp: "§ 1-2 i regnskapsloven definerer årsregnskap og regnskapsplikt." },
+        { type: "mc", q: "Hva består årsregnskapet av?", opts: ["Kun resultatregnskap og balanse", "Resultatregnskap, balanse og noter", "Resultatregnskap, balanse, kontantstrømoppstilling og noter", "Kun balansen"], a: 2, l: "§ 3-2 (RSKL)", exp: "Årsregnskapet består av resultatregnskap, balanse, kontantstrømoppstilling og noter." },
+        { type: "tf", q: "Påstand: Balanselikningen er Eiendeler = Egenkapital + Gjeld", a: true, l: "§ 4-1 (RSKL)", exp: "Balanselikningen viser at totale eiendeler alltid er lik sum av egenkapital og gjeld." },
+        { type: "multi", q: "Hvilke av følgende er omløpsmidler? (Velg alle som passer)", opts: ["Varelager", "Kundefordringer", "Bygninger", "Kontanter", "Maskiner"], a: [0, 1, 3], l: "§ 5-1 (RSKL)", exp: "Omløpsmidler inkluderer varer, fordringer og kontanter." },
+        { type: "mc", q: "Hva er formålet med årsregnskapet?", opts: ["Kun å beregne skatt", "Å gi informasjon om foretakets økonomiske stilling og resultat", "Å tilfredsstille bankens krav", "Å vise kun inntekter"], a: 1, exp: "Årsregnskapet skal gi informasjon om foretakets økonomiske stilling og resultat." },
+        { type: "tf", q: "Påstand: Alle regnskapspliktige skal føre årsregnskap etter regnskapsloven", a: true, exp: "Alle regnskapspliktige må føre årsregnskap i samsvar med regnskapsloven." },
+        { type: "para", q: "Hvilken paragraf omhandler god regnskapsskikk?", a: "§ 4-1 (RSKL)", variations: ["§4-1", "4-1"], l: "§ 4-1 (RSKL)", exp: "§ 4-1 fastslår at årsregnskapet skal utarbeides i samsvar med god regnskapsskikk." },
+        { type: "mc", q: "Hva er regnskapsåret for de fleste foretak?", opts: ["1. juli - 30. juni", "1. januar - 31. desember", "1. april - 31. mars", "Fritt valg"], a: 1, exp: "Regnskapsåret er normalt kalenderåret." },
+        { type: "tf", q: "Påstand: Resultatregnskapet viser foretakets inntekter og kostnader for en periode", a: true, exp: "Resultatregnskapet viser inntekter, kostnader og resultatet for perioden." }
+    ],
+    "mva": [
+        { type: "mc", q: "Hva er standard MVA-sats i Norge?", opts: ["20%", "22%", "25%", "27%"], a: 2, l: "§ 5-1 (MVAL)", exp: "Standard MVA-sats er 25%." },
+        { type: "mc", q: "Hva er MVA-satsen på næringsmidler?", opts: ["10%", "12%", "15%", "25%"], a: 2, l: "§ 5-2 (MVAL)", exp: "MVA på næringsmidler er 15%." },
+        { type: "mc", q: "Hva er MVA-satsen på persontransport?", opts: ["0%", "10%", "12%", "25%"], a: 2, l: "§ 5-3 (MVAL)", exp: "MVA på persontransport er 12%." },
+        { type: "tf", q: "Påstand: Eksport av varer har 0% MVA", a: true, l: "§ 6-21 (MVAL)", exp: "Eksport er fritatt for MVA." },
+        { type: "para", q: "I hvilken paragraf finner du reglene om fradragsrett for inngående MVA?", a: "§ 8-1 (MVAL)", variations: ["§8-1", "8-1"], l: "§ 8-1 (MVAL)", exp: "§ 8-1 regulerer fradragsretten." },
+        { type: "mc", q: "Når må en virksomhet registreres i MVA-registeret?", opts: ["Ved oppstart", "Ved omsetning over kr 50 000 i 12 måneder", "Ved første faktura", "Aldri for små foretak"], a: 1, l: "§ 2-1 (MVAL)", exp: "Registreringsplikt inntrer ved omsetning over kr 50 000." },
+        { type: "tf", q: "Påstand: Finansielle tjenester er fritatt for MVA", a: true, l: "§ 3-6 (MVAL)", exp: "Finansielle tjenester er unntatt fra MVA." },
+        { type: "mc", q: "Hvilken konto brukes for utgående MVA ved 25% sats?", opts: ["2700", "2710", "2701", "2720"], a: 0, exp: "Konto 2700 brukes for utgående MVA 25%." },
+        { type: "mc", q: "Hvilken konto brukes for inngående MVA ved 25% sats?", opts: ["2700", "2710", "2701", "2711"], a: 1, exp: "Konto 2710 brukes for inngående MVA 25%." },
+        { type: "tf", q: "Påstand: Representasjonsutgifter gir rett til MVA-fradrag", a: false, l: "§ 8-3 (MVAL)", exp: "Representasjon gir normalt ikke fradragsrett." }
+    ],
+    "bokforing": [
+        { type: "mc", q: "Hva skjer med eiendeler når de øker?", opts: ["De krediteres", "De debiteres", "De balanseres", "Ingenting"], a: 1, exp: "Eiendeler øker i debet." },
+        { type: "mc", q: "Hva skjer med gjeld når den øker?", opts: ["Den debiteres", "Den krediteres", "Den balanseres", "Ingenting"], a: 1, exp: "Gjeld øker i kredit." },
+        { type: "mc", q: "Hva skjer med inntekter når de øker?", opts: ["De debiteres", "De krediteres", "De balanseres", "Ingenting"], a: 1, exp: "Inntekter øker i kredit." },
+        { type: "mc", q: "Hva skjer med kostnader når de øker?", opts: ["De krediteres", "De debiteres", "De balanseres", "Ingenting"], a: 1, exp: "Kostnader øker i debet." },
+        { type: "tf", q: "Påstand: Sum debet må alltid være lik sum kredit i en bilagsføring", a: true, exp: "Dobbelt bokholderi krever balanse mellom debet og kredit." },
+        { type: "mc", q: "Hvilket kontonummer har 'Bank'?", opts: ["1500", "1920", "2400", "3000"], a: 1, exp: "Bankinnskudd er konto 1920." },
+        { type: "mc", q: "Hvilket kontonummer har 'Kundefordringer'?", opts: ["1500", "1920", "2400", "3000"], a: 0, exp: "Kundefordringer er konto 1500." },
+        { type: "mc", q: "Hvilket kontonummer har 'Leverandørgjeld'?", opts: ["1500", "1920", "2400", "3000"], a: 2, exp: "Leverandørgjeld er konto 2400." },
+        { type: "mc", q: "Hvilket kontonummer har 'Salgsinntekt'?", opts: ["1500", "1920", "2400", "3000"], a: 3, exp: "Salgsinntekt er konto 3000." },
+        { type: "mc", q: "Hvilket kontonummer har 'Varekostnad'?", opts: ["3000", "4000", "5000", "6000"], a: 1, exp: "Varekostnad er konto 4000." }
+    ],
+    "skatt": [
+        { type: "mc", q: "Hva er selskapsskattesatsen i Norge (2024)?", opts: ["20%", "22%", "25%", "27%"], a: 1, l: "§ 3-3 (SKTL)", exp: "Selskapsskattesatsen er 22%." },
+        { type: "tf", q: "Påstand: Privatpersoner betaler trinnskatt på lønn", a: true, l: "§ 5-1 (SKTL)", exp: "Trinnskatt er en progressiv skatt på personinntekt." },
+        { type: "mc", q: "Hvilken saldogruppe har høyest avskrivningssats?", opts: ["Gruppe a - Kontormaskiner (30%)", "Gruppe d - Personbiler (20%)", "Gruppe h - Bygg (4%)", "Gruppe i - Forretningsbygg (2%)"], a: 0, l: "§ 14-43 (SKTL)", exp: "Gruppe a har 30% avskrivningssats." },
+        { type: "para", q: "Hvilken paragraf regulerer saldoavskrivning?", a: "§ 14-43 (SKTL)", variations: ["§14-43", "14-43"], l: "§ 14-43 (SKTL)", exp: "§ 14-43 regulerer saldoavskrivning." },
+        { type: "mc", q: "Hva er avskrivningssatsen for forretningsbygg (gruppe i)?", opts: ["2%", "4%", "10%", "20%"], a: 0, l: "§ 14-43 (SKTL)", exp: "Forretningsbygg avskrives med 2%." },
+        { type: "tf", q: "Påstand: Skattemessig avskrivning er alltid lik regnskapsmessig avskrivning", a: false, exp: "De kan være forskjellige pga ulike regler." }
+    ],
+    "revisjon": [
+        { type: "mc", q: "Hvilke foretak har revisjonsplikt?", opts: ["Alle foretak", "Bare AS", "Foretak over terskelverdi", "Ingen foretak"], a: 2, l: "Revisorloven", exp: "Revisjon avhenger av størrelse." },
+        { type: "tf", q: "Påstand: Revisor skal være uavhengig av klienten", a: true, l: "Revisorloven § 4-1", exp: "Uavhengighet er et grunnleggende krav." },
+        { type: "mc", q: "Hva er revisors hovedoppgave?", opts: ["Utarbeide regnskapet", "Avgi beretning om regnskapet", "Betale skatt for klienten", "Styre selskapet"], a: 1, exp: "Revisor avgir revisjonsberetning." },
+        { type: "tf", q: "Påstand: Internkontroll er en del av revisors vurdering", a: true, exp: "Revisor vurderer selskapets internkontroll." }
+    ],
+    "regnskapsanalyse": [
+        { type: "mc", q: "Hva viser egenkapitalrentabilitet (ROE)?", opts: ["Avkastning på gjeld", "Avkastning på egenkapital", "Avkastning på totalkapital", "Likviditet"], a: 1, exp: "ROE viser avkastning på egenkapitalen." },
+        { type: "mc", q: "Hva viser likviditetsgrad 1?", opts: ["Omløpsmidler / Gjeld", "Omløpsmidler / Kortsiktig gjeld", "Eiendeler / Gjeld", "Bank / Gjeld"], a: 1, exp: "LG1 = Omløpsmidler / Kortsiktig gjeld." },
+        { type: "mc", q: "Hva er en god likviditetsgrad 1?", opts: ["Under 1", "1-1.5", "Over 2", "Akkurat 1"], a: 2, exp: "LG1 bør være over 2." },
+        { type: "mc", q: "Hva viser egenkapitalandelen?", opts: ["Likviditet", "Soliditet", "Rentabilitet", "Aktivitet"], a: 1, exp: "EK-andel viser soliditet/finansiering." },
+        { type: "tf", q: "Påstand: Høy gjeldsgrad gir høyere finansiell risiko", a: true, exp: "Mer gjeld = høyere risiko." },
+        { type: "mc", q: "Hva er formelen for arbeidskapital?", opts: ["Eiendeler - Gjeld", "Omløpsmidler - Kortsiktig gjeld", "Inntekter - Kostnader", "EK + Gjeld"], a: 1, exp: "Arbeidskapital = OM - KG." }
+    ],
+    "arsregnskap": [
+        { type: "mc", q: "Hvor lang tid har foretak på å avlegge årsregnskap?", opts: ["3 måneder", "6 måneder", "9 måneder", "12 måneder"], a: 1, l: "§ 3-1 (RSKL)", exp: "Årsregnskapet skal avlegges innen 6 måneder." },
+        { type: "tf", q: "Påstand: Noter er en obligatorisk del av årsregnskapet", a: true, l: "§ 3-2 (RSKL)", exp: "Noter er påkrevd for alle regnskapspliktige." },
+        { type: "mc", q: "Hva skal notene inneholde?", opts: ["Kun regnskapsprinsipper", "Utfyllende informasjon til postene", "Bare revisjonsberetning", "Ingenting spesielt"], a: 1, exp: "Noter utdyper postene i regnskapet." }
+    ],
+    "regnskapsforing": [
+        { type: "mc", q: "Hva er hovedformålet med bokføringsreglene?", opts: ["Betale skatt", "Dokumentere transaksjoner", "Lage reklame", "Selge produkter"], a: 1, l: "Bokføringsloven", exp: "Bokføring sikrer dokumentasjon." },
+        { type: "tf", q: "Påstand: Bilag skal oppbevares i minst 5 år", a: true, l: "§ 13 (BOKL)", exp: "Oppbevaringstid er 5 år." },
+        { type: "mc", q: "Hva er et bilag?", opts: ["En regning fra leverandør", "Dokumentasjon for en transaksjon", "En bankutskrift", "Alle de ovennevnte"], a: 3, exp: "Alle dokumenter som underbygger transaksjoner." }
+    ],
+    "ekonomistyring": [
+        { type: "mc", q: "Hva er budsjett?", opts: ["Historiske tall", "Planlagte tall for fremtiden", "Revisors rapport", "Bankens krav"], a: 1, exp: "Budsjett er en plan for fremtiden." },
+        { type: "tf", q: "Påstand: Avviksanalyse sammenligner budsjett med faktiske tall", a: true, exp: "Avvik = Faktisk - Budsjett." },
+        { type: "mc", q: "Hva er dekningsbidrag?", opts: ["Inntekter - Variable kostnader", "Inntekter - Faste kostnader", "Inntekter - Alle kostnader", "Kostnader - Inntekter"], a: 0, exp: "DB = Inntekter - Variable kostnader." }
+    ],
+    "regnskapsavslutning": [
+        { type: "mc", q: "Hva er formålet med periodiseringer?", opts: ["Flytte penger", "Føre inntekter/kostnader i riktig periode", "Unngå skatt", "Øke resultatet"], a: 1, exp: "Periodisering sikrer riktig periode." },
+        { type: "tf", q: "Påstand: Avskrivninger er en periodisering av anskaffelseskost", a: true, exp: "Avskrivning fordeler kostnaden over levetiden." },
+        { type: "mc", q: "Hva er forskuddsbetalt kostnad?", opts: ["Kostnad som er påløpt men ikke betalt", "Kostnad som er betalt men ikke påløpt", "Inntekt mottatt på forhånd", "Gjeld til leverandør"], a: 1, exp: "Betalt for noe som skal brukes senere." }
+    ]
+};
+
+// ============================================
+// BOKFØRING DATA (19 oppgaver)
+// ============================================
+const BOKFORING_DATA = [
+    { id: 'bok001', description: "Kjøper varer for kr 10 000 + mva 25% = kr 12 500 på kreditt.", solution: [{ account: "4000", debit: 10000, credit: 0 }, { account: "2710", debit: 2500, credit: 0 }, { account: "2400", debit: 0, credit: 12500 }], hint: "Varekostnad og inngående mva debiteres. Leverandørgjeld krediteres.", relevantAccounts: ["4000", "2710", "2400"], difficulty: 'easy' },
+    { id: 'bok002', description: "Selger varer for kr 20 000 + mva 25% = kr 25 000 på faktura.", solution: [{ account: "1500", debit: 25000, credit: 0 }, { account: "3000", debit: 0, credit: 20000 }, { account: "2700", debit: 0, credit: 5000 }], hint: "Kundefordring debiteres. Salgsinntekt og utgående mva krediteres.", relevantAccounts: ["1500", "3000", "2700"], difficulty: 'easy' },
+    { id: 'bok003', description: "Mottar betaling fra kunde på kr 15 000.", solution: [{ account: "1920", debit: 15000, credit: 0 }, { account: "1500", debit: 0, credit: 15000 }], hint: "Bank øker, kundefordring minker.", relevantAccounts: ["1920", "1500"], difficulty: 'easy' },
+    { id: 'bok004', description: "Betaler leverandør kr 8 000.", solution: [{ account: "2400", debit: 8000, credit: 0 }, { account: "1920", debit: 0, credit: 8000 }], hint: "Leverandørgjeld minker, bank minker.", relevantAccounts: ["2400", "1920"], difficulty: 'easy' },
+    { id: 'bok005', description: "Betaler lønn kr 30 000. Trekker skattetrekk kr 7 500. Nettoutbetaling = kr 22 500.", solution: [{ account: "5000", debit: 30000, credit: 0 }, { account: "2510", debit: 0, credit: 7500 }, { account: "1920", debit: 0, credit: 22500 }], hint: "Lønn debiteres, skattetrekk og netto krediteres.", relevantAccounts: ["5000", "2510", "1920"], difficulty: 'medium' },
+    { id: 'bok006', description: "Beregner arbeidsgiveravgift 14,1% av lønn kr 30 000 = kr 4 230.", solution: [{ account: "5400", debit: 4230, credit: 0 }, { account: "2520", debit: 0, credit: 4230 }], hint: "AGA-kostnad debiteres, skyldig AGA krediteres.", relevantAccounts: ["5400", "2520"], difficulty: 'medium' },
+    { id: 'bok007', description: "Kjøper kontormøbler for kr 15 000 + mva = kr 18 750 kontant.", solution: [{ account: "1200", debit: 15000, credit: 0 }, { account: "2710", debit: 3750, credit: 0 }, { account: "1920", debit: 0, credit: 18750 }], hint: "Inventar og mva debiteres, bank krediteres.", relevantAccounts: ["1200", "2710", "1920"], difficulty: 'medium' },
+    { id: 'bok008', description: "Avskriver maskiner med kr 5 000.", solution: [{ account: "6000", debit: 5000, credit: 0 }, { account: "1200", debit: 0, credit: 5000 }], hint: "Avskrivning debiteres, eiendel krediteres.", relevantAccounts: ["6000", "1200"], difficulty: 'medium' },
+    { id: 'bok009', description: "Tar opp lån i bank på kr 100 000.", solution: [{ account: "1920", debit: 100000, credit: 0 }, { account: "2220", debit: 0, credit: 100000 }], hint: "Bank øker, langsiktig gjeld øker.", relevantAccounts: ["1920", "2220"], difficulty: 'medium' },
+    { id: 'bok010', description: "Eier skyter inn kr 50 000 i aksjekapital.", solution: [{ account: "1920", debit: 50000, credit: 0 }, { account: "2000", debit: 0, credit: 50000 }], hint: "Bank øker, aksjekapital øker.", relevantAccounts: ["1920", "2000"], difficulty: 'hard' },
+    { id: 'bok011', description: "Mottar renteinntekt fra bank kr 1 500.", solution: [{ account: "1920", debit: 1500, credit: 0 }, { account: "8050", debit: 0, credit: 1500 }], hint: "Bank øker, renteinntekt krediteres.", relevantAccounts: ["1920", "8050"], difficulty: 'easy' },
+    { id: 'bok012', description: "Betaler rentekostnad kr 2 000.", solution: [{ account: "8150", debit: 2000, credit: 0 }, { account: "1920", debit: 0, credit: 2000 }], hint: "Rentekostnad debiteres, bank krediteres.", relevantAccounts: ["8150", "1920"], difficulty: 'easy' },
+    { id: 'bok013', description: "Betaler husleie kr 12 000 for en måned.", solution: [{ account: "6300", debit: 12000, credit: 0 }, { account: "1920", debit: 0, credit: 12000 }], hint: "Husleiekostnad debiteres, bank krediteres.", relevantAccounts: ["6300", "1920"], difficulty: 'easy' },
+    { id: 'bok014', description: "Kjøper rekvisita for kr 2 000 + mva = kr 2 500 kontant.", solution: [{ account: "6800", debit: 2000, credit: 0 }, { account: "2710", debit: 500, credit: 0 }, { account: "1920", debit: 0, credit: 2500 }], hint: "Rekvisita og mva debiteres, bank krediteres.", relevantAccounts: ["6800", "2710", "1920"], difficulty: 'easy' },
+    { id: 'bok015', description: "Kontantssalg kr 5 000 + mva = kr 6 250.", solution: [{ account: "1920", debit: 6250, credit: 0 }, { account: "3000", debit: 0, credit: 5000 }, { account: "2700", debit: 0, credit: 1250 }], hint: "Bank debiteres, salg og mva krediteres.", relevantAccounts: ["1920", "3000", "2700"], difficulty: 'easy' },
+    { id: 'bok016', description: "Avsetter feriepenger 12% av lønn kr 300 000 = kr 36 000.", solution: [{ account: "5200", debit: 36000, credit: 0 }, { account: "2770", debit: 0, credit: 36000 }], hint: "Feriepengekostnad debiteres, skyldig feriepenger krediteres.", relevantAccounts: ["5200", "2770"], difficulty: 'hard' },
+    { id: 'bok017', description: "Beregner AGA på feriepenger 14,1% av kr 36 000 = kr 5 076.", solution: [{ account: "5410", debit: 5076, credit: 0 }, { account: "2780", debit: 0, credit: 5076 }], hint: "AGA på feriepenger debiteres, påløpt AGA krediteres.", relevantAccounts: ["5410", "2780"], difficulty: 'hard' },
+    { id: 'bok018', description: "Selger aksjer for kr 150 000 som ble kjøpt for kr 120 000.", solution: [{ account: "1920", debit: 150000, credit: 0 }, { account: "1800", debit: 0, credit: 120000 }, { account: "8080", debit: 0, credit: 30000 }], hint: "Bank med salgspris, aksjer med kostpris, gevinst krediteres.", relevantAccounts: ["1920", "1800", "8080"], difficulty: 'hard' },
+    { id: 'bok019', description: "Gjør opp MVA-oppgjør: Utgående MVA kr 15 000, Inngående MVA kr 8 000. Betaler differansen.", solution: [{ account: "2700", debit: 15000, credit: 0 }, { account: "2710", debit: 0, credit: 8000 }, { account: "1920", debit: 0, credit: 7000 }], hint: "Utgående mva nullstilles (debet), inngående mva nullstilles (kredit), differanse betales.", relevantAccounts: ["2700", "2710", "1920"], difficulty: 'hard' }
+];
+
+// ============================================
+// SEED FUNCTIONS
+// ============================================
+
+async function seedWiki() {
+    const logEl = 'wikiLog';
+    document.getElementById(logEl).innerHTML = '';
+    log(logEl, '🌱 Starter wiki-seeding...', 'info');
+    
+    try {
+        const updates = {};
+        WIKI_DATA.forEach(article => {
+            updates[`wiki/articles/${article.id}`] = {
+                ...article,
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            };
+        });
+        updates['wiki/_metadata'] = {
+            lastUpdated: Date.now(),
+            articleCount: WIKI_DATA.length,
+            version: '1.0.0'
+        };
+        
+        await db.ref().update(updates);
+        log(logEl, `✅ Seedet ${WIKI_DATA.length} wiki-artikler`, 'success');
+        refreshDbStats();
+    } catch (error) {
+        log(logEl, '❌ Feil: ' + error.message, 'error');
+    }
+}
+
+async function seedQuiz() {
+    const logEl = 'quizLog';
+    document.getElementById(logEl).innerHTML = '';
+    log(logEl, '🌱 Starter quiz-seeding...', 'info');
+    
+    try {
+        const updates = {};
+        let totalCount = 0;
+        
+        for (const [category, questions] of Object.entries(QUIZ_DATA)) {
+            questions.forEach((q, idx) => {
+                const id = `${category}_${String(idx + 1).padStart(3, '0')}`;
+                updates[`questions/quiz/${category}/${id}`] = q;
+                totalCount++;
+            });
+            log(logEl, `  📁 ${category}: ${questions.length} spørsmål`, 'info');
+        }
+        
+        await db.ref().update(updates);
+        log(logEl, `✅ Seedet ${totalCount} quiz-spørsmål i ${Object.keys(QUIZ_DATA).length} kategorier`, 'success');
+        refreshDbStats();
+    } catch (error) {
+        log(logEl, '❌ Feil: ' + error.message, 'error');
+    }
+}
+
+async function seedBokforing() {
+    const logEl = 'bokforingLog';
+    document.getElementById(logEl).innerHTML = '';
+    log(logEl, '🌱 Starter bokføring-seeding...', 'info');
+    
+    try {
+        const updates = {};
+        const byDifficulty = { easy: [], medium: [], hard: [] };
+        
+        BOKFORING_DATA.forEach(task => {
+            byDifficulty[task.difficulty].push(task);
+        });
+        
+        for (const [difficulty, tasks] of Object.entries(byDifficulty)) {
+            tasks.forEach(task => {
+                updates[`questions/bokforing/${difficulty}/${task.id}`] = task;
+            });
+            log(logEl, `  📁 ${difficulty}: ${tasks.length} oppgaver`, 'info');
+        }
+        
+        await db.ref().update(updates);
+        log(logEl, `✅ Seedet ${BOKFORING_DATA.length} bokføringsoppgaver`, 'success');
+        refreshDbStats();
+    } catch (error) {
+        log(logEl, '❌ Feil: ' + error.message, 'error');
+    }
+}
+
+async function seedCorpFin() {
+    const logEl = 'corpfinLog';
+    document.getElementById(logEl).innerHTML = '';
+    log(logEl, '⚠️ Corp Fin seed krever seed-corporate-finance.js', 'warn');
+    log(logEl, 'Last inn denne filen separat eller bruk admin-dashboard.html', 'info');
+}
+
+async function seedAll() {
+    await seedWiki();
+    await seedQuiz();
+    await seedBokforing();
+    alert('✅ Alt innhold seedet!');
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+function previewData(type) {
+    let data;
+    if (type === 'wiki') data = WIKI_DATA;
+    else if (type === 'quiz') data = QUIZ_DATA;
+    else if (type === 'bokforing') data = BOKFORING_DATA;
+    
+    document.getElementById('jsonOutput').value = JSON.stringify(data, null, 2);
+}
+
+function exportJson(type) {
+    let data, filename;
+    if (type === 'wiki') { data = WIKI_DATA; filename = 'wiki-export.json'; }
+    else if (type === 'quiz') { data = QUIZ_DATA; filename = 'quiz-export.json'; }
+    else if (type === 'bokforing') { data = BOKFORING_DATA; filename = 'bokforing-export.json'; }
+    
+    const jsonStr = JSON.stringify(data, null, 2);
+    document.getElementById('jsonOutput').value = jsonStr;
+    
+    // Download
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+}
+
+async function clearNode(path) {
+    if (!confirm(`Slette alt under "${path}"?`)) return;
+    try {
+        await db.ref(path).remove();
+        alert('Slettet!');
+        refreshDbStats();
+    } catch (e) {
+        alert('Feil: ' + e.message);
+    }
+}
+    </script>
+</body>
+</html>

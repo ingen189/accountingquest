@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="no" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 AccountingQuest - Sikker Data Seeder</title>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        :root { --bg: #0f1419; --bg2: #1a1f2e; --text: #e7e9ea; --text2: #8b98a5; --accent: #4ade80; --border: #2f3542; --red: #ef4444; --orange: #f59e0b; --blue: #3b82f6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; line-height: 1.6; }
+        h1 { margin-bottom: 10px; }
+        h2 { margin: 25px 0 15px; color: var(--accent); font-size: 1.3rem; }
+        .subtitle { color: var(--text2); margin-bottom: 20px; }
+        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+        .btn { padding: 12px 24px; background: var(--accent); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 14px; }
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: var(--border); color: var(--text); }
+        .btn-danger { background: var(--red); color: white; }
+        .btn-warning { background: var(--orange); color: #000; }
+        .log { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 15px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; white-space: pre-wrap; margin-top: 10px; }
+        .log .success { color: var(--accent); }
+        .log .error { color: var(--red); }
+        .log .info { color: var(--blue); }
+        .log .warn { color: var(--orange); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0; }
+        .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+        .stat-label { font-size: 11px; color: var(--text2); }
+        .auth-status { padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+        .auth-ok { background: rgba(74, 222, 128, 0.1); border: 1px solid var(--accent); }
+        .auth-no { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--red); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+        .info-box { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--blue); border-radius: 8px; padding: 15px; margin: 15px 0; }
+        .warning-box { background: rgba(245, 158, 11, 0.1); border: 1px solid var(--orange); border-radius: 8px; padding: 15px; margin: 15px 0; }
+        textarea { width: 100%; min-height: 150px; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: monospace; font-size: 11px; padding: 10px; resize: vertical; }
+        input[type="text"], input[type="email"], input[type="password"] { width: 100%; padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); margin: 5px 0; }
+        label { display: block; margin-top: 10px; color: var(--text2); font-size: 13px; }
+    </style>
+</head>
+<body>
+    <h1>🔐 AccountingQuest - Sikker Data Seeder</h1>
+    <p class="subtitle">Splitter data mellom questions/ (åpen) og solutions/ (sikker)</p>
+    
+    <div class="auth-status auth-no" id="authStatus">⏳ Kobler til...</div>
+    
+    <div class="stats" id="dbStats">
+        <div class="stat"><div class="stat-value" id="qCount">-</div><div class="stat-label">Questions</div></div>
+        <div class="stat"><div class="stat-value" id="sCount">-</div><div class="stat-label">Solutions</div></div>
+        <div class="stat"><div class="stat-value" id="wCount">-</div><div class="stat-label">Wiki</div></div>
+        <div class="stat"><div class="stat-value" id="aCount">-</div><div class="stat-label">Admins</div></div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="card" id="loginCard">
+        <h2>🔑 Admin Login</h2>
+        <p style="color: var(--text2); margin-bottom: 15px;">Du må være admin for å seede data</p>
+        <label>Email</label>
+        <input type="email" id="email" placeholder="admin@accountingquest.app">
+        <label>Passord</label>
+        <input type="password" id="password" placeholder="••••••••">
+        <button class="btn" onclick="login()" style="margin-top: 15px;">Logg inn</button>
+        <button class="btn btn-secondary" onclick="loginAnon()">Anonym (begrenset)</button>
+    </div>
+
+    <!-- ADMIN SETUP -->
+    <div class="card" id="adminCard" style="display:none;">
+        <h2>👤 Admin-oppsett</h2>
+        <div class="warning-box">
+            <strong>⚠️ Viktig:</strong> Du må manuelt legge til admins i Firebase Console → Realtime Database → admins/
+        </div>
+        <p>Struktur:</p>
+        <pre style="background: var(--bg); padding: 10px; border-radius: 6px; margin: 10px 0;">
+admins/
+  USER_UID_HER/
+    email: "din@email.com"
+    addedAt: 1234567890</pre>
+        <button class="btn btn-secondary" onclick="checkAdminStatus()">Sjekk admin-status</button>
+        <div class="log" id="adminLog"></div>
+    </div>
+
+    <!-- SEED SECTIONS -->
+    <div id="seedSections" style="display:none;">
+        
+        <div class="info-box">
+            <strong>🔐 Sikker arkitektur:</strong><br>
+            • <code>questions/</code> - Spørsmål UTEN svar (alle kan lese)<br>
+            • <code>solutions/</code> - Fasit + hint (kun admin kan lese)<br>
+            • Klienten kan ALDRI se fasit før svar er sendt
+        </div>
+
+        <!-- QUIZ -->
+        <h2>❓ Quiz (Splitt)</h2>
+        <div class="card">
+            <div class="grid-2">
+                <div>
+                    <strong>Spørsmål (åpen)</strong>
+                    <p style="color: var(--text2); font-size: 13px;">type, question, options, tags, law, wiki</p>
+                </div>
+                <div>
+                    <strong>Løsninger (sikker)</strong>
+                    <p style="color: var(--text2); font-size: 13px;">answer, hint, explanation</p>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn" onclick="seedQuizSplit()">🌱 Seed Quiz (Splitt)</button>
+                <button class="btn btn-secondary" onclick="previewQuiz()">👁️ Forhåndsvis</button>
+                <button class="btn btn-danger" onclick="clearQuiz()">🗑️ Tøm</button>
+            </div>
+            <div class="log" id="quizLog">Klar...</div>
+        </div>
+
+        <!-- BOKFØRING -->
+        <h2>📒 Bokføring (Splitt)</h2>
+        <div class="card">
+            <div class="grid-2">
+                <div>
+                    <strong>Oppgaver (åpen)</strong>
+                    <p style="color: var(--text2); font-size: 13px;">description, relevantAccounts, difficulty</p>
+                </div>
+                <div>
+                    <strong>Løsninger (sikker)</strong>
+                    <p style="color: var(--text2); font-size: 13px;">solution[], hint</p>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn" onclick="seedBokforingSplit()">🌱 Seed Bokføring (Splitt)</button>
+                <button class="btn btn-secondary" onclick="previewBokforing()">👁️ Forhåndsvis</button>
+                <button class="btn btn-danger" onclick="clearBokforing()">🗑️ Tøm</button>
+            </div>
+            <div class="log" id="bokLog">Klar...</div>
+        </div>
+
+        <!-- WIKI -->
+        <h2>📖 Wiki</h2>
+        <div class="card">
+            <p style="color: var(--text2); margin-bottom: 10px;">Wiki er åpen for alle - ingen splitting nødvendig</p>
+            <button class="btn" onclick="seedWiki()">🌱 Seed Wiki (20+ artikler)</button>
+            <button class="btn btn-danger" onclick="clearWiki()">🗑️ Tøm</button>
+            <div class="log" id="wikiLog">Klar...</div>
+        </div>
+
+        <!-- IMPORT JSON -->
+        <h2>📤 Importer JSON</h2>
+        <div class="card">
+            <p style="color: var(--text2); margin-bottom: 10px;">Lim inn JSON-data for å importere nye oppgaver</p>
+            <label>Velg type:</label>
+            <select id="importType" style="width: 100%; padding: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; margin: 5px 0;">
+                <option value="quiz">Quiz-spørsmål</option>
+                <option value="bokforing">Bokføringsoppgaver</option>
+                <option value="wiki">Wiki-artikler</option>
+            </select>
+            <label>JSON-data:</label>
+            <textarea id="importJson" placeholder='[{"question": "...", "answer": "...", ...}]'></textarea>
+            <button class="btn" onclick="importJson()">📥 Importer</button>
+            <button class="btn btn-secondary" onclick="showImportTemplate()">📋 Vis mal</button>
+            <div class="log" id="importLog">Klar...</div>
+        </div>
+
+        <!-- SEED ALL -->
+        <h2>🚀 Seed Alt</h2>
+        <div class="card">
+            <button class="btn" onclick="seedAll()" style="font-size: 16px; padding: 15px 30px;">
+                🚀 SEED ALT (Quiz + Bokføring + Wiki)
+            </button>
+        </div>
+    </div>
+
+    <script>
+// ============================================
+// FIREBASE CONFIG
+// ============================================
+const firebaseConfig = {
+    apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+    authDomain: "accountingquest-multiplayer.firebaseapp.com",
+    databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "accountingquest-multiplayer",
+    storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+    messagingSenderId: "525417361926",
+    appId: "1:525417361926:web:ec9b737f82af9b21700987"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let isAdmin = false;
+
+// ============================================
+// AUTH
+// ============================================
+auth.onAuthStateChanged(user => {
+    if (user) {
+        document.getElementById('authStatus').className = 'auth-status auth-ok';
+        document.getElementById('authStatus').innerHTML = '✅ Innlogget: ' + (user.email || 'Anonym ' + user.uid.slice(0,6));
+        document.getElementById('loginCard').style.display = 'none';
+        document.getElementById('adminCard').style.display = 'block';
+        document.getElementById('seedSections').style.display = 'block';
+        checkAdminStatus();
+        refreshStats();
+    } else {
+        document.getElementById('authStatus').className = 'auth-status auth-no';
+        document.getElementById('authStatus').innerHTML = '🔒 Ikke innlogget';
+        document.getElementById('loginCard').style.display = 'block';
+        document.getElementById('adminCard').style.display = 'none';
+        document.getElementById('seedSections').style.display = 'none';
+    }
+});
+
+function login() {
+    const email = document.getElementById('email').value;
+    const pw = document.getElementById('password').value;
+    auth.signInWithEmailAndPassword(email, pw).catch(e => alert('Feil: ' + e.message));
+}
+
+function loginAnon() {
+    auth.signInAnonymously().catch(e => alert('Feil: ' + e.message));
+}
+
+async function checkAdminStatus() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    const logEl = 'adminLog';
+    document.getElementById(logEl).innerHTML = '';
+    log(logEl, 'Sjekker admin-status...', 'info');
+    log(logEl, 'UID: ' + user.uid, 'info');
+    
+    try {
+        const snap = await db.ref('admins/' + user.uid).once('value');
+        if (snap.exists()) {
+            isAdmin = true;
+            log(logEl, '✅ Du er admin!', 'success');
+        } else {
+            isAdmin = false;
+            log(logEl, '⚠️ Ikke admin. Legg til UID i Firebase Console:', 'warn');
+            log(logEl, 'admins/' + user.uid + '/email: "' + (user.email || 'anonym') + '"', 'info');
+        }
+    } catch (e) {
+        log(logEl, '❌ Kunne ikke sjekke: ' + e.message, 'error');
+    }
+}
+
+// ============================================
+// LOGGING & STATS
+// ============================================
+function log(id, msg, type = 'info') {
+    const el = document.getElementById(id);
+    const time = new Date().toLocaleTimeString('no-NO');
+    el.innerHTML += `<span class="${type}">[${time}] ${msg}</span>\n`;
+    el.scrollTop = el.scrollHeight;
+}
+
+async function refreshStats() {
+    try {
+        // Questions
+        const q = await db.ref('questions').once('value');
+        let qCount = 0;
+        if (q.exists()) {
+            const countNested = (obj) => {
+                let c = 0;
+                for (let k in obj) {
+                    if (typeof obj[k] === 'object' && obj[k] !== null) {
+                        if (obj[k].type || obj[k].question || obj[k].q || obj[k].description) c++;
+                        else c += countNested(obj[k]);
+                    }
+                }
+                return c;
+            };
+            qCount = countNested(q.val());
+        }
+        document.getElementById('qCount').textContent = qCount;
+        
+        // Solutions
+        const s = await db.ref('solutions').once('value');
+        let sCount = 0;
+        if (s.exists()) {
+            const countNested = (obj) => {
+                let c = 0;
+                for (let k in obj) {
+                    if (typeof obj[k] === 'object' && obj[k] !== null) {
+                        if (obj[k].answer !== undefined || obj[k].a !== undefined || obj[k].solution) c++;
+                        else c += countNested(obj[k]);
+                    }
+                }
+                return c;
+            };
+            sCount = countNested(s.val());
+        }
+        document.getElementById('sCount').textContent = sCount;
+        
+        // Wiki
+        const w = await db.ref('wiki/articles').once('value');
+        document.getElementById('wCount').textContent = w.exists() ? Object.keys(w.val()).length : 0;
+        
+        // Admins
+        const a = await db.ref('admins').once('value');
+        document.getElementById('aCount').textContent = a.exists() ? Object.keys(a.val()).length : 0;
+        
+    } catch (e) {
+        console.error('Stats error:', e);
+    }
+}
+
+// ============================================
+// QUIZ DATA
+// ============================================
+const QUIZ_DATA = {
+    "grunnleggende_regnskap": [
+        { type: "mc", q: "Hva består årsregnskapet av?", opts: ["Kun resultatregnskap og balanse", "Resultatregnskap, balanse og noter", "Resultatregnskap, balanse, kontantstrømoppstilling og noter", "Kun balansen"], a: 2, l: "§ 3-2 (RSKL)", exp: "Årsregnskapet består av resultatregnskap, balanse, kontantstrømoppstilling og noter." },
+        { type: "tf", q: "Påstand: Balanselikningen er Eiendeler = Egenkapital + Gjeld", a: true, l: "§ 4-1 (RSKL)", exp: "Balanselikningen viser at totale eiendeler alltid er lik sum av egenkapital og gjeld." },
+        { type: "multi", q: "Hvilke av følgende er omløpsmidler?", opts: ["Varelager", "Kundefordringer", "Bygninger", "Kontanter", "Maskiner"], a: [0, 1, 3], l: "§ 5-1 (RSKL)", exp: "Omløpsmidler inkluderer varer, fordringer og kontanter." },
+        { type: "mc", q: "Hva er formålet med årsregnskapet?", opts: ["Kun å beregne skatt", "Å gi informasjon om foretakets økonomiske stilling", "Å tilfredsstille bankens krav", "Å vise kun inntekter"], a: 1, exp: "Årsregnskapet skal gi informasjon om foretakets økonomiske stilling og resultat." },
+        { type: "tf", q: "Påstand: Resultatregnskapet viser foretakets inntekter og kostnader for en periode", a: true, exp: "Resultatregnskapet viser inntekter, kostnader og resultatet for perioden." },
+        { type: "mc", q: "Hva er regnskapsåret for de fleste foretak?", opts: ["1. juli - 30. juni", "1. januar - 31. desember", "1. april - 31. mars", "Fritt valg"], a: 1, exp: "Regnskapsåret er normalt kalenderåret." }
+    ],
+    "mva": [
+        { type: "mc", q: "Hva er standard MVA-sats i Norge?", opts: ["20%", "22%", "25%", "27%"], a: 2, l: "§ 5-1 (MVAL)", exp: "Standard MVA-sats er 25%." },
+        { type: "mc", q: "Hva er MVA-satsen på næringsmidler?", opts: ["10%", "12%", "15%", "25%"], a: 2, l: "§ 5-2 (MVAL)", exp: "MVA på næringsmidler er 15%." },
+        { type: "mc", q: "Hva er MVA-satsen på persontransport?", opts: ["0%", "10%", "12%", "25%"], a: 2, l: "§ 5-3 (MVAL)", exp: "MVA på persontransport er 12%." },
+        { type: "tf", q: "Påstand: Eksport av varer har 0% MVA", a: true, l: "§ 6-21 (MVAL)", exp: "Eksport er fritatt for MVA." },
+        { type: "mc", q: "Når må en virksomhet registreres i MVA-registeret?", opts: ["Ved oppstart", "Ved omsetning over kr 50 000", "Ved første faktura", "Aldri"], a: 1, l: "§ 2-1 (MVAL)", exp: "Registreringsplikt ved omsetning over kr 50 000." },
+        { type: "tf", q: "Påstand: Finansielle tjenester er fritatt for MVA", a: true, l: "§ 3-6 (MVAL)", exp: "Finansielle tjenester er unntatt fra MVA." },
+        { type: "mc", q: "Hvilken konto brukes for utgående MVA 25%?", opts: ["2700", "2710", "2701", "2720"], a: 0, exp: "Konto 2700 for utgående MVA 25%." },
+        { type: "mc", q: "Hvilken konto brukes for inngående MVA 25%?", opts: ["2700", "2710", "2701", "2711"], a: 1, exp: "Konto 2710 for inngående MVA 25%." }
+    ],
+    "bokforing": [
+        { type: "mc", q: "Hva skjer med eiendeler når de øker?", opts: ["De krediteres", "De debiteres", "De balanseres", "Ingenting"], a: 1, exp: "Eiendeler øker i debet." },
+        { type: "mc", q: "Hva skjer med gjeld når den øker?", opts: ["Den debiteres", "Den krediteres", "Den balanseres", "Ingenting"], a: 1, exp: "Gjeld øker i kredit." },
+        { type: "mc", q: "Hva skjer med inntekter når de øker?", opts: ["De debiteres", "De krediteres", "De balanseres", "Ingenting"], a: 1, exp: "Inntekter øker i kredit." },
+        { type: "mc", q: "Hva skjer med kostnader når de øker?", opts: ["De krediteres", "De debiteres", "De balanseres", "Ingenting"], a: 1, exp: "Kostnader øker i debet." },
+        { type: "tf", q: "Påstand: Sum debet må alltid være lik sum kredit", a: true, exp: "Dobbelt bokholderi krever balanse." },
+        { type: "mc", q: "Hvilket kontonummer har 'Bank'?", opts: ["1500", "1920", "2400", "3000"], a: 1, exp: "Bankinnskudd er konto 1920." },
+        { type: "mc", q: "Hvilket kontonummer har 'Kundefordringer'?", opts: ["1500", "1920", "2400", "3000"], a: 0, exp: "Kundefordringer er konto 1500." },
+        { type: "mc", q: "Hvilket kontonummer har 'Leverandørgjeld'?", opts: ["1500", "1920", "2400", "3000"], a: 2, exp: "Leverandørgjeld er konto 2400." }
+    ],
+    "skatt": [
+        { type: "mc", q: "Hva er selskapsskattesatsen i Norge (2024)?", opts: ["20%", "22%", "25%", "27%"], a: 1, l: "§ 3-3 (SKTL)", exp: "Selskapsskattesatsen er 22%." },
+        { type: "tf", q: "Påstand: Privatpersoner betaler trinnskatt på lønn", a: true, l: "§ 5-1 (SKTL)", exp: "Trinnskatt er en progressiv skatt." },
+        { type: "mc", q: "Hvilken saldogruppe har høyest avskrivningssats?", opts: ["Gruppe a (30%)", "Gruppe d (20%)", "Gruppe h (4%)", "Gruppe i (2%)"], a: 0, l: "§ 14-43 (SKTL)", exp: "Gruppe a har 30%." },
+        { type: "mc", q: "Hva er avskrivningssatsen for forretningsbygg?", opts: ["2%", "4%", "10%", "20%"], a: 0, l: "§ 14-43 (SKTL)", exp: "Forretningsbygg avskrives med 2%." }
+    ],
+    "regnskapsanalyse": [
+        { type: "mc", q: "Hva viser egenkapitalrentabilitet (ROE)?", opts: ["Avkastning på gjeld", "Avkastning på egenkapital", "Avkastning på totalkapital", "Likviditet"], a: 1, exp: "ROE viser avkastning på egenkapitalen." },
+        { type: "mc", q: "Hva viser likviditetsgrad 1?", opts: ["OM / Gjeld", "OM / Kortsiktig gjeld", "Eiendeler / Gjeld", "Bank / Gjeld"], a: 1, exp: "LG1 = Omløpsmidler / Kortsiktig gjeld." },
+        { type: "mc", q: "Hva er en god likviditetsgrad 1?", opts: ["Under 1", "1-1.5", "Over 2", "Akkurat 1"], a: 2, exp: "LG1 bør være over 2." },
+        { type: "mc", q: "Hva viser egenkapitalandelen?", opts: ["Likviditet", "Soliditet", "Rentabilitet", "Aktivitet"], a: 1, exp: "EK-andel viser soliditet." },
+        { type: "tf", q: "Påstand: Høy gjeldsgrad gir høyere finansiell risiko", a: true, exp: "Mer gjeld = høyere risiko." },
+        { type: "mc", q: "Hva er formelen for arbeidskapital?", opts: ["Eiendeler - Gjeld", "OM - Kortsiktig gjeld", "Inntekter - Kostnader", "EK + Gjeld"], a: 1, exp: "Arbeidskapital = OM - KG." }
+    ]
+};
+
+// ============================================
+// BOKFØRING DATA
+// ============================================
+const BOKFORING_DATA = [
+    { id: 'bok001', description: "Kjøper varer for kr 10 000 + mva 25% = kr 12 500 på kreditt.", solution: [{ account: "4000", debit: 10000, credit: 0 }, { account: "2710", debit: 2500, credit: 0 }, { account: "2400", debit: 0, credit: 12500 }], hint: "Varekostnad og inngående mva debiteres. Leverandørgjeld krediteres.", relevantAccounts: ["4000", "2710", "2400"], difficulty: 'easy' },
+    { id: 'bok002', description: "Selger varer for kr 20 000 + mva 25% = kr 25 000 på faktura.", solution: [{ account: "1500", debit: 25000, credit: 0 }, { account: "3000", debit: 0, credit: 20000 }, { account: "2700", debit: 0, credit: 5000 }], hint: "Kundefordring debiteres. Salgsinntekt og utgående mva krediteres.", relevantAccounts: ["1500", "3000", "2700"], difficulty: 'easy' },
+    { id: 'bok003', description: "Mottar betaling fra kunde på kr 15 000.", solution: [{ account: "1920", debit: 15000, credit: 0 }, { account: "1500", debit: 0, credit: 15000 }], hint: "Bank øker, kundefordring minker.", relevantAccounts: ["1920", "1500"], difficulty: 'easy' },
+    { id: 'bok004', description: "Betaler leverandør kr 8 000.", solution: [{ account: "2400", debit: 8000, credit: 0 }, { account: "1920", debit: 0, credit: 8000 }], hint: "Leverandørgjeld minker, bank minker.", relevantAccounts: ["2400", "1920"], difficulty: 'easy' },
+    { id: 'bok005', description: "Betaler lønn kr 30 000. Trekker skattetrekk kr 7 500. Nettoutbetaling = kr 22 500.", solution: [{ account: "5000", debit: 30000, credit: 0 }, { account: "2510", debit: 0, credit: 7500 }, { account: "1920", debit: 0, credit: 22500 }], hint: "Lønn debiteres, skattetrekk og netto krediteres.", relevantAccounts: ["5000", "2510", "1920"], difficulty: 'medium' },
+    { id: 'bok006', description: "Beregner arbeidsgiveravgift 14,1% av lønn kr 30 000 = kr 4 230.", solution: [{ account: "5400", debit: 4230, credit: 0 }, { account: "2520", debit: 0, credit: 4230 }], hint: "AGA-kostnad debiteres, skyldig AGA krediteres.", relevantAccounts: ["5400", "2520"], difficulty: 'medium' },
+    { id: 'bok007', description: "Kjøper kontormøbler for kr 15 000 + mva = kr 18 750 kontant.", solution: [{ account: "1200", debit: 15000, credit: 0 }, { account: "2710", debit: 3750, credit: 0 }, { account: "1920", debit: 0, credit: 18750 }], hint: "Inventar og mva debiteres, bank krediteres.", relevantAccounts: ["1200", "2710", "1920"], difficulty: 'medium' },
+    { id: 'bok008', description: "Avskriver maskiner med kr 5 000.", solution: [{ account: "6000", debit: 5000, credit: 0 }, { account: "1200", debit: 0, credit: 5000 }], hint: "Avskrivning debiteres, eiendel krediteres.", relevantAccounts: ["6000", "1200"], difficulty: 'medium' },
+    { id: 'bok009', description: "Tar opp lån i bank på kr 100 000.", solution: [{ account: "1920", debit: 100000, credit: 0 }, { account: "2220", debit: 0, credit: 100000 }], hint: "Bank øker, langsiktig gjeld øker.", relevantAccounts: ["1920", "2220"], difficulty: 'medium' },
+    { id: 'bok010', description: "Eier skyter inn kr 50 000 i aksjekapital.", solution: [{ account: "1920", debit: 50000, credit: 0 }, { account: "2000", debit: 0, credit: 50000 }], hint: "Bank øker, aksjekapital øker.", relevantAccounts: ["1920", "2000"], difficulty: 'hard' },
+    { id: 'bok011', description: "Mottar renteinntekt fra bank kr 1 500.", solution: [{ account: "1920", debit: 1500, credit: 0 }, { account: "8050", debit: 0, credit: 1500 }], hint: "Bank øker, renteinntekt krediteres.", relevantAccounts: ["1920", "8050"], difficulty: 'easy' },
+    { id: 'bok012', description: "Betaler rentekostnad kr 2 000.", solution: [{ account: "8150", debit: 2000, credit: 0 }, { account: "1920", debit: 0, credit: 2000 }], hint: "Rentekostnad debiteres, bank krediteres.", relevantAccounts: ["8150", "1920"], difficulty: 'easy' }
+];
+
+// ============================================
+// WIKI DATA
+// ============================================
+const WIKI_DATA = [
+    { id: 'mval-3-1', title: 'Utgående merverdiavgift', category: 'lovverk', law: 'MVAL', paragraph: '§ 3-1', tags: ['mva', 'utgående'], accounts: ['2700'], summary: 'Hovedregelen om avgiftsplikt', content: '<h2>MVA-satser</h2><ul><li>25% - Standard</li><li>15% - Næringsmidler</li><li>12% - Persontransport</li><li>0% - Eksport</li></ul>' },
+    { id: 'mval-8-1', title: 'Fradragsrett for inngående MVA', category: 'lovverk', law: 'MVAL', paragraph: '§ 8-1', tags: ['mva', 'fradrag'], accounts: ['2710'], summary: 'Regler for fradrag', content: '<h2>Vilkår</h2><ul><li>Registrert i MVA-registeret</li><li>Omsetning over kr 50 000</li><li>Til bruk i avgiftspliktig virksomhet</li></ul>' },
+    { id: 'rskl-3-2', title: 'Årsregnskapets innhold', category: 'lovverk', law: 'RSKL', paragraph: '§ 3-2', tags: ['årsregnskap'], summary: 'Hva årsregnskapet skal inneholde', content: '<h2>Bestanddeler</h2><ul><li>Resultatregnskap</li><li>Balanse</li><li>Noter</li><li>Kontantstrømoppstilling (større foretak)</li></ul>' },
+    { id: 'formula-roe', title: 'Egenkapitalrentabilitet (ROE)', category: 'formler', tags: ['rentabilitet', 'nøkkeltall'], summary: 'Avkastning på egenkapital', content: '<div class="wiki-formula-box"><div class="wiki-formula">ROE = (Ordinært resultat / Gj.snitt EK) × 100%</div></div><p>Over 15% = god, 10-15% = ok, under 10% = svak</p>' },
+    { id: 'formula-likviditetsgrad', title: 'Likviditetsgrad 1 og 2', category: 'formler', tags: ['likviditet'], summary: 'Kortsiktig betalingsevne', content: '<div class="wiki-formula-box"><div class="wiki-formula">LG1 = Omløpsmidler / Kortsiktig gjeld</div></div><p>Bør være over 2</p>' },
+    { id: 'concept-debet-kredit', title: 'Debet og Kredit', category: 'konsepter', tags: ['bokføring', 'grunnleggende'], summary: 'Grunnleggende om debet/kredit', content: '<table><tr><th>Type</th><th>Øker</th><th>Minker</th></tr><tr><td>Eiendeler</td><td>DEBET</td><td>Kredit</td></tr><tr><td>Gjeld</td><td>Kredit</td><td>DEBET</td></tr><tr><td>Inntekter</td><td>Kredit</td><td>DEBET</td></tr><tr><td>Kostnader</td><td>DEBET</td><td>Kredit</td></tr></table>' },
+    { id: 'account-1920', title: 'Konto 1920 - Bankinnskudd', category: 'kontoplan', tags: ['bank', 'omløpsmidler'], accounts: ['1920'], summary: 'Virksomhetens bankkonto', content: '<p>Debet: Innbetalinger</p><p>Kredit: Utbetalinger</p>' },
+    { id: 'account-1500', title: 'Konto 1500 - Kundefordringer', category: 'kontoplan', tags: ['fordringer'], accounts: ['1500'], summary: 'Utestående fra kunder', content: '<p>Debet: Nye fakturaer</p><p>Kredit: Innbetalinger</p>' },
+    { id: 'account-2400', title: 'Konto 2400 - Leverandørgjeld', category: 'kontoplan', tags: ['gjeld'], accounts: ['2400'], summary: 'Gjeld til leverandører', content: '<p>Kredit: Nye fakturaer</p><p>Debet: Betalinger</p>' }
+];
+
+// ============================================
+// SEED FUNCTIONS (SPLIT)
+// ============================================
+
+async function seedQuizSplit() {
+    const logEl = 'quizLog';
+    document.getElementById(logEl).innerHTML = '';
+    log(logEl, '🌱 Starter quiz-seeding (splitt)...', 'info');
+    
+    try {
+        const questionsUpdate = {};
+        const solutionsUpdate = {};
+        let total = 0;
+        
+        for (const [category, questions] of Object.entries(QUIZ_DATA)) {
+            questions.forEach((q, idx) => {
+                const id = `${category}_${String(idx + 1).padStart(3, '0')}`;
+                
+                // QUESTIONS (åpen)
+                questionsUpdate[`questions/quiz/${category}/${id}`] = {
+                    type: q.type,
+                    question: q.q,
+                    options: q.opts,
+                    law: q.l,
+                    wiki: q.w,
+                    tags: q.tags || []
+                };
+                
+                // SOLUTIONS (sikker)
+                solutionsUpdate[`solutions/quiz/${category}/${id}`] = {
+                    answer: q.a,
+                    explanation: q.exp,
+                    hint: q.hint || q.exp?.substring(0, 50) + '...',
+                    type: q.type
+                };
+                
+                total++;
+            });
+            log(logEl, `  📁 ${category}: ${questions.length} spørsmål`, 'info');
+        }
+        
+        // Batch update
+        await db.ref().update(questionsUpdate);
+        log(logEl, `✅ Questions seedet: ${total}`, 'success');
+        
+        await db.ref().update(solutionsUpdate);
+        log(logEl, `✅ Solutions seedet: ${total}`, 'success');
+        
+        refreshStats();
+    } catch (error) {
+        log(logEl, '❌ Feil: ' + error.message, 'error');
+        if (error.message.includes('Permission denied')) {
+            log(logEl, '⚠️ Du må være admin! Sjekk admins/ i Firebase', 'warn');
+        }
+    }
+}
+
+async function seedBokforingSplit() {
+    const logEl = 'bokLog';
+    document.getElementById(logEl).innerHTML = '';
+    log(logEl, '🌱 Starter bokføring-seeding (splitt)...', 'info');
+    
+    try {
+        const questionsUpdate = {};
+        const solutionsUpdate = {};
+        
+        BOKFORING_DATA.forEach(task => {
+            const diff = task.difficulty;
+            const id = task.id;
+            
+            // QUESTIONS (åpen)
+            questionsUpdate[`questions/bokforing/${diff}/${id}`] = {
+                description: task.description,
+                difficulty: diff,
+                relevantAccounts: task.relevantAccounts
+            };
+            
+            // SOLUTIONS (sikker)
+            solutionsUpdate[`solutions/bokforing/${diff}/${id}`] = {
+                solution: task.solution,
+                hint: task.hint
+            };
+        });
+        
+        await db.ref().update(questionsUpdate);
+        log(logEl, `✅ Questions seedet: ${BOKFORING_DATA.length}`, 'success');
+        
+        await db.ref().update(solutionsUpdate);
+        log(logEl, `✅ Solutions seedet: ${BOKFORING_DATA.length}`, 'success');
+        
+        refreshStats();
+    } catch (error) {
+        log(logEl, '❌ Feil: ' + error.message, 'error');
+    }
+}
+
+async function seedWiki() {
+    const logEl = 'wikiLog';
+    document.getElementById(logEl).innerHTML = '';
+    log(logEl, '🌱 Starter wiki-seeding...', 'info');
+    
+    try {
+        const updates = {};
+        WIKI_DATA.forEach(article => {
+            updates[`wiki/articles/${article.id}`] = {
+                ...article,
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            };
+        });
+        updates['wiki/_metadata'] = {
+            lastUpdated: Date.now(),
+            articleCount: WIKI_DATA.length,
+            version: '1.0.0'
+        };
+        
+        await db.ref().update(updates);
+        log(logEl, `✅ Seedet ${WIKI_DATA.length} wiki-artikler`, 'success');
+        refreshStats();
+    } catch (error) {
+        log(logEl, '❌ Feil: ' + error.message, 'error');
+    }
+}
+
+async function seedAll() {
+    await seedQuizSplit();
+    await seedBokforingSplit();
+    await seedWiki();
+    alert('✅ Alt innhold seedet!');
+}
+
+// ============================================
+// CLEAR FUNCTIONS
+// ============================================
+
+async function clearQuiz() {
+    if (!confirm('Slette ALL quiz-data?')) return;
+    try {
+        await db.ref('questions/quiz').remove();
+        await db.ref('solutions/quiz').remove();
+        alert('Slettet!');
+        refreshStats();
+    } catch (e) { alert('Feil: ' + e.message); }
+}
+
+async function clearBokforing() {
+    if (!confirm('Slette ALL bokføring-data?')) return;
+    try {
+        await db.ref('questions/bokforing').remove();
+        await db.ref('solutions/bokforing').remove();
+        alert('Slettet!');
+        refreshStats();
+    } catch (e) { alert('Feil: ' + e.message); }
+}
+
+async function clearWiki() {
+    if (!confirm('Slette ALL wiki-data?')) return;
+    try {
+        await db.ref('wiki').remove();
+        alert('Slettet!');
+        refreshStats();
+    } catch (e) { alert('Feil: ' + e.message); }
+}
+
+// ============================================
+// PREVIEW
+// ============================================
+
+function previewQuiz() {
+    const preview = { questions: {}, solutions: {} };
+    for (const [cat, qs] of Object.entries(QUIZ_DATA)) {
+        preview.questions[cat] = qs.map(q => ({ type: q.type, question: q.q, options: q.opts }));
+        preview.solutions[cat] = qs.map(q => ({ answer: q.a, explanation: q.exp }));
+    }
+    document.getElementById('importJson').value = JSON.stringify(preview, null, 2);
+}
+
+function previewBokforing() {
+    const preview = { questions: [], solutions: [] };
+    BOKFORING_DATA.forEach(t => {
+        preview.questions.push({ id: t.id, description: t.description, difficulty: t.difficulty });
+        preview.solutions.push({ id: t.id, solution: t.solution, hint: t.hint });
+    });
+    document.getElementById('importJson').value = JSON.stringify(preview, null, 2);
+}
+
+// ============================================
+// IMPORT
+// ============================================
+
+function showImportTemplate() {
+    const type = document.getElementById('importType').value;
+    let template;
+    
+    if (type === 'quiz') {
+        template = {
+            category: "mva",
+            questions: [
+                { type: "mc", q: "Spørsmål her?", opts: ["A", "B", "C", "D"], a: 0, exp: "Forklaring", l: "§ X-X (LOV)" },
+                { type: "tf", q: "Påstand her", a: true, exp: "Forklaring" }
+            ]
+        };
+    } else if (type === 'bokforing') {
+        template = [
+            { id: "bok_custom_001", description: "Beskrivelse av oppgave", solution: [{ account: "1920", debit: 1000, credit: 0 }, { account: "3000", debit: 0, credit: 1000 }], hint: "Hint her", relevantAccounts: ["1920", "3000"], difficulty: "easy" }
+        ];
+    } else {
+        template = [
+            { id: "wiki-id", title: "Tittel", category: "lovverk", law: "RSKL", paragraph: "§ 1-1", tags: ["tag1"], summary: "Kort beskrivelse", content: "<h2>Innhold</h2><p>HTML her</p>" }
+        ];
+    }
+    
+    document.getElementById('importJson').value = JSON.stringify(template, null, 2);
+}
+
+async function importJson() {
+    const type = document.getElementById('importType').value;
+    const jsonStr = document.getElementById('importJson').value;
+    const logEl = 'importLog';
+    
+    document.getElementById(logEl).innerHTML = '';
+    
+    try {
+        const data = JSON.parse(jsonStr);
+        log(logEl, `📥 Importerer ${type}...`, 'info');
+        
+        if (type === 'quiz') {
+            await importQuiz(data, logEl);
+        } else if (type === 'bokforing') {
+            await importBokforing(data, logEl);
+        } else {
+            await importWiki(data, logEl);
+        }
+        
+        refreshStats();
+    } catch (e) {
+        log(logEl, '❌ Feil: ' + e.message, 'error');
+    }
+}
+
+async function importQuiz(data, logEl) {
+    const cat = data.category;
+    const qs = data.questions;
+    
+    const qUpdate = {};
+    const sUpdate = {};
+    
+    // Finn høyeste eksisterende ID
+    const existing = await db.ref(`questions/quiz/${cat}`).once('value');
+    let nextIdx = existing.exists() ? Object.keys(existing.val()).length + 1 : 1;
+    
+    qs.forEach((q, i) => {
+        const id = `${cat}_${String(nextIdx + i).padStart(3, '0')}`;
+        qUpdate[`questions/quiz/${cat}/${id}`] = { type: q.type, question: q.q, options: q.opts, law: q.l };
+        sUpdate[`solutions/quiz/${cat}/${id}`] = { answer: q.a, explanation: q.exp, type: q.type };
+    });
+    
+    await db.ref().update(qUpdate);
+    await db.ref().update(sUpdate);
+    log(logEl, `✅ Importert ${qs.length} quiz-spørsmål til ${cat}`, 'success');
+}
+
+async function importBokforing(data, logEl) {
+    const qUpdate = {};
+    const sUpdate = {};
+    
+    data.forEach(t => {
+        const diff = t.difficulty;
+        const id = t.id;
+        qUpdate[`questions/bokforing/${diff}/${id}`] = { description: t.description, difficulty: diff, relevantAccounts: t.relevantAccounts };
+        sUpdate[`solutions/bokforing/${diff}/${id}`] = { solution: t.solution, hint: t.hint };
+    });
+    
+    await db.ref().update(qUpdate);
+    await db.ref().update(sUpdate);
+    log(logEl, `✅ Importert ${data.length} bokføringsoppgaver`, 'success');
+}
+
+async function importWiki(data, logEl) {
+    const update = {};
+    data.forEach(a => {
+        update[`wiki/articles/${a.id}`] = { ...a, createdAt: Date.now(), updatedAt: Date.now() };
+    });
+    await db.ref().update(update);
+    log(logEl, `✅ Importert ${data.length} wiki-artikler`, 'success');
+}
+    </script>
+</body>
+</html>
