@@ -19,6 +19,38 @@
     <style>
         /* Index-spesifikke stiler */
         
+        /* Test Mode Banner */
+        .test-mode-banner {
+            display: none;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: var(--space-sm) var(--space-md);
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .test-mode-banner.active {
+            display: block;
+        }
+        
+        .test-exit-btn {
+            background: white;
+            color: #d97706;
+            border: none;
+            padding: 2px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .test-exit-btn:hover {
+            background: #fef3c7;
+        }
+        
         /* Auth Prompt */
         .auth-prompt {
             text-align: center;
@@ -342,6 +374,12 @@
     </style>
 </head>
 <body>
+    <!-- Test Mode Banner -->
+    <div class="test-mode-banner" id="testModeBanner">
+        🔬 TESTMODUS: Du ser appen som <span id="testRoleName">-</span> | 
+        <button onclick="exitTestMode()" class="test-exit-btn">Avslutt test</button>
+    </div>
+
     <!-- Header -->
     <header class="aq-header">
         <a href="index.html" class="aq-logo">
@@ -565,11 +603,18 @@
             <div id="teacher-section" class="role-section aq-hidden">
                 <h3 style="color: #a855f7;">👨‍🏫 Lærerverktøy</h3>
                 <div class="quick-actions">
-                    <div class="action-card" onclick="navigateTo('teacher_portal.html')">
-                        <div class="action-icon" style="background: rgba(168, 85, 247, 0.2);">🎓</div>
+                    <div class="action-card" onclick="navigateTo('classroom_admin.html')">
+                        <div class="action-icon" style="background: rgba(168, 85, 247, 0.2);">🏫</div>
                         <div class="action-info">
-                            <h3>Lærerportal</h3>
-                            <p>Administrer klasserom</p>
+                            <h3>Klasserom</h3>
+                            <p>Studenter, TAs, innstillinger</p>
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="navigateTo('teacher_portal.html')">
+                        <div class="action-icon" style="background: rgba(168, 85, 247, 0.2);">📝</div>
+                        <div class="action-info">
+                            <h3>Quiz-admin</h3>
+                            <p>Opprett og rediger quizzer</p>
                         </div>
                     </div>
                     <div class="action-card" onclick="navigateTo('game_host.html')">
@@ -586,11 +631,18 @@
             <div id="admin-section" class="role-section aq-hidden">
                 <h3 style="color: var(--warning);">🔧 Admin</h3>
                 <div class="quick-actions">
+                    <div class="action-card" onclick="navigateTo('admin.html')">
+                        <div class="action-icon" style="background: rgba(239, 68, 68, 0.2);">🔐</div>
+                        <div class="action-info">
+                            <h3>Brukeradmin</h3>
+                            <p>Brukere, roller, test</p>
+                        </div>
+                    </div>
                     <div class="action-card" onclick="navigateTo('admin-dashboard.html')">
                         <div class="action-icon" style="background: rgba(245, 158, 11, 0.2);">⚙️</div>
                         <div class="action-info">
-                            <h3>Admin Dashboard</h3>
-                            <p>Administrer innhold</p>
+                            <h3>Innholdsadmin</h3>
+                            <p>Quiz, spørsmål, wiki</p>
                         </div>
                     </div>
                 </div>
@@ -637,6 +689,7 @@
             'student_free': 'Student',
             'student_pro': 'Student Pro',
             'pro': 'Pro',
+            'ta': 'Teaching Assistant',
             'teacher_lite': 'Lærer',
             'teacher': 'Lærer Pro',
             'teacher_pro': 'Lærer Pro',
@@ -689,6 +742,13 @@
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
             const guestMode = localStorage.getItem('guestMode') === 'true';
+            const testRole = localStorage.getItem('aq_test_role');
+            
+            // Check test mode
+            if (testRole) {
+                document.getElementById('testModeBanner').classList.add('active');
+                document.getElementById('testRoleName').textContent = ROLE_LABELS[testRole] || testRole;
+            }
             
             if (user) {
                 document.getElementById('logged-out-actions').classList.add('aq-hidden');
@@ -703,20 +763,27 @@
                     const displayName = userData.username || user.displayName || (user.email ? user.email.split('@')[0] : 'Bruker');
                     document.getElementById('user-display-name').textContent = displayName;
                     
-                    const role = userData.role || 'free';
+                    // Use test role if active, otherwise actual role
+                    const actualRole = userData.role || 'free';
+                    const role = testRole || actualRole;
                     const roleLabel = ROLE_LABELS[role] || 'Gratis';
                     document.getElementById('user-role').textContent = roleLabel;
                     
-                    if (role.indexOf('teacher') !== -1) {
+                    // Show sections based on role (test or actual)
+                    if (role.indexOf('teacher') !== -1 || role === 'ta') {
                         document.getElementById('teacher-section').classList.remove('aq-hidden');
                     }
                     
-                    if (role === 'admin') {
+                    // Admin section only shows for actual admins (not test mode)
+                    if (actualRole === 'admin') {
                         document.getElementById('admin-section').classList.remove('aq-hidden');
                     }
                     
-                    if (userData.classrooms && Object.keys(userData.classrooms).length > 0) {
-                        loadStudentClassrooms(userData.classrooms);
+                    // Student section based on role
+                    if (role === 'student' || role === 'student_pro' || role === 'free') {
+                        if (userData.classrooms && Object.keys(userData.classrooms).length > 0) {
+                            loadStudentClassrooms(userData.classrooms);
+                        }
                     }
                     
                 } catch(e) {
@@ -734,6 +801,11 @@
                 document.getElementById('logged-in-actions').classList.add('aq-hidden');
             }
         });
+        
+        function exitTestMode() {
+            localStorage.removeItem('aq_test_role');
+            window.location.reload();
+        }
 
         function showAbout() {
             alert('AccountingQuest v2.0\n\nGamifisert læringsplattform for norsk regnskap og corporate finance.\n\nDekker:\n• Bokføringsloven\n• Regnskapsloven\n• Skatteloven\n• MVA-loven\n• Corporate Finance');

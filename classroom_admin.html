@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="no" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klasserom - AccountingQuest</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
+    <style>
+        .classroom-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-lg);
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: var(--space-xs);
+            margin-bottom: var(--space-lg);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: var(--space-sm);
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: var(--space-sm) var(--space-md);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        
+        .tab:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .tab.active {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Classroom cards */
+        .classrooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .classroom-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .classroom-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .classroom-card.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+        
+        .classroom-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-md);
+        }
+        
+        .classroom-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .classroom-code {
+            background: var(--bg-tertiary);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-family: monospace;
+            font-size: 0.875rem;
+            color: var(--accent);
+        }
+        
+        .classroom-stats {
+            display: flex;
+            gap: var(--space-lg);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .classroom-stat {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+        
+        .ta-badge {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-left: var(--space-xs);
+        }
+        
+        /* Create classroom form */
+        .create-form {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            max-width: 500px;
+        }
+        
+        .form-group {
+            margin-bottom: var(--space-md);
+        }
+        
+        .form-label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+            font-size: 0.875rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        /* Classroom detail panel */
+        .detail-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+        
+        .detail-header {
+            background: var(--bg-tertiary);
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .detail-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+        }
+        
+        .detail-subtitle {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .detail-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .detail-tab {
+            flex: 1;
+            padding: var(--space-md);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .detail-tab:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .detail-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        
+        .detail-content {
+            padding: var(--space-lg);
+        }
+        
+        /* People list */
+        .people-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        
+        .person-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+        
+        .person-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        
+        .person-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .person-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .person-email {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .person-role {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        .person-role.teacher {
+            background: #4ade80;
+            color: #1a1a2e;
+        }
+        
+        .person-role.ta {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: white;
+        }
+        
+        .person-actions {
+            display: flex;
+            gap: var(--space-xs);
+        }
+        
+        .icon-btn {
+            padding: 6px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .icon-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .icon-btn.danger:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        /* Add person form */
+        .add-person-form {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+            flex-wrap: wrap;
+        }
+        
+        .add-person-form input {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        /* Permissions checkboxes */
+        .permissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+        
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+        }
+        
+        .permission-item input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-lg);
+            color: var(--text-primary);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-lg);
+            justify-content: flex-end;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-muted);
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: var(--space-md);
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success { border-color: #10b981; }
+        .toast.error { border-color: #ef4444; }
+        
+        /* Invitations */
+        .invite-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+        }
+        
+        .invite-info {
+            flex: 1;
+        }
+        
+        .invite-title {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .invite-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .invite-actions {
+            display: flex;
+            gap: var(--space-xs);
+        }
+        
+        @media (max-width: 768px) {
+            .classroom-container {
+                padding: var(--space-md);
+            }
+            
+            .classrooms-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="aq-header">
+        <a href="index.html" class="aq-logo">
+            <span class="aq-logo-icon">📊</span>
+            <span class="aq-logo-text">AccountingQuest</span>
+        </a>
+        <div class="aq-header-right">
+            <span id="userInfo" style="color: var(--text-secondary); font-size: 0.875rem;"></span>
+            <a href="index.html" class="aq-btn aq-btn-secondary">← Tilbake</a>
+        </div>
+    </header>
+
+    <div class="classroom-container">
+        <div class="page-header">
+            <h1 class="page-title">🏫 Mine Klasserom</h1>
+            <button class="aq-btn aq-btn-primary" onclick="showCreateModal()">+ Nytt klasserom</button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('classrooms')">📚 Klasserom</button>
+            <button class="tab" onclick="showTab('invites')">📬 Invitasjoner <span id="inviteCount" class="ta-badge" style="display:none;">0</span></button>
+            <button class="tab" onclick="showTab('taClassrooms')">👥 Som TA</button>
+        </div>
+
+        <!-- Classrooms Tab -->
+        <div id="classroomsTab" class="tab-content active">
+            <div id="classroomsList" class="classrooms-grid">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📚</div>
+                    <p>Laster klasserom...</p>
+                </div>
+            </div>
+            
+            <!-- Selected classroom detail -->
+            <div id="classroomDetail" class="detail-panel" style="display: none;">
+                <div class="detail-header">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <h2 class="detail-title" id="detailName">-</h2>
+                            <p class="detail-subtitle">Kode: <span id="detailCode" class="classroom-code">-</span></p>
+                        </div>
+                        <button class="icon-btn danger" onclick="deleteClassroom()" title="Slett klasserom">🗑️</button>
+                    </div>
+                </div>
+                
+                <div class="detail-tabs">
+                    <button class="detail-tab active" onclick="showDetailTab('students')">👨‍🎓 Studenter</button>
+                    <button class="detail-tab" onclick="showDetailTab('tas')">👩‍🏫 TAs</button>
+                    <button class="detail-tab" onclick="showDetailTab('settings')">⚙️ Innstillinger</button>
+                </div>
+                
+                <div class="detail-content">
+                    <!-- Students tab -->
+                    <div id="studentsContent" class="detail-tab-content active">
+                        <div id="studentsList" class="people-list">
+                            <div class="empty-state">
+                                <p>Ingen studenter ennå</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- TAs tab -->
+                    <div id="tasContent" class="detail-tab-content" style="display: none;">
+                        <div class="add-person-form">
+                            <input type="email" id="taEmail" class="form-input" placeholder="E-post til TA...">
+                            <button class="aq-btn aq-btn-primary" onclick="inviteTA()">Inviter TA</button>
+                        </div>
+                        
+                        <h4 style="color: var(--text-secondary); margin-bottom: var(--space-md);">Teaching Assistants</h4>
+                        <div id="tasList" class="people-list">
+                            <div class="empty-state">
+                                <p>Ingen TAs ennå</p>
+                            </div>
+                        </div>
+                        
+                        <div id="pendingTAs" style="margin-top: var(--space-lg); display: none;">
+                            <h4 style="color: var(--text-secondary); margin-bottom: var(--space-md);">Ventende invitasjoner</h4>
+                            <div id="pendingTAsList"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Settings tab -->
+                    <div id="settingsContent" class="detail-tab-content" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Klassenavn</label>
+                            <input type="text" id="editName" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Beskrivelse</label>
+                            <textarea id="editDescription" class="form-input" rows="3"></textarea>
+                        </div>
+                        <button class="aq-btn aq-btn-primary" onclick="saveClassroomSettings()">Lagre endringer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invites Tab -->
+        <div id="invitesTab" class="tab-content">
+            <h3 style="color: var(--text-primary); margin-bottom: var(--space-lg);">📬 TA-invitasjoner</h3>
+            <div id="invitesList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <p>Ingen ventende invitasjoner</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TA Classrooms Tab -->
+        <div id="taClassroomsTab" class="tab-content">
+            <h3 style="color: var(--text-primary); margin-bottom: var(--space-lg);">👥 Klasserom hvor du er TA</h3>
+            <div id="taClassroomsList" class="classrooms-grid">
+                <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <p>Du er ikke TA i noen klasserom ennå</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Classroom Modal -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal">
+            <h2 class="modal-title">Opprett nytt klasserom</h2>
+            <div class="form-group">
+                <label class="form-label">Navn på klasserom *</label>
+                <input type="text" id="newClassroomName" class="form-input" placeholder="f.eks. BØK101 - Høst 2025">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Beskrivelse</label>
+                <textarea id="newClassroomDesc" class="form-input" rows="3" placeholder="Valgfri beskrivelse..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">År/semester</label>
+                <input type="text" id="newClassroomYear" class="form-input" placeholder="f.eks. 2025">
+            </div>
+            <div class="modal-actions">
+                <button class="aq-btn aq-btn-secondary" onclick="closeModal('createModal')">Avbryt</button>
+                <button class="aq-btn aq-btn-primary" onclick="createClassroom()">Opprett</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TA Permissions Modal -->
+    <div class="modal-overlay" id="taPermissionsModal">
+        <div class="modal">
+            <h2 class="modal-title">TA-tillatelser for <span id="taPermName">-</span></h2>
+            <div class="permissions-grid">
+                <label class="permission-item">
+                    <input type="checkbox" id="permStartGames" checked>
+                    <span>Starte multiplayer</span>
+                </label>
+                <label class="permission-item">
+                    <input type="checkbox" id="permViewProgress" checked>
+                    <span>Se progresjon</span>
+                </label>
+                <label class="permission-item">
+                    <input type="checkbox" id="permGradeTasks">
+                    <span>Vurdere oppgaver</span>
+                </label>
+                <label class="permission-item">
+                    <input type="checkbox" id="permManageStudents">
+                    <span>Administrere studenter</span>
+                </label>
+            </div>
+            <input type="hidden" id="editTaId">
+            <div class="modal-actions">
+                <button class="aq-btn aq-btn-secondary" onclick="closeModal('taPermissionsModal')">Avbryt</button>
+                <button class="aq-btn aq-btn-primary" onclick="saveTAPermissions()">Lagre</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/theme-manager.js"></script>
+    
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+            authDomain: "accountingquest-multiplayer.firebaseapp.com",
+            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest-multiplayer",
+            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+            messagingSenderId: "525417361926",
+            appId: "1:525417361926:web:ec9b737f82af9b21700987"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+        
+        let currentUser = null;
+        let selectedClassroom = null;
+        let myClassrooms = [];
+        let taClassrooms = [];
+        
+        // Auth check
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            currentUser = user;
+            
+            // Get user data
+            const userSnap = await db.ref('users/' + user.uid).once('value');
+            const userData = userSnap.val() || {};
+            
+            document.getElementById('userInfo').textContent = userData.username || user.email;
+            
+            loadMyClassrooms();
+            loadTAInvites();
+            loadTAClassrooms();
+        });
+        
+        // Load my classrooms
+        async function loadMyClassrooms() {
+            const container = document.getElementById('classroomsList');
+            
+            try {
+                const snap = await db.ref('classrooms')
+                    .orderByChild('teacherId')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                const classrooms = snap.val() || {};
+                myClassrooms = Object.entries(classrooms).map(([id, data]) => ({ id, ...data }));
+                
+                if (myClassrooms.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📚</div>
+                            <p>Du har ingen klasserom ennå</p>
+                            <button class="aq-btn aq-btn-primary" onclick="showCreateModal()" style="margin-top: var(--space-md);">Opprett første klasserom</button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = myClassrooms.map(c => {
+                    const studentCount = c.students ? Object.keys(c.students).length : 0;
+                    const taCount = c.tas ? Object.keys(c.tas).length : 0;
+                    
+                    return `
+                        <div class="classroom-card ${selectedClassroom?.id === c.id ? 'selected' : ''}" onclick="selectClassroom('${c.id}')">
+                            <div class="classroom-header">
+                                <div class="classroom-name">${escapeHtml(c.name)}</div>
+                                <div class="classroom-code">${c.code}</div>
+                            </div>
+                            <div class="classroom-stats">
+                                <div class="classroom-stat">👨‍🎓 ${studentCount} studenter</div>
+                                <div class="classroom-stat">👩‍🏫 ${taCount} TAs</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading classrooms:', error);
+                container.innerHTML = `<div class="empty-state"><p>Feil ved lasting: ${error.message}</p></div>`;
+            }
+        }
+        
+        // Select classroom
+        async function selectClassroom(id) {
+            const classroom = myClassrooms.find(c => c.id === id);
+            if (!classroom) return;
+            
+            selectedClassroom = classroom;
+            
+            // Update UI
+            document.querySelectorAll('.classroom-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            
+            document.getElementById('detailName').textContent = classroom.name;
+            document.getElementById('detailCode').textContent = classroom.code;
+            document.getElementById('editName').value = classroom.name;
+            document.getElementById('editDescription').value = classroom.description || '';
+            
+            document.getElementById('classroomDetail').style.display = 'block';
+            
+            // Load students
+            loadStudents(classroom);
+            loadTAs(classroom);
+        }
+        
+        // Load students
+        function loadStudents(classroom) {
+            const container = document.getElementById('studentsList');
+            const students = classroom.students || {};
+            const studentList = Object.entries(students);
+            
+            if (studentList.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Ingen studenter ennå</p>
+                        <p style="font-size: 0.875rem; margin-top: var(--space-sm);">Del koden <strong>${classroom.code}</strong> med studentene dine</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = studentList.map(([id, s]) => `
+                <div class="person-item">
+                    <div class="person-info">
+                        <div class="person-avatar">👨‍🎓</div>
+                        <div>
+                            <div class="person-name">${escapeHtml(s.name)}</div>
+                            <div class="person-email">${s.email || 'Ingen e-post'}</div>
+                        </div>
+                    </div>
+                    <div class="person-actions">
+                        <button class="icon-btn danger" onclick="removeStudent('${id}')" title="Fjern student">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Load TAs
+        async function loadTAs(classroom) {
+            const container = document.getElementById('tasList');
+            const tas = classroom.tas || {};
+            const taList = Object.entries(tas);
+            
+            if (taList.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Ingen TAs ennå</p>
+                        <p style="font-size: 0.875rem; margin-top: var(--space-sm);">Inviter en kollega eller student til å hjelpe deg</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = taList.map(([id, ta]) => `
+                    <div class="person-item">
+                        <div class="person-info">
+                            <div class="person-avatar">👩‍🏫</div>
+                            <div>
+                                <div class="person-name">${escapeHtml(ta.name)}</div>
+                                <div class="person-email">${ta.email || ''}</div>
+                            </div>
+                        </div>
+                        <div class="person-actions">
+                            <button class="icon-btn" onclick="editTAPermissions('${id}', '${escapeHtml(ta.name)}')" title="Endre tillatelser">⚙️</button>
+                            <button class="icon-btn danger" onclick="removeTA('${id}')" title="Fjern TA">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Load pending invites
+            loadPendingTAInvites(classroom.id);
+        }
+        
+        // Load pending TA invites for this classroom
+        async function loadPendingTAInvites(classroomId) {
+            const container = document.getElementById('pendingTAsList');
+            const pendingSection = document.getElementById('pendingTAs');
+            
+            try {
+                const snap = await db.ref('taInvites')
+                    .orderByChild('classroomId')
+                    .equalTo(classroomId)
+                    .once('value');
+                
+                const invites = snap.val() || {};
+                const pendingInvites = Object.entries(invites)
+                    .filter(([_, inv]) => inv.status === 'pending')
+                    .map(([id, inv]) => ({ id, ...inv }));
+                
+                if (pendingInvites.length === 0) {
+                    pendingSection.style.display = 'none';
+                    return;
+                }
+                
+                pendingSection.style.display = 'block';
+                container.innerHTML = pendingInvites.map(inv => `
+                    <div class="invite-card">
+                        <div class="invite-info">
+                            <div class="invite-title">📧 ${escapeHtml(inv.toEmail)}</div>
+                            <div class="invite-subtitle">Sendt ${new Date(inv.createdAt).toLocaleDateString('no-NO')}</div>
+                        </div>
+                        <button class="icon-btn danger" onclick="cancelTAInvite('${inv.id}')">Avbryt</button>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading pending invites:', error);
+            }
+        }
+        
+        // Invite TA
+        async function inviteTA() {
+            const email = document.getElementById('taEmail').value.trim();
+            
+            if (!email || !selectedClassroom) {
+                showToast('Skriv inn en e-postadresse', 'error');
+                return;
+            }
+            
+            try {
+                // Check if user exists
+                const usersSnap = await db.ref('users')
+                    .orderByChild('email')
+                    .equalTo(email)
+                    .once('value');
+                
+                const users = usersSnap.val();
+                let toUserId = null;
+                
+                if (users) {
+                    toUserId = Object.keys(users)[0];
+                }
+                
+                // Get current user's name
+                const mySnap = await db.ref('users/' + currentUser.uid).once('value');
+                const myData = mySnap.val() || {};
+                
+                // Create invite
+                const inviteRef = db.ref('taInvites').push();
+                await inviteRef.set({
+                    toUserId: toUserId || '',
+                    toEmail: email,
+                    fromUserId: currentUser.uid,
+                    fromName: myData.username || currentUser.email,
+                    classroomId: selectedClassroom.id,
+                    classroomName: selectedClassroom.name,
+                    status: 'pending',
+                    permissions: {
+                        canStartGames: true,
+                        canViewProgress: true,
+                        canGradeTasks: false,
+                        canManageStudents: false
+                    },
+                    createdAt: Date.now()
+                });
+                
+                document.getElementById('taEmail').value = '';
+                showToast('Invitasjon sendt!', 'success');
+                loadPendingTAInvites(selectedClassroom.id);
+                
+            } catch (error) {
+                console.error('Error inviting TA:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Load TA invites for current user
+        async function loadTAInvites() {
+            const container = document.getElementById('invitesList');
+            
+            try {
+                // Get invites by email
+                const userSnap = await db.ref('users/' + currentUser.uid).once('value');
+                const userData = userSnap.val() || {};
+                
+                const snap = await db.ref('taInvites')
+                    .orderByChild('toEmail')
+                    .equalTo(userData.email || currentUser.email)
+                    .once('value');
+                
+                const invites = snap.val() || {};
+                const pendingInvites = Object.entries(invites)
+                    .filter(([_, inv]) => inv.status === 'pending')
+                    .map(([id, inv]) => ({ id, ...inv }));
+                
+                // Update badge
+                const badge = document.getElementById('inviteCount');
+                if (pendingInvites.length > 0) {
+                    badge.textContent = pendingInvites.length;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+                
+                if (pendingInvites.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <p>Ingen ventende invitasjoner</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = pendingInvites.map(inv => `
+                    <div class="invite-card">
+                        <div class="invite-info">
+                            <div class="invite-title">${escapeHtml(inv.classroomName)}</div>
+                            <div class="invite-subtitle">Invitert av ${escapeHtml(inv.fromName)} • ${new Date(inv.createdAt).toLocaleDateString('no-NO')}</div>
+                        </div>
+                        <div class="invite-actions">
+                            <button class="aq-btn aq-btn-secondary" onclick="declineTAInvite('${inv.id}')">Avslå</button>
+                            <button class="aq-btn aq-btn-primary" onclick="acceptTAInvite('${inv.id}')">Godta</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading invites:', error);
+            }
+        }
+        
+        // Accept TA invite
+        async function acceptTAInvite(inviteId) {
+            try {
+                const snap = await db.ref('taInvites/' + inviteId).once('value');
+                const invite = snap.val();
+                
+                if (!invite) {
+                    showToast('Invitasjon ikke funnet', 'error');
+                    return;
+                }
+                
+                // Get user data
+                const userSnap = await db.ref('users/' + currentUser.uid).once('value');
+                const userData = userSnap.val() || {};
+                
+                // Add as TA to classroom
+                await db.ref('classrooms/' + invite.classroomId + '/tas/' + currentUser.uid).set({
+                    name: userData.username || userData.displayName || currentUser.email.split('@')[0],
+                    email: userData.email || currentUser.email,
+                    addedAt: Date.now(),
+                    addedBy: invite.fromUserId,
+                    permissions: invite.permissions || {
+                        canStartGames: true,
+                        canViewProgress: true,
+                        canGradeTasks: false,
+                        canManageStudents: false
+                    }
+                });
+                
+                // Update invite status
+                await db.ref('taInvites/' + inviteId + '/status').set('accepted');
+                
+                showToast('Du er nå TA for ' + invite.classroomName, 'success');
+                loadTAInvites();
+                loadTAClassrooms();
+                
+            } catch (error) {
+                console.error('Error accepting invite:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Decline TA invite
+        async function declineTAInvite(inviteId) {
+            try {
+                await db.ref('taInvites/' + inviteId + '/status').set('declined');
+                showToast('Invitasjon avslått', 'success');
+                loadTAInvites();
+            } catch (error) {
+                console.error('Error declining invite:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Cancel TA invite
+        async function cancelTAInvite(inviteId) {
+            if (!confirm('Er du sikker på at du vil avbryte denne invitasjonen?')) return;
+            
+            try {
+                await db.ref('taInvites/' + inviteId).remove();
+                showToast('Invitasjon avbrutt', 'success');
+                loadPendingTAInvites(selectedClassroom.id);
+            } catch (error) {
+                console.error('Error canceling invite:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Load classrooms where user is TA
+        async function loadTAClassrooms() {
+            const container = document.getElementById('taClassroomsList');
+            
+            try {
+                const snap = await db.ref('classrooms').once('value');
+                const allClassrooms = snap.val() || {};
+                
+                taClassrooms = Object.entries(allClassrooms)
+                    .filter(([_, c]) => c.tas && c.tas[currentUser.uid])
+                    .map(([id, c]) => ({ id, ...c }));
+                
+                if (taClassrooms.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👥</div>
+                            <p>Du er ikke TA i noen klasserom ennå</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = taClassrooms.map(c => {
+                    const studentCount = c.students ? Object.keys(c.students).length : 0;
+                    const myPerms = c.tas[currentUser.uid]?.permissions || {};
+                    
+                    return `
+                        <div class="classroom-card" onclick="openTAClassroom('${c.id}')">
+                            <div class="classroom-header">
+                                <div class="classroom-name">${escapeHtml(c.name)} <span class="ta-badge">TA</span></div>
+                                <div class="classroom-code">${c.code}</div>
+                            </div>
+                            <div class="classroom-stats">
+                                <div class="classroom-stat">👨‍🎓 ${studentCount} studenter</div>
+                                <div class="classroom-stat">👩‍🏫 ${c.teacherName || 'Lærer'}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading TA classrooms:', error);
+            }
+        }
+        
+        // Open TA classroom (redirect to classroom view)
+        function openTAClassroom(id) {
+            // For now, show alert. Could redirect to a student-like view
+            const classroom = taClassrooms.find(c => c.id === id);
+            if (classroom) {
+                alert(`Du er TA i "${classroom.name}"\n\nKode: ${classroom.code}\n\nSe game_host.html for å starte multiplayer.`);
+            }
+        }
+        
+        // Edit TA permissions
+        function editTAPermissions(taId, taName) {
+            const ta = selectedClassroom.tas[taId];
+            if (!ta) return;
+            
+            document.getElementById('taPermName').textContent = taName;
+            document.getElementById('editTaId').value = taId;
+            
+            const perms = ta.permissions || {};
+            document.getElementById('permStartGames').checked = perms.canStartGames !== false;
+            document.getElementById('permViewProgress').checked = perms.canViewProgress !== false;
+            document.getElementById('permGradeTasks').checked = perms.canGradeTasks === true;
+            document.getElementById('permManageStudents').checked = perms.canManageStudents === true;
+            
+            document.getElementById('taPermissionsModal').classList.add('active');
+        }
+        
+        // Save TA permissions
+        async function saveTAPermissions() {
+            const taId = document.getElementById('editTaId').value;
+            
+            const permissions = {
+                canStartGames: document.getElementById('permStartGames').checked,
+                canViewProgress: document.getElementById('permViewProgress').checked,
+                canGradeTasks: document.getElementById('permGradeTasks').checked,
+                canManageStudents: document.getElementById('permManageStudents').checked
+            };
+            
+            try {
+                await db.ref('classrooms/' + selectedClassroom.id + '/tas/' + taId + '/permissions').set(permissions);
+                
+                // Update local data
+                selectedClassroom.tas[taId].permissions = permissions;
+                
+                showToast('Tillatelser oppdatert!', 'success');
+                closeModal('taPermissionsModal');
+            } catch (error) {
+                console.error('Error saving permissions:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Remove TA
+        async function removeTA(taId) {
+            if (!confirm('Er du sikker på at du vil fjerne denne TA-en?')) return;
+            
+            try {
+                await db.ref('classrooms/' + selectedClassroom.id + '/tas/' + taId).remove();
+                
+                delete selectedClassroom.tas[taId];
+                loadTAs(selectedClassroom);
+                showToast('TA fjernet', 'success');
+            } catch (error) {
+                console.error('Error removing TA:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Remove student
+        async function removeStudent(studentId) {
+            if (!confirm('Er du sikker på at du vil fjerne denne studenten?')) return;
+            
+            try {
+                await db.ref('classrooms/' + selectedClassroom.id + '/students/' + studentId).remove();
+                
+                delete selectedClassroom.students[studentId];
+                loadStudents(selectedClassroom);
+                showToast('Student fjernet', 'success');
+            } catch (error) {
+                console.error('Error removing student:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Create classroom
+        async function createClassroom() {
+            const name = document.getElementById('newClassroomName').value.trim();
+            const description = document.getElementById('newClassroomDesc').value.trim();
+            const year = document.getElementById('newClassroomYear').value.trim();
+            
+            if (!name) {
+                showToast('Gi klasserommet et navn', 'error');
+                return;
+            }
+            
+            try {
+                // Generate unique 6-char code
+                const code = generateCode();
+                
+                // Get user data
+                const userSnap = await db.ref('users/' + currentUser.uid).once('value');
+                const userData = userSnap.val() || {};
+                
+                const classroomRef = db.ref('classrooms').push();
+                await classroomRef.set({
+                    name: name,
+                    description: description,
+                    year: year || new Date().getFullYear().toString(),
+                    teacherId: currentUser.uid,
+                    teacherName: userData.username || currentUser.email,
+                    code: code,
+                    createdAt: Date.now(),
+                    archived: false
+                });
+                
+                showToast('Klasserom opprettet!', 'success');
+                closeModal('createModal');
+                loadMyClassrooms();
+                
+                // Clear form
+                document.getElementById('newClassroomName').value = '';
+                document.getElementById('newClassroomDesc').value = '';
+                document.getElementById('newClassroomYear').value = '';
+                
+            } catch (error) {
+                console.error('Error creating classroom:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Generate unique code
+        function generateCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+        
+        // Save classroom settings
+        async function saveClassroomSettings() {
+            const name = document.getElementById('editName').value.trim();
+            const description = document.getElementById('editDescription').value.trim();
+            
+            if (!name) {
+                showToast('Navn er påkrevd', 'error');
+                return;
+            }
+            
+            try {
+                await db.ref('classrooms/' + selectedClassroom.id).update({
+                    name: name,
+                    description: description
+                });
+                
+                selectedClassroom.name = name;
+                selectedClassroom.description = description;
+                
+                document.getElementById('detailName').textContent = name;
+                showToast('Innstillinger lagret!', 'success');
+                loadMyClassrooms();
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Delete classroom
+        async function deleteClassroom() {
+            if (!selectedClassroom) return;
+            
+            const confirm1 = confirm(`Er du sikker på at du vil slette "${selectedClassroom.name}"?`);
+            if (!confirm1) return;
+            
+            const confirm2 = confirm('Dette kan ikke angres. Alle studenter og data vil bli slettet. Fortsett?');
+            if (!confirm2) return;
+            
+            try {
+                await db.ref('classrooms/' + selectedClassroom.id).remove();
+                
+                showToast('Klasserom slettet', 'success');
+                selectedClassroom = null;
+                document.getElementById('classroomDetail').style.display = 'none';
+                loadMyClassrooms();
+            } catch (error) {
+                console.error('Error deleting classroom:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Tab navigation
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+        
+        // Detail tab navigation
+        function showDetailTab(tab) {
+            document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.detail-tab-content').forEach(c => c.style.display = 'none');
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Content').style.display = 'block';
+        }
+        
+        // Modal functions
+        function showCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        // Close modals on outside click
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+        
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

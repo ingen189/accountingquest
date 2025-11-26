@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="no" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - AccountingQuest</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-lg);
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+        
+        .admin-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .admin-tabs {
+            display: flex;
+            gap: var(--space-xs);
+            margin-bottom: var(--space-lg);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: var(--space-sm);
+            overflow-x: auto;
+        }
+        
+        .admin-tab {
+            padding: var(--space-sm) var(--space-md);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .admin-tab:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .admin-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .admin-section {
+            display: none;
+        }
+        
+        .admin-section.active {
+            display: block;
+        }
+        
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: var(--space-xs);
+        }
+        
+        /* Users table */
+        .users-table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+        }
+        
+        .search-input {
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            width: 250px;
+            max-width: 100%;
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .users-table th,
+        .users-table td {
+            padding: var(--space-sm) var(--space-md);
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .users-table th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .users-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .user-email {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .user-uid {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-family: monospace;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .role-admin { background: #ef4444; color: white; }
+        .role-teacher_pro { background: #8b5cf6; color: white; }
+        .role-teacher { background: #a78bfa; color: white; }
+        .role-teacher_lite { background: #c4b5fd; color: #1f2937; }
+        .role-pro { background: #f59e0b; color: white; }
+        .role-student_pro { background: #10b981; color: white; }
+        .role-student { background: #34d399; color: #1f2937; }
+        .role-free { background: var(--bg-tertiary); color: var(--text-secondary); }
+        
+        .action-btn {
+            padding: 4px 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        /* Role modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-lg);
+            color: var(--text-primary);
+        }
+        
+        .role-options {
+            display: grid;
+            gap: var(--space-sm);
+        }
+        
+        .role-option {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .role-option:hover {
+            border-color: var(--accent);
+        }
+        
+        .role-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+        
+        .role-option-info {
+            flex: 1;
+        }
+        
+        .role-option-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .role-option-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-lg);
+            justify-content: flex-end;
+        }
+        
+        /* Test mode banner */
+        .test-mode-banner {
+            display: none;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: var(--space-sm) var(--space-md);
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .test-mode-banner.active {
+            display: block;
+        }
+        
+        /* Responsive table */
+        @media (max-width: 768px) {
+            .users-table-container {
+                overflow-x: auto;
+            }
+            
+            .users-table {
+                min-width: 600px;
+            }
+        }
+        
+        /* Quick actions */
+        .quick-actions {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .quick-action-btn {
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            transition: all 0.2s;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--accent);
+            background: var(--bg-tertiary);
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: var(--space-xl);
+            color: var(--text-muted);
+        }
+        
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            border-color: #10b981;
+        }
+        
+        .toast.error {
+            border-color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <!-- Test Mode Banner -->
+    <div class="test-mode-banner" id="testModeBanner">
+        🔬 TESTMODUS: Du ser appen som <span id="testRoleName">-</span> | 
+        <button onclick="exitTestMode()" style="background:white;color:#d97706;border:none;padding:2px 8px;border-radius:4px;cursor:pointer;">Avslutt test</button>
+    </div>
+
+    <!-- Header -->
+    <header class="aq-header">
+        <a href="index.html" class="aq-logo">
+            <span class="aq-logo-icon">📊</span>
+            <span class="aq-logo-text">AccountingQuest</span>
+        </a>
+        <div class="aq-header-right">
+            <span id="currentUser" style="color: var(--text-secondary); font-size: 0.875rem;"></span>
+            <a href="index.html" class="aq-btn aq-btn-secondary">← Tilbake</a>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1 class="admin-title">🔐 Admin Panel</h1>
+        </div>
+
+        <!-- Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="showSection('users')">👥 Brukere</button>
+            <button class="admin-tab" onclick="showSection('test')">🔬 Test roller</button>
+            <button class="admin-tab" onclick="showSection('stats')">📊 Statistikk</button>
+            <button class="admin-tab" onclick="showSection('settings')">⚙️ Innstillinger</button>
+        </div>
+
+        <!-- Users Section -->
+        <div id="usersSection" class="admin-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalUsers">-</div>
+                    <div class="stat-label">Totalt brukere</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="proUsers">-</div>
+                    <div class="stat-label">Pro brukere</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="teacherUsers">-</div>
+                    <div class="stat-label">Lærere</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="todayUsers">-</div>
+                    <div class="stat-label">Aktive i dag</div>
+                </div>
+            </div>
+
+            <div class="users-table-container">
+                <div class="table-header">
+                    <input type="text" class="search-input" placeholder="🔍 Søk bruker..." id="userSearch" oninput="filterUsers()">
+                    <button class="aq-btn aq-btn-secondary" onclick="loadUsers()">🔄 Oppdater</button>
+                </div>
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Bruker</th>
+                            <th>Rolle</th>
+                            <th>Abonnement</th>
+                            <th>Opprettet</th>
+                            <th>Handlinger</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr><td colspan="5" class="loading">Laster brukere...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Test Roles Section -->
+        <div id="testSection" class="admin-section">
+            <h2 style="margin-bottom: var(--space-lg); color: var(--text-primary);">🔬 Test ulike roller</h2>
+            <p style="color: var(--text-secondary); margin-bottom: var(--space-lg);">
+                Bytt midlertidig til en annen rolle for å se hvordan appen ser ut for ulike brukertyper.
+                Din faktiske rolle endres ikke.
+            </p>
+            
+            <div class="role-options">
+                <div class="role-option" onclick="testRole('free')">
+                    <span style="font-size: 2rem;">🆓</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Gratis bruker</div>
+                        <div class="role-option-desc">Begrenset tilgang, reklame, grunnleggende moduler</div>
+                    </div>
+                </div>
+                
+                <div class="role-option" onclick="testRole('student')">
+                    <span style="font-size: 2rem;">🎓</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Student</div>
+                        <div class="role-option-desc">Kan bli med i klasserom, se oppgaver</div>
+                    </div>
+                </div>
+                
+                <div class="role-option" onclick="testRole('student_pro')">
+                    <span style="font-size: 2rem;">⭐</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Student Pro</div>
+                        <div class="role-option-desc">Full tilgang til alle moduler, ingen reklame</div>
+                    </div>
+                </div>
+                
+                <div class="role-option" onclick="testRole('teacher_lite')">
+                    <span style="font-size: 2rem;">👩‍🏫</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Lærer Lite</div>
+                        <div class="role-option-desc">1 klasserom, 30 studenter, grunnleggende</div>
+                    </div>
+                </div>
+                
+                <div class="role-option" onclick="testRole('teacher')">
+                    <span style="font-size: 2rem;">👨‍🏫</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Lærer Pro</div>
+                        <div class="role-option-desc">5 klasserom, 150 studenter, analytics</div>
+                    </div>
+                </div>
+                
+                <div class="role-option" onclick="testRole('teacher_pro')">
+                    <span style="font-size: 2rem;">🏫</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Lærer Skole</div>
+                        <div class="role-option-desc">Ubegrenset klasserom og studenter</div>
+                    </div>
+                </div>
+                
+                <div class="role-option" onclick="testRole('admin')">
+                    <span style="font-size: 2rem;">🔐</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Admin</div>
+                        <div class="role-option-desc">Full tilgang til alt</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div id="statsSection" class="admin-section">
+            <h2 style="margin-bottom: var(--space-lg); color: var(--text-primary);">📊 Statistikk</h2>
+            <p style="color: var(--text-muted);">Kommer snart: Detaljert statistikk over bruk, populære moduler, etc.</p>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settingsSection" class="admin-section">
+            <h2 style="margin-bottom: var(--space-lg); color: var(--text-primary);">⚙️ Innstillinger</h2>
+            
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-lg); margin-bottom: var(--space-lg);">
+                <h3 style="color: var(--text-primary); margin-bottom: var(--space-md);">🔑 Din admin-status</h3>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-sm);">UID: <code id="myUid" style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">-</code></p>
+                <p style="color: var(--text-secondary);">Rolle: <span id="myRole" class="role-badge">-</span></p>
+            </div>
+            
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                <h3 style="color: var(--text-primary); margin-bottom: var(--space-md);">🔗 Nyttige lenker</h3>
+                <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
+                    <a href="https://console.firebase.google.com/project/accountingquest-multiplayer/database" target="_blank" style="color: var(--accent);">Firebase Console →</a>
+                    <a href="https://console.firebase.google.com/project/accountingquest-multiplayer/authentication/users" target="_blank" style="color: var(--accent);">Firebase Auth →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Edit Modal -->
+    <div class="modal-overlay" id="roleModal">
+        <div class="modal">
+            <h2 class="modal-title">Endre rolle for <span id="editUserName">-</span></h2>
+            <input type="hidden" id="editUserId">
+            
+            <div class="role-options" id="roleSelector">
+                <div class="role-option" data-role="free">
+                    <span class="role-badge role-free">Gratis</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Gratis</div>
+                        <div class="role-option-desc">Begrenset tilgang</div>
+                    </div>
+                </div>
+                <div class="role-option" data-role="student">
+                    <span class="role-badge role-student">Student</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Student</div>
+                        <div class="role-option-desc">Kan bli med i klasserom</div>
+                    </div>
+                </div>
+                <div class="role-option" data-role="student_pro">
+                    <span class="role-badge role-student_pro">Student Pro</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Student Pro</div>
+                        <div class="role-option-desc">Full tilgang</div>
+                    </div>
+                </div>
+                <div class="role-option" data-role="teacher_lite">
+                    <span class="role-badge role-teacher_lite">Lærer Lite</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Lærer Lite</div>
+                        <div class="role-option-desc">1 klasserom, 30 studenter</div>
+                    </div>
+                </div>
+                <div class="role-option" data-role="teacher">
+                    <span class="role-badge role-teacher">Lærer Pro</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Lærer Pro</div>
+                        <div class="role-option-desc">5 klasserom, 150 studenter</div>
+                    </div>
+                </div>
+                <div class="role-option" data-role="teacher_pro">
+                    <span class="role-badge role-teacher_pro">Lærer Skole</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Lærer Skole</div>
+                        <div class="role-option-desc">Ubegrenset</div>
+                    </div>
+                </div>
+                <div class="role-option" data-role="admin">
+                    <span class="role-badge role-admin">Admin</span>
+                    <div class="role-option-info">
+                        <div class="role-option-name">Admin</div>
+                        <div class="role-option-desc">Full tilgang til alt</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="aq-btn aq-btn-secondary" onclick="closeModal()">Avbryt</button>
+                <button class="aq-btn aq-btn-primary" onclick="saveRole()">Lagre</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/theme-manager.js"></script>
+    
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+            authDomain: "accountingquest-multiplayer.firebaseapp.com",
+            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest-multiplayer",
+            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+            messagingSenderId: "525417361926",
+            appId: "1:525417361926:web:ec9b737f82af9b21700987"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+        
+        let allUsers = [];
+        let currentUser = null;
+        let selectedRole = null;
+        
+        const ROLE_LABELS = {
+            'free': 'Gratis',
+            'student': 'Student',
+            'student_free': 'Student',
+            'student_pro': 'Student Pro',
+            'pro': 'Pro',
+            'ta': 'Teaching Assistant',
+            'teacher_lite': 'Lærer Lite',
+            'teacher': 'Lærer Pro',
+            'teacher_pro': 'Lærer Skole',
+            'admin': 'Admin'
+        };
+        
+        // Check auth
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            currentUser = user;
+            document.getElementById('currentUser').textContent = user.email;
+            document.getElementById('myUid').textContent = user.uid;
+            
+            // Check if admin
+            const snap = await db.ref('users/' + user.uid).once('value');
+            const userData = snap.val();
+            
+            if (!userData || userData.role !== 'admin') {
+                alert('Du har ikke admin-tilgang');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            document.getElementById('myRole').textContent = ROLE_LABELS[userData.role] || userData.role;
+            document.getElementById('myRole').className = 'role-badge role-' + userData.role;
+            
+            // Check test mode
+            const testRole = localStorage.getItem('aq_test_role');
+            if (testRole) {
+                document.getElementById('testModeBanner').classList.add('active');
+                document.getElementById('testRoleName').textContent = ROLE_LABELS[testRole] || testRole;
+            }
+            
+            loadUsers();
+        });
+        
+        // Load users
+        async function loadUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" class="loading">Laster brukere...</td></tr>';
+            
+            try {
+                const snap = await db.ref('users').once('value');
+                const users = snap.val() || {};
+                
+                allUsers = Object.entries(users).map(([uid, data]) => ({
+                    uid,
+                    ...data
+                }));
+                
+                // Calculate stats
+                const now = Date.now();
+                const today = now - (24 * 60 * 60 * 1000);
+                
+                document.getElementById('totalUsers').textContent = allUsers.length;
+                document.getElementById('proUsers').textContent = allUsers.filter(u => 
+                    u.role === 'pro' || u.role === 'student_pro'
+                ).length;
+                document.getElementById('teacherUsers').textContent = allUsers.filter(u => 
+                    u.role?.startsWith('teacher')
+                ).length;
+                document.getElementById('todayUsers').textContent = allUsers.filter(u => 
+                    u.lastActive && u.lastActive > today
+                ).length;
+                
+                renderUsers(allUsers);
+            } catch (error) {
+                console.error('Feil ved lasting:', error);
+                tbody.innerHTML = '<tr><td colspan="5" class="loading">Feil: ' + error.message + '</td></tr>';
+            }
+        }
+        
+        // Render users table
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="loading">Ingen brukere funnet</td></tr>';
+                return;
+            }
+            
+            // Sort by createdAt desc
+            users.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            
+            tbody.innerHTML = users.map(user => {
+                const role = user.role || 'free';
+                const subscription = user.subscription || 'free';
+                const created = user.createdAt ? new Date(user.createdAt).toLocaleDateString('no-NO') : '-';
+                const displayName = user.username || user.displayName || user.email?.split('@')[0] || 'Anonym';
+                
+                return `
+                    <tr>
+                        <td>
+                            <div class="user-email">${displayName}</div>
+                            <div class="user-uid">${user.uid}</div>
+                            ${user.email ? `<div style="color: var(--text-muted); font-size: 0.75rem;">${user.email}</div>` : ''}
+                        </td>
+                        <td><span class="role-badge role-${role}">${ROLE_LABELS[role] || role}</span></td>
+                        <td>${subscription}</td>
+                        <td>${created}</td>
+                        <td>
+                            <button class="action-btn" onclick="editRole('${user.uid}', '${displayName}', '${role}')">✏️ Endre rolle</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Filter users
+        function filterUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const filtered = allUsers.filter(u => 
+                (u.email && u.email.toLowerCase().includes(search)) ||
+                (u.username && u.username.toLowerCase().includes(search)) ||
+                (u.displayName && u.displayName.toLowerCase().includes(search)) ||
+                u.uid.toLowerCase().includes(search)
+            );
+            renderUsers(filtered);
+        }
+        
+        // Edit role modal
+        function editRole(uid, name, currentRole) {
+            document.getElementById('editUserId').value = uid;
+            document.getElementById('editUserName').textContent = name;
+            
+            // Select current role
+            document.querySelectorAll('#roleSelector .role-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.role === currentRole) {
+                    opt.classList.add('selected');
+                    selectedRole = currentRole;
+                }
+            });
+            
+            document.getElementById('roleModal').classList.add('active');
+        }
+        
+        // Role option click
+        document.querySelectorAll('#roleSelector .role-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('#roleSelector .role-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                selectedRole = opt.dataset.role;
+            });
+        });
+        
+        // Save role
+        async function saveRole() {
+            const uid = document.getElementById('editUserId').value;
+            
+            if (!selectedRole) {
+                showToast('Velg en rolle først', 'error');
+                return;
+            }
+            
+            try {
+                await db.ref('users/' + uid + '/role').set(selectedRole);
+                showToast('Rolle oppdatert!', 'success');
+                closeModal();
+                loadUsers();
+            } catch (error) {
+                console.error('Feil:', error);
+                showToast('Feil: ' + error.message, 'error');
+            }
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('roleModal').classList.remove('active');
+            selectedRole = null;
+        }
+        
+        // Test role
+        function testRole(role) {
+            localStorage.setItem('aq_test_role', role);
+            showToast(`Testmodus aktivert: ${ROLE_LABELS[role]}`, 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+        
+        // Exit test mode
+        function exitTestMode() {
+            localStorage.removeItem('aq_test_role');
+            document.getElementById('testModeBanner').classList.remove('active');
+            showToast('Testmodus avsluttet', 'success');
+        }
+        
+        // Show section
+        function showSection(section) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(section + 'Section').classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Close modal on outside click
+        document.getElementById('roleModal').addEventListener('click', (e) => {
+            if (e.target.id === 'roleModal') closeModal();
+        });
+    </script>
+</body>
+</html>
