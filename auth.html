@@ -4,11 +4,313 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AccountingQuest - Logg inn</title>
+<<<<<<< HEAD
     
     <!-- Felles CSS -->
     <link rel="stylesheet" href="main.css">
     
     <!-- Firebase SDK -->
+=======
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-container {
+            background: #2d2d2d;
+            border: 2px solid #404040;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #4ade80, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .logo p { color: #9ca3af; }
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #404040;
+            padding: 5px;
+            border-radius: 10px;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+        .tab.active { background: #4ade80; color: #1e1e1e; }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #404040;
+            border: 2px solid #555;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+        .form-group input:focus { outline: none; border-color: #4ade80; }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #4ade80;
+            color: #1e1e1e;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #3bc56f;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: #404040; color: #e0e0e0; margin-top: 10px; }
+        .btn-secondary:hover { background: #555; box-shadow: none; }
+        .btn-google { background: #4285f4; color: white; margin-top: 10px; }
+        .btn-google:hover { background: #3367d6; }
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            color: #9ca3af;
+            position: relative;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #404040;
+        }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .error { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; }
+        .success { background: rgba(74, 222, 128, 0.2); border: 1px solid #4ade80; color: #4ade80; }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #1e1e1e;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .skip-link { text-align: center; margin-top: 20px; }
+        .skip-link a { color: #9ca3af; text-decoration: none; font-size: 0.9em; }
+        .skip-link a:hover { color: #4ade80; }
+        .role-selector { display: flex; gap: 10px; margin-bottom: 10px; }
+        .role-btn {
+            flex: 1;
+            padding: 15px;
+            background: #404040;
+            border: 2px solid #555;
+            border-radius: 10px;
+            color: #9ca3af;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .role-btn:hover { border-color: #4ade80; }
+        .role-btn.selected { border-color: #4ade80; background: rgba(74, 222, 128, 0.1); color: #4ade80; }
+        .role-btn .icon { font-size: 2em; display: block; margin-bottom: 5px; }
+        .free-features { background: #404040; border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .free-features h3 { color: #4ade80; margin-bottom: 15px; font-size: 1.1em; }
+        .free-features ul { list-style: none; padding: 0; }
+        .free-features li { padding: 8px 0; color: #9ca3af; font-size: 0.95em; }
+        .free-features li::before { content: '✓ '; color: #4ade80; font-weight: bold; margin-right: 8px; }
+        
+        /* Forgot password link */
+        .forgot-password {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        .forgot-password a {
+            color: #9ca3af;
+            font-size: 0.85em;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .forgot-password a:hover { color: #4ade80; }
+
+        /* Back link */
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #9ca3af;
+            font-size: 0.9em;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .back-link a:hover { color: #4ade80; }
+
+        /* Reset form header */
+        .reset-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .reset-header h2 {
+            color: #4ade80;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .reset-header p {
+            color: #9ca3af;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">
+            <h1>📚 AccountingQuest</h1>
+            <p>Gamifisert norsk bokføring</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <!-- Main auth tabs -->
+        <div id="main-auth">
+            <div class="auth-tabs">
+                <button class="tab active" id="tab-login" onclick="showLogin()">Logg inn</button>
+                <button class="tab" id="tab-signup" onclick="showSignup()">Registrer</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <div class="form-group">
+                    <label>E-post</label>
+                    <input type="email" id="login-email" placeholder="din@epost.no">
+                </div>
+                <div class="form-group">
+                    <label>Passord</label>
+                    <input type="password" id="login-password" placeholder="••••••" onkeypress="if(event.key==='Enter') doLogin()">
+                </div>
+                <div class="forgot-password">
+                    <a href="#" onclick="showResetPassword(); return false;">Glemt passord?</a>
+                </div>
+                <button class="btn" id="login-btn" onclick="doLogin()">Logg inn</button>
+                <button class="btn btn-google" onclick="doGoogleLogin()">🔵 Logg inn med Google</button>
+                
+                <div class="divider">eller</div>
+                
+                <button class="btn btn-secondary" id="guest-btn" onclick="doGuestLogin()">🎮 Fortsett uten konto</button>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signup-form" class="auth-form">
+                <div class="form-group">
+                    <label>Brukernavn</label>
+                    <input type="text" id="signup-username" placeholder="OlaStudent">
+                </div>
+                <div class="form-group">
+                    <label>E-post</label>
+                    <input type="email" id="signup-email" placeholder="din@epost.no">
+                </div>
+                <div class="form-group">
+                    <label>Passord (min 6 tegn)</label>
+                    <input type="password" id="signup-password" placeholder="••••••">
+                </div>
+                <div class="form-group">
+                    <label>Jeg er...</label>
+                    <div class="role-selector">
+                        <div class="role-btn selected" id="role-student" onclick="selectRole('student')">
+                            <span class="icon">🎓</span>
+                            <span>Student</span>
+                        </div>
+                        <div class="role-btn" id="role-teacher" onclick="selectRole('teacher')">
+                            <span class="icon">👨‍🏫</span>
+                            <span>Lærer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="free-features">
+                    <h3>✨ Gratis funksjoner</h3>
+                    <ul>
+                        <li>Alle quiz og bokføringsoppgaver</li>
+                        <li>Fremgang lagres i skyen</li>
+                        <li>Multiplayer og dueller</li>
+                        <li>Ingen reklame</li>
+                    </ul>
+                </div>
+
+                <button class="btn" id="signup-btn" onclick="doSignup()">Opprett konto (Gratis)</button>
+            </div>
+        </div>
+
+        <!-- Reset Password Form -->
+        <div id="reset-form" style="display: none;">
+            <div class="reset-header">
+                <h2>🔑 Glemt passord?</h2>
+                <p>Skriv inn e-postadressen din, så sender vi deg en lenke for å tilbakestille passordet.</p>
+            </div>
+            
+            <div class="form-group">
+                <label>E-post</label>
+                <input type="email" id="reset-email" placeholder="din@epost.no" onkeypress="if(event.key==='Enter') doResetPassword()">
+            </div>
+            
+            <button class="btn" id="reset-btn" onclick="doResetPassword()">Send tilbakestillingslenke</button>
+            
+            <div class="back-link">
+                <a href="#" onclick="hideResetPassword(); return false;">← Tilbake til innlogging</a>
+            </div>
+        </div>
+
+        <div class="skip-link">
+            <a href="index.html">← Tilbake til hovedsiden</a>
+        </div>
+    </div>
+
+>>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -465,6 +767,20 @@
             hideMessage();
         }
 
+        // Reset password views
+        function showResetPassword() {
+            document.getElementById('main-auth').style.display = 'none';
+            document.getElementById('reset-form').style.display = 'block';
+            document.getElementById('reset-email').value = document.getElementById('login-email').value || '';
+            hideMessage();
+        }
+
+        function hideResetPassword() {
+            document.getElementById('main-auth').style.display = 'block';
+            document.getElementById('reset-form').style.display = 'none';
+            hideMessage();
+        }
+
         // Role selection
         function selectRole(role) {
             selectedRole = role;
@@ -531,9 +847,16 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="auth-loading"></span>';
 
+<<<<<<< HEAD
             auth.createUserWithEmailAndPassword(email, password)
                 .then(result => {
                     const userData = {
+=======
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then(function(result) {
+                    // Create user profile
+                    var userData = {
+>>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
                         username: username,
                         email: email,
                         role: selectedRole === 'teacher' ? 'teacher_lite' : 'free',
@@ -541,13 +864,23 @@
                         createdAt: Date.now()
                     };
 
+<<<<<<< HEAD
                     const promises = [
                         db.ref('users/' + result.user.uid).set(userData)
+=======
+                    // If teacher, also create teacher entry
+                    var promises = [
+                        firebase.database().ref('users/' + result.user.uid).set(userData)
+>>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
                     ];
 
                     if (selectedRole === 'teacher') {
                         promises.push(
+<<<<<<< HEAD
                             db.ref('teachers/' + result.user.uid).set({
+=======
+                            firebase.database().ref('teachers/' + result.user.uid).set({
+>>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
                                 userId: result.user.uid,
                                 email: email,
                                 name: username,
@@ -558,12 +891,26 @@
                                     plan: 'lite',
                                     status: 'trial',
                                     startDate: Date.now(),
+<<<<<<< HEAD
                                     trialEndDate: Date.now() + (30 * 24 * 60 * 60 * 1000),
                                     features: {
                                         maxClassrooms: 1,
                                         maxStudents: 30,
                                         multiplayer: true,
                                         classroomAdmin: true
+=======
+                                    trialEndDate: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 days
+                                    features: {
+                                        maxClassrooms: 2,
+                                        maxStudents: 50,
+                                        multiplayer: true,
+                                        classroomAdmin: true,
+                                        assignments: true,
+                                        progressTracking: true,
+                                        analytics: 'basic',
+                                        excel: false,
+                                        emailNotifications: false
+>>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
                                     }
                                 }
                             })
@@ -585,24 +932,41 @@
 
         // Reset Password
         function doResetPassword() {
+<<<<<<< HEAD
             const email = document.getElementById('reset-email').value;
+=======
+            var email = document.getElementById('reset-email').value;
+>>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
 
             if (!email) {
                 showError('Skriv inn e-postadressen din');
                 return;
             }
 
+<<<<<<< HEAD
             const btn = document.getElementById('reset-btn');
             btn.disabled = true;
             btn.innerHTML = '<span class="auth-loading"></span>';
 
             auth.sendPasswordResetEmail(email)
                 .then(() => {
+=======
+            var btn = document.getElementById('reset-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>';
+
+            firebase.auth().sendPasswordResetEmail(email)
+                .then(function() {
+>>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
                     showSuccess('📧 E-post sendt! Sjekk innboksen din (og søppelpost) for tilbakestillingslenken.');
                     btn.disabled = false;
                     btn.textContent = 'Send tilbakestillingslenke';
                 })
+<<<<<<< HEAD
                 .catch(error => {
+=======
+                .catch(function(error) {
+>>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
                     showError(getErrorMsg(error.code));
                     btn.disabled = false;
                     btn.textContent = 'Send tilbakestillingslenke';
