@@ -6,10 +6,296 @@
     <title>Innstillinger - AccountingQuest</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
     <meta name="theme-color" content="#0f1419">
-    <link rel="stylesheet" href="css/main.css">
     
     <style>
-        /* ========== SETTINGS SPECIFIC STYLES ========== */
+        /* ========== THEME VARIABLES ========== */
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f26;
+            --bg-tertiary: #2d3748;
+            --bg-card: #1e2530;
+            --bg-input: #0f1419;
+            --text-primary: #e0e0e0;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: #2d3748;
+            --border-light: #374151;
+            --accent: #4ade80;
+            --accent-hover: #22c55e;
+            --accent-glow: rgba(74, 222, 128, 0.3);
+            --accent-secondary: #3b82f6;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 15px;
+            --radius-full: 50px;
+            --space-xs: 5px;
+            --space-sm: 10px;
+            --space-md: 15px;
+            --space-lg: 20px;
+            --space-xl: 30px;
+        }
+
+        /* Light theme */
+        [data-theme="light"] {
+            --bg-primary: #f5f5f0;
+            --bg-secondary: #fafaf8;
+            --bg-tertiary: #eaeae5;
+            --bg-card: #ffffff;
+            --bg-input: #f5f5f0;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --text-muted: #9ca3af;
+            --border-color: #e5e5e0;
+            --border-light: #d1d1cc;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="cream"] {
+            --bg-primary: #f9f6f1;
+            --bg-secondary: #fffcf7;
+            --bg-tertiary: #f0ebe3;
+            --bg-card: #fffef9;
+            --bg-input: #f5f2ed;
+            --text-primary: #2d2a26;
+            --text-secondary: #5c5650;
+            --border-color: #e8e4dc;
+            --border-light: #d9d4cb;
+        }
+
+        [data-theme="dark-blue"] {
+            --bg-primary: #0a192f;
+            --bg-secondary: #112240;
+            --bg-tertiary: #1d3461;
+            --bg-card: #172a46;
+            --bg-input: #0a192f;
+            --text-primary: #ccd6f6;
+            --text-secondary: #8892b0;
+            --border-color: #1d3461;
+            --border-light: #233554;
+        }
+
+        [data-theme="midnight"] {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #171717;
+            --bg-card: #0f0f0f;
+            --bg-input: #050505;
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --border-color: #262626;
+            --border-light: #404040;
+        }
+
+        [data-theme="charcoal"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #242424;
+            --bg-tertiary: #333333;
+            --bg-card: #2a2a2a;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --border-color: #3d3d3d;
+            --border-light: #4a4a4a;
+        }
+
+        [data-theme="slate"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --border-light: #475569;
+        }
+
+        [data-theme="forest"] {
+            --bg-primary: #0c1a14;
+            --bg-secondary: #142b1f;
+            --bg-tertiary: #1f3d2b;
+            --bg-card: #183225;
+            --text-primary: #d4e8dc;
+            --text-secondary: #8fb89e;
+            --border-color: #1f3d2b;
+            --border-light: #2a5038;
+        }
+
+        [data-theme="purple-night"] {
+            --bg-primary: #13111c;
+            --bg-secondary: #1c1829;
+            --bg-tertiary: #2d2640;
+            --bg-card: #211d30;
+            --text-primary: #e8e4f0;
+            --text-secondary: #a39bb8;
+            --border-color: #2d2640;
+            --border-light: #3d3455;
+        }
+
+        /* Accent colors */
+        [data-accent="green"] { --accent: #4ade80; --accent-hover: #22c55e; --accent-glow: rgba(74, 222, 128, 0.3); }
+        [data-accent="blue"] { --accent: #3b82f6; --accent-hover: #2563eb; --accent-glow: rgba(59, 130, 246, 0.3); }
+        [data-accent="purple"] { --accent: #a855f7; --accent-hover: #9333ea; --accent-glow: rgba(168, 85, 247, 0.3); }
+        [data-accent="pink"] { --accent: #ec4899; --accent-hover: #db2777; --accent-glow: rgba(236, 72, 153, 0.3); }
+        [data-accent="orange"] { --accent: #f59e0b; --accent-hover: #d97706; --accent-glow: rgba(245, 158, 11, 0.3); }
+        [data-accent="cyan"] { --accent: #06b6d4; --accent-hover: #0891b2; --accent-glow: rgba(6, 182, 212, 0.3); }
+        [data-accent="red"] { --accent: #ef4444; --accent-hover: #dc2626; --accent-glow: rgba(239, 68, 68, 0.3); }
+        [data-accent="yellow"] { --accent: #eab308; --accent-hover: #ca8a04; --accent-glow: rgba(234, 179, 8, 0.3); }
+        [data-accent="teal"] { --accent: #14b8a6; --accent-hover: #0d9488; --accent-glow: rgba(20, 184, 166, 0.3); }
+        [data-accent="indigo"] { --accent: #6366f1; --accent-hover: #4f46e5; --accent-glow: rgba(99, 102, 241, 0.3); }
+
+        /* ========== BASE STYLES ========== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background var(--transition-normal), color var(--transition-normal);
+            line-height: 1.6;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+
+        /* ========== HEADER ========== */
+        .aq-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .aq-header-left, .aq-header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .aq-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .aq-logo-icon { font-size: 1.8em; }
+
+        .aq-logo-text {
+            font-size: 1.4em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .aq-module-name {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* ========== BUTTONS ========== */
+        .aq-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: none;
+            font-size: 0.95em;
+            text-decoration: none;
+        }
+
+        .aq-btn-primary {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .aq-btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .aq-btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .aq-btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .aq-btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .aq-btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .aq-btn-link {
+            background: transparent;
+            color: var(--accent);
+            padding: 10px 15px;
+        }
+
+        .aq-btn-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ========== BADGES ========== */
+        .aq-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .aq-badge-primary { background: var(--accent); color: #000; }
+        .aq-badge-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+        .aq-badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .aq-badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .aq-badge-info { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+        .aq-badge-error { background: rgba(239, 68, 68, 0.2); color: var(--error); }
+
+        /* ========== PROGRESS ========== */
+        .aq-progress {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .aq-progress-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: var(--radius-full);
+            transition: width 0.3s ease;
+        }
+
+        /* ========== SETTINGS SPECIFIC ========== */
         .settings-container {
             max-width: 800px;
             margin: 0 auto;
@@ -228,6 +514,16 @@
         .account-value {
             color: var(--text-primary);
             font-weight: 500;
+        }
+
+        /* Admin links */
+        .admin-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
         }
 
         /* Delete account section */
@@ -571,10 +867,26 @@
                     </div>
                 </div>
                 
-                <div class="data-actions">
-                    <button class="aq-btn aq-btn-secondary" onclick="window.location.href='auth.html'">
-                        🔑 Endre passord
-                    </button>
+                <!-- Admin/Teacher Links -->
+                <div id="admin-links" class="admin-links" style="display: none;">
+                    <a href="admin.html" class="aq-btn aq-btn-primary" id="admin-btn" style="display: none;">
+                        🛡️ Admin Dashboard
+                    </a>
+                    <a href="admin-dashboard.html" class="aq-btn aq-btn-primary" id="admin-dash-btn" style="display: none;">
+                        📊 Admin Dashboard (Ny)
+                    </a>
+                    <a href="teacher_portal.html" class="aq-btn aq-btn-secondary" id="teacher-btn" style="display: none;">
+                        👨‍🏫 Lærerportal
+                    </a>
+                    <a href="classroom_admin.html" class="aq-btn aq-btn-secondary" id="classroom-btn" style="display: none;">
+                        🏫 Klasserom Admin
+                    </a>
+                    <a href="data-seeder-secure.html" class="aq-btn aq-btn-secondary" id="seeder-btn" style="display: none;">
+                        🌱 Data Seeder
+                    </a>
+                </div>
+                
+                <div class="data-actions" style="margin-top: 15px;">
                     <button class="aq-btn aq-btn-secondary" onclick="signOut()">
                         🚪 Logg ut
                     </button>
@@ -830,9 +1142,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
-    <!-- Cookie Banner -->
-    <script src="js/cookie-banner.js"></script>
-    
     <script>
         // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
@@ -856,7 +1165,7 @@
         let codeExpiry = null;
         
         const ROLE_LABELS = {
-            'free': 'Gratis',
+            'free': 'Gratis bruker',
             'student': 'Student',
             'student_free': 'Student (Gratis)',
             'student_pro': 'Student Pro',
@@ -867,6 +1176,9 @@
             'teacher_pro': 'Lærer Pro',
             'admin': 'Administrator'
         };
+        
+        // Admin UID
+        const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
         
         // ========== THEME MANAGER ==========
         var ThemeManager = (function() {
@@ -924,23 +1236,55 @@
                     userData = snapshot.val() || {};
                     
                     document.getElementById('user-name').textContent = userData.username || user.displayName || 'Ikke satt';
-                    document.getElementById('user-role').textContent = ROLE_LABELS[userData.role] || userData.role || 'Bruker';
+                    
+                    const role = userData.role || 'free';
+                    document.getElementById('user-role').textContent = ROLE_LABELS[role] || role;
                     
                     const createdAt = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('no-NO') : 
                                      (user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('no-NO') : '-');
                     document.getElementById('user-created').textContent = createdAt;
+                    
+                    // Show admin/teacher links based on role
+                    showAdminLinks(user.uid, role);
                     
                     // Check for pending deletion
                     checkPendingDeletion();
                     
                 } catch (error) {
                     console.error('Error fetching user data:', error);
+                    // Show links based on UID even if database fails
+                    showAdminLinks(user.uid, 'free');
                 }
             } else {
                 document.getElementById('logged-out-view').style.display = 'block';
                 document.getElementById('logged-in-view').style.display = 'none';
             }
         });
+        
+        // ========== SHOW ADMIN LINKS ==========
+        function showAdminLinks(uid, role) {
+            const adminLinksContainer = document.getElementById('admin-links');
+            const isAdmin = uid === ADMIN_UID || role === 'admin';
+            const isTeacher = ['teacher', 'teacher_lite', 'teacher_pro', 'ta'].includes(role);
+            
+            if (isAdmin || isTeacher) {
+                adminLinksContainer.style.display = 'flex';
+            }
+            
+            // Admin gets all links
+            if (isAdmin) {
+                document.getElementById('admin-btn').style.display = 'inline-flex';
+                document.getElementById('admin-dash-btn').style.display = 'inline-flex';
+                document.getElementById('teacher-btn').style.display = 'inline-flex';
+                document.getElementById('classroom-btn').style.display = 'inline-flex';
+                document.getElementById('seeder-btn').style.display = 'inline-flex';
+            } 
+            // Teachers get teacher-specific links
+            else if (isTeacher) {
+                document.getElementById('teacher-btn').style.display = 'inline-flex';
+                document.getElementById('classroom-btn').style.display = 'inline-flex';
+            }
+        }
         
         // ========== CHECK PENDING DELETION ==========
         async function checkPendingDeletion() {
