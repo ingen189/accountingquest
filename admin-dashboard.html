@@ -503,7 +503,7 @@
     </div>
 
     <script>
-        // Firebase Config - accountingquest-multiplayer
+        // Firebase Config - accountingquest-multiplayer (same as rest of app)
         const firebaseConfig = {
             apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
             authDomain: "accountingquest-multiplayer.firebaseapp.com",
@@ -528,16 +528,19 @@
             if (!user) { window.location.href = 'auth.html'; return; }
             currentUser = user;
             
-            // Check admin - by UID first, then by admins node
-            const isAdminByUID = user.uid === ADMIN_UID;
-            const adminSnap = await db.ref('admins/' + user.uid).once('value');
-            const isAdmin = isAdminByUID || adminSnap.exists();
+            // Check admin - by UID (primary check)
+            const isAdmin = user.uid === ADMIN_UID;
             
             if (!isAdmin) {
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('access-denied').style.display = 'flex';
-                return;
+                // Fallback: check admins node
+                const adminSnap = await db.ref('admins/' + user.uid).once('value');
+                if (!adminSnap.exists()) {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('access-denied').style.display = 'flex';
+                    return;
+                }
             }
+            
             document.getElementById('loading-screen').style.display = 'none';
             document.getElementById('app').style.display = 'block';
             document.getElementById('user-info').textContent = user.email;
