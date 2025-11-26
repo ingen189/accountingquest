@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f1419">
     <title>AccountingQuest - Lær Regnskap og Finans</title>
     <meta name="description" content="Gamifisert læringsplattform for norsk bokføring, regnskap og corporate finance.">
-<<<<<<< HEAD
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
     
     <!-- Felles CSS -->
-    <link rel="stylesheet" href="main.css">
-=======
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
+    <link rel="stylesheet" href="css/main.css">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -18,7 +17,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
-<<<<<<< HEAD
         /* Index-spesifikke stiler */
         
         /* Auth Prompt */
@@ -51,10 +49,6 @@
             flex-wrap: wrap;
         }
 
-        .auth-buttons .aq-btn {
-            min-width: 150px;
-        }
-
         .guest-note {
             margin-top: var(--space-md);
             font-size: 0.9em;
@@ -64,10 +58,6 @@
         .guest-note a {
             color: var(--accent-secondary);
             cursor: pointer;
-        }
-
-        .guest-note a:hover {
-            text-decoration: underline;
         }
 
         /* Section Title */
@@ -91,163 +81,10 @@
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: var(--space-xl);
             margin-bottom: var(--space-xl);
-=======
-        :root {
-            --bg-primary: #0f1419;
-            --bg-secondary: #1a1f2e;
-            --bg-card: #1e2538;
-            --text-primary: #e7e9ea;
-            --text-secondary: #8b98a5;
-            --accent-green: #4ade80;
-            --accent-blue: #3b82f6;
-            --accent-purple: #a855f7;
-            --accent-orange: #f97316;
-            --border-color: #2f3b52;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-
-        /* Header */
-        .header {
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            font-size: 1.8em;
-        }
-
-        .logo h1 {
-            font-size: 1.4em;
-            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        #logged-out-actions,
-        #logged-in-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .header-btn {
-            background: var(--border-color);
-            color: var(--text-primary);
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.9em;
-            text-decoration: none;
-        }
-
-        .header-btn:hover {
-            background: var(--accent-green);
-            color: #000;
-        }
-
-        .header-btn.primary {
-            background: var(--accent-green);
-            color: #000;
-        }
-
-        .header-btn.wiki {
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
-            color: white;
-        }
-
-        .header-btn.wiki:hover {
-            background: linear-gradient(135deg, #d97706, #dc2626);
-        }
-
-        .header-btn.user {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-        }
-
-        .user-role-badge {
-            font-size: 0.7em;
-            color: var(--accent-green);
-            background: rgba(74, 222, 128, 0.15);
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 5px;
-        }
-
-        /* Main Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-
-        /* Section Title */
-        .section-title {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .section-title h2 {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-
-        .section-title p {
-            color: var(--text-secondary);
-            font-size: 1.1em;
-        }
-
-        /* Main Modules Grid */
-        .main-modules {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 30px;
-            margin-bottom: 50px;
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
-        }
-
-        /* Module Card */
         .module-card {
             background: var(--bg-card);
-<<<<<<< HEAD
             border: 1px solid var(--border-color);
             border-radius: var(--radius-xl);
             overflow: hidden;
@@ -258,48 +95,22 @@
             border-color: var(--accent);
             box-shadow: var(--shadow-accent);
             transform: translateY(-4px);
-=======
-            border: 2px solid var(--border-color);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .module-card:hover {
-            border-color: var(--accent-green);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 40px rgba(74, 222, 128, 0.1);
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
         }
 
         .module-header {
-            padding: 25px;
             display: flex;
-<<<<<<< HEAD
             gap: var(--space-lg);
             padding: var(--space-lg);
             background: var(--bg-tertiary);
-=======
-            align-items: flex-start;
-            gap: 20px;
-            border-bottom: 1px solid var(--border-color);
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
         }
 
         .module-icon {
             font-size: 3em;
-<<<<<<< HEAD
             flex-shrink: 0;
-=======
-            background: linear-gradient(135deg, var(--bg-secondary), var(--border-color));
-            padding: 15px;
-            border-radius: 12px;
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
         }
 
         .module-info {
             flex: 1;
-<<<<<<< HEAD
         }
 
         .module-badge {
@@ -324,61 +135,19 @@
         .module-title {
             font-size: 1.3em;
             margin-bottom: var(--space-xs);
-=======
-        }
-
-        .module-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .badge-popular {
-            background: rgba(74, 222, 128, 0.2);
-            color: var(--accent-green);
-        }
-
-        .badge-new {
-            background: rgba(249, 115, 22, 0.2);
-            color: var(--accent-orange);
-        }
-
-        .module-title {
-            font-size: 1.6em;
-            margin-bottom: 8px;
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
         }
 
         .module-description {
             color: var(--text-secondary);
-<<<<<<< HEAD
             font-size: 0.9em;
             margin-bottom: var(--space-sm);
-=======
-            font-size: 0.95em;
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
         }
 
         .module-stats {
             display: flex;
-<<<<<<< HEAD
             gap: var(--space-md);
             font-size: 0.85em;
             color: var(--text-muted);
-=======
-            gap: 20px;
-            margin-top: 12px;
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
-        }
-
-        .stat {
-            display: flex;
-            align-items: center;
-<<<<<<< HEAD
-            gap: 5px;
         }
 
         /* Sub-modules */
@@ -418,6 +187,11 @@
         }
 
         /* Quick Actions */
+        .section-header {
+            margin-bottom: var(--space-lg);
+            color: var(--text-secondary);
+        }
+
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -483,6 +257,11 @@
             font-size: 1.1em;
         }
 
+        .progress-total {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
         .progress-items {
             display: grid;
             gap: var(--space-md);
@@ -507,166 +286,21 @@
 
         .role-section h3 {
             margin-bottom: var(--space-lg);
-=======
-            gap: 6px;
-            color: var(--text-secondary);
-            font-size: 0.85em;
         }
 
-        .stat-icon {
-            opacity: 0.7;
-        }
-
-        /* Sub-modules Grid */
-        .sub-modules {
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .sub-module {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .sub-module:hover {
-            background: var(--border-color);
-            border-color: var(--accent-green);
-        }
-
-        .sub-module-icon {
-            font-size: 1.3em;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-card);
-            border-radius: 8px;
-        }
-
-        .sub-module-info h4 {
-            font-size: 0.95em;
-            margin-bottom: 2px;
-        }
-
-        .sub-module-info p {
-            font-size: 0.8em;
-            color: var(--text-secondary);
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .action-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .action-card:hover {
-            border-color: var(--accent-blue);
-            background: var(--bg-secondary);
-        }
-
-        .action-icon {
-            font-size: 2em;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-        }
-
-        .action-info h3 {
-            font-size: 1.1em;
-            margin-bottom: 4px;
-        }
-
-        .action-info p {
-            font-size: 0.85em;
-            color: var(--text-secondary);
-        }
-
-        /* Progress Section */
-        .progress-section {
-            margin-top: 40px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 25px;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .progress-header h3 {
-            font-size: 1.2em;
-        }
-
-        .progress-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .progress-item {
-            background: var(--bg-secondary);
-            border-radius: 10px;
-            padding: 15px;
-        }
-
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: var(--border-color);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
-            border-radius: 4px;
-            transition: width 0.5s ease;
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
+        /* User Badge in Header */
+        .user-badge {
+            font-size: 0.7em;
+            color: var(--accent);
+            background: var(--accent-glow);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            margin-left: 5px;
         }
 
         /* Footer */
         .footer {
             text-align: center;
-<<<<<<< HEAD
             padding: var(--space-xl);
             color: var(--text-muted);
             border-top: 1px solid var(--border-color);
@@ -682,109 +316,6 @@
             color: var(--accent);
         }
 
-        /* User Role Badge in Header */
-        .user-role-badge {
-            font-size: 0.7em;
-            color: var(--accent);
-            background: var(--accent-glow);
-            padding: 2px 8px;
-            border-radius: var(--radius-sm);
-            margin-left: 5px;
-        }
-
-=======
-            padding: 30px;
-            color: var(--text-secondary);
-            font-size: 0.9em;
-            border-top: 1px solid var(--border-color);
-            margin-top: 50px;
-        }
-
-        .footer a {
-            color: var(--accent-green);
-            text-decoration: none;
-            margin: 0 10px;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* Auth Section (for logged out users) */
-        .auth-prompt {
-            text-align: center;
-            padding: 60px 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            margin-bottom: 40px;
-        }
-
-        .auth-prompt h2 {
-            font-size: 1.8em;
-            margin-bottom: 15px;
-        }
-
-        .auth-prompt p {
-            color: var(--text-secondary);
-            margin-bottom: 25px;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .auth-btn {
-            padding: 14px 30px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-        }
-
-        .auth-btn.login {
-            background: var(--accent-green);
-            color: #000;
-        }
-
-        .auth-btn.register {
-            background: transparent;
-            border: 2px solid var(--accent-green);
-            color: var(--accent-green);
-        }
-
-        .auth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(74, 222, 128, 0.3);
-        }
-
-        /* Guest Mode */
-        .guest-note {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 0.85em;
-            color: var(--text-secondary);
-        }
-
-        .guest-note a {
-            color: var(--accent-blue);
-            cursor: pointer;
-        }
-
-        /* Hidden state */
-        .hidden {
-            display: none !important;
-        }
-
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
         /* Responsive */
         @media (max-width: 768px) {
             .main-modules {
@@ -795,34 +326,6 @@
                 grid-template-columns: 1fr;
             }
 
-<<<<<<< HEAD
-=======
-            .header {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .header-actions {
-                width: 100%;
-                justify-content: center;
-            }
-
-            #logged-out-actions,
-            #logged-in-actions {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .header-btn {
-                padding: 8px 12px;
-                font-size: 0.85em;
-            }
-
-            .section-title h2 {
-                font-size: 1.5em;
-            }
-
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
             .module-header {
                 flex-direction: column;
                 text-align: center;
@@ -830,24 +333,16 @@
 
             .module-stats {
                 justify-content: center;
-<<<<<<< HEAD
             }
 
             .auth-prompt {
                 padding: var(--space-lg);
-            }
-
-            .section-title h2 {
-                font-size: 1.4em;
-=======
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
             }
         }
     </style>
 </head>
 <body>
     <!-- Header -->
-<<<<<<< HEAD
     <header class="aq-header">
         <a href="index.html" class="aq-logo">
             <span class="aq-logo-icon">📚</span>
@@ -857,70 +352,36 @@
             <!-- Logged out state -->
             <div id="logged-out-actions">
                 <a href="wiki.html" class="aq-btn aq-btn-wiki">📖 Wiki</a>
-                <a href="auth.html" class="aq-btn">🔑 Logg inn</a>
+                <a href="auth.html" class="aq-btn aq-btn-secondary">🔑 Logg inn</a>
                 <a href="auth.html?register=true" class="aq-btn aq-btn-primary">✨ Registrer</a>
             </div>
             <!-- Logged in state -->
             <div id="logged-in-actions" class="aq-hidden">
                 <a href="wiki.html" class="aq-btn aq-btn-wiki">📖 Wiki</a>
-                <a href="settings.html" class="aq-btn">⚙️ Innstillinger</a>
-                <a href="upgrade.html" class="aq-btn">⭐ Oppgrader</a>
-                <button class="aq-btn" onclick="handleUserClick()">
-=======
-    <header class="header">
-        <div class="logo">
-            <span class="logo-icon">📚</span>
-            <h1>AccountingQuest</h1>
-        </div>
-        <div class="header-actions">
-            <!-- Logged out state -->
-            <div id="logged-out-actions">
-                <a href="wiki.html" class="header-btn wiki">📖 Wiki</a>
-                <a href="auth.html" class="header-btn">🔑 Logg inn</a>
-                <a href="auth.html?register=true" class="header-btn primary">✨ Registrer</a>
-            </div>
-            <!-- Logged in state -->
-            <div id="logged-in-actions" class="hidden">
-                <a href="wiki.html" class="header-btn wiki">📖 Wiki</a>
-                <a href="settings.html" class="header-btn">⚙️ Innstillinger</a>
-                <a href="upgrade.html" class="header-btn">⭐ Oppgrader</a>
-                <button class="header-btn user" onclick="handleUserClick()">
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
+                <a href="settings.html" class="aq-btn aq-btn-secondary">⚙️ Innstillinger</a>
+                <a href="upgrade.html" class="aq-btn aq-btn-secondary">⭐ Oppgrader</a>
+                <button class="aq-btn aq-btn-secondary" onclick="handleUserClick()">
                     👤 <span id="user-display-name">Bruker</span>
-                    <span class="user-role-badge" id="user-role">Gratis</span>
+                    <span class="user-badge" id="user-role">Gratis</span>
                 </button>
             </div>
         </div>
     </header>
 
-<<<<<<< HEAD
     <main class="aq-container">
-=======
-    <main class="container">
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
         <!-- Auth Prompt (for guests) -->
         <div id="auth-prompt" class="auth-prompt">
             <h2>🎓 Velkommen til AccountingQuest!</h2>
             <p>Lær bokføring, regnskap og corporate finance gjennom interaktive oppgaver. Logg inn for å spore fremgang.</p>
             <div class="auth-buttons">
-<<<<<<< HEAD
                 <button class="aq-btn aq-btn-primary aq-btn-lg" onclick="location.href='auth.html'">Logg inn</button>
-                <button class="aq-btn aq-btn-lg" onclick="location.href='auth.html?register=true'">Opprett konto</button>
-=======
-                <button class="auth-btn login" onclick="location.href='auth.html'">Logg inn</button>
-                <button class="auth-btn register" onclick="location.href='auth.html?register=true'">Opprett konto</button>
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
+                <button class="aq-btn aq-btn-secondary aq-btn-lg" onclick="location.href='auth.html?register=true'">Opprett konto</button>
             </div>
             <p class="guest-note">Eller <a onclick="continueAsGuest()">fortsett som gjest</a></p>
         </div>
 
-<<<<<<< HEAD
         <!-- Main Content -->
         <div id="main-content" class="aq-hidden">
-=======
-        <!-- Main Content (shown to logged in users or guests who clicked continue) -->
-        <div id="main-content" class="hidden">
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
             <div class="section-title">
                 <h2>📖 Velg modul</h2>
                 <p>Velg en av hovedmodulene for å starte læringen</p>
@@ -934,15 +395,10 @@
                         <div class="module-info">
                             <span class="module-badge badge-popular">Populær</span>
                             <h3 class="module-title">Grunnleggende Regnskap</h3>
-                            <p class="module-description">Bokføring, quiz, regnskapsanalyse og case-oppgaver samlet i én modul.</p>
+                            <p class="module-description">Bokføring, quiz, regnskapsanalyse og case-oppgaver.</p>
                             <div class="module-stats">
-<<<<<<< HEAD
-                                <span class="stat">📝 150+ oppgaver</span>
-                                <span class="stat">📚 5 områder</span>
-=======
-                                <span class="stat"><span class="stat-icon">📝</span> 150+ oppgaver</span>
-                                <span class="stat"><span class="stat-icon">📚</span> 5 områder</span>
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
+                                <span>📝 150+ oppgaver</span>
+                                <span>📚 5 områder</span>
                             </div>
                         </div>
                     </div>
@@ -987,13 +443,8 @@
                             <h3 class="module-title">Corporate Finance</h3>
                             <p class="module-description">NPV, IRR, WACC, obligasjoner og porteføljeteori.</p>
                             <div class="module-stats">
-<<<<<<< HEAD
-                                <span class="stat">📝 60+ oppgaver</span>
-                                <span class="stat">🧮 Kalkulator</span>
-=======
-                                <span class="stat"><span class="stat-icon">📝</span> 60+ oppgaver</span>
-                                <span class="stat"><span class="stat-icon">🧮</span> Kalkulator</span>
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
+                                <span>📝 60+ oppgaver</span>
+                                <span>🧮 Kalkulator</span>
                             </div>
                         </div>
                     </div>
@@ -1031,17 +482,13 @@
             </div>
 
             <!-- Quick Actions -->
-<<<<<<< HEAD
-            <h3 style="margin-bottom: var(--space-lg); color: var(--text-secondary);">⚡ Hurtigvalg</h3>
-=======
-            <h3 style="margin-bottom: 20px; color: var(--text-secondary);">⚡ Hurtigvalg</h3>
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
+            <h3 class="section-header">⚡ Hurtigvalg</h3>
             <div class="quick-actions">
                 <div class="action-card" onclick="navigateTo('multiplayer_index.html')">
                     <div class="action-icon">🎮</div>
                     <div class="action-info">
                         <h3>Multiplayer</h3>
-                        <p>Spill mot andre i sanntid</p>
+                        <p>Spill mot andre</p>
                     </div>
                 </div>
                 <div class="action-card" onclick="navigateTo('duel.html')">
@@ -1049,7 +496,6 @@
                     <div class="action-info">
                         <h3>Duell</h3>
                         <p>1v1 quiz-kamp</p>
-<<<<<<< HEAD
                     </div>
                 </div>
                 <div class="action-card" onclick="navigateTo('wiki.html')">
@@ -1063,7 +509,7 @@
                     <div class="action-icon">🧠</div>
                     <div class="action-info">
                         <h3>Hjernetrim</h3>
-                        <p>Ekstra vanskelige oppgaver</p>
+                        <p>Ekstra vanskelig</p>
                     </div>
                 </div>
             </div>
@@ -1072,7 +518,7 @@
             <div class="progress-section">
                 <div class="progress-header">
                     <h3>📈 Din fremgang</h3>
-                    <span id="total-progress" style="color: var(--accent); font-weight: 600;">0%</span>
+                    <span class="progress-total" id="total-progress">0%</span>
                 </div>
                 <div class="progress-items">
                     <div class="progress-item">
@@ -1106,89 +552,18 @@
                 </div>
             </div>
 
-            <!-- Student Section (hidden by default) -->
+            <!-- Student Section -->
             <div id="student-section" class="role-section aq-hidden">
                 <h3 style="color: var(--accent-secondary);">🎓 Mine klasserom</h3>
                 <div id="student-classrooms" class="quick-actions"></div>
-                <div style="margin-top: var(--space-md);">
-                    <button class="aq-btn" onclick="joinClassroomByCode()" style="background: var(--accent-secondary);">
-                        🔗 Bli med i klasserom (kode)
-                    </button>
-                </div>
+                <button class="aq-btn aq-btn-secondary" onclick="joinClassroomByCode()" style="margin-top: var(--space-md);">
+                    🔗 Bli med i klasserom (kode)
+                </button>
             </div>
 
-            <!-- Teacher Section (hidden by default) -->
+            <!-- Teacher Section -->
             <div id="teacher-section" class="role-section aq-hidden">
                 <h3 style="color: #a855f7;">👨‍🏫 Lærerverktøy</h3>
-=======
-                    </div>
-                </div>
-                <div class="action-card" onclick="navigateTo('wiki.html')">
-                    <div class="action-icon">📖</div>
-                    <div class="action-info">
-                        <h3>Wiki</h3>
-                        <p>Lovverk og teori</p>
-                    </div>
-                </div>
-                <div class="action-card" onclick="navigateTo('hjernetrim.html')">
-                    <div class="action-icon">🧠</div>
-                    <div class="action-info">
-                        <h3>Hjernetrim</h3>
-                        <p>Ekstra vanskelige oppgaver</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress Section -->
-            <div class="progress-section">
-                <div class="progress-header">
-                    <h3>📊 Din fremgang</h3>
-                    <span style="color: var(--text-secondary); font-size: 0.9em;">Totalt: <span id="total-progress">0%</span></span>
-                </div>
-                <div class="progress-grid">
-                    <div class="progress-item">
-                        <div class="progress-label">
-                            <span>Bokføring</span>
-                            <span id="bokforing-pct">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="bokforing-bar" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="progress-item">
-                        <div class="progress-label">
-                            <span>Quiz</span>
-                            <span id="quiz-pct">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="quiz-bar" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="progress-item">
-                        <div class="progress-label">
-                            <span>Analyse</span>
-                            <span id="analyse-pct">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="analyse-bar" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="progress-item">
-                        <div class="progress-label">
-                            <span>Corporate Finance</span>
-                            <span id="cf-pct">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="cf-bar" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Teacher Section (hidden by default) -->
-            <div id="teacher-section" class="hidden" style="margin-top: 30px;">
-                <h3 style="margin-bottom: 20px; color: var(--accent-purple);">👨‍🏫 Lærerverktøy</h3>
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
                 <div class="quick-actions">
                     <div class="action-card" onclick="navigateTo('teacher_portal.html')">
                         <div class="action-icon" style="background: rgba(168, 85, 247, 0.2);">🎓</div>
@@ -1207,20 +582,12 @@
                 </div>
             </div>
 
-            <!-- Admin Section (hidden by default) -->
-<<<<<<< HEAD
+            <!-- Admin Section -->
             <div id="admin-section" class="role-section aq-hidden">
                 <h3 style="color: var(--warning);">🔧 Admin</h3>
                 <div class="quick-actions">
                     <div class="action-card" onclick="navigateTo('admin-dashboard.html')">
                         <div class="action-icon" style="background: rgba(245, 158, 11, 0.2);">⚙️</div>
-=======
-            <div id="admin-section" class="hidden" style="margin-top: 30px;">
-                <h3 style="margin-bottom: 20px; color: var(--accent-orange);">🔧 Admin</h3>
-                <div class="quick-actions">
-                    <div class="action-card" onclick="navigateTo('admin-dashboard.html')">
-                        <div class="action-icon" style="background: rgba(249, 115, 22, 0.2);">⚙️</div>
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
                         <div class="action-info">
                             <h3>Admin Dashboard</h3>
                             <p>Administrer innhold</p>
@@ -1241,12 +608,9 @@
         </p>
     </footer>
 
-<<<<<<< HEAD
     <!-- Theme Manager -->
-    <script src="theme-manager.js"></script>
+    <script src="js/theme-manager.js"></script>
     
-=======
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
     <script>
         // Firebase config
         const firebaseConfig = {
@@ -1259,7 +623,6 @@
             appId: "1:495735037392:web:ff1dc9d8f498c6926fed2a"
         };
 
-        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -1268,7 +631,6 @@
 
         let currentUser = null;
 
-        // Role labels
         const ROLE_LABELS = {
             'free': 'Gratis',
             'student': 'Student',
@@ -1281,16 +643,10 @@
             'admin': 'Admin'
         };
 
-        // Navigation
         function navigateTo(page) {
             window.location.href = page;
         }
 
-<<<<<<< HEAD
-        // Handle user click
-=======
-        // Handle user click - show menu or logout
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
         function handleUserClick() {
             if (currentUser && !currentUser.isAnonymous) {
                 if (confirm('Vil du logge ut?')) {
@@ -1304,122 +660,32 @@
             }
         }
 
-        // Continue as guest
         function continueAsGuest() {
             localStorage.setItem('guestMode', 'true');
-<<<<<<< HEAD
             document.getElementById('auth-prompt').classList.add('aq-hidden');
             document.getElementById('main-content').classList.remove('aq-hidden');
-=======
-            document.getElementById('auth-prompt').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
         }
 
-        // Load progress from localStorage
         function loadProgress() {
             const modules = ['bokforing', 'quiz', 'analyse', 'cf'];
             let total = 0;
             
             modules.forEach(mod => {
-                const progress = parseInt(localStorage.getItem(`${mod}_progress`) || 0);
+                const progress = parseInt(localStorage.getItem(mod + '_progress') || '0');
                 total += progress;
                 
-                const pctEl = document.getElementById(`${mod}-pct`);
-                const barEl = document.getElementById(`${mod}-bar`);
+                const pctEl = document.getElementById(mod + '-pct');
+                const barEl = document.getElementById(mod + '-bar');
                 
-                if (pctEl) pctEl.textContent = `${progress}%`;
-                if (barEl) barEl.style.width = `${progress}%`;
+                if (pctEl) pctEl.textContent = progress + '%';
+                if (barEl) barEl.style.width = progress + '%';
             });
             
             const avgProgress = Math.round(total / modules.length);
             const totalEl = document.getElementById('total-progress');
-            if (totalEl) totalEl.textContent = `${avgProgress}%`;
+            if (totalEl) totalEl.textContent = avgProgress + '%';
         }
 
-        // Check auth state
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            const guestMode = localStorage.getItem('guestMode') === 'true';
-            
-            if (user) {
-                // User is logged in
-                document.getElementById('logged-out-actions').classList.add('hidden');
-                document.getElementById('logged-in-actions').classList.remove('hidden');
-                document.getElementById('auth-prompt').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-                
-                // Get user data from database
-                try {
-                    const userSnap = await db.ref('users/' + user.uid).once('value');
-                    const userData = userSnap.val() || {};
-                    
-                    // Set display name
-                    const displayName = userData.username || user.displayName || user.email?.split('@')[0] || 'Bruker';
-                    document.getElementById('user-display-name').textContent = displayName;
-                    
-                    // Set role badge
-                    const role = userData.role || 'free';
-                    const roleLabel = ROLE_LABELS[role] || 'Gratis';
-                    document.getElementById('user-role').textContent = roleLabel;
-                    
-                    // Show teacher section if teacher
-                    if (role.includes('teacher')) {
-                        document.getElementById('teacher-section').classList.remove('hidden');
-                    }
-                    
-                    // Show admin section if admin
-                    if (role === 'admin') {
-                        document.getElementById('admin-section').classList.remove('hidden');
-                    }
-                    
-                } catch(e) {
-                    console.error('Error loading user data:', e);
-                    document.getElementById('user-display-name').textContent = user.email?.split('@')[0] || 'Bruker';
-                }
-                
-                // Load progress
-                loadProgress();
-                
-            } else if (guestMode) {
-                // Guest mode
-                document.getElementById('auth-prompt').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-                loadProgress();
-            } else {
-                // Not logged in
-                document.getElementById('logged-out-actions').classList.remove('hidden');
-                document.getElementById('logged-in-actions').classList.add('hidden');
-            }
-        });
-
-        // Show about modal
-        function showAbout() {
-            alert('AccountingQuest v2.0\n\nEn gamifisert læringsplattform for norsk regnskap og corporate finance.\n\nDekker:\n- Bokføringsloven\n- Regnskapsloven\n- Skatteloven\n- MVA-loven\n- Corporate Finance (NPV, IRR, WACC, etc.)');
->>>>>>> 21c8e68d24399f571746260e3025e5a311741ce0
-        }
-
-        // Load progress
-        function loadProgress() {
-            const modules = ['bokforing', 'quiz', 'analyse', 'cf'];
-            let total = 0;
-            
-            modules.forEach(mod => {
-                const progress = parseInt(localStorage.getItem(`${mod}_progress`) || 0);
-                total += progress;
-                
-                const pctEl = document.getElementById(`${mod}-pct`);
-                const barEl = document.getElementById(`${mod}-bar`);
-                
-                if (pctEl) pctEl.textContent = `${progress}%`;
-                if (barEl) barEl.style.width = `${progress}%`;
-            });
-            
-            const avgProgress = Math.round(total / modules.length);
-            const totalEl = document.getElementById('total-progress');
-            if (totalEl) totalEl.textContent = `${avgProgress}%`;
-        }
-
-        // Check auth state
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
             const guestMode = localStorage.getItem('guestMode') === 'true';
@@ -1434,14 +700,14 @@
                     const userSnap = await db.ref('users/' + user.uid).once('value');
                     const userData = userSnap.val() || {};
                     
-                    const displayName = userData.username || user.displayName || user.email?.split('@')[0] || 'Bruker';
+                    const displayName = userData.username || user.displayName || (user.email ? user.email.split('@')[0] : 'Bruker');
                     document.getElementById('user-display-name').textContent = displayName;
                     
                     const role = userData.role || 'free';
                     const roleLabel = ROLE_LABELS[role] || 'Gratis';
                     document.getElementById('user-role').textContent = roleLabel;
                     
-                    if (role.includes('teacher')) {
+                    if (role.indexOf('teacher') !== -1) {
                         document.getElementById('teacher-section').classList.remove('aq-hidden');
                     }
                     
@@ -1453,13 +719,8 @@
                         loadStudentClassrooms(userData.classrooms);
                     }
                     
-                    if (role === 'student' || role === 'student_free' || role === 'student_pro') {
-                        checkClassroomInvites(user.uid);
-                    }
-                    
                 } catch(e) {
-                    console.error('Error loading user data:', e);
-                    document.getElementById('user-display-name').textContent = user.email?.split('@')[0] || 'Bruker';
+                    console.error('Error loading user:', e);
                 }
                 
                 loadProgress();
@@ -1474,16 +735,13 @@
             }
         });
 
-        // Show about
         function showAbout() {
-            alert('AccountingQuest v2.0\n\nEn gamifisert læringsplattform for norsk regnskap og corporate finance.\n\nDekker:\n- Bokføringsloven\n- Regnskapsloven\n- Skatteloven\n- MVA-loven\n- Corporate Finance (NPV, IRR, WACC, etc.)');
+            alert('AccountingQuest v2.0\n\nGamifisert læringsplattform for norsk regnskap og corporate finance.\n\nDekker:\n• Bokføringsloven\n• Regnskapsloven\n• Skatteloven\n• MVA-loven\n• Corporate Finance');
         }
 
-        // Load student classrooms
         async function loadStudentClassrooms(classroomIds) {
             const container = document.getElementById('student-classrooms');
             container.innerHTML = '';
-            
             let hasClassrooms = false;
             
             for (const classroomId of Object.keys(classroomIds)) {
@@ -1493,14 +751,14 @@
                     
                     if (classroom) {
                         hasClassrooms = true;
-                        const activeQuiz = classroom.activeQuiz ? '🔴 Live!' : '';
+                        const activeQuiz = classroom.activeQuiz ? ' 🔴 Live!' : '';
                         
                         container.innerHTML += `
                             <div class="action-card" onclick="openClassroom('${classroomId}')">
                                 <div class="action-icon" style="background: rgba(59, 130, 246, 0.2);">📚</div>
                                 <div class="action-info">
                                     <h3>${classroom.name || 'Klasserom'}</h3>
-                                    <p>${classroom.teacherName || 'Lærer'} ${activeQuiz}</p>
+                                    <p>${classroom.teacherName || 'Lærer'}${activeQuiz}</p>
                                 </div>
                             </div>
                         `;
@@ -1515,70 +773,6 @@
             }
         }
 
-        // Check classroom invites
-        async function checkClassroomInvites(userId) {
-            try {
-                const invitesSnap = await db.ref('classroomInvites').orderByChild('userId').equalTo(userId).once('value');
-                const invites = invitesSnap.val();
-                
-                if (invites) {
-                    document.getElementById('student-section').classList.remove('aq-hidden');
-                    const container = document.getElementById('student-classrooms');
-                    
-                    for (const [inviteId, invite] of Object.entries(invites)) {
-                        if (invite.status === 'pending') {
-                            container.innerHTML += `
-                                <div class="action-card" style="border: 2px solid var(--accent);">
-                                    <div class="action-icon" style="background: var(--accent-glow);">✉️</div>
-                                    <div class="action-info">
-                                        <h3>Invitasjon</h3>
-                                        <p>${invite.classroomName || 'Klasserom'}</p>
-                                        <div style="margin-top: 10px; display: flex; gap: 10px;">
-                                            <button class="aq-btn aq-btn-sm aq-btn-primary" onclick="event.stopPropagation(); acceptInvite('${inviteId}', '${invite.classroomId}')">Godta</button>
-                                            <button class="aq-btn aq-btn-sm" onclick="event.stopPropagation(); declineInvite('${inviteId}')">Avslå</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    }
-                }
-            } catch(e) {
-                console.error('Error checking invites:', e);
-            }
-        }
-
-        // Accept invite
-        async function acceptInvite(inviteId, classroomId) {
-            if (!currentUser) return;
-            
-            try {
-                await db.ref(`users/${currentUser.uid}/classrooms/${classroomId}`).set(true);
-                await db.ref(`classrooms/${classroomId}/students/${currentUser.uid}`).set({
-                    joinedAt: Date.now(),
-                    name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Student'
-                });
-                await db.ref(`classroomInvites/${inviteId}/status`).set('accepted');
-                
-                alert('✅ Du er nå med i klasserommet!');
-                location.reload();
-            } catch(e) {
-                console.error('Error accepting invite:', e);
-                alert('Kunne ikke godta invitasjonen. Prøv igjen.');
-            }
-        }
-
-        // Decline invite
-        async function declineInvite(inviteId) {
-            try {
-                await db.ref(`classroomInvites/${inviteId}/status`).set('declined');
-                location.reload();
-            } catch(e) {
-                console.error('Error declining invite:', e);
-            }
-        }
-
-        // Join classroom by code
         async function joinClassroomByCode() {
             const code = prompt('Skriv inn klasseromskode:');
             if (!code || !currentUser) return;
@@ -1588,41 +782,34 @@
                 const classrooms = classSnap.val();
                 
                 if (!classrooms) {
-                    alert('❌ Fant ikke klasserom med denne koden');
+                    alert('Fant ikke klasserom med denne koden');
                     return;
                 }
                 
                 const classroomId = Object.keys(classrooms)[0];
                 const classroom = classrooms[classroomId];
                 
-                const userClassSnap = await db.ref(`users/${currentUser.uid}/classrooms/${classroomId}`).once('value');
-                if (userClassSnap.exists()) {
-                    alert('Du er allerede med i dette klasserommet!');
-                    return;
-                }
+                if (!confirm('Vil du bli med i "' + classroom.name + '"?')) return;
                 
-                if (!confirm(`Vil du bli med i "${classroom.name}"?`)) return;
-                
-                await db.ref(`users/${currentUser.uid}/classrooms/${classroomId}`).set(true);
-                await db.ref(`classrooms/${classroomId}/students/${currentUser.uid}`).set({
+                await db.ref('users/' + currentUser.uid + '/classrooms/' + classroomId).set(true);
+                await db.ref('classrooms/' + classroomId + '/students/' + currentUser.uid).set({
                     joinedAt: Date.now(),
-                    name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Student'
+                    name: currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Student')
                 });
                 
-                alert('✅ Du er nå med i klasserommet!');
+                alert('Du er nå med i klasserommet!');
                 location.reload();
             } catch(e) {
                 console.error('Error joining classroom:', e);
-                alert('Kunne ikke bli med i klasserommet. Prøv igjen.');
+                alert('Kunne ikke bli med. Prøv igjen.');
             }
         }
 
-        // Open classroom
         function openClassroom(classroomId) {
-            window.location.href = `student_game.html?classroom=${classroomId}`;
+            window.location.href = 'student_game.html?classroom=' + classroomId;
         }
 
-        console.log('✅ Index klar');
+        console.log('AccountingQuest Index loaded');
     </script>
 </body>
 </html>
