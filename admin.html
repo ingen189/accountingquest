@@ -957,9 +957,21 @@
             
             const snap = await db.ref('users/' + user.uid).once('value');
             const userData = snap.val() || {};
-            const isAdmin = user.uid === ADMIN_UID || userData.role === 'admin';
             
-            console.log('Is admin:', isAdmin, 'UID match:', user.uid === ADMIN_UID, 'Role:', userData.role);
+            // Accept multiple admin role formats (admin, Administrator, etc.)
+            const userRole = (userData.role || '').toLowerCase();
+            const isAdminRole = userRole === 'admin' || userRole === 'administrator';
+            const isAdmin = user.uid === ADMIN_UID || isAdminRole;
+            
+            console.log('Auth check:', { 
+                uid: user.uid, 
+                ADMIN_UID, 
+                isAdmin, 
+                role: userData.role,
+                userRole,
+                isAdminRole,
+                uidMatch: user.uid === ADMIN_UID 
+            });
             
             if (!isAdmin) {
                 document.getElementById('loading-screen').style.display = 'none';
