@@ -6,307 +6,170 @@
     <title>Corporate Finance - AccountingQuest</title>
     
     <!-- Felles stilark -->
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="main.css">
     
     <style>
-        /* ==================== CORPORATE FINANCE SPECIFIC STYLES ==================== */
-        /* Bruker variabler fra main.css */
-
-        /* ==================== EXCEL GRID STYLES ==================== */
-        .excel-grid-wrapper {
-            overflow-x: auto;
-            border-radius: var(--radius-md);
-            background: var(--bg-primary);
-            box-shadow: var(--shadow-md);
-            margin: var(--space-md) 0;
-        }
-
-        .excel-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: 'Consolas', 'Monaco', monospace;
-            min-width: 600px;
-        }
-
-        .excel-table th {
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-
-        .excel-table th.row-header {
-            width: 180px;
-            text-align: left;
-            padding-left: 15px;
-        }
-
-        .excel-table td {
-            border: 1px solid var(--border-color);
-            padding: 0;
-            min-width: 100px;
-        }
-
-        .excel-table td.row-label {
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            padding: 12px 15px;
-            font-weight: 500;
-        }
-
-        .excel-cell {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            padding: 12px;
-            font-size: 0.95em;
-            font-family: 'Consolas', 'Monaco', monospace;
-            text-align: right;
-            outline: none;
-            transition: all var(--transition-fast);
-        }
-
-        .excel-cell:focus {
-            outline: 2px solid var(--accent);
-            background: rgba(74, 222, 128, 0.05);
-            z-index: 5;
-        }
-
-        .excel-cell:hover:not(:focus):not(.readonly) {
-            background: rgba(255,255,255,0.03);
-        }
-
-        .excel-cell.readonly {
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            cursor: not-allowed;
-        }
-
-        .excel-cell.correct {
-            background: rgba(34, 197, 94, 0.2) !important;
-            color: var(--success);
-        }
-
-        .excel-cell.incorrect {
-            background: rgba(239, 68, 68, 0.2) !important;
-            color: var(--error);
-        }
-
-        .excel-cell.formula {
-            color: var(--accent);
-        }
-
-        /* Excel Grid Header Row */
-        .excel-header-row {
+        /* ==================== CORPORATE FINANCE - REDESIGNED ==================== */
+        
+        /* === LAYOUT: Sidebar + Main Content === */
+        .app-layout {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: var(--space-sm) var(--space-md);
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            min-height: calc(100vh - 60px);
         }
-
-        .excel-title {
-            color: var(--accent);
-            font-weight: bold;
-            font-size: 0.95em;
-        }
-
-        .excel-hint {
-            color: var(--text-secondary);
-            font-size: 0.8em;
-        }
-
-        /* Topic Grid */
-        .topic-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--space-lg);
-            max-width: 1400px;
-            width: 100%;
-            margin-bottom: var(--space-2xl);
-        }
-
-        .topic-card {
+        
+        /* === LEFT SIDEBAR - Topic Navigation === */
+        .topic-sidebar {
+            width: 300px;
             background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: var(--space-xl);
-            cursor: pointer;
-            transition: all var(--transition-normal);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .topic-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
-            transform: scaleX(0);
-            transition: transform var(--transition-normal);
-        }
-
-        .topic-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .topic-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-            box-shadow: var(--shadow-accent);
-        }
-
-        .topic-icon {
-            font-size: 2.5em;
-            margin-bottom: var(--space-md);
-        }
-
-        .topic-card h3 {
-            color: var(--accent);
-            margin-bottom: var(--space-sm);
-            font-size: 1.3em;
-        }
-
-        .topic-card p {
-            color: var(--text-secondary);
-            font-size: 0.9em;
-            line-height: 1.5;
-            margin-bottom: var(--space-md);
-        }
-
-        .topic-stats {
+            border-right: 1px solid var(--border-color);
             display: flex;
-            gap: var(--space-md);
-            font-size: 0.85em;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
         }
-
-        .topic-stat {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: var(--text-secondary);
-        }
-
-        .topic-stat-value {
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        /* Difficulty Section */
-        .difficulty-section {
-            background: var(--bg-secondary);
-            border-radius: var(--radius-lg);
-            padding: var(--space-xl);
-            max-width: 800px;
-            width: 100%;
-            display: none;
-        }
-
-        .difficulty-section.visible {
-            display: block;
-        }
-
-        .difficulty-section h2 {
-            color: var(--accent);
-            margin-bottom: var(--space-lg);
-            text-align: center;
-        }
-
-        .difficulty-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: var(--space-md);
-        }
-
-        .difficulty-card {
-            background: var(--bg-tertiary);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
+        
+        .sidebar-header {
             padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-color);
             text-align: center;
-            cursor: pointer;
-            transition: all var(--transition-normal);
         }
-
-        .difficulty-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-3px);
-        }
-
-        .difficulty-icon {
-            font-size: 2em;
-            margin-bottom: var(--space-sm);
-        }
-
-        .difficulty-card h4 {
-            color: var(--text-primary);
+        
+        .sidebar-header h2 {
+            color: var(--accent);
+            font-size: 1.3em;
             margin-bottom: var(--space-xs);
         }
-
-        .difficulty-card p {
+        
+        .sidebar-header p {
             color: var(--text-secondary);
             font-size: 0.85em;
         }
-
-        /* Main Menu */
-        .main-menu {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: var(--space-2xl) var(--space-lg);
-            min-height: calc(100vh - 60px);
+        
+        .topic-list {
+            flex: 1;
+            padding: var(--space-md);
         }
-
-        .main-menu h1 {
-            font-size: 3em;
+        
+        .topic-item {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
             margin-bottom: var(--space-sm);
-            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            overflow: hidden;
         }
-
-        .main-menu > p {
-            font-size: 1.2em;
-            color: var(--text-secondary);
-            margin-bottom: var(--space-2xl);
-            text-align: center;
+        
+        .topic-item:hover {
+            border-color: var(--accent);
         }
-
-        /* Game Container */
-        .game-container {
-            display: none;
-            flex-direction: column;
-            min-height: calc(100vh - 60px);
+        
+        .topic-item.active {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
         }
-
-        .game-container.visible {
+        
+        .topic-item-header {
             display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md);
         }
-
-        /* Progress Section */
+        
+        .topic-item-icon {
+            font-size: 1.5em;
+        }
+        
+        .topic-item-info {
+            flex: 1;
+        }
+        
+        .topic-item-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95em;
+        }
+        
+        .topic-item-count {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+        
+        .topic-item-expand {
+            color: var(--text-secondary);
+            transition: transform var(--transition-fast);
+        }
+        
+        .topic-item.active .topic-item-expand {
+            transform: rotate(180deg);
+        }
+        
+        /* Difficulty Selection inside topic */
+        .difficulty-options {
+            display: none;
+            padding: 0 var(--space-md) var(--space-md);
+            gap: var(--space-xs);
+        }
+        
+        .topic-item.active .difficulty-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .diff-btn {
+            padding: var(--space-sm);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+        
+        .diff-btn:hover {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .diff-btn-icon {
+            font-size: 1.2em;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
+        .diff-btn-label {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+        }
+        
+        .diff-btn-count {
+            font-size: 0.7em;
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        /* === MAIN CONTENT AREA === */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Progress Bar */
         .progress-section {
-            padding: var(--space-md) var(--space-xl);
+            padding: var(--space-md) var(--space-lg);
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
         }
-
+        
         .progress-bar-container {
             background: var(--bg-tertiary);
             border-radius: var(--radius-md);
             height: 20px;
             overflow: hidden;
         }
-
+        
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
@@ -320,150 +183,199 @@
             transition: width var(--transition-slow);
             min-width: 40px;
         }
-
+        
         /* Question Selector */
         .question-selector {
-            padding: var(--space-md) var(--space-xl);
+            padding: var(--space-sm) var(--space-lg);
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
+            display: none;
         }
-
+        
+        .question-selector.visible {
+            display: block;
+        }
+        
         .question-selector-grid {
             display: flex;
-            gap: var(--space-sm);
+            gap: var(--space-xs);
             flex-wrap: wrap;
         }
-
+        
         .question-selector-item {
             background: var(--bg-tertiary);
             border: 2px solid var(--border-color);
             border-radius: var(--radius-sm);
-            padding: 8px 15px;
+            padding: 6px 12px;
             cursor: pointer;
             transition: all var(--transition-fast);
-            min-width: 40px;
+            min-width: 36px;
             text-align: center;
+            font-size: 0.9em;
         }
-
+        
         .question-selector-item:hover {
             border-color: var(--accent);
         }
-
+        
         .question-selector-item.current {
             background: var(--accent);
             border-color: var(--accent);
             color: var(--bg-primary);
         }
-
+        
         .question-selector-item.completed {
             background: rgba(74, 222, 128, 0.2);
             border-color: var(--accent);
         }
-
+        
         .question-selector-item.completed::after {
             content: ' ✓';
             color: var(--accent);
         }
-
-        /* Main Content */
-        .main-content {
+        
+        /* Workspace Container */
+        .workspace-container {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-
-        /* Sidebar */
-        .sidebar {
-            width: 320px;
+        
+        /* Formula Sidebar */
+        .formula-sidebar {
+            width: 280px;
             background: var(--bg-secondary);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
         }
-
-        .sidebar-tabs {
-            display: flex;
+        
+        .formula-sidebar-header {
+            padding: var(--space-md);
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: var(--space-xs);
         }
-
-        .sidebar-tab {
+        
+        .formula-tab {
             flex: 1;
-            padding: 12px;
-            background: transparent;
+            padding: var(--space-sm);
+            background: var(--bg-tertiary);
             border: none;
+            border-radius: var(--radius-sm);
             color: var(--text-secondary);
             cursor: pointer;
+            font-size: 0.85em;
             transition: all var(--transition-fast);
         }
-
-        .sidebar-tab:hover {
-            background: var(--bg-tertiary);
+        
+        .formula-tab.active {
+            background: var(--accent);
+            color: var(--bg-primary);
         }
-
-        .sidebar-tab.active {
-            color: var(--accent);
-            border-bottom: 2px solid var(--accent);
-        }
-
-        .tab-content {
-            display: none;
+        
+        .formula-content {
+            flex: 1;
             padding: var(--space-md);
             overflow-y: auto;
-            flex: 1;
         }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .tab-content h3 {
-            color: var(--accent);
-            margin-bottom: var(--space-md);
-        }
-
-        /* Formula List */
+        
         .formula-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: var(--space-sm);
         }
-
+        
         .formula-item {
             background: var(--bg-tertiary);
             border-radius: var(--radius-sm);
-            padding: 12px;
+            padding: var(--space-sm);
         }
-
+        
         .formula-name {
             color: var(--accent);
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.85em;
+            margin-bottom: 4px;
         }
-
+        
         .formula-equation {
-            font-family: 'Consolas', monospace;
+            font-family: 'Consolas', 'Monaco', monospace;
             color: var(--text-primary);
             background: var(--bg-primary);
-            padding: 8px;
+            padding: 6px 8px;
             border-radius: 4px;
-            margin-bottom: 5px;
+            font-size: 0.85em;
+            margin-bottom: 4px;
         }
-
+        
         .formula-description {
             color: var(--text-secondary);
-            font-size: 0.85em;
+            font-size: 0.75em;
         }
-
-        /* Workspace */
+        
+        /* Question Workspace */
         .workspace {
             flex: 1;
-            padding: var(--space-xl);
+            padding: var(--space-lg);
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: var(--space-lg);
+            gap: var(--space-md);
         }
-
+        
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: var(--space-2xl);
+            height: 100%;
+        }
+        
+        .welcome-screen h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-md);
+        }
+        
+        .welcome-screen p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            max-width: 500px;
+        }
+        
+        .welcome-arrow {
+            font-size: 3em;
+            color: var(--accent);
+            margin-top: var(--space-lg);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-10px); }
+        }
+        
+        /* Game View */
+        .game-view {
+            display: none;
+        }
+        
+        .game-view.visible {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            height: 100%;
+        }
+        
         /* Question Header */
         .question-header {
             background: var(--bg-secondary);
@@ -471,161 +383,167 @@
             padding: var(--space-lg);
             border-left: 4px solid var(--accent);
         }
-
+        
         .question-number {
             color: var(--text-secondary);
-            font-size: 0.9em;
-            margin-bottom: 5px;
+            font-size: 0.85em;
+            margin-bottom: 4px;
         }
-
+        
         .question-title {
             color: var(--accent);
-            font-size: 1.4em;
+            font-size: 1.3em;
+            font-weight: 600;
             margin-bottom: var(--space-sm);
         }
-
+        
         .question-text {
             color: var(--text-primary);
-            line-height: 1.7;
+            line-height: 1.6;
         }
-
+        
         .question-badges {
             display: flex;
             gap: var(--space-sm);
             margin-top: var(--space-md);
         }
-
+        
         .badge {
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: bold;
+            font-size: 0.75em;
+            font-weight: 600;
         }
-
+        
         .badge-topic {
             background: rgba(59, 130, 246, 0.2);
             color: var(--accent-secondary);
         }
-
+        
         .badge-type {
             background: rgba(168, 85, 247, 0.2);
             color: #a855f7;
         }
-
+        
         /* Data Display */
         .data-display {
             background: var(--bg-secondary);
             border-radius: var(--radius-md);
             padding: var(--space-lg);
         }
-
+        
         .data-display h4 {
             color: var(--warning);
             margin-bottom: var(--space-md);
+            font-size: 1em;
         }
-
+        
         .data-table {
             width: 100%;
             border-collapse: collapse;
         }
-
+        
         .data-table th,
         .data-table td {
             padding: 10px 15px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
         }
-
+        
         .data-table th {
             color: var(--text-secondary);
+            font-size: 0.9em;
         }
-
+        
         .data-table td {
             color: var(--text-primary);
             font-family: 'Consolas', monospace;
         }
-
-        /* Options */
+        
+        /* Options Container */
         .options-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: var(--space-sm);
         }
-
+        
         .option-item {
             background: var(--bg-secondary);
             border: 2px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: var(--space-md) var(--space-lg);
+            padding: var(--space-md);
             cursor: pointer;
             transition: all var(--transition-fast);
             display: flex;
             align-items: center;
             gap: var(--space-md);
         }
-
+        
         .option-item:hover {
             border-color: var(--accent);
         }
-
+        
         .option-item.selected {
             border-color: var(--accent);
             background: rgba(74, 222, 128, 0.1);
         }
-
+        
         .option-item.correct {
             border-color: var(--success);
-            background: rgba(34, 197, 94, 0.1);
+            background: rgba(34, 197, 94, 0.15);
         }
-
+        
         .option-item.incorrect {
             border-color: var(--error);
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.15);
         }
-
+        
         .option-letter {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: var(--bg-tertiary);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            font-size: 0.9em;
+            flex-shrink: 0;
         }
-
+        
         .option-item.selected .option-letter {
             background: var(--accent);
             color: var(--bg-primary);
         }
-
+        
         .option-item.correct .option-letter {
             background: var(--success);
             color: white;
         }
-
+        
         .option-item.incorrect .option-letter {
             background: var(--error);
             color: white;
         }
-
+        
         /* Input Fields */
         .input-fields {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: var(--space-md);
         }
-
+        
         .input-group {
             display: flex;
             flex-direction: column;
             gap: 5px;
         }
-
+        
         .input-group label {
             color: var(--text-secondary);
+            font-size: 0.9em;
         }
-
+        
         .input-group input {
             padding: 12px var(--space-md);
             background: var(--bg-secondary);
@@ -633,195 +551,184 @@
             border-radius: var(--radius-sm);
             color: var(--text-primary);
             font-family: 'Consolas', monospace;
+            font-size: 1em;
         }
-
+        
         .input-group input:focus {
             outline: none;
             border-color: var(--accent);
         }
-
+        
         .input-group input.correct {
             background: rgba(34, 197, 94, 0.2);
             border-color: var(--success);
         }
-
+        
         .input-group input.incorrect {
             background: rgba(239, 68, 68, 0.2);
             border-color: var(--error);
         }
-
+        
+        /* ==================== EXCEL GRID ==================== */
+        .excel-grid-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        
+        .excel-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-tertiary);
+        }
+        
+        .excel-title {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .excel-hint {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+        }
+        
+        .excel-grid-wrapper {
+            overflow-x: auto;
+        }
+        
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Consolas', 'Monaco', monospace;
+            min-width: 500px;
+        }
+        
+        .excel-table th {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        
+        .excel-table th.row-header {
+            width: 160px;
+            text-align: left;
+            padding-left: 15px;
+        }
+        
+        .excel-table td {
+            border: 1px solid var(--border-color);
+            padding: 0;
+            min-width: 100px;
+        }
+        
+        .excel-table td.row-label {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 10px 15px;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        
+        .excel-cell {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 10px 12px;
+            font-size: 0.9em;
+            font-family: 'Consolas', 'Monaco', monospace;
+            text-align: right;
+            outline: none;
+            transition: all var(--transition-fast);
+        }
+        
+        .excel-cell:focus {
+            outline: 2px solid var(--accent);
+            background: rgba(74, 222, 128, 0.05);
+            z-index: 5;
+        }
+        
+        .excel-cell:hover:not(:focus):not(.readonly) {
+            background: rgba(255,255,255,0.03);
+        }
+        
+        .excel-cell.readonly {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: default;
+        }
+        
+        .excel-cell.correct {
+            background: rgba(34, 197, 94, 0.2) !important;
+            color: var(--success);
+        }
+        
+        .excel-cell.incorrect {
+            background: rgba(239, 68, 68, 0.2) !important;
+            color: var(--error);
+        }
+        
         /* Controls */
         .controls {
             display: flex;
-            gap: 12px;
+            gap: var(--space-sm);
             flex-wrap: wrap;
+            padding-top: var(--space-md);
         }
-
+        
         /* Hint & Explanation Boxes */
         .hint-box, .explanation-box {
             background: var(--bg-secondary);
-            border-radius: var(--radius-lg);
-            padding: 0;
+            border-radius: var(--radius-md);
             display: none;
-            margin-top: var(--space-lg);
-            box-shadow: var(--shadow);
             overflow: hidden;
         }
-
+        
         .hint-box.visible, .explanation-box.visible {
             display: block;
-            animation: slideIn 0.3s ease;
         }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        
         .hint-box {
             border: 2px solid var(--warning);
         }
-
+        
+        .explanation-box {
+            border: 2px solid var(--success);
+        }
+        
         .hint-header, .explanation-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: var(--space-md) var(--space-lg);
-            border-bottom: 1px solid var(--border);
+            padding: var(--space-md);
+            background: var(--bg-tertiary);
         }
-
-        .hint-header {
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 193, 7, 0.05));
+        
+        .hint-content, .explanation-content {
+            padding: var(--space-md);
         }
-
+        
         .hint-close, .explanation-close {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 1.3em;
             cursor: pointer;
             color: var(--text-secondary);
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .hint-close:hover, .explanation-close:hover {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-
-        .hint-content {
-            padding: var(--space-lg);
-            display: flex;
-            gap: var(--space-md);
-            align-items: flex-start;
-        }
-
-        .hint-icon {
-            font-size: 2rem;
-            flex-shrink: 0;
-        }
-
-        .hint-content p {
-            margin: 0;
-            line-height: 1.6;
-            font-size: 1.05rem;
-        }
-
-        .hint-footer {
-            padding: var(--space-md) var(--space-lg);
-            border-top: 1px solid var(--border);
-            background: var(--bg-tertiary);
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .hint-level {
-            color: var(--warning);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .explanation-box {
-            border: 2px solid var(--success);
-        }
-
-        .explanation-header {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.15), rgba(40, 167, 69, 0.05));
-        }
-
-        .explanation-header h4 {
-            color: var(--success);
-            margin: 0;
-            font-size: 1.1rem;
-        }
-
-        .explanation-content {
-            padding: var(--space-lg);
-        }
-
-        .explanation-section {
-            line-height: 1.7;
-            white-space: pre-wrap;
-        }
-
-        .explanation-formula {
-            background: var(--bg-tertiary);
+            padding: 4px 8px;
             border-radius: var(--radius-sm);
-            padding: var(--space-md);
-            margin: var(--space-md) 0;
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 1.1rem;
-            text-align: center;
-            border-left: 3px solid var(--accent);
-            display: none;
         }
-
-        .explanation-formula.visible {
-            display: block;
+        
+        .hint-close:hover, .explanation-close:hover {
+            background: var(--bg-primary);
         }
-
-        .explanation-steps {
-            margin-top: var(--space-md);
-        }
-
-        .explanation-steps table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: var(--space-sm) 0;
-            font-size: 0.95rem;
-        }
-
-        .explanation-steps th, .explanation-steps td {
-            padding: var(--space-sm) var(--space-md);
-            border: 1px solid var(--border);
-            text-align: left;
-        }
-
-        .explanation-steps th {
-            background: var(--bg-tertiary);
-            font-weight: 600;
-        }
-
-        .aq-btn-info {
-            background: linear-gradient(135deg, #17a2b8, #138496);
-            color: white;
-        }
-
-        .aq-btn-info:hover {
-            background: linear-gradient(135deg, #138496, #117a8b);
-            transform: translateY(-1px);
-        }
-
-        .aq-btn-sm {
-            padding: var(--space-xs) var(--space-md);
-            font-size: 0.9rem;
-        }
-
+        
         /* Result Modal */
         .result-modal {
             display: none;
@@ -832,55 +739,51 @@
             align-items: center;
             justify-content: center;
         }
-
+        
         .result-modal.visible {
             display: flex;
         }
-
+        
         .result-content {
             background: var(--bg-secondary);
             border-radius: var(--radius-xl);
             padding: var(--space-2xl);
-            max-width: 500px;
+            max-width: 450px;
             width: 90%;
             text-align: center;
         }
-
+        
         .result-icon {
-            font-size: 4em;
-            margin-bottom: var(--space-lg);
-        }
-
-        .result-title {
-            font-size: 1.8em;
+            font-size: 3.5em;
             margin-bottom: var(--space-md);
         }
-
+        
+        .result-title {
+            font-size: 1.6em;
+            margin-bottom: var(--space-sm);
+        }
+        
         .result-title.success { color: var(--success); }
         .result-title.error { color: var(--error); }
-
-        .result-message {
-            color: var(--text-secondary);
-            margin-bottom: var(--space-xl);
-        }
-
+        
         .result-stats {
             display: flex;
             justify-content: center;
             gap: var(--space-xl);
-            margin-bottom: var(--space-xl);
+            margin: var(--space-lg) 0;
         }
-
+        
         .result-stat-value {
-            font-size: 2em;
+            font-size: 1.8em;
             font-weight: bold;
             color: var(--accent);
         }
-
+        
         .result-stat-label {
             color: var(--text-secondary);
+            font-size: 0.9em;
         }
-
+        
         /* Calculator */
         .floating-calculator {
             position: fixed;
@@ -889,136 +792,158 @@
             z-index: 500;
             display: none;
         }
-
+        
         .floating-calculator.visible {
             display: block;
         }
-
+        
         .calculator {
             background: var(--bg-secondary);
             border: 2px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: var(--space-md);
             box-shadow: var(--shadow-lg);
-            width: 280px;
-            cursor: move;
+            width: 260px;
         }
-
+        
         .calculator-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: var(--space-md);
+            margin-bottom: var(--space-sm);
             padding-bottom: var(--space-sm);
             border-bottom: 1px solid var(--border-color);
+            cursor: move;
         }
-
+        
         .calculator-title {
             color: var(--accent);
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 0.9em;
         }
-
+        
         .calculator-close {
             background: var(--error);
             border: none;
             color: white;
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             cursor: pointer;
+            font-size: 0.9em;
         }
-
+        
         .calc-display {
             background: var(--bg-primary);
-            padding: var(--space-md);
+            padding: var(--space-sm);
             border-radius: var(--radius-sm);
-            margin-bottom: 12px;
+            margin-bottom: var(--space-sm);
             text-align: right;
-            font-family: 'Consolas', monospace;
         }
-
+        
         .calc-equation {
             color: var(--text-secondary);
-            font-size: 0.85em;
-            min-height: 20px;
+            font-size: 0.8em;
+            min-height: 18px;
         }
-
+        
         .calc-result {
             color: var(--text-primary);
-            font-size: 1.5em;
+            font-size: 1.4em;
+            font-family: 'Consolas', monospace;
         }
-
+        
         .calc-buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            gap: 6px;
         }
-
+        
         .calc-btn {
-            padding: 12px;
+            padding: 10px;
             background: var(--bg-tertiary);
             border: none;
             border-radius: var(--radius-sm);
             color: var(--text-primary);
-            font-size: 1.1em;
+            font-size: 1em;
             cursor: pointer;
             transition: all var(--transition-fast);
         }
-
+        
         .calc-btn:hover {
             background: var(--border-light);
         }
-
+        
         .calc-btn.operator {
             background: var(--accent-secondary);
             color: white;
         }
-
+        
         .calc-btn.equals {
             background: var(--accent);
             color: var(--bg-primary);
             grid-column: span 2;
         }
-
+        
         .calc-btn.function {
             background: #a855f7;
             color: white;
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
-
+        
         /* Responsive */
+        @media (max-width: 1200px) {
+            .formula-sidebar {
+                width: 240px;
+            }
+            
+            .topic-sidebar {
+                width: 260px;
+            }
+        }
+        
         @media (max-width: 1024px) {
-            .main-content {
+            .app-layout {
                 flex-direction: column;
             }
-
-            .sidebar {
+            
+            .topic-sidebar {
                 width: 100%;
-                max-height: 300px;
+                max-height: none;
                 border-right: none;
                 border-bottom: 1px solid var(--border-color);
             }
+            
+            .topic-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: var(--space-sm);
+            }
+            
+            .formula-sidebar {
+                display: none;
+            }
         }
-
+        
         @media (max-width: 768px) {
-            .main-menu h1 {
-                font-size: 2em;
-            }
-
-            .topic-grid {
-                grid-template-columns: 1fr;
-            }
-
             .workspace {
                 padding: var(--space-md);
             }
-
+            
             .controls {
                 flex-direction: column;
             }
-
+            
             .controls .aq-btn {
                 width: 100%;
+            }
+            
+            .welcome-screen h1 {
+                font-size: 1.8em;
+            }
+            
+            .welcome-arrow {
+                transform: rotate(90deg);
             }
         }
     </style>
@@ -1027,14 +952,13 @@
     <!-- Header -->
     <header class="aq-header">
         <div class="aq-header-left">
-            <button class="aq-btn aq-btn-ghost" onclick="goBack()">← Tilbake</button>
-            <button class="aq-btn aq-btn-ghost" onclick="window.location.href='wiki.html'">📚 Wiki</button>
+            <a href="index.html" class="aq-btn aq-btn-ghost">← Tilbake</a>
             <span style="color: var(--text-secondary);">Modul: <strong style="color: var(--accent);">Corporate Finance</strong></span>
         </div>
         <div class="aq-header-right">
             <div class="aq-stat">
                 <span class="aq-stat-label">Spørsmål:</span>
-                <span class="aq-stat-value" id="nav-progress">0/0</span>
+                <span class="aq-stat-value" id="nav-progress">-</span>
             </div>
             <div class="aq-stat">
                 <span class="aq-stat-label">Riktige:</span>
@@ -1047,218 +971,121 @@
         </div>
     </header>
 
-    <!-- Main Menu -->
-    <div class="main-menu" id="main-menu">
-        <h1>📊 Corporate Finance</h1>
-        <p>Mestre investering, verdivurdering og finansiell analyse</p>
+    <!-- Main Layout -->
+    <div class="app-layout">
+        <!-- Left Sidebar - Topic Navigation -->
+        <aside class="topic-sidebar">
+            <div class="sidebar-header">
+                <h2>📊 Velg tema</h2>
+                <p>Klikk for å velge vanskelighetsgrad</p>
+            </div>
+            <div class="topic-list" id="topic-list">
+                <!-- Topics will be rendered here -->
+            </div>
+        </aside>
 
-        <div class="topic-grid" id="topic-grid">
-            <div class="topic-card" onclick="selectTopic('npv')">
-                <div class="topic-icon">💰</div>
-                <h3>NPV & IRR</h3>
-                <p>Net Present Value, Internal Rate of Return, Payback Period</p>
-                <div class="topic-stats">
-                    <div class="topic-stat">📝 <span class="topic-stat-value" id="count-npv">0</span> oppgaver</div>
+        <!-- Main Content Area -->
+        <div class="main-area">
+            <!-- Progress Bar -->
+            <div class="progress-section" id="progress-section" style="display: none;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%">0%</div>
                 </div>
             </div>
-
-            <div class="topic-card" onclick="selectTopic('bonds')">
-                <div class="topic-icon">📜</div>
-                <h3>Obligasjoner</h3>
-                <p>Verdivurdering, YTM, kuponger, premium/discount</p>
-                <div class="topic-stats">
-                    <div class="topic-stat">📝 <span class="topic-stat-value" id="count-bonds">0</span> oppgaver</div>
-                </div>
+            
+            <!-- Question Selector -->
+            <div class="question-selector" id="question-selector-section">
+                <div class="question-selector-grid" id="question-selector"></div>
             </div>
-
-            <div class="topic-card" onclick="selectTopic('stocks')">
-                <div class="topic-icon">📈</div>
-                <h3>Aksjer & Dividender</h3>
-                <p>Dividend Discount Model, Gordon Growth</p>
-                <div class="topic-stats">
-                    <div class="topic-stat">📝 <span class="topic-stat-value" id="count-stocks">0</span> oppgaver</div>
-                </div>
-            </div>
-
-            <div class="topic-card" onclick="selectTopic('wacc')">
-                <div class="topic-icon">⚖️</div>
-                <h3>WACC & Kapitalstruktur</h3>
-                <p>Weighted Average Cost of Capital, tax shield</p>
-                <div class="topic-stats">
-                    <div class="topic-stat">📝 <span class="topic-stat-value" id="count-wacc">0</span> oppgaver</div>
-                </div>
-            </div>
-
-            <div class="topic-card" onclick="selectTopic('portfolio')">
-                <div class="topic-icon">📊</div>
-                <h3>Portefølje & Risiko</h3>
-                <p>Beta, CAPM, forventet avkastning</p>
-                <div class="topic-stats">
-                    <div class="topic-stat">📝 <span class="topic-stat-value" id="count-portfolio">0</span> oppgaver</div>
-                </div>
-            </div>
-
-            <div class="topic-card" onclick="selectTopic('annuity')">
-                <div class="topic-icon">🔄</div>
-                <h3>Annuiteter & Lån</h3>
-                <p>Ordinary annuity, annuity due, amortisering</p>
-                <div class="topic-stats">
-                    <div class="topic-stat">📝 <span class="topic-stat-value" id="count-annuity">0</span> oppgaver</div>
-                </div>
-            </div>
-
-            <div class="topic-card" onclick="selectTopic('forex')">
-                <div class="topic-icon">💱</div>
-                <h3>Valuta & Hedging</h3>
-                <p>Spot/forward rates, valutarisiko</p>
-                <div class="topic-stats">
-                    <div class="topic-stat">📝 <span class="topic-stat-value" id="count-forex">0</span> oppgaver</div>
-                </div>
-            </div>
-
-            <div class="topic-card" onclick="selectTopic('options')">
-                <div class="topic-icon">🎯</div>
-                <h3>Opsjoner</h3>
-                <p>Call/put, protective put, hedging</p>
-                <div class="topic-stats">
-                    <div class="topic-stat">📝 <span class="topic-stat-value" id="count-options">0</span> oppgaver</div>
-                </div>
-            </div>
-
-            <div class="topic-card" onclick="selectTopic('mixed')">
-                <div class="topic-icon">🎲</div>
-                <h3>Blandet Quiz</h3>
-                <p>Tilfeldige spørsmål fra alle temaer</p>
-                <div class="topic-stats">
-                    <div class="topic-stat">📝 <span class="topic-stat-value">∞</span> oppgaver</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="difficulty-section" id="difficulty-section">
-            <h2>Velg vanskelighetsgrad for <span id="selected-topic-name">NPV</span></h2>
-            <div class="difficulty-grid">
-                <div class="difficulty-card" onclick="startGame('easy')">
-                    <div class="difficulty-icon">🌱</div>
-                    <h4>Lett</h4>
-                    <p>Grunnleggende konsepter</p>
-                    <span class="aq-badge aq-badge-easy">Hints tilgjengelig</span>
-                </div>
-                <div class="difficulty-card" onclick="startGame('medium')">
-                    <div class="difficulty-icon">💪</div>
-                    <h4>Middels</h4>
-                    <p>Standard eksamensoppgaver</p>
-                    <span class="aq-badge aq-badge-medium">Noen hints</span>
-                </div>
-                <div class="difficulty-card" onclick="startGame('hard')">
-                    <div class="difficulty-icon">🔥</div>
-                    <h4>Vanskelig</h4>
-                    <p>Avanserte beregninger</p>
-                    <span class="aq-badge aq-badge-hard">Ingen hints</span>
-                </div>
-                <div class="difficulty-card" onclick="startGame('challenge')">
-                    <div class="difficulty-icon">⚡</div>
-                    <h4>Utfordring</h4>
-                    <p>Ekspertnivå</p>
-                    <span class="aq-badge aq-badge-expert">Tidsbegrenset</span>
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: var(--space-lg);">
-                <button class="aq-btn aq-btn-ghost" onclick="backToTopics()">← Velg annet tema</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Game Container -->
-    <div class="game-container" id="game-container">
-        <div class="progress-section">
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progress-bar" style="width: 0%">0%</div>
-            </div>
-        </div>
-
-        <div class="question-selector">
-            <div class="question-selector-grid" id="question-selector"></div>
-        </div>
-
-        <div class="main-content">
-            <aside class="sidebar">
-                <div class="sidebar-tabs">
-                    <button class="sidebar-tab active" onclick="switchTab('formulas')">📐 Formler</button>
-                    <button class="sidebar-tab" onclick="switchTab('variables')">📊 Data</button>
-                </div>
-                <div id="tab-formulas" class="tab-content active">
-                    <h3>📐 Nyttige formler</h3>
-                    <div class="formula-list" id="formula-list"></div>
-                </div>
-                <div id="tab-variables" class="tab-content">
-                    <h3>📊 Oppgavedata</h3>
-                    <div id="variable-list"></div>
-                </div>
-            </aside>
-
-            <main class="workspace">
-                <div class="question-header">
-                    <div class="question-number" id="question-number">Spørsmål 1 av 10</div>
-                    <div class="question-title" id="question-title">Laster...</div>
-                    <div class="question-text" id="question-text"></div>
-                    <div class="question-badges" id="question-badges"></div>
-                </div>
-
-                <div class="data-display" id="data-display" style="display: none;">
-                    <h4>📋 Oppgavedata</h4>
-                    <table class="data-table" id="data-table"><tbody></tbody></table>
-                </div>
-
-                <div class="options-container" id="options-container" style="display: none;"></div>
-                <div class="input-fields" id="input-fields" style="display: none;"></div>
-                <div class="excel-grid-container" id="excel-grid-container" style="display: none;">
-                    <div class="excel-header-row">
-                        <span class="excel-title">📊 Beregningstabell</span>
-                        <span class="excel-hint">Fyll inn de tomme cellene</span>
+            
+            <!-- Workspace Container -->
+            <div class="workspace-container">
+                <!-- Formula Sidebar -->
+                <aside class="formula-sidebar" id="formula-sidebar">
+                    <div class="formula-sidebar-header">
+                        <button class="formula-tab active" onclick="switchFormulaTab('formulas')">📐 Formler</button>
+                        <button class="formula-tab" onclick="switchFormulaTab('data')">📊 Data</button>
                     </div>
-                    <div class="excel-grid-wrapper">
-                        <table class="excel-table" id="excel-table">
-                            <thead id="excel-thead"></thead>
-                            <tbody id="excel-tbody"></tbody>
-                        </table>
+                    <div class="formula-content">
+                        <div id="formula-list-container">
+                            <div class="formula-list" id="formula-list"></div>
+                        </div>
+                        <div id="variable-list-container" style="display: none;">
+                            <div id="variable-list"></div>
+                        </div>
                     </div>
-                </div>
-
-                <div class="controls">
-                    <button class="aq-btn aq-btn-primary" onclick="checkAnswer()" id="btn-check">✓ Sjekk svar</button>
-                    <button class="aq-btn aq-btn-warning" onclick="showHint()" id="btn-hint">💡 Hint</button>
-                    <button class="aq-btn aq-btn-info" onclick="toggleExplanation()" id="btn-explanation" style="display: none;">📖 Vis forklaring</button>
-                    <button class="aq-btn aq-btn-ghost" onclick="toggleCalculator()">🔢 Kalkulator</button>
-                    <button class="aq-btn aq-btn-secondary" onclick="nextQuestion()" id="btn-next" style="display: none;">Neste →</button>
-                </div>
-
-                <div class="hint-box" id="hint-box">
-                    <div class="hint-header">
-                        <div class="hint-level" id="hint-level">Hint 1 av 3</div>
-                        <button class="hint-close" onclick="closeHint()">×</button>
+                </aside>
+                
+                <!-- Main Workspace -->
+                <main class="workspace" id="workspace">
+                    <!-- Welcome Screen -->
+                    <div class="welcome-screen" id="welcome-screen">
+                        <h1>Corporate Finance</h1>
+                        <p>Mestre investering, verdivurdering og finansiell analyse. Velg et tema fra menyen til venstre for å starte.</p>
+                        <div class="welcome-arrow">←</div>
                     </div>
-                    <div class="hint-content">
-                        <div class="hint-icon" id="hint-icon">💡</div>
-                        <p id="hint-text"></p>
+                    
+                    <!-- Game View -->
+                    <div class="game-view" id="game-view">
+                        <div class="question-header">
+                            <div class="question-number" id="question-number">Spørsmål 1 av 10</div>
+                            <div class="question-title" id="question-title">Laster...</div>
+                            <div class="question-text" id="question-text"></div>
+                            <div class="question-badges" id="question-badges"></div>
+                        </div>
+                        
+                        <div class="data-display" id="data-display" style="display: none;">
+                            <h4>📋 Oppgavedata</h4>
+                            <table class="data-table" id="data-table"><tbody></tbody></table>
+                        </div>
+                        
+                        <div class="options-container" id="options-container" style="display: none;"></div>
+                        <div class="input-fields" id="input-fields" style="display: none;"></div>
+                        
+                        <div class="excel-grid-container" id="excel-grid-container" style="display: none;">
+                            <div class="excel-header-row">
+                                <span class="excel-title">📊 Beregningstabell</span>
+                                <span class="excel-hint">Fyll inn de tomme cellene</span>
+                            </div>
+                            <div class="excel-grid-wrapper">
+                                <table class="excel-table" id="excel-table">
+                                    <thead id="excel-thead"></thead>
+                                    <tbody id="excel-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="controls">
+                            <button class="aq-btn aq-btn-primary" onclick="checkAnswer()" id="btn-check">✓ Sjekk svar</button>
+                            <button class="aq-btn aq-btn-warning" onclick="showHint()" id="btn-hint">💡 Hint</button>
+                            <button class="aq-btn aq-btn-info" onclick="toggleExplanation()" id="btn-explanation" style="display: none;">📖 Vis forklaring</button>
+                            <button class="aq-btn aq-btn-ghost" onclick="toggleCalculator()">🔢 Kalkulator</button>
+                            <button class="aq-btn aq-btn-secondary" onclick="nextQuestion()" id="btn-next" style="display: none;">Neste →</button>
+                        </div>
+                        
+                        <div class="hint-box" id="hint-box">
+                            <div class="hint-header">
+                                <span style="color: var(--warning);" id="hint-level">💡 Hint 1 av 3</span>
+                                <button class="hint-close" onclick="closeHint()">×</button>
+                            </div>
+                            <div class="hint-content">
+                                <p id="hint-text"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="explanation-box" id="explanation-box">
+                            <div class="explanation-header">
+                                <span style="color: var(--success);">📖 Forklaring</span>
+                                <button class="explanation-close" onclick="closeExplanation()">×</button>
+                            </div>
+                            <div class="explanation-content">
+                                <div id="explanation-main"></div>
+                                <div id="explanation-formula" style="display: none; background: var(--bg-tertiary); padding: var(--space-md); border-radius: var(--radius-sm); margin-top: var(--space-md); font-family: monospace;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="hint-footer" id="hint-footer">
-                        <button class="aq-btn aq-btn-sm aq-btn-warning" onclick="showHint()" id="btn-next-hint">Neste hint →</button>
-                    </div>
-                </div>
-
-                <div class="explanation-box" id="explanation-box">
-                    <div class="explanation-header">
-                        <h4>📖 Forklaring</h4>
-                        <button class="explanation-close" onclick="closeExplanation()">×</button>
-                    </div>
-                    <div class="explanation-content" id="explanation-content">
-                        <div class="explanation-section" id="explanation-main"></div>
-                        <div class="explanation-formula" id="explanation-formula"></div>
-                        <div class="explanation-steps" id="explanation-steps"></div>
-                    </div>
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     </div>
 
@@ -1282,9 +1109,9 @@
                     <div class="result-stat-label">Score</div>
                 </div>
             </div>
-            <div class="controls" style="justify-content: center;">
+            <div style="display: flex; gap: var(--space-sm); justify-content: center;">
                 <button class="aq-btn aq-btn-primary" onclick="restartGame()">🔄 Prøv igjen</button>
-                <button class="aq-btn aq-btn-ghost" onclick="backToMenu()">← Tilbake</button>
+                <button class="aq-btn aq-btn-ghost" onclick="backToWelcome()">← Velg nytt tema</button>
             </div>
         </div>
     </div>
@@ -1293,7 +1120,7 @@
     <div class="floating-calculator" id="floating-calculator">
         <div class="calculator" id="calculator-drag">
             <div class="calculator-header">
-                <span class="calculator-title">🔢 Finanskalkulator</span>
+                <span class="calculator-title">🔢 Kalkulator</span>
                 <button class="calculator-close" onclick="toggleCalculator()">×</button>
             </div>
             <div class="calc-display">
@@ -1332,34 +1159,35 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <script src="js/question-service.js"></script>
-    <script src="js/theme-manager.js"></script>
+    <script src="firebase-config.js"></script>
     
     <script>
-        // Game State
-        var gameState = {
-            currentTopic: null,
-            currentDifficulty: null,
-            questions: [],
-            currentIndex: 0,
-            currentQuestion: null,
-            currentGrid: null,
-            selectedAnswer: null,
-            answeredCorrectly: false,
-            hintsUsed: 0,
-            score: 0,
-            correctCount: 0,
-            answered: []
-        };
-
-        // Formulas
+        // ==================== TOPIC CONFIGURATION ====================
+        var topics = [
+            { id: 'npv', name: 'NPV & IRR', icon: '💰', desc: 'Net Present Value, IRR, Payback' },
+            { id: 'bonds', name: 'Obligasjoner', icon: '📜', desc: 'YTM, kuponger, premium/discount' },
+            { id: 'stocks', name: 'Aksjer & Dividender', icon: '📈', desc: 'DDM, Gordon Growth' },
+            { id: 'wacc', name: 'WACC & Kapitalstruktur', icon: '⚖️', desc: 'Cost of capital, tax shield' },
+            { id: 'portfolio', name: 'Portefølje & Risiko', icon: '📊', desc: 'Beta, CAPM' },
+            { id: 'annuity', name: 'Annuiteter & Lån', icon: '🔄', desc: 'Annuity, amortisering' },
+            { id: 'forex', name: 'Valuta & Hedging', icon: '💱', desc: 'Spot/forward, valutarisiko' },
+            { id: 'options', name: 'Opsjoner', icon: '🎯', desc: 'Call/put, hedging' },
+            { id: 'mixed', name: 'Blandet Quiz', icon: '🎲', desc: 'Alle temaer' }
+        ];
+        
+        var difficulties = [
+            { id: 'easy', name: 'Lett', icon: '🌱' },
+            { id: 'medium', name: 'Middels', icon: '💪' },
+            { id: 'hard', name: 'Vanskelig', icon: '🔥' },
+            { id: 'challenge', name: 'Utfordring', icon: '⚡' }
+        ];
+        
         var formulas = {
             npv: [
                 { name: 'NPV', equation: 'NPV = Σ CFₜ / (1+r)ᵗ', description: 'Sum av nåverdier' },
                 { name: 'PV Factor', equation: 'PVF = 1 / (1+r)ⁿ', description: 'Diskonteringsfaktor' },
                 { name: 'IRR', equation: 'NPV = 0', description: 'Renten som gir NPV = 0' },
-                { name: 'PI', equation: 'PI = PV(CF) / I₀', description: 'Profitability Index' }
+                { name: 'Payback', equation: 'Tid til CF = I₀', description: 'Tilbakebetalingstid' }
             ],
             bonds: [
                 { name: 'Bond Price', equation: 'P = Σ C/(1+r)ᵗ + FV/(1+r)ⁿ', description: 'PV av kuponger + pålydende' },
@@ -1375,199 +1203,302 @@
             ],
             portfolio: [
                 { name: 'Expected Return', equation: 'E(R) = Σ pᵢRᵢ', description: 'Forventet avkastning' },
-                { name: 'Beta', equation: 'βₚ = Σ wᵢβᵢ', description: 'Portefølje beta' }
+                { name: 'Portfolio Beta', equation: 'βₚ = Σ wᵢβᵢ', description: 'Vektet beta' }
             ],
             annuity: [
-                { name: 'PV Annuity', equation: 'PV = PMT × [(1-(1+r)⁻ⁿ)/r]', description: 'Nåverdi av annuitet' }
+                { name: 'PV Annuity', equation: 'PV = PMT × [(1-(1+r)⁻ⁿ)/r]', description: 'Nåverdi av annuitet' },
+                { name: 'FV Annuity', equation: 'FV = PMT × [(1+r)ⁿ-1)/r]', description: 'Sluttverdi av annuitet' }
             ],
             forex: [
-                { name: 'Forward Premium', equation: '(F-S)/S × 100', description: 'Premium/discount' }
+                { name: 'Forward Premium', equation: '(F-S)/S × 100', description: 'Premium/discount' },
+                { name: 'IRP', equation: 'F/S = (1+rᵈ)/(1+rᶠ)', description: 'Interest Rate Parity' }
             ],
             options: [
                 { name: 'Call Payoff', equation: 'max(S-K, 0)', description: 'Gevinst ved forfall' },
                 { name: 'Put Payoff', equation: 'max(K-S, 0)', description: 'Gevinst ved forfall' }
             ]
         };
-
-        // Init
+        
+        // ==================== GAME STATE ====================
+        var gameState = {
+            currentTopic: null,
+            currentDifficulty: null,
+            questions: [],
+            currentIndex: 0,
+            currentQuestion: null,
+            selectedAnswer: null,
+            answeredCorrectly: false,
+            hintsUsed: 0,
+            score: 0,
+            correctCount: 0,
+            answered: [],
+            questionCounts: {}
+        };
+        
+        // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof FirebaseConfig !== 'undefined') {
-                FirebaseConfig.init().then(loadQuestionCounts).catch(loadFromSeedData);
+            renderTopicSidebar();
+            
+            if (typeof firebase !== 'undefined') {
+                // Firebase config - adjust path as needed
+                var firebaseConfig = {
+                    apiKey: "AIzaSyDmLjTJPexLM2PkDHLHhO0KLVozxaEB9JM",
+                    authDomain: "accountingquest-multiplayer.firebaseapp.com",
+                    databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+                    projectId: "accountingquest-multiplayer",
+                    storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+                    messagingSenderId: "1042365043389",
+                    appId: "1:1042365043389:web:a9f933aef3d5c3f6c37edc"
+                };
+                
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                
+                loadQuestionCounts();
             }
+            
             setupCalculatorDrag();
         });
-
+        
+        // ==================== TOPIC SIDEBAR ====================
+        function renderTopicSidebar() {
+            var html = '';
+            topics.forEach(function(topic) {
+                html += '<div class="topic-item" id="topic-' + topic.id + '" onclick="toggleTopic(\'' + topic.id + '\')">';
+                html += '<div class="topic-item-header">';
+                html += '<span class="topic-item-icon">' + topic.icon + '</span>';
+                html += '<div class="topic-item-info">';
+                html += '<div class="topic-item-name">' + topic.name + '</div>';
+                html += '<div class="topic-item-count" id="count-' + topic.id + '">Laster...</div>';
+                html += '</div>';
+                html += '<span class="topic-item-expand">▼</span>';
+                html += '</div>';
+                html += '<div class="difficulty-options">';
+                difficulties.forEach(function(diff) {
+                    html += '<div class="diff-btn" onclick="event.stopPropagation(); startGame(\'' + topic.id + '\', \'' + diff.id + '\')">';
+                    html += '<span class="diff-btn-icon">' + diff.icon + '</span>';
+                    html += '<span class="diff-btn-label">' + diff.name + '</span>';
+                    html += '<span class="diff-btn-count" id="count-' + topic.id + '-' + diff.id + '">-</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                html += '</div>';
+            });
+            document.getElementById('topic-list').innerHTML = html;
+        }
+        
+        function toggleTopic(topicId) {
+            var item = document.getElementById('topic-' + topicId);
+            var wasActive = item.classList.contains('active');
+            
+            // Close all
+            document.querySelectorAll('.topic-item').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            
+            // Open clicked if it wasn't already open
+            if (!wasActive) {
+                item.classList.add('active');
+            }
+        }
+        
         function loadQuestionCounts() {
-            ['npv','bonds','stocks','wacc','portfolio','annuity','forex','options'].forEach(function(topic) {
-                if (typeof QuestionService !== 'undefined') {
-                    QuestionService.getQuestionsByModule('corporate_finance', topic).then(function(q) {
-                        var el = document.getElementById('count-' + topic);
-                        if (el) el.textContent = q.length;
-                    }).catch(function() { loadSeedCount(topic); });
+            var db = firebase.database();
+            
+            topics.forEach(function(topic) {
+                if (topic.id === 'mixed') {
+                    // Mixed uses all questions
+                    db.ref('corporateFinance').once('value').then(function(snap) {
+                        var total = 0;
+                        var byDiff = { easy: 0, medium: 0, hard: 0, challenge: 0 };
+                        
+                        snap.forEach(function(topicSnap) {
+                            topicSnap.forEach(function(qSnap) {
+                                total++;
+                                var diff = qSnap.val().difficulty || 'medium';
+                                if (byDiff[diff] !== undefined) byDiff[diff]++;
+                            });
+                        });
+                        
+                        document.getElementById('count-mixed').textContent = total + ' oppgaver';
+                        Object.keys(byDiff).forEach(function(d) {
+                            var el = document.getElementById('count-mixed-' + d);
+                            if (el) el.textContent = byDiff[d];
+                        });
+                    });
+                } else {
+                    db.ref('corporateFinance/' + topic.id).once('value').then(function(snap) {
+                        var total = 0;
+                        var byDiff = { easy: 0, medium: 0, hard: 0, challenge: 0 };
+                        
+                        snap.forEach(function(qSnap) {
+                            total++;
+                            var diff = qSnap.val().difficulty || 'medium';
+                            if (byDiff[diff] !== undefined) byDiff[diff]++;
+                        });
+                        
+                        document.getElementById('count-' + topic.id).textContent = total + ' oppgaver';
+                        Object.keys(byDiff).forEach(function(d) {
+                            var el = document.getElementById('count-' + topic.id + '-' + d);
+                            if (el) el.textContent = byDiff[d];
+                        });
+                        
+                        gameState.questionCounts[topic.id] = { total: total, byDiff: byDiff };
+                    }).catch(function(err) {
+                        document.getElementById('count-' + topic.id).textContent = '? oppgaver';
+                    });
                 }
             });
         }
-
-        function loadSeedCount(topic) {
-            if (typeof CorporateFinanceSeedData !== 'undefined') {
-                var counts = CorporateFinanceSeedData.countByTopic();
-                var el = document.getElementById('count-' + topic);
-                if (el) el.textContent = counts[topic] || 0;
-            }
-        }
-
-        function loadFromSeedData() {
-            if (typeof CorporateFinanceSeedData !== 'undefined') {
-                var counts = CorporateFinanceSeedData.countByTopic();
-                Object.keys(counts).forEach(function(t) {
-                    var el = document.getElementById('count-' + t);
-                    if (el) el.textContent = counts[t];
-                });
-            }
-        }
-
-        // Navigation
-        function goBack() {
-            if (gameState.currentQuestion) {
-                if (confirm('Avslutte? Fremgang går tapt.')) backToMenu();
-            } else if (document.getElementById('difficulty-section').classList.contains('visible')) {
-                backToTopics();
-            } else {
-                window.location.href = 'index.html';
-            }
-        }
-
-        function backToMenu() {
-            document.getElementById('main-menu').style.display = 'flex';
-            document.getElementById('game-container').classList.remove('visible');
-            document.getElementById('result-modal').classList.remove('visible');
-            document.getElementById('difficulty-section').classList.remove('visible');
-            document.getElementById('topic-grid').style.display = 'grid';
-            gameState.currentQuestion = null;
-            gameState.questions = [];
-        }
-
-        function backToTopics() {
-            document.getElementById('difficulty-section').classList.remove('visible');
-            document.getElementById('topic-grid').style.display = 'grid';
-        }
-
-        // Topic Selection
-        function selectTopic(topic) {
-            gameState.currentTopic = topic;
-            document.getElementById('topic-grid').style.display = 'none';
-            document.getElementById('difficulty-section').classList.add('visible');
-            var names = { npv:'NPV & IRR', bonds:'Obligasjoner', stocks:'Aksjer', wacc:'WACC', portfolio:'Portefølje', annuity:'Annuiteter', forex:'Valuta', options:'Opsjoner', mixed:'Blandet' };
-            document.getElementById('selected-topic-name').textContent = names[topic] || topic;
-        }
-
-        function startGame(difficulty) {
+        
+        // ==================== GAME LOGIC ====================
+        function startGame(topicId, difficulty) {
+            gameState.currentTopic = topicId;
             gameState.currentDifficulty = difficulty;
             gameState.score = 0;
             gameState.correctCount = 0;
             gameState.currentIndex = 0;
             gameState.answered = [];
+            
             document.getElementById('nav-score').textContent = '0';
             document.getElementById('nav-correct').textContent = '0';
-
+            
             loadQuestions().then(function() {
                 if (gameState.questions.length === 0) {
-                    alert('Ingen spørsmål funnet.');
+                    alert('Ingen spørsmål funnet for dette temaet og vanskelighetsgraden.');
                     return;
                 }
-                document.getElementById('main-menu').style.display = 'none';
-                document.getElementById('game-container').classList.add('visible');
+                
+                // Show game UI
+                document.getElementById('welcome-screen').style.display = 'none';
+                document.getElementById('game-view').classList.add('visible');
+                document.getElementById('progress-section').style.display = 'block';
+                document.getElementById('question-selector-section').classList.add('visible');
+                
                 loadFormulas();
                 renderQuestionSelector();
                 loadQuestion(0);
             });
         }
-
+        
         function loadQuestions() {
             return new Promise(function(resolve) {
-                if (typeof QuestionService !== 'undefined') {
-                    var topicFilter = gameState.currentTopic === 'mixed' ? null : gameState.currentTopic;
-                    QuestionService.getQuestionsByModule('corporate_finance', topicFilter, gameState.currentDifficulty).then(function(q) {
-                        gameState.questions = q.length > 0 ? shuffleArray(q).slice(0,10) : [];
-                        if (gameState.questions.length === 0) loadQuestionsFromSeed();
+                var db = firebase.database();
+                var questions = [];
+                
+                if (gameState.currentTopic === 'mixed') {
+                    // Load from all topics
+                    db.ref('corporateFinance').once('value').then(function(snap) {
+                        snap.forEach(function(topicSnap) {
+                            topicSnap.forEach(function(qSnap) {
+                                var q = qSnap.val();
+                                q.id = qSnap.key;
+                                q.topic = topicSnap.key;
+                                
+                                if (gameState.currentDifficulty === 'challenge' || 
+                                    q.difficulty === gameState.currentDifficulty ||
+                                    (!q.difficulty && gameState.currentDifficulty === 'medium')) {
+                                    questions.push(q);
+                                }
+                            });
+                        });
+                        
+                        gameState.questions = shuffleArray(questions).slice(0, 10);
                         resolve();
-                    }).catch(function() { loadQuestionsFromSeed(); resolve(); });
+                    }).catch(function() { resolve(); });
                 } else {
-                    loadQuestionsFromSeed();
-                    resolve();
+                    db.ref('corporateFinance/' + gameState.currentTopic).once('value').then(function(snap) {
+                        snap.forEach(function(qSnap) {
+                            var q = qSnap.val();
+                            q.id = qSnap.key;
+                            q.topic = gameState.currentTopic;
+                            
+                            if (gameState.currentDifficulty === 'challenge' || 
+                                q.difficulty === gameState.currentDifficulty ||
+                                (!q.difficulty && gameState.currentDifficulty === 'medium')) {
+                                questions.push(q);
+                            }
+                        });
+                        
+                        gameState.questions = shuffleArray(questions).slice(0, 10);
+                        resolve();
+                    }).catch(function() { resolve(); });
                 }
             });
         }
-
-        function loadQuestionsFromSeed() {
-            if (typeof CorporateFinanceSeedData === 'undefined') { gameState.questions = []; return; }
-            var all = CorporateFinanceSeedData.getAllQuestions();
-            var filtered = gameState.currentTopic !== 'mixed' ? all.filter(function(q) { return q.topic === gameState.currentTopic; }) : all;
-            if (gameState.currentDifficulty !== 'challenge') {
-                filtered = filtered.filter(function(q) { return q.difficulty === gameState.currentDifficulty || (!q.difficulty && gameState.currentDifficulty === 'medium'); });
-            }
-            gameState.questions = shuffleArray(filtered).slice(0,10);
-        }
-
-        // Rendering
+        
         function renderQuestionSelector() {
             var html = '';
             for (var i = 0; i < gameState.questions.length; i++) {
-                var cls = 'question-selector-item' + (i === gameState.currentIndex ? ' current' : '') + (gameState.answered[i] ? ' completed' : '');
-                html += '<div class="' + cls + '" onclick="loadQuestion(' + i + ')">' + (i+1) + '</div>';
+                var cls = 'question-selector-item';
+                if (i === gameState.currentIndex) cls += ' current';
+                if (gameState.answered[i]) cls += ' completed';
+                html += '<div class="' + cls + '" onclick="loadQuestion(' + i + ')">' + (i + 1) + '</div>';
             }
             document.getElementById('question-selector').innerHTML = html;
+            
             var pct = Math.round((gameState.answered.filter(Boolean).length / gameState.questions.length) * 100);
             document.getElementById('progress-bar').style.width = pct + '%';
             document.getElementById('progress-bar').textContent = pct + '%';
-            document.getElementById('nav-progress').textContent = (gameState.currentIndex+1) + '/' + gameState.questions.length;
+            document.getElementById('nav-progress').textContent = (gameState.currentIndex + 1) + '/' + gameState.questions.length;
         }
-
+        
         function loadQuestion(idx) {
             gameState.currentIndex = idx;
             gameState.currentQuestion = gameState.questions[idx];
-            gameState.currentGrid = null;
             gameState.selectedAnswer = null;
             gameState.answeredCorrectly = false;
             gameState.hintsUsed = 0;
+            
             var q = gameState.currentQuestion;
-
-            document.getElementById('question-number').textContent = 'Spørsmål ' + (idx+1) + ' av ' + gameState.questions.length;
+            
+            document.getElementById('question-number').textContent = 'Spørsmål ' + (idx + 1) + ' av ' + gameState.questions.length;
             document.getElementById('question-title').textContent = q.title || 'Oppgave';
             document.getElementById('question-text').textContent = q.question || q.description || '';
-            document.getElementById('question-badges').innerHTML = '<span class="badge badge-topic">' + q.topic + '</span><span class="badge badge-type">' + q.type + '</span>';
-
+            document.getElementById('question-badges').innerHTML = 
+                '<span class="badge badge-topic">' + q.topic + '</span>' +
+                '<span class="badge badge-type">' + (q.type || 'calculation') + '</span>';
+            
+            // Reset UI
             document.getElementById('hint-box').classList.remove('visible');
             document.getElementById('explanation-box').classList.remove('visible');
             document.getElementById('btn-check').style.display = 'inline-flex';
+            document.getElementById('btn-check').disabled = false;
             document.getElementById('btn-next').style.display = 'none';
+            document.getElementById('btn-explanation').style.display = 'none';
             document.getElementById('btn-hint').disabled = false;
-
+            
             renderQuestionContent(q);
             renderQuestionSelector();
             renderVariables(q);
         }
-
+        
         function renderQuestionContent(q) {
+            // Hide all containers
             document.getElementById('options-container').style.display = 'none';
             document.getElementById('input-fields').style.display = 'none';
             document.getElementById('data-display').style.display = 'none';
             document.getElementById('excel-grid-container').style.display = 'none';
-
-            // Show data table for ALL question types if data exists
+            
+            // Show data table if exists
             if (q.data) {
                 renderDataTable(q.data);
             }
-
-            if (q.type === 'multiple_choice' || q.type === 'true_false') {
+            
+            // Render based on type
+            if (q.type === 'multiple_choice' || q.type === 'mc') {
                 renderMultipleChoice(q);
+            } else if (q.type === 'true_false') {
+                renderTrueFalse(q);
             } else if (q.type === 'excel_grid') {
                 renderExcelGrid(q);
             } else {
+                // Default: calculation with input fields
                 renderCalculation(q);
             }
         }
-
+        
         function renderDataTable(data) {
             document.getElementById('data-display').style.display = 'block';
             var tbl = '';
@@ -1575,20 +1506,14 @@
             Object.keys(data).forEach(function(k) {
                 var v = data[k];
                 
-                // Handle arrays of objects (like assets with beta)
                 if (Array.isArray(v) && v.length > 0 && typeof v[0] === 'object') {
-                    // Create a sub-table for array data
                     var headers = Object.keys(v[0]);
                     tbl += '<tr><th colspan="2" style="color: var(--accent); padding-top: 15px;">' + formatLabel(k) + '</th></tr>';
-                    
-                    // Header row
                     tbl += '<tr>';
                     headers.forEach(function(h) {
                         tbl += '<td style="font-weight: bold; color: var(--text-secondary);">' + formatLabel(h) + '</td>';
                     });
                     tbl += '</tr>';
-                    
-                    // Data rows
                     v.forEach(function(item) {
                         tbl += '<tr>';
                         headers.forEach(function(h) {
@@ -1597,67 +1522,76 @@
                         });
                         tbl += '</tr>';
                     });
-                }
-                // Handle simple arrays
-                else if (Array.isArray(v)) {
+                } else if (Array.isArray(v)) {
                     tbl += '<tr><th>' + formatLabel(k) + '</th><td>' + v.join(', ') + '</td></tr>';
-                }
-                // Handle nested objects (like projects)
-                else if (typeof v === 'object' && v !== null) {
-                    tbl += '<tr><th colspan="2" style="color: var(--accent); padding-top: 15px;">' + formatLabel(k) + '</th></tr>';
+                } else if (typeof v === 'object' && v !== null) {
+                    tbl += '<tr><th colspan="2" style="color: var(--accent);">' + formatLabel(k) + '</th></tr>';
                     Object.keys(v).forEach(function(subKey) {
-                        var subVal = v[subKey];
-                        if (typeof subVal !== 'object') {
-                            tbl += '<tr><th style="padding-left: 20px;">' + formatLabel(subKey) + '</th><td>' + (typeof subVal === 'number' ? formatNumber(subVal) : subVal) + '</td></tr>';
+                        if (typeof v[subKey] !== 'object') {
+                            tbl += '<tr><th style="padding-left: 20px;">' + formatLabel(subKey) + '</th><td>' + formatNumber(v[subKey]) + '</td></tr>';
                         }
                     });
-                }
-                // Handle simple values
-                else {
-                    tbl += '<tr><th>' + formatLabel(k) + '</th><td>' + (typeof v === 'number' ? formatNumber(v) : v) + '</td></tr>';
+                } else {
+                    tbl += '<tr><th>' + formatLabel(k) + '</th><td>' + formatNumber(v) + '</td></tr>';
                 }
             });
             
             document.getElementById('data-table').querySelector('tbody').innerHTML = tbl;
         }
-
+        
         function renderMultipleChoice(q) {
             var container = document.getElementById('options-container');
             container.style.display = 'flex';
-            var opts = q.options || (q.type === 'true_false' ? [{id:'true',text:'Sant'},{id:'false',text:'Usant'}] : []);
+            var opts = q.options || [];
             var html = '';
-            opts.forEach(function(o,i) {
-                html += '<div class="option-item" data-id="' + o.id + '" onclick="selectOption(\'' + o.id + '\')"><div class="option-letter">' + String.fromCharCode(65+i) + '</div><div class="option-text">' + o.text + '</div></div>';
+            opts.forEach(function(o, i) {
+                var id = o.id || i.toString();
+                var text = typeof o === 'string' ? o : o.text;
+                html += '<div class="option-item" data-id="' + id + '" onclick="selectOption(\'' + id + '\')">';
+                html += '<div class="option-letter">' + String.fromCharCode(65 + i) + '</div>';
+                html += '<div class="option-text">' + text + '</div>';
+                html += '</div>';
             });
             container.innerHTML = html;
         }
-
+        
+        function renderTrueFalse(q) {
+            var container = document.getElementById('options-container');
+            container.style.display = 'flex';
+            container.innerHTML = 
+                '<div class="option-item" data-id="true" onclick="selectOption(\'true\')">' +
+                '<div class="option-letter">A</div><div class="option-text">Sant</div></div>' +
+                '<div class="option-item" data-id="false" onclick="selectOption(\'false\')">' +
+                '<div class="option-letter">B</div><div class="option-text">Usant</div></div>';
+        }
+        
         function renderCalculation(q) {
             document.getElementById('input-fields').style.display = 'grid';
-            var fields = q.input_fields || [{id:'answer',label:'Svar',unit:''}];
+            var fields = q.input_fields || [{ id: 'answer', label: 'Svar', unit: '' }];
             var html = '';
             fields.forEach(function(f) {
-                html += '<div class="input-group"><label>' + f.label + '</label><input type="text" id="input-' + f.id + '" placeholder="0">' + (f.unit ? '<span class="unit">' + f.unit + '</span>' : '') + '</div>';
+                html += '<div class="input-group">';
+                html += '<label>' + f.label + (f.unit ? ' (' + f.unit + ')' : '') + '</label>';
+                html += '<input type="text" id="input-' + f.id + '" placeholder="0">';
+                html += '</div>';
             });
             document.getElementById('input-fields').innerHTML = html;
         }
-
-        // ==================== EXCEL GRID RENDERING ====================
         
         function renderExcelGrid(q) {
             document.getElementById('excel-grid-container').style.display = 'block';
             
             var grid = q.grid || q.excel_grid;
             if (!grid) {
-                // Auto-generate grid from input_fields
-                grid = generateGridFromFields(q);
+                // Auto-generate from data and input_fields
+                grid = generateGridFromQuestion(q);
             }
             
             var thead = document.getElementById('excel-thead');
             var tbody = document.getElementById('excel-tbody');
             
             // Build header
-            var headerHtml = '<tr><th class="row-header">' + (grid.rowHeader || 'Beskrivelse') + '</th>';
+            var headerHtml = '<tr><th class="row-header">' + (grid.rowHeader || 'Parameter') + '</th>';
             (grid.columns || ['Verdi']).forEach(function(col) {
                 headerHtml += '<th>' + col + '</th>';
             });
@@ -1678,7 +1612,7 @@
                     if (isReadonly) {
                         bodyHtml += '<td><input type="text" class="excel-cell readonly" id="' + cellId + '" value="' + formatNumber(value) + '" readonly></td>';
                     } else {
-                        bodyHtml += '<td><input type="text" class="excel-cell" id="' + cellId + '" data-row="' + rowIndex + '" data-col="' + colIndex + '" placeholder="' + (cell.placeholder || '0') + '"></td>';
+                        bodyHtml += '<td><input type="text" class="excel-cell" id="' + cellId + '" data-row="' + rowIndex + '" data-col="' + colIndex + '" data-field="' + (cell.id || '') + '" placeholder="?"></td>';
                     }
                 });
                 
@@ -1686,16 +1620,13 @@
             });
             tbody.innerHTML = bodyHtml;
             
-            // Store grid config for validation
             gameState.currentGrid = grid;
         }
         
-        function generateGridFromFields(q) {
-            // Auto-generate a simple grid from input_fields
-            var fields = q.input_fields || [];
+        function generateGridFromQuestion(q) {
             var rows = [];
             
-            // Add data rows if available
+            // Add data rows as readonly
             if (q.data) {
                 Object.keys(q.data).forEach(function(key) {
                     var val = q.data[key];
@@ -1708,11 +1639,12 @@
                 });
             }
             
-            // Add input fields as editable rows
+            // Add input fields as editable
+            var fields = q.input_fields || [{ id: 'answer', label: 'Svar' }];
             fields.forEach(function(f) {
                 rows.push({
                     label: f.label + (f.unit ? ' (' + f.unit + ')' : ''),
-                    cells: [{ id: f.id, placeholder: '0' }]
+                    cells: [{ id: f.id, placeholder: '?' }]
                 });
             });
             
@@ -1723,71 +1655,47 @@
             };
         }
         
-        function checkExcelGrid() {
-            var q = gameState.currentQuestion;
-            var grid = gameState.currentGrid;
-            var allCorrect = true;
-            
-            if (!grid || !grid.rows) {
-                return checkCalc(); // Fallback
-            }
-            
-            grid.rows.forEach(function(row, rowIndex) {
-                (row.cells || []).forEach(function(cell, colIndex) {
-                    if (cell.readonly || cell.type === 'given') return;
-                    
-                    var cellId = 'cell-' + rowIndex + '-' + colIndex;
-                    var input = document.getElementById(cellId);
-                    if (!input) return;
-                    
-                    var userValue = parseFloat(input.value.replace(/\s/g, '').replace(',', '.'));
-                    var correctValue = cell.answer !== undefined ? cell.answer : (q.solution && q.solution[cell.id]);
-                    var tolerance = q.solution && q.solution.tolerance || 1;
-                    
-                    if (typeof correctValue === 'number') {
-                        var isCorrect = Math.abs(userValue - correctValue) <= tolerance;
-                        input.classList.remove('correct', 'incorrect');
-                        input.classList.add(isCorrect ? 'correct' : 'incorrect');
-                        if (!isCorrect) allCorrect = false;
-                    }
-                });
-            });
-            
-            return allCorrect;
-        }
-
         function renderVariables(q) {
             var container = document.getElementById('variable-list');
-            if (!q.data) { container.innerHTML = '<p style="color:var(--text-secondary)">Ingen data</p>'; return; }
-            var html = '<div class="formula-list">';
+            if (!q.data) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Ingen tilleggsdata</p>';
+                return;
+            }
             
+            var html = '<div class="formula-list">';
             Object.keys(q.data).forEach(function(k) {
                 var v = q.data[k];
-                
-                // Handle arrays of objects
-                if (Array.isArray(v) && v.length > 0 && typeof v[0] === 'object') {
-                    html += '<div class="formula-item"><div class="formula-name">' + formatLabel(k) + '</div>';
-                    v.forEach(function(item) {
-                        var itemStr = Object.keys(item).map(function(ik) {
-                            return formatLabel(ik) + ': ' + item[ik];
-                        }).join(', ');
-                        html += '<div class="formula-equation" style="font-size: 0.85em; margin-bottom: 3px;">' + itemStr + '</div>';
-                    });
+                if (typeof v !== 'object' || Array.isArray(v)) {
+                    html += '<div class="formula-item">';
+                    html += '<div class="formula-name">' + formatLabel(k) + '</div>';
+                    html += '<div class="formula-equation">' + (Array.isArray(v) ? v.join(', ') : formatNumber(v)) + '</div>';
                     html += '</div>';
-                }
-                // Handle simple arrays
-                else if (Array.isArray(v)) {
-                    html += '<div class="formula-item"><div class="formula-name">' + formatLabel(k) + '</div><div class="formula-equation">' + v.join(', ') + '</div></div>';
-                }
-                // Handle simple values
-                else if (typeof v !== 'object') {
-                    html += '<div class="formula-item"><div class="formula-name">' + formatLabel(k) + '</div><div class="formula-equation">' + (typeof v === 'number' ? formatNumber(v) : v) + '</div></div>';
                 }
             });
             container.innerHTML = html + '</div>';
         }
-
-        // Answer handling
+        
+        function loadFormulas() {
+            var list = formulas[gameState.currentTopic] || formulas.npv;
+            if (gameState.currentTopic === 'mixed') {
+                list = [];
+                Object.keys(formulas).forEach(function(t) {
+                    list = list.concat(formulas[t].slice(0, 2));
+                });
+            }
+            
+            var html = '';
+            list.forEach(function(f) {
+                html += '<div class="formula-item">';
+                html += '<div class="formula-name">' + f.name + '</div>';
+                html += '<div class="formula-equation">' + f.equation + '</div>';
+                html += '<div class="formula-description">' + f.description + '</div>';
+                html += '</div>';
+            });
+            document.getElementById('formula-list').innerHTML = html;
+        }
+        
+        // ==================== ANSWER CHECKING ====================
         function selectOption(id) {
             if (gameState.answeredCorrectly) return;
             gameState.selectedAnswer = id;
@@ -1795,106 +1703,152 @@
                 el.classList.toggle('selected', el.dataset.id === id);
             });
         }
-
+        
         function checkAnswer() {
             var q = gameState.currentQuestion;
-            var module = q.module || 'corporate_finance';
             
-            // Disable check button while loading
             document.getElementById('btn-check').disabled = true;
             document.getElementById('btn-check').textContent = '⏳ Sjekker...';
             
-            // Hent fasit fra Firebase
-            var solutionPath = 'solutions/' + module + '/' + q.id;
+            // Fetch solution from Firebase
+            var solutionPath = 'solutions/corporate_finance/' + q.id;
             
             firebase.database().ref(solutionPath).once('value')
                 .then(function(snapshot) {
                     var solution = snapshot.val();
                     
                     if (!solution) {
-                        alert('Kunne ikke finne fasit for dette spørsmålet.');
-                        document.getElementById('btn-check').disabled = false;
-                        document.getElementById('btn-check').textContent = '✓ Sjekk svar';
+                        // Fallback: check using local data if available
+                        var correct = checkWithLocalData(q);
+                        if (correct !== null) {
+                            if (correct) handleCorrect(); else handleIncorrect();
+                        } else {
+                            alert('Kunne ikke finne fasit for dette spørsmålet.');
+                        }
+                        resetCheckButton();
                         return;
                     }
                     
                     var correct;
-                    
-                    if (q.type === 'multiple_choice' || q.type === 'true_false') {
+                    if (q.type === 'multiple_choice' || q.type === 'mc') {
                         correct = checkMCWithSolution(solution);
+                    } else if (q.type === 'true_false') {
+                        correct = checkTrueFalseWithSolution(solution);
                     } else if (q.type === 'excel_grid') {
                         correct = checkExcelGridWithSolution(solution);
                     } else {
                         correct = checkCalcWithSolution(solution);
                     }
                     
-                    // Cache solution for explanation
                     gameState.currentSolution = solution;
                     
-                    if (correct) handleCorrect(); else handleIncorrect();
+                    if (correct === null) {
+                        resetCheckButton();
+                        return;
+                    }
                     
-                    document.getElementById('btn-check').disabled = false;
-                    document.getElementById('btn-check').textContent = '✓ Sjekk svar';
+                    if (correct) handleCorrect(); else handleIncorrect();
+                    resetCheckButton();
                 })
                 .catch(function(error) {
                     console.error('Solution fetch error:', error);
-                    alert('Feil ved henting av fasit: ' + error.message);
-                    document.getElementById('btn-check').disabled = false;
-                    document.getElementById('btn-check').textContent = '✓ Sjekk svar';
+                    alert('Feil ved henting av fasit.');
+                    resetCheckButton();
                 });
         }
-
+        
+        function resetCheckButton() {
+            document.getElementById('btn-check').disabled = false;
+            document.getElementById('btn-check').textContent = '✓ Sjekk svar';
+        }
+        
+        function checkWithLocalData(q) {
+            // Try to check using data embedded in question
+            if (q.correct !== undefined) {
+                if (q.type === 'multiple_choice' || q.type === 'mc') {
+                    if (!gameState.selectedAnswer) { alert('Velg et svar!'); return null; }
+                    var correctId = q.correct.toString();
+                    document.querySelectorAll('.option-item').forEach(function(el) {
+                        if (el.dataset.id === correctId) el.classList.add('correct');
+                        else if (el.dataset.id === gameState.selectedAnswer) el.classList.add('incorrect');
+                    });
+                    return gameState.selectedAnswer === correctId;
+                }
+            }
+            return null;
+        }
+        
         function checkMCWithSolution(solution) {
             if (!gameState.selectedAnswer) { alert('Velg et svar!'); return null; }
-            var q = gameState.currentQuestion;
-            var correctId = q.type === 'true_false' ? solution.correct.toString() : solution.correct;
+            var correctId = solution.correct.toString();
             document.querySelectorAll('.option-item').forEach(function(el) {
                 if (el.dataset.id === correctId) el.classList.add('correct');
                 else if (el.dataset.id === gameState.selectedAnswer) el.classList.add('incorrect');
             });
             return gameState.selectedAnswer === correctId;
         }
-
+        
+        function checkTrueFalseWithSolution(solution) {
+            if (!gameState.selectedAnswer) { alert('Velg et svar!'); return null; }
+            var correctId = solution.correct.toString();
+            document.querySelectorAll('.option-item').forEach(function(el) {
+                if (el.dataset.id === correctId) el.classList.add('correct');
+                else if (el.dataset.id === gameState.selectedAnswer) el.classList.add('incorrect');
+            });
+            return gameState.selectedAnswer === correctId;
+        }
+        
         function checkCalcWithSolution(solution) {
             var q = gameState.currentQuestion;
-            var fields = q.input_fields || [{id:'answer'}];
+            var fields = q.input_fields || [{ id: 'answer' }];
             var ok = true;
-            
-            // Sjekk om solution.correct er et objekt med flere felter
             var correctValues = solution.correct || solution;
             
             fields.forEach(function(f) {
                 var inp = document.getElementById('input-' + f.id);
                 if (!inp) return;
-                var user = parseFloat(inp.value.replace(/\s/g,'').replace(',','.'));
-                var corr = correctValues[f.id] || correctValues;
+                
+                var user = parseFloat(inp.value.replace(/\s/g, '').replace(',', '.'));
+                var corr = typeof correctValues === 'object' ? correctValues[f.id] : correctValues;
                 var tol = solution.tolerance || 1;
+                
                 if (typeof corr === 'number') {
                     var isOk = Math.abs(user - corr) <= tol;
+                    inp.classList.remove('correct', 'incorrect');
                     inp.classList.add(isOk ? 'correct' : 'incorrect');
                     if (!isOk) ok = false;
                 }
             });
             return ok;
         }
-
+        
         function checkExcelGridWithSolution(solution) {
-            // Bruk eksisterende excel grid check men med solution fra Firebase
             var correctCells = solution.correct || {};
             var ok = true;
             var tolerance = solution.tolerance || 0.01;
             
-            document.querySelectorAll('#excel-tbody input').forEach(function(inp) {
+            document.querySelectorAll('#excel-tbody input:not(.readonly)').forEach(function(inp) {
                 var row = inp.dataset.row;
                 var col = inp.dataset.col;
-                var key = row + ',' + col;
+                var field = inp.dataset.field;
                 
-                if (correctCells[key] !== undefined) {
-                    var user = parseFloat(inp.value.replace(/\s/g,'').replace(',','.'));
-                    var corr = parseFloat(correctCells[key]);
+                // Try different key formats
+                var keys = [row + ',' + col, field, 'cell-' + row + '-' + col];
+                var corr = null;
+                
+                keys.forEach(function(key) {
+                    if (key && correctCells[key] !== undefined) {
+                        corr = correctCells[key];
+                    }
+                });
+                
+                if (corr !== null) {
+                    var user = parseFloat(inp.value.replace(/\s/g, '').replace(',', '.'));
+                    var corrNum = parseFloat(corr);
                     
-                    if (!isNaN(user) && !isNaN(corr)) {
-                        var isOk = Math.abs(user - corr) <= Math.abs(corr * tolerance) + 0.01;
+                    if (!isNaN(user) && !isNaN(corrNum)) {
+                        var isOk = Math.abs(user - corrNum) <= Math.abs(corrNum * tolerance) + 0.01;
+                        inp.classList.remove('correct', 'incorrect');
                         inp.classList.add(isOk ? 'correct' : 'incorrect');
                         if (!isOk) ok = false;
                     }
@@ -1903,47 +1857,41 @@
             
             return ok;
         }
-
+        
         function handleCorrect() {
             gameState.answeredCorrectly = true;
             gameState.answered[gameState.currentIndex] = true;
             gameState.correctCount++;
             gameState.score += Math.max(100 - gameState.hintsUsed * 25, 25);
+            
             document.getElementById('nav-score').textContent = gameState.score;
             document.getElementById('nav-correct').textContent = gameState.correctCount;
             
-            // Show explanation button instead of auto-showing
             document.getElementById('btn-explanation').style.display = 'inline-flex';
             document.getElementById('btn-check').style.display = 'none';
             document.getElementById('btn-hint').style.display = 'none';
             document.getElementById('btn-next').style.display = 'inline-flex';
             
             renderQuestionSelector();
-            if (gameState.answered.filter(Boolean).length === gameState.questions.length) setTimeout(showResults, 1500);
-        }
-
-        function handleIncorrect() {
-            // Show first hint automatically on first wrong answer
-            if (gameState.hintsUsed === 0) showHint();
             
-            // Show explanation button after wrong answer too
+            if (gameState.answered.filter(Boolean).length === gameState.questions.length) {
+                setTimeout(showResults, 1500);
+            }
+        }
+        
+        function handleIncorrect() {
+            if (gameState.hintsUsed === 0) showHint();
             document.getElementById('btn-explanation').style.display = 'inline-flex';
         }
-
-        // ==================== SECURE HINT/EXPLANATION FETCHING ====================
-        // Hints og forklaringer hentes ON-DEMAND fra Firebase solutions/
-        // Dette forhindrer juksing via DevTools
         
+        // ==================== HINTS & EXPLANATIONS ====================
         function showHint() {
             var q = gameState.currentQuestion;
-            var module = q.module || 'corporate_finance';
             
-            // Vis loading state
             document.getElementById('hint-text').textContent = 'Laster hint...';
             document.getElementById('hint-box').classList.add('visible');
             
-            // Hent hint fra Firebase
-            var hintPath = 'solutions/' + module + '/' + q.id + '/hints/' + gameState.hintsUsed;
+            var hintPath = 'solutions/corporate_finance/' + q.id + '/hints/' + gameState.hintsUsed;
             
             firebase.database().ref(hintPath).once('value')
                 .then(function(snapshot) {
@@ -1952,48 +1900,23 @@
                     if (!hint) {
                         document.getElementById('hint-text').textContent = 'Ingen flere hints tilgjengelig.';
                         document.getElementById('btn-hint').disabled = true;
-                        document.getElementById('btn-next-hint').style.display = 'none';
                         return;
                     }
                     
                     var hintText = typeof hint === 'string' ? hint : hint.text;
-                    var level = gameState.hintsUsed + 1;
-                    
-                    // Hent totalt antall hints for å vise "X av Y"
-                    firebase.database().ref('solutions/' + module + '/' + q.id + '/hints').once('value')
-                        .then(function(allHintsSnap) {
-                            var allHints = allHintsSnap.val() || [];
-                            var totalHints = Array.isArray(allHints) ? allHints.length : Object.keys(allHints).length;
-                            
-                            // Update UI
-                            document.getElementById('hint-level').textContent = 'Hint ' + level + ' av ' + totalHints;
-                            
-                            var icons = ['💡', '📐', '✅'];
-                            document.getElementById('hint-icon').textContent = icons[Math.min(gameState.hintsUsed, 2)];
-                            document.getElementById('hint-text').textContent = hintText;
-                            
-                            gameState.hintsUsed++;
-                            
-                            // Update next hint button
-                            if (gameState.hintsUsed >= totalHints) {
-                                document.getElementById('btn-hint').disabled = true;
-                                document.getElementById('btn-next-hint').style.display = 'none';
-                            } else {
-                                document.getElementById('btn-next-hint').textContent = 'Neste hint (' + (gameState.hintsUsed + 1) + '/' + totalHints + ') →';
-                                document.getElementById('btn-next-hint').style.display = 'inline-flex';
-                            }
-                        });
+                    document.getElementById('hint-level').textContent = '💡 Hint ' + (gameState.hintsUsed + 1);
+                    document.getElementById('hint-text').textContent = hintText;
+                    gameState.hintsUsed++;
                 })
                 .catch(function(error) {
-                    console.error('Hint fetch error:', error);
-                    document.getElementById('hint-text').textContent = 'Kunne ikke laste hint. Prøv igjen.';
+                    document.getElementById('hint-text').textContent = 'Kunne ikke laste hint.';
                 });
         }
-
+        
         function closeHint() {
             document.getElementById('hint-box').classList.remove('visible');
         }
-
+        
         function toggleExplanation() {
             var box = document.getElementById('explanation-box');
             if (box.classList.contains('visible')) {
@@ -2002,110 +1925,68 @@
                 showExplanation();
             }
         }
-
-        function closeExplanation() {
-            document.getElementById('explanation-box').classList.remove('visible');
-            document.getElementById('btn-explanation').textContent = '📖 Vis forklaring';
-        }
-
+        
         function showExplanation() {
             var q = gameState.currentQuestion;
-            var module = q.module || 'corporate_finance';
             
-            // Vis loading state
             document.getElementById('explanation-main').innerHTML = '<em>Laster forklaring...</em>';
             document.getElementById('explanation-box').classList.add('visible');
             document.getElementById('btn-explanation').textContent = '📖 Skjul forklaring';
             
-            // Hent forklaring fra Firebase
-            var solutionPath = 'solutions/' + module + '/' + q.id;
+            var solutionPath = 'solutions/corporate_finance/' + q.id;
             
             firebase.database().ref(solutionPath).once('value')
                 .then(function(snapshot) {
                     var solution = snapshot.val();
                     
                     if (!solution || !solution.explanation) {
-                        document.getElementById('explanation-main').innerHTML = '<em>Ingen forklaring tilgjengelig for dette spørsmålet.</em>';
+                        document.getElementById('explanation-main').innerHTML = '<em>Ingen forklaring tilgjengelig.</em>';
                         return;
                     }
                     
-                    // Format explanation
-                    var mainText = formatExplanation(solution.explanation);
-                    document.getElementById('explanation-main').innerHTML = mainText;
+                    document.getElementById('explanation-main').innerHTML = formatExplanation(solution.explanation);
                     
-                    // Show formula if available
                     var formulaBox = document.getElementById('explanation-formula');
                     if (solution.formula) {
                         formulaBox.textContent = solution.formula;
-                        formulaBox.classList.add('visible');
+                        formulaBox.style.display = 'block';
                     } else {
-                        formulaBox.classList.remove('visible');
-                    }
-                    
-                    // Show learning objectives if available
-                    if (solution.learning_objectives && solution.learning_objectives.length > 0) {
-                        var objHtml = '<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid var(--border);">';
-                        objHtml += '<strong style="color: var(--accent);">🎯 Læringsmål:</strong><ul style="margin: 0.5em 0 0 1.5em;">';
-                        solution.learning_objectives.forEach(function(obj) {
-                            objHtml += '<li>' + obj + '</li>';
-                        });
-                        objHtml += '</ul></div>';
-                        document.getElementById('explanation-main').innerHTML += objHtml;
+                        formulaBox.style.display = 'none';
                     }
                 })
                 .catch(function(error) {
-                    console.error('Explanation fetch error:', error);
-                    document.getElementById('explanation-main').innerHTML = '<em style="color: var(--error);">Kunne ikke laste forklaring. Prøv igjen.</em>';
+                    document.getElementById('explanation-main').innerHTML = '<em style="color: var(--error);">Kunne ikke laste forklaring.</em>';
                 });
         }
-
+        
         function formatExplanation(text) {
-            // Convert **bold** to <strong>
             text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-            
-            // Convert markdown-style headers
-            text = text.replace(/^### (.+)$/gm, '<h5 style="color: var(--accent); margin: 1em 0 0.5em;">$1</h5>');
-            text = text.replace(/^## (.+)$/gm, '<h4 style="color: var(--success); margin: 1em 0 0.5em;">$1</h4>');
-            
-            // Convert bullet points
-            text = text.replace(/^• (.+)$/gm, '<div style="padding-left: 1em; margin: 0.25em 0;">• $1</div>');
-            text = text.replace(/^- (.+)$/gm, '<div style="padding-left: 1em; margin: 0.25em 0;">• $1</div>');
-            
-            // Convert simple tables (|...|...|)
-            if (text.includes('|')) {
-                text = text.replace(/\|(.+)\|/g, function(match) {
-                    var cells = match.split('|').filter(c => c.trim());
-                    if (cells.length > 0) {
-                        return '<tr>' + cells.map(c => '<td style="padding: 4px 8px; border: 1px solid var(--border);">' + c.trim() + '</td>').join('') + '</tr>';
-                    }
-                    return match;
-                });
-                
-                // Wrap consecutive table rows in table tags
-                text = text.replace(/(<tr>.*?<\/tr>\n?)+/g, '<table style="border-collapse: collapse; margin: 0.5em 0; font-size: 0.9em;">$&</table>');
-            }
-            
-            // Convert newlines to breaks
             text = text.replace(/\n\n/g, '</p><p style="margin: 0.75em 0;">');
             text = text.replace(/\n/g, '<br>');
-            
-            // Wrap in paragraph
-            text = '<p style="margin: 0;">' + text + '</p>';
-            
-            // Highlight checkmark results
-            text = text.replace(/✅/g, '<span style="color: var(--success);">✅</span>');
-            text = text.replace(/❌/g, '<span style="color: var(--error);">❌</span>');
-            
-            return text;
+            return '<p style="margin: 0;">' + text + '</p>';
         }
-
+        
+        function closeExplanation() {
+            document.getElementById('explanation-box').classList.remove('visible');
+            document.getElementById('btn-explanation').textContent = '📖 Vis forklaring';
+        }
+        
+        // ==================== NAVIGATION ====================
         function nextQuestion() {
             var next = gameState.currentIndex + 1;
             while (next < gameState.questions.length && gameState.answered[next]) next++;
-            if (next >= gameState.questions.length) for (var i = 0; i < gameState.questions.length; i++) if (!gameState.answered[i]) { next = i; break; }
-            if (next < gameState.questions.length) loadQuestion(next); else showResults();
+            if (next >= gameState.questions.length) {
+                for (var i = 0; i < gameState.questions.length; i++) {
+                    if (!gameState.answered[i]) { next = i; break; }
+                }
+            }
+            if (next < gameState.questions.length) {
+                loadQuestion(next);
+            } else {
+                showResults();
+            }
         }
-
+        
         function showResults() {
             var pct = Math.round((gameState.correctCount / gameState.questions.length) * 100);
             document.getElementById('result-correct').textContent = gameState.correctCount;
@@ -2114,70 +1995,140 @@
             document.getElementById('result-icon').textContent = pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '📚';
             document.getElementById('result-title').textContent = pct >= 80 ? 'Fantastisk!' : pct >= 50 ? 'Bra jobbet!' : 'Fortsett å øve';
             document.getElementById('result-title').className = 'result-title ' + (pct >= 50 ? 'success' : 'error');
-            document.getElementById('result-message').textContent = pct >= 80 ? 'Du har mestret dette!' : pct >= 50 ? 'Fortsett å øve!' : 'Les teorien og prøv igjen.';
+            document.getElementById('result-message').textContent = pct >= 80 ? 'Du har mestret dette!' : pct >= 50 ? 'God innsats!' : 'Les teorien og prøv igjen.';
             document.getElementById('result-modal').classList.add('visible');
         }
-
+        
         function restartGame() {
             document.getElementById('result-modal').classList.remove('visible');
-            startGame(gameState.currentDifficulty);
+            startGame(gameState.currentTopic, gameState.currentDifficulty);
         }
-
-        // Formulas
-        function loadFormulas() {
-            var list = formulas[gameState.currentTopic] || formulas.npv;
-            if (gameState.currentTopic === 'mixed') { list = []; Object.keys(formulas).forEach(function(t) { list = list.concat(formulas[t]); }); }
-            var html = '';
-            list.forEach(function(f) {
-                html += '<div class="formula-item"><div class="formula-name">' + f.name + '</div><div class="formula-equation">' + f.equation + '</div><div class="formula-description">' + f.description + '</div></div>';
+        
+        function backToWelcome() {
+            document.getElementById('result-modal').classList.remove('visible');
+            document.getElementById('game-view').classList.remove('visible');
+            document.getElementById('welcome-screen').style.display = 'flex';
+            document.getElementById('progress-section').style.display = 'none';
+            document.getElementById('question-selector-section').classList.remove('visible');
+            
+            gameState.questions = [];
+            gameState.currentQuestion = null;
+        }
+        
+        // ==================== UI HELPERS ====================
+        function switchFormulaTab(tab) {
+            document.querySelectorAll('.formula-tab').forEach(function(t) {
+                t.classList.remove('active');
             });
-            document.getElementById('formula-list').innerHTML = html;
-        }
-
-        function switchTab(name) {
-            document.querySelectorAll('.sidebar-tab').forEach(function(t) { t.classList.remove('active'); });
-            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
             event.target.classList.add('active');
-            document.getElementById('tab-' + name).classList.add('active');
+            
+            if (tab === 'formulas') {
+                document.getElementById('formula-list-container').style.display = 'block';
+                document.getElementById('variable-list-container').style.display = 'none';
+            } else {
+                document.getElementById('formula-list-container').style.display = 'none';
+                document.getElementById('variable-list-container').style.display = 'block';
+            }
         }
-
-        // Calculator
+        
+        // ==================== CALCULATOR ====================
         var calcState = { equation: '', display: '0' };
-        function toggleCalculator() { document.getElementById('floating-calculator').classList.toggle('visible'); }
-        function calcInput(v) { calcState.display = calcState.display === '0' && v !== '.' ? v : calcState.display + v; updateCalcDisplay(); }
-        function calcClear() { calcState.display = '0'; calcState.equation = ''; updateCalcDisplay(); }
-        function calcEquals() {
-            try {
-                var r = eval(calcState.display.replace(/×/g,'*').replace(/−/g,'-').replace(/\^/g,'**'));
-                calcState.equation = calcState.display + ' =';
-                calcState.display = Math.round(r * 10000) / 10000 + '';
-            } catch(e) { calcState.display = 'Error'; }
+        
+        function toggleCalculator() {
+            document.getElementById('floating-calculator').classList.toggle('visible');
+        }
+        
+        function calcInput(v) {
+            calcState.display = calcState.display === '0' && v !== '.' ? v : calcState.display + v;
             updateCalcDisplay();
         }
-        function calcFunction(fn) {
-            var v = parseFloat(calcState.display) || 0;
-            if (fn === 'sqrt') calcState.display = Math.round(Math.sqrt(v) * 10000) / 10000 + '';
-            else if (fn === 'pv' || fn === 'fv') {
-                var r = parseFloat(prompt('Rente (f.eks. 0.10):')), n = parseFloat(prompt('Perioder:'));
-                if (!isNaN(r) && !isNaN(n)) calcState.display = Math.round((fn === 'pv' ? 1/Math.pow(1+r,n) : Math.pow(1+r,n)) * 10000) / 10000 + '';
+        
+        function calcClear() {
+            calcState.display = '0';
+            calcState.equation = '';
+            updateCalcDisplay();
+        }
+        
+        function calcEquals() {
+            try {
+                var expr = calcState.display.replace(/×/g, '*').replace(/−/g, '-').replace(/\^/g, '**');
+                var r = eval(expr);
+                calcState.equation = calcState.display + ' =';
+                calcState.display = Math.round(r * 10000) / 10000 + '';
+            } catch (e) {
+                calcState.display = 'Error';
             }
             updateCalcDisplay();
         }
+        
+        function calcFunction(fn) {
+            var v = parseFloat(calcState.display) || 0;
+            if (fn === 'sqrt') {
+                calcState.display = Math.round(Math.sqrt(v) * 10000) / 10000 + '';
+            } else if (fn === 'pv' || fn === 'fv') {
+                var r = parseFloat(prompt('Rente (f.eks. 0.10):'));
+                var n = parseFloat(prompt('Perioder:'));
+                if (!isNaN(r) && !isNaN(n)) {
+                    calcState.display = Math.round((fn === 'pv' ? 1 / Math.pow(1 + r, n) : Math.pow(1 + r, n)) * 10000) / 10000 + '';
+                }
+            }
+            updateCalcDisplay();
+        }
+        
         function updateCalcDisplay() {
             document.getElementById('calc-equation').textContent = calcState.equation;
             document.getElementById('calc-result').textContent = calcState.display;
         }
+        
         function setupCalculatorDrag() {
-            var calc = document.getElementById('calculator-drag'), cont = document.getElementById('floating-calculator'), drag = false, ox, oy;
-            calc.onmousedown = function(e) { if (e.target.tagName !== 'BUTTON') { drag = true; ox = e.clientX - cont.offsetLeft; oy = e.clientY - cont.offsetTop; } };
-            document.onmousemove = function(e) { if (drag) { cont.style.left = (e.clientX - ox) + 'px'; cont.style.top = (e.clientY - oy) + 'px'; cont.style.right = 'auto'; cont.style.bottom = 'auto'; } };
+            var calc = document.getElementById('calculator-drag');
+            var cont = document.getElementById('floating-calculator');
+            var drag = false, ox, oy;
+            
+            calc.querySelector('.calculator-header').onmousedown = function(e) {
+                if (e.target.tagName !== 'BUTTON') {
+                    drag = true;
+                    ox = e.clientX - cont.offsetLeft;
+                    oy = e.clientY - cont.offsetTop;
+                }
+            };
+            
+            document.onmousemove = function(e) {
+                if (drag) {
+                    cont.style.left = (e.clientX - ox) + 'px';
+                    cont.style.top = (e.clientY - oy) + 'px';
+                    cont.style.right = 'auto';
+                    cont.style.bottom = 'auto';
+                }
+            };
+            
             document.onmouseup = function() { drag = false; };
         }
-
-        // Utils
-        function shuffleArray(a) { var b = a.slice(); for (var i = b.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = b[i]; b[i] = b[j]; b[j] = t; } return b; }
-        function formatNumber(n) { return typeof n === 'number' ? n.toLocaleString('nb-NO') : n; }
-        function formatLabel(k) { return k.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, function(s) { return s.toUpperCase(); }); }
+        
+        // ==================== UTILITIES ====================
+        function shuffleArray(a) {
+            var b = a.slice();
+            for (var i = b.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var t = b[i];
+                b[i] = b[j];
+                b[j] = t;
+            }
+            return b;
+        }
+        
+        function formatNumber(n) {
+            if (typeof n === 'number') {
+                return n.toLocaleString('nb-NO');
+            }
+            return n;
+        }
+        
+        function formatLabel(k) {
+            return k.replace(/_/g, ' ')
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, function(s) { return s.toUpperCase(); });
+        }
     </script>
 </body>
 </html>
