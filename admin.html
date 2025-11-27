@@ -919,6 +919,9 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        // Version 2.0 - Cache bust
+        console.log('🔧 Admin Dashboard v2.0 loading...');
+        
         const firebaseConfig = {
             apiKey: "AIzaSyDmLjTJPexLM2PkDHLHhO0KLVozxaEB9JM",
             authDomain: "accountingquest-multiplayer.firebaseapp.com",
@@ -933,6 +936,8 @@
         const db = firebase.database();
         const auth = firebase.auth();
         
+        console.log('🔥 Firebase initialized');
+        
         const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
         const ROLE_LABELS = { admin: 'Admin', teacher_pro: 'Lærer Pro', teacher: 'Lærer', pro: 'Pro', student: 'Student', free: 'Gratis' };
         
@@ -945,11 +950,14 @@
         let selectedRole = null;
         let pendingJsonData = null;
         
-        // Auth
+        // Auth - wait for Firebase to be ready
+        console.log('⏳ Waiting for auth state...');
         auth.onAuthStateChanged(async user => {
-            console.log('Auth state changed:', user ? user.email : 'not logged in', 'isAnonymous:', user?.isAnonymous);
+            console.log('👤 Auth state changed:', user ? `${user.email} (${user.uid})` : 'NO USER');
+            console.log('👤 isAnonymous:', user?.isAnonymous);
             
             if (!user || user.isAnonymous) {
+                console.log('❌ Not logged in or anonymous');
                 // Not logged in - show login prompt
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('access-denied').innerHTML = `
