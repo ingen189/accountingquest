@@ -114,6 +114,7 @@
         .difficulty-filter {
             padding: var(--space-md);
             border-top: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
             display: none;
         }
         
@@ -123,30 +124,32 @@
         
         .difficulty-filter h4 {
             color: var(--text-secondary);
-            font-size: 0.85em;
+            font-size: 0.8em;
             margin-bottom: var(--space-sm);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
         .difficulty-buttons {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: var(--space-xs);
         }
         
         .diff-filter-btn {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-sm) var(--space-md);
-            background: var(--bg-tertiary);
+            justify-content: center;
+            gap: 2px;
+            padding: var(--space-sm);
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all var(--transition-fast);
             color: var(--text-primary);
-            font-size: 0.9em;
+            font-size: 0.75em;
         }
         
         .diff-filter-btn:hover {
@@ -160,17 +163,16 @@
         }
         
         .diff-filter-btn .diff-icon {
-            font-size: 1.1em;
+            font-size: 1.3em;
         }
         
         .diff-filter-btn .diff-label {
-            flex: 1;
+            font-weight: 500;
         }
         
         .diff-filter-btn .diff-count {
             color: var(--accent);
             font-weight: 600;
-            font-size: 0.85em;
         }
         
         /* === MAIN CONTENT AREA === */
@@ -1010,7 +1012,7 @@
             
             <!-- Difficulty filter - shows when in game -->
             <div class="difficulty-filter" id="difficulty-filter">
-                <h4>Filtrer vanskelighetsgrad</h4>
+                <h4>Vanskelighetsgrad</h4>
                 <div class="difficulty-buttons">
                     <button class="diff-filter-btn active" onclick="filterByDifficulty('all')">
                         <span class="diff-icon">📚</span>
