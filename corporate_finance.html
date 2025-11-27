@@ -175,6 +175,50 @@
             font-weight: 600;
         }
         
+        /* Sidebar collapsible sections */
+        .sidebar-section {
+            border-top: 1px solid var(--border-color);
+            display: none;
+        }
+        
+        .sidebar-section.visible {
+            display: block;
+        }
+        
+        .sidebar-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-tertiary);
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .sidebar-section-header:hover {
+            background: var(--border-color);
+        }
+        
+        .section-toggle {
+            transition: transform var(--transition-fast);
+        }
+        
+        .sidebar-section.collapsed .section-toggle {
+            transform: rotate(-90deg);
+        }
+        
+        .sidebar-section-content {
+            padding: var(--space-sm);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section.collapsed .sidebar-section-content {
+            display: none;
+        }
+        
         /* === MAIN CONTENT AREA === */
         .main-area {
             flex: 1;
@@ -266,47 +310,6 @@
             display: flex;
             flex: 1;
             overflow: hidden;
-        }
-        
-        /* Formula Sidebar */
-        .formula-sidebar {
-            width: 280px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            flex-shrink: 0;
-        }
-        
-        .formula-sidebar-header {
-            padding: var(--space-md);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            gap: var(--space-xs);
-        }
-        
-        .formula-tab {
-            flex: 1;
-            padding: var(--space-sm);
-            background: var(--bg-tertiary);
-            border: none;
-            border-radius: var(--radius-sm);
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 0.85em;
-            transition: all var(--transition-fast);
-        }
-        
-        .formula-tab.active {
-            background: var(--accent);
-            color: var(--bg-primary);
-        }
-        
-        .formula-content {
-            flex: 1;
-            padding: var(--space-md);
-            overflow-y: auto;
         }
         
         .formula-list {
@@ -946,10 +949,6 @@
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                 gap: var(--space-sm);
             }
-            
-            .formula-sidebar {
-                display: none;
-            }
         }
         
         @media (max-width: 768px) {
@@ -1036,6 +1035,28 @@
                     </button>
                 </div>
             </div>
+            
+            <!-- Formulas section - shows when in game -->
+            <div class="sidebar-section" id="formulas-section">
+                <div class="sidebar-section-header" onclick="toggleSection('formulas')">
+                    <span>📐 Formler</span>
+                    <span class="section-toggle" id="formulas-toggle">▼</span>
+                </div>
+                <div class="sidebar-section-content" id="formulas-content">
+                    <div class="formula-list" id="formula-list"></div>
+                </div>
+            </div>
+            
+            <!-- Data section - shows when in game -->
+            <div class="sidebar-section" id="data-section">
+                <div class="sidebar-section-header" onclick="toggleSection('data')">
+                    <span>📊 Oppgavedata</span>
+                    <span class="section-toggle" id="data-toggle">▼</span>
+                </div>
+                <div class="sidebar-section-content" id="data-content">
+                    <div id="variable-list"></div>
+                </div>
+            </div>
         </aside>
 
         <!-- Main Content Area -->
@@ -1054,22 +1075,6 @@
             
             <!-- Workspace Container -->
             <div class="workspace-container">
-                <!-- Formula Sidebar -->
-                <aside class="formula-sidebar" id="formula-sidebar">
-                    <div class="formula-sidebar-header">
-                        <button class="formula-tab active" onclick="switchFormulaTab('formulas')">📐 Formler</button>
-                        <button class="formula-tab" onclick="switchFormulaTab('data')">📊 Data</button>
-                    </div>
-                    <div class="formula-content">
-                        <div id="formula-list-container">
-                            <div class="formula-list" id="formula-list"></div>
-                        </div>
-                        <div id="variable-list-container" style="display: none;">
-                            <div id="variable-list"></div>
-                        </div>
-                    </div>
-                </aside>
-                
                 <!-- Main Workspace -->
                 <main class="workspace" id="workspace">
                     <!-- Welcome Screen -->
@@ -1378,7 +1383,7 @@
             gameState.correctCount = 0;
             gameState.currentIndex = 0;
             gameState.answered = [];
-            gameState.allQuestions = []; // Store all questions for filtering
+            gameState.allQuestions = [];
             
             setActiveTopic(topicId);
             
@@ -1391,8 +1396,10 @@
                     return;
                 }
                 
-                // Show difficulty filter
+                // Show sidebar sections
                 document.getElementById('difficulty-filter').classList.add('visible');
+                document.getElementById('formulas-section').classList.add('visible');
+                document.getElementById('data-section').classList.add('visible');
                 updateDifficultyCounts();
                 
                 // Show game UI
@@ -2098,6 +2105,8 @@
             document.getElementById('progress-section').style.display = 'none';
             document.getElementById('question-selector-section').classList.remove('visible');
             document.getElementById('difficulty-filter').classList.remove('visible');
+            document.getElementById('formulas-section').classList.remove('visible');
+            document.getElementById('data-section').classList.remove('visible');
             
             // Remove active state from topics
             document.querySelectorAll('.topic-item').forEach(function(el) {
@@ -2110,18 +2119,10 @@
         }
         
         // ==================== UI HELPERS ====================
-        function switchFormulaTab(tab) {
-            document.querySelectorAll('.formula-tab').forEach(function(t) {
-                t.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            if (tab === 'formulas') {
-                document.getElementById('formula-list-container').style.display = 'block';
-                document.getElementById('variable-list-container').style.display = 'none';
-            } else {
-                document.getElementById('formula-list-container').style.display = 'none';
-                document.getElementById('variable-list-container').style.display = 'block';
+        function toggleSection(sectionId) {
+            var section = document.getElementById(sectionId + '-section');
+            if (section) {
+                section.classList.toggle('collapsed');
             }
         }
         
