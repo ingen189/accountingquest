@@ -936,10 +936,18 @@
         const db = firebase.database();
         const auth = firebase.auth();
         
+        // Ensure auth state persists across pages
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+            console.log('🔐 Auth persistence set to LOCAL');
+        }).catch(err => {
+            console.error('Auth persistence error:', err);
+        });
+        
         console.log('🔥 Firebase initialized');
         
+        // Your UID from Firebase
         const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
-        const ROLE_LABELS = { admin: 'Admin', teacher_pro: 'Lærer Pro', teacher: 'Lærer', pro: 'Pro', student: 'Student', free: 'Gratis' };
+        const ROLE_LABELS = { admin: 'Admin', superadmin: 'Super Admin', teacher_pro: 'Lærer Pro', teacher: 'Lærer', pro: 'Pro', student: 'Student', free: 'Gratis' };
         
         let currentUser = null;
         let allUsers = [];
@@ -981,9 +989,9 @@
                 const snap = await db.ref('users/' + user.uid).once('value');
                 const userData = snap.val() || {};
                 
-                // Accept multiple admin role formats (admin, Administrator, etc.)
+                // Accept multiple admin role formats (admin, Administrator, superadmin, etc.)
                 const userRole = (userData.role || '').toLowerCase();
-                const isAdminRole = userRole === 'admin' || userRole === 'administrator';
+                const isAdminRole = userRole === 'admin' || userRole === 'administrator' || userRole === 'superadmin';
                 const isAdmin = user.uid === ADMIN_UID || isAdminRole;
                 
                 console.log('Auth check:', { 
