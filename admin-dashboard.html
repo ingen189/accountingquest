@@ -120,7 +120,6 @@
                 <div class="sidebar-item active" onclick="showPage('dashboard', this)">📊 Dashboard</div>
                 <div class="sidebar-section">Innhold</div>
                 <div class="sidebar-item" onclick="showPage('quiz', this)">❓ Quiz (113+)</div>
-                <div class="sidebar-item" onclick="showPage('corporate-finance', this)">💹 Corp. Finance</div>
                 <div class="sidebar-item" onclick="showPage('bokforing', this)">📖 Bokføring (19)</div>
                 <div class="sidebar-item" onclick="showPage('wiki', this)">📚 Wiki</div>
                 <div class="sidebar-section">Brukere</div>
@@ -192,35 +191,6 @@
                     <div class="table-container"><div id="bokforing-list" class="loading"><div class="spinner"></div><span>Laster...</span></div></div>
                 </div>
 
-                <!-- Corporate Finance -->
-                <div id="page-corporate-finance" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">💹 Corporate Finance</h2>
-                        <div>
-                            <button class="btn btn-export" onclick="exportCorporateFinance()">📤 Excel</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('import-module').value='corporate_finance'; showPage('seeder', document.querySelector('.sidebar-item:nth-child(8)'))">📥 Importer JSON</button>
-                        </div>
-                    </div>
-                    <div id="cf-message"></div>
-                    <div class="stats-grid" style="margin-bottom: 20px;">
-                        <div class="stat-card"><div class="stat-value" id="cf-stat-total">-</div><div class="stat-label">Totalt</div></div>
-                        <div class="stat-card"><div class="stat-value" id="cf-stat-npv">-</div><div class="stat-label">NPV/IRR</div></div>
-                        <div class="stat-card"><div class="stat-value" id="cf-stat-wacc">-</div><div class="stat-label">WACC/CAPM</div></div>
-                        <div class="stat-card"><div class="stat-value" id="cf-stat-other">-</div><div class="stat-label">Andre</div></div>
-                    </div>
-                    <div class="tabs">
-                        <button class="tab active" onclick="filterCF('all', this)">Alle</button>
-                        <button class="tab" onclick="filterCF('npv', this)">NPV</button>
-                        <button class="tab" onclick="filterCF('irr', this)">IRR</button>
-                        <button class="tab" onclick="filterCF('wacc', this)">WACC</button>
-                        <button class="tab" onclick="filterCF('capm', this)">CAPM</button>
-                        <button class="tab" onclick="filterCF('bonds', this)">Bonds</button>
-                        <button class="tab" onclick="filterCF('portfolio', this)">Portfolio</button>
-                        <button class="tab" onclick="filterCF('options', this)">Options</button>
-                    </div>
-                    <div class="table-container"><div id="cf-list" class="loading"><div class="spinner"></div><span>Laster...</span></div></div>
-                </div>
-
                 <!-- Wiki -->
                 <div id="page-wiki" class="page">
                     <div class="page-header">
@@ -282,60 +252,39 @@
                     <!-- JSON Import Section -->
                     <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #2d333b;">
                         <h3 style="color: #4ade80; margin-bottom: 20px;">📥 Importer fra JSON-fil</h3>
-                        <p style="color: #9ca3af; margin-bottom: 20px;">Last opp JSON-filer med innhold. Støtter Quiz, Corporate Finance, Bokføring og Wiki.</p>
+                        <p style="color: #9ca3af; margin-bottom: 20px;">Last opp en JSON-fil med spørsmål. Støtter formatet fra quiz-seed-complete.json.</p>
                         
                         <div class="stats-grid">
                             <div class="seed-card">
                                 <h3>📄 Last opp JSON</h3>
-                                <p>Velg modul og last opp fil</p>
-                                <div class="form-group">
-                                    <label>Modul</label>
-                                    <select id="import-module">
-                                        <option value="auto">🔄 Auto-detect</option>
-                                        <option value="quiz">❓ Quiz</option>
-                                        <option value="corporate_finance">💹 Corporate Finance</option>
-                                        <option value="bokforing">📖 Bokføring</option>
-                                        <option value="wiki">📚 Wiki</option>
-                                    </select>
-                                </div>
+                                <p>Velg en JSON-fil med quiz-spørsmål</p>
                                 <input type="file" id="json-file-input" accept=".json" style="display: none;" onchange="handleJsonFile(event)">
                                 <button class="btn btn-primary" onclick="document.getElementById('json-file-input').click()">📂 Velg fil</button>
                             </div>
                             <div class="seed-card">
                                 <h3>📋 Forhåndsvisning</h3>
                                 <p id="json-preview-count">Ingen fil valgt</p>
-                                <p id="json-detected-module" style="color: #4ade80; font-size: 0.9em;"></p>
                                 <button class="btn btn-primary" onclick="importJsonToFirebase()" id="btn-import-json" disabled>⬆️ Importer til Firebase</button>
                                 <div class="progress-bar"><div class="progress-fill" id="prog-json-import" style="width:0%"></div></div>
                             </div>
                         </div>
                         
                         <div id="json-preview" style="margin-top: 20px; display: none;">
-                            <h4 style="color: #9ca3af; margin-bottom: 10px;">Kategorier/Topics funnet:</h4>
+                            <h4 style="color: #9ca3af; margin-bottom: 10px;">Kategorier funnet:</h4>
                             <div id="json-categories" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
                             <div class="table-container" style="margin-top: 15px; max-height: 300px;">
                                 <table class="data-table" id="json-preview-table">
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Tittel/Spørsmål</th>
-                                            <th>Topic/Kategori</th>
+                                            <th>Spørsmål</th>
+                                            <th>Kategori</th>
                                             <th>Vanskelighet</th>
                                         </tr>
                                     </thead>
                                     <tbody id="json-preview-body"></tbody>
                                 </table>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Quick Download Templates -->
-                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #2d333b;">
-                        <h3 style="color: #4ade80; margin-bottom: 20px;">📝 JSON Maler</h3>
-                        <p style="color: #9ca3af; margin-bottom: 15px;">Last ned mal-filer for å se riktig format:</p>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button class="btn btn-secondary" onclick="downloadTemplate('corporate_finance')">💹 Corporate Finance mal</button>
-                            <button class="btn btn-secondary" onclick="downloadTemplate('quiz')">❓ Quiz mal</button>
                         </div>
                     </div>
                 </div>
@@ -554,44 +503,33 @@
     </div>
 
     <script>
-        // Firebase Config - accountingquest-multiplayer (same as rest of app)
+        // Firebase Config
         const firebaseConfig = {
-            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
-            authDomain: "accountingquest-multiplayer.firebaseapp.com",
-            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest-multiplayer",
-            storageBucket: "accountingquest-multiplayer.appspot.com",
-            messagingSenderId: "155094858270",
-            appId: "1:155094858270:web:abc123"
+            apiKey: "AIzaSyBPnvICblMUOVXkNSwba7NUqDALNa3lEUg",
+            authDomain: "accountingquest.firebaseapp.com",
+            databaseURL: "https://accountingquest-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest",
+            storageBucket: "accountingquest.firebasestorage.app",
+            messagingSenderId: "495735037392",
+            appId: "1:495735037392:web:ff1dc9d8f498c6926fed2a"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
         let currentUser = null;
-        let currentFilter = { quiz: 'all', bokforing: 'all', cf: 'all' };
-        let allData = { quiz: [], bokforing: [], wiki: [], users: [], teachers: [], cf: [] };
-
-        // Admin UID - hardkodet for sikkerhet
-        const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
+        let currentFilter = { quiz: 'all', bokforing: 'all' };
+        let allData = { quiz: [], bokforing: [], wiki: [], users: [], teachers: [] };
 
         // Auth
         auth.onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = 'auth.html'; return; }
             currentUser = user;
-            
-            // Check admin - by UID (primary check)
-            const isAdmin = user.uid === ADMIN_UID;
-            
-            if (!isAdmin) {
-                // Fallback: check admins node
-                const adminSnap = await db.ref('admins/' + user.uid).once('value');
-                if (!adminSnap.exists()) {
-                    document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('access-denied').style.display = 'flex';
-                    return;
-                }
+            const adminSnap = await db.ref('admins/' + user.uid).once('value');
+            if (!adminSnap.exists()) {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('access-denied').style.display = 'flex';
+                return;
             }
-            
             document.getElementById('loading-screen').style.display = 'none';
             document.getElementById('app').style.display = 'block';
             document.getElementById('user-info').textContent = user.email;
@@ -606,7 +544,7 @@
             el.classList.add('active');
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
-            const loaders = { dashboard: loadDashboard, quiz: loadQuiz, bokforing: loadBokforing, wiki: loadWiki, users: loadUsers, teachers: loadTeachers, 'corporate-finance': loadCorporateFinance };
+            const loaders = { dashboard: loadDashboard, quiz: loadQuiz, bokforing: loadBokforing, wiki: loadWiki, users: loadUsers, teachers: loadTeachers };
             if (loaders[pageId]) loaders[pageId]();
         }
 
@@ -783,103 +721,6 @@
             closeModal('bokforing-modal');
             showMsg('bokforing-message', 'Oppgave lagret!', 'success');
             loadBokforing();
-        }
-
-        // Corporate Finance
-        async function loadCorporateFinance() {
-            try {
-                const snap = await db.ref('questions/corporate_finance').once('value');
-                allData.cf = [];
-                
-                // Parse nested structure: topic/difficulty/id
-                snap.forEach(topicSnap => {
-                    const topic = topicSnap.key;
-                    topicSnap.forEach(diffSnap => {
-                        const difficulty = diffSnap.key;
-                        diffSnap.forEach(qSnap => {
-                            allData.cf.push({
-                                id: qSnap.key,
-                                topic: topic,
-                                difficulty: difficulty,
-                                ...qSnap.val()
-                            });
-                        });
-                    });
-                });
-                
-                // Update stats
-                document.getElementById('cf-stat-total').textContent = allData.cf.length;
-                document.getElementById('cf-stat-npv').textContent = allData.cf.filter(q => q.topic === 'npv' || q.topic === 'irr').length;
-                document.getElementById('cf-stat-wacc').textContent = allData.cf.filter(q => q.topic === 'wacc' || q.topic === 'capm').length;
-                document.getElementById('cf-stat-other').textContent = allData.cf.filter(q => !['npv','irr','wacc','capm'].includes(q.topic)).length;
-                
-                renderCF();
-            } catch (e) {
-                console.error('Error loading CF:', e);
-                document.getElementById('cf-list').innerHTML = '<p style="color:#ef4444;padding:20px">Feil ved lasting: ' + e.message + '</p>';
-            }
-        }
-
-        function filterCF(topic, el) {
-            document.querySelectorAll('#page-corporate-finance .tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-            currentFilter.cf = topic;
-            renderCF();
-        }
-
-        function renderCF() {
-            const filtered = currentFilter.cf === 'all' ? allData.cf : allData.cf.filter(q => q.topic === currentFilter.cf);
-            const diffBadge = d => d === 'easy' ? 'badge-green' : d === 'medium' ? 'badge-orange' : 'badge-red';
-            const typeBadge = t => t === 'calculation' ? 'badge-purple' : 'badge-blue';
-            
-            document.getElementById('cf-list').innerHTML = filtered.length ? `
-                <table class="data-table">
-                    <thead><tr><th>ID</th><th>Tittel</th><th>Topic</th><th>Type</th><th>Nivå</th><th>Handlinger</th></tr></thead>
-                    <tbody>${filtered.map(q => `
-                        <tr>
-                            <td><code style="font-size:0.8em">${q.id}</code></td>
-                            <td title="${(q.title||'').replace(/"/g, '&quot;')}">${(q.title||'').substring(0,40)}${(q.title||'').length > 40 ? '...' : ''}</td>
-                            <td><span class="badge badge-blue">${q.topic}</span></td>
-                            <td><span class="badge ${typeBadge(q.type)}">${q.type === 'calculation' ? '🧮 Calc' : '📝 MC'}</span></td>
-                            <td><span class="badge ${diffBadge(q.difficulty)}">${q.difficulty}</span></td>
-                            <td class="action-btns">
-                                <button class="action-btn delete" onclick="deleteCFQuestion('${q.topic}','${q.difficulty}','${q.id}')">🗑️</button>
-                            </td>
-                        </tr>
-                    `).join('')}</tbody>
-                </table>
-            ` : '<p style="color:#9ca3af;padding:20px">Ingen oppgaver funnet. Bruk "Importer JSON" for å laste opp corporate-finance-data.json</p>';
-        }
-
-        async function deleteCFQuestion(topic, difficulty, id) {
-            if (!confirm(`Slett oppgave ${id}?`)) return;
-            try {
-                await db.ref(`questions/corporate_finance/${topic}/${difficulty}/${id}`).remove();
-                await db.ref(`solutions/corporate_finance/${id}`).remove();
-                showMsg('cf-message', 'Oppgave slettet!', 'success');
-                loadCorporateFinance();
-            } catch (e) {
-                showMsg('cf-message', 'Feil: ' + e.message, 'error');
-            }
-        }
-
-        function exportCorporateFinance() {
-            if (!allData.cf.length) {
-                alert('Ingen data å eksportere. Last inn Corporate Finance-siden først.');
-                return;
-            }
-            const ws = XLSX.utils.json_to_sheet(allData.cf.map(q => ({
-                ID: q.id,
-                Topic: q.topic,
-                Difficulty: q.difficulty,
-                Type: q.type,
-                Title: q.title,
-                Question: q.question,
-                Source: q.source
-            })));
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Corporate Finance');
-            XLSX.writeFile(wb, 'corporate-finance-export.xlsx');
         }
 
         // Wiki
@@ -1281,11 +1122,7 @@
         // JSON IMPORT FUNCTIONS - OPPDATERT FOR CORPORATE FINANCE
         // ============================================
         let pendingJsonData = null;
-<<<<<<< HEAD
         let pendingJsonType = 'quiz'; // 'quiz' eller 'corporate_finance'
-=======
-        let detectedModule = null;
->>>>>>> 1bb0c22a69aaaf19c8d578448992be89430f8d6e
 
         function handleJsonFile(event) {
             const file = event.target.files[0];
@@ -1306,10 +1143,9 @@
         }
 
         function processJsonData(data, filename) {
-            const selectedModule = document.getElementById('import-module').value;
-            let items = [];
+            // Support different JSON structures
+            let questions = {};
             
-<<<<<<< HEAD
             if (data.quizQuestions) {
                 questions = data.quizQuestions;
             } else if (Array.isArray(data)) {
@@ -1319,45 +1155,16 @@
                 });
             } else if (typeof data === 'object') {
                 questions = data;
-=======
-            // Detect module from data structure
-            if (data.metadata && data.metadata.module === 'corporate_finance') {
-                detectedModule = 'corporate_finance';
-                items = data.exercises || [];
-            } else if (data.exercises && Array.isArray(data.exercises)) {
-                detectedModule = data.metadata?.module || 'corporate_finance';
-                items = data.exercises;
-            } else if (data.quizQuestions) {
-                detectedModule = 'quiz';
-                items = Object.values(data.quizQuestions);
-            } else if (Array.isArray(data)) {
-                // Check first item to detect module
-                const first = data[0];
-                if (first && first.module === 'corporate_finance') {
-                    detectedModule = 'corporate_finance';
-                } else if (first && (first.topic || first.category)) {
-                    detectedModule = first.module || 'quiz';
-                }
-                items = data;
-            } else if (typeof data === 'object') {
-                items = Object.values(data);
-                detectedModule = items[0]?.module || 'quiz';
->>>>>>> 1bb0c22a69aaaf19c8d578448992be89430f8d6e
             }
 
-            // Override with manual selection if not auto
-            if (selectedModule !== 'auto') {
-                detectedModule = selectedModule;
-            }
-
-            const count = items.length;
+            const count = Object.keys(questions).length;
             
             if (count === 0) {
-                showMsg('seeder-message', '❌ Ingen oppgaver funnet i filen', 'error');
+                showMsg('seeder-message', '❌ Ingen spørsmål funnet i filen', 'error');
                 return;
             }
 
-            pendingJsonData = items;
+            pendingJsonData = questions;
             
             // Detect if Corporate Finance
             const firstQ = Object.values(questions)[0];
@@ -1367,7 +1174,6 @@
             pendingJsonType = isCorporateFinance ? 'corporate_finance' : 'quiz';
             
             // Update preview
-<<<<<<< HEAD
             document.getElementById('json-preview-count').textContent = 
                 `${count} spørsmål funnet ${isCorporateFinance ? '(📊 Corporate Finance)' : '(❓ Quiz)'}`;
             document.getElementById('btn-import-json').disabled = false;
@@ -1382,29 +1188,12 @@
                 if (q.topic) {
                     topics[q.topic] = (topics[q.topic] || 0) + 1;
                 }
-=======
-            document.getElementById('json-preview-count').textContent = `${count} oppgaver funnet`;
-            document.getElementById('json-detected-module').textContent = `Modul: ${getModuleName(detectedModule)}`;
-            document.getElementById('btn-import-json').disabled = false;
-            document.getElementById('json-preview').style.display = 'block';
-
-            // Analyze topics/categories
-            const topics = {};
-            items.forEach(q => {
-                const topic = q.topic || q.category || 'ukjent';
-                topics[topic] = (topics[topic] || 0) + 1;
->>>>>>> 1bb0c22a69aaaf19c8d578448992be89430f8d6e
             });
 
             // Display categories
             const catContainer = document.getElementById('json-categories');
-<<<<<<< HEAD
             let badgesHtml = Object.entries(categories)
                 .map(([cat, count]) => `<span class="badge badge-blue">${cat}: ${count}</span>`)
-=======
-            catContainer.innerHTML = Object.entries(topics)
-                .map(([topic, count]) => `<span class="badge badge-blue">${topic}: ${count}</span>`)
->>>>>>> 1bb0c22a69aaaf19c8d578448992be89430f8d6e
                 .join('');
             
             if (Object.keys(topics).length > 0) {
@@ -1417,12 +1206,12 @@
 
             // Display preview table
             const tbody = document.getElementById('json-preview-body');
-            const previewItems = items.slice(0, 20);
-            tbody.innerHTML = previewItems.map(q => `
+            const items = Object.entries(questions).slice(0, 20);
+            tbody.innerHTML = items.map(([id, q]) => `
                 <tr>
-                    <td>${q.id || '-'}</td>
-                    <td>${(q.title || q.question || q.q || '').substring(0, 50)}...</td>
-                    <td><span class="badge badge-blue">${q.topic || q.category || '-'}</span></td>
+                    <td>${id}</td>
+                    <td>${(q.question || q.q || '').substring(0, 60)}...</td>
+                    <td><span class="badge badge-blue">${q.category || '-'}</span></td>
                     <td><span class="badge ${getDiffBadge(q.difficulty)}">${q.difficulty || '-'}</span></td>
                 </tr>
             `).join('');
@@ -1431,22 +1220,8 @@
                 tbody.innerHTML += `<tr><td colspan="4" style="text-align:center; color:#9ca3af;">... og ${count - 20} flere</td></tr>`;
             }
 
-<<<<<<< HEAD
             const typeEmoji = isCorporateFinance ? '📊' : '❓';
             showMsg('seeder-message', `✅ Fil lastet: ${filename} (${count} ${typeEmoji} spørsmål)`, 'success');
-=======
-            showMsg('seeder-message', `✅ Fil lastet: ${filename} (${count} oppgaver, modul: ${getModuleName(detectedModule)})`, 'success');
-        }
-
-        function getModuleName(module) {
-            const names = {
-                'corporate_finance': '💹 Corporate Finance',
-                'quiz': '❓ Quiz',
-                'bokforing': '📖 Bokføring',
-                'wiki': '📚 Wiki'
-            };
-            return names[module] || module;
->>>>>>> 1bb0c22a69aaaf19c8d578448992be89430f8d6e
         }
 
         function getDiffBadge(difficulty) {
@@ -1458,12 +1233,11 @@
         }
 
         async function importJsonToFirebase() {
-            if (!pendingJsonData || !detectedModule) {
+            if (!pendingJsonData) {
                 showMsg('seeder-message', '❌ Ingen data å importere', 'error');
                 return;
             }
 
-<<<<<<< HEAD
             const count = Object.keys(pendingJsonData).length;
             const isCF = pendingJsonType === 'corporate_finance';
             
@@ -1478,11 +1252,6 @@
             confirmMsg += `\n\nEksisterende spørsmål med samme ID vil bli overskrevet.`;
             
             if (!confirm(confirmMsg)) {
-=======
-            const count = pendingJsonData.length;
-            
-            if (!confirm(`Er du sikker på at du vil importere ${count} oppgaver til ${getModuleName(detectedModule)}?\n\nEksisterende oppgaver med samme ID vil bli overskrevet.`)) {
->>>>>>> 1bb0c22a69aaaf19c8d578448992be89430f8d6e
                 return;
             }
 
@@ -1495,133 +1264,20 @@
                 prog.style.width = '10%';
                 showMsg('seeder-message', '🔄 Importerer til Firebase...', 'info');
 
-<<<<<<< HEAD
                 if (isCF) {
                     await importCorporateFinanceQuestions(pendingJsonData, prog);
                 } else {
                     await importRegularQuestions(pendingJsonData, prog);
-=======
-                let imported = 0;
-                let errors = 0;
-
-                if (detectedModule === 'corporate_finance') {
-                    // Corporate Finance: write to questions/corporate_finance/{topic}/{difficulty}/{id}
-                    // And solutions to solutions/corporate_finance/{id}
-                    for (const ex of pendingJsonData) {
-                        try {
-                            const topic = ex.topic || 'general';
-                            const difficulty = ex.difficulty || 'medium';
-                            const id = ex.id || `cf_${Date.now()}_${imported}`;
-                            
-                            // Question data (without solution)
-                            const questionPath = `questions/corporate_finance/${topic}/${difficulty}/${id}`;
-                            const questionData = {
-                                id: id,
-                                module: 'corporate_finance',
-                                topic: topic,
-                                difficulty: difficulty,
-                                type: ex.type || 'multiple_choice',
-                                title: ex.title || '',
-                                question: ex.question || ex.title || '',
-                                tags: ex.tags || [],
-                                source: ex.source || 'BØK260'
-                            };
-                            
-                            if (ex.type === 'multiple_choice' && ex.options) {
-                                questionData.options = ex.options.map(o => ({ id: o.id, text: o.text }));
-                            } else if (ex.type === 'calculation' && ex.data) {
-                                questionData.data = ex.data;
-                                questionData.formula = ex.formula || '';
-                            }
-                            
-                            await db.ref(questionPath).set(questionData);
-                            
-                            // Solution data
-                            const solutionPath = `solutions/corporate_finance/${id}`;
-                            const solutionData = {
-                                hints: ex.hints || [],
-                                explanation: ex.explanation || ''
-                            };
-                            
-                            if (ex.type === 'multiple_choice') {
-                                solutionData.correct = ex.correct || (ex.options?.find(o => o.correct)?.id) || 'a';
-                            } else {
-                                solutionData.correct = ex.correct || ex.correctAnswer;
-                                solutionData.tolerance = ex.tolerance || 0;
-                            }
-                            
-                            await db.ref(solutionPath).set(solutionData);
-                            imported++;
-                            
-                        } catch (e) {
-                            console.error('Error importing:', ex.id, e);
-                            errors++;
-                        }
-                        
-                        prog.style.width = `${Math.round((imported / count) * 100)}%`;
-                    }
-                    
-                    // Update metadata
-                    await db.ref('questions/_metadata').update({
-                        corporate_finance_count: imported,
-                        lastUpdated: Date.now()
-                    });
-                    
-                } else if (detectedModule === 'quiz') {
-                    // Quiz: write to quizQuestions/{id}
-                    const batchSize = 50;
-                    for (let i = 0; i < pendingJsonData.length; i += batchSize) {
-                        const batch = pendingJsonData.slice(i, i + batchSize);
-                        const updates = {};
-                        
-                        batch.forEach((q, idx) => {
-                            const id = q.id || `quiz_${Date.now()}_${i + idx}`;
-                            if (!q.createdAt) q.createdAt = Date.now();
-                            updates[id] = q;
-                        });
-
-                        await db.ref('quizQuestions').update(updates);
-                        imported += batch.length;
-                        prog.style.width = `${Math.round((imported / count) * 100)}%`;
-                    }
-                    
-                } else if (detectedModule === 'bokforing') {
-                    // Bokføring: write to bokforing/{id}
-                    for (const ex of pendingJsonData) {
-                        const id = ex.id || `bok_${Date.now()}_${imported}`;
-                        await db.ref(`bokforing/${id}`).set(ex);
-                        imported++;
-                        prog.style.width = `${Math.round((imported / count) * 100)}%`;
-                    }
-                    
-                } else if (detectedModule === 'wiki') {
-                    // Wiki: write to wiki/articles/{id}
-                    for (const article of pendingJsonData) {
-                        const id = article.id || `wiki_${Date.now()}_${imported}`;
-                        await db.ref(`wiki/articles/${id}`).set({
-                            ...article,
-                            createdAt: article.createdAt || Date.now(),
-                            updatedAt: Date.now()
-                        });
-                        imported++;
-                        prog.style.width = `${Math.round((imported / count) * 100)}%`;
-                    }
->>>>>>> 1bb0c22a69aaaf19c8d578448992be89430f8d6e
                 }
 
                 prog.style.width = '100%';
-                showMsg('seeder-message', `✅ ${imported} oppgaver importert til ${getModuleName(detectedModule)}! ${errors > 0 ? `(${errors} feil)` : ''}`, 'success');
+                showMsg('seeder-message', `✅ ${count} spørsmål importert til Firebase!`, 'success');
                 
                 // Reset
                 pendingJsonData = null;
-<<<<<<< HEAD
                 pendingJsonType = 'quiz';
-=======
-                detectedModule = null;
->>>>>>> 1bb0c22a69aaaf19c8d578448992be89430f8d6e
                 document.getElementById('json-preview').style.display = 'none';
                 document.getElementById('json-preview-count').textContent = 'Ingen fil valgt';
-                document.getElementById('json-detected-module').textContent = '';
                 document.getElementById('json-file-input').value = '';
                 btn.textContent = '⬆️ Importer til Firebase';
                 btn.disabled = true;
@@ -1636,7 +1292,6 @@
             }
         }
 
-<<<<<<< HEAD
         /**
          * Importer Corporate Finance spørsmål til riktig Firebase-struktur
          * 
@@ -1789,75 +1444,6 @@
                 imported += batch.length;
                 prog.style.width = `${Math.round((imported / entries.length) * 100)}%`;
             }
-=======
-        function downloadTemplate(module) {
-            let template;
-            
-            if (module === 'corporate_finance') {
-                template = {
-                    metadata: {
-                        module: "corporate_finance",
-                        version: "1.0.0"
-                    },
-                    exercises: [
-                        {
-                            id: "cf_example_001",
-                            topic: "npv",
-                            difficulty: "easy",
-                            type: "multiple_choice",
-                            title: "Eksempel NPV spørsmål",
-                            question: "Hva er NPV beslutningsregelen?",
-                            options: [
-                                { id: "a", text: "Aksepter hvis NPV > 0" },
-                                { id: "b", text: "Aksepter hvis NPV > 100" }
-                            ],
-                            correct: "a",
-                            explanation: "NPV > 0 betyr verdiskaping",
-                            hints: ["Tenk på verdiskaping"],
-                            tags: ["npv"],
-                            source: "BØK260"
-                        },
-                        {
-                            id: "cf_example_002",
-                            topic: "irr",
-                            difficulty: "medium",
-                            type: "calculation",
-                            title: "Eksempel kalkulator",
-                            question: "Beregn NPV...",
-                            data: { investment: 100000, rate: 0.10 },
-                            correct: 12345,
-                            tolerance: 100,
-                            formula: "NPV = -I + CF/(1+r)",
-                            hints: ["Bruk formel"],
-                            tags: ["npv", "calculation"],
-                            source: "BØK260"
-                        }
-                    ]
-                };
-            } else {
-                template = {
-                    quizQuestions: {
-                        "quiz_example_001": {
-                            id: "quiz_example_001",
-                            category: "regnskap",
-                            difficulty: "easy",
-                            question: "Eksempel spørsmål?",
-                            options: ["Svar A", "Svar B", "Svar C", "Svar D"],
-                            correct: 0,
-                            explanation: "Forklaring her"
-                        }
-                    }
-                };
-            }
-            
-            const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${module}-template.json`;
-            a.click();
-            URL.revokeObjectURL(url);
->>>>>>> 1bb0c22a69aaaf19c8d578448992be89430f8d6e
         }
     </script>
 </body>
