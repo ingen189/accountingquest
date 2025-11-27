@@ -1117,10 +1117,12 @@
             XLSX.writeFile(wb, 'AccountingQuest_Alt.xlsx');
         }
 
+
         // ============================================
-        // JSON IMPORT FUNCTIONS
+        // JSON IMPORT FUNCTIONS - OPPDATERT FOR CORPORATE FINANCE
         // ============================================
         let pendingJsonData = null;
+        let pendingJsonType = 'quiz'; // 'quiz' eller 'corporate_finance'
 
         function handleJsonFile(event) {
             const file = event.target.files[0];
@@ -1145,16 +1147,13 @@
             let questions = {};
             
             if (data.quizQuestions) {
-                // Format: { quizQuestions: { id: {...}, id2: {...} } }
                 questions = data.quizQuestions;
             } else if (Array.isArray(data)) {
-                // Format: [ {...}, {...} ]
                 data.forEach((q, i) => {
                     const id = q.id || `q_${i}_${Date.now()}`;
                     questions[id] = q;
                 });
             } else if (typeof data === 'object') {
-                // Format: { id: {...}, id2: {...} }
                 questions = data;
             }
 
@@ -1167,23 +1166,43 @@
 
             pendingJsonData = questions;
             
+            // Detect if Corporate Finance
+            const firstQ = Object.values(questions)[0];
+            const isCorporateFinance = firstQ.category === 'corporate_finance' || 
+                                       firstQ.module === 'corporate_finance' ||
+                                       (firstQ.id && firstQ.id.startsWith('cf_'));
+            pendingJsonType = isCorporateFinance ? 'corporate_finance' : 'quiz';
+            
             // Update preview
-            document.getElementById('json-preview-count').textContent = `${count} spørsmål funnet`;
+            document.getElementById('json-preview-count').textContent = 
+                `${count} spørsmål funnet ${isCorporateFinance ? '(📊 Corporate Finance)' : '(❓ Quiz)'}`;
             document.getElementById('btn-import-json').disabled = false;
             document.getElementById('json-preview').style.display = 'block';
 
-            // Analyze categories
+            // Analyze categories/topics
             const categories = {};
+            const topics = {};
             Object.values(questions).forEach(q => {
                 const cat = q.category || 'ukjent';
                 categories[cat] = (categories[cat] || 0) + 1;
+                if (q.topic) {
+                    topics[q.topic] = (topics[q.topic] || 0) + 1;
+                }
             });
 
             // Display categories
             const catContainer = document.getElementById('json-categories');
-            catContainer.innerHTML = Object.entries(categories)
+            let badgesHtml = Object.entries(categories)
                 .map(([cat, count]) => `<span class="badge badge-blue">${cat}: ${count}</span>`)
                 .join('');
+            
+            if (Object.keys(topics).length > 0) {
+                badgesHtml += '<br><br><strong style="color:#9ca3af;">Topics:</strong> ';
+                badgesHtml += Object.entries(topics)
+                    .map(([topic, count]) => `<span class="badge badge-purple">${topic}: ${count}</span>`)
+                    .join(' ');
+            }
+            catContainer.innerHTML = badgesHtml;
 
             // Display preview table
             const tbody = document.getElementById('json-preview-body');
@@ -1201,7 +1220,8 @@
                 tbody.innerHTML += `<tr><td colspan="4" style="text-align:center; color:#9ca3af;">... og ${count - 20} flere</td></tr>`;
             }
 
-            showMsg('seeder-message', `✅ Fil lastet: ${filename} (${count} spørsmål)`, 'success');
+            const typeEmoji = isCorporateFinance ? '📊' : '❓';
+            showMsg('seeder-message', `✅ Fil lastet: ${filename} (${count} ${typeEmoji} spørsmål)`, 'success');
         }
 
         function getDiffBadge(difficulty) {
@@ -1219,8 +1239,19 @@
             }
 
             const count = Object.keys(pendingJsonData).length;
+            const isCF = pendingJsonType === 'corporate_finance';
             
-            if (!confirm(`Er du sikker på at du vil importere ${count} spørsmål til Firebase?\n\nEksisterende spørsmål med samme ID vil bli overskrevet.`)) {
+            let confirmMsg = `Er du sikker på at du vil importere ${count} spørsmål til Firebase?\n\n`;
+            if (isCF) {
+                confirmMsg += `📊 CORPORATE FINANCE oppdaget!\n`;
+                confirmMsg += `Lagres til: questions/corporate_finance/{topic}/{difficulty}/{id}\n`;
+                confirmMsg += `Løsninger: solutions/corporate_finance/{id}`;
+            } else {
+                confirmMsg += `Lagres til: quizQuestions/{id}`;
+            }
+            confirmMsg += `\n\nEksisterende spørsmål med samme ID vil bli overskrevet.`;
+            
+            if (!confirm(confirmMsg)) {
                 return;
             }
 
@@ -1233,27 +1264,10 @@
                 prog.style.width = '10%';
                 showMsg('seeder-message', '🔄 Importerer til Firebase...', 'info');
 
-                // Split into batches of 50 for progress updates
-                const entries = Object.entries(pendingJsonData);
-                const batchSize = 50;
-                let imported = 0;
-
-                for (let i = 0; i < entries.length; i += batchSize) {
-                    const batch = entries.slice(i, i + batchSize);
-                    const updates = {};
-                    
-                    batch.forEach(([id, question]) => {
-                        // Add timestamp if not present
-                        if (!question.createdAt) {
-                            question.createdAt = Date.now();
-                        }
-                        updates[id] = question;
-                    });
-
-                    await db.ref('quizQuestions').update(updates);
-                    
-                    imported += batch.length;
-                    prog.style.width = `${Math.round((imported / count) * 100)}%`;
+                if (isCF) {
+                    await importCorporateFinanceQuestions(pendingJsonData, prog);
+                } else {
+                    await importRegularQuestions(pendingJsonData, prog);
                 }
 
                 prog.style.width = '100%';
@@ -1261,13 +1275,13 @@
                 
                 // Reset
                 pendingJsonData = null;
+                pendingJsonType = 'quiz';
                 document.getElementById('json-preview').style.display = 'none';
                 document.getElementById('json-preview-count').textContent = 'Ingen fil valgt';
                 document.getElementById('json-file-input').value = '';
                 btn.textContent = '⬆️ Importer til Firebase';
                 btn.disabled = true;
 
-                // Reload dashboard stats
                 loadDashboard();
 
             } catch (error) {
@@ -1275,6 +1289,160 @@
                 showMsg('seeder-message', '❌ Feil ved import: ' + error.message, 'error');
                 btn.textContent = '⬆️ Importer til Firebase';
                 btn.disabled = false;
+            }
+        }
+
+        /**
+         * Importer Corporate Finance spørsmål til riktig Firebase-struktur
+         * 
+         * Firebase-stier:
+         * - questions/corporate_finance/{topic}/{difficulty}/{id} - Spørsmål (uten fasit)
+         * - solutions/corporate_finance/{id} - Fasit, hints, forklaring
+         */
+        async function importCorporateFinanceQuestions(questions, prog) {
+            const entries = Object.entries(questions);
+            const total = entries.length;
+            let successCount = 0;
+            let errorCount = 0;
+            const errors = [];
+            
+            prog.style.width = '20%';
+            
+            // Gyldige topics for corporate finance
+            const validTopics = ['npv', 'irr', 'bonds', 'stocks', 'wacc', 'portfolio', 
+                                 'leverage', 'forex', 'options', 'annuity', 'capm', 'macro', 'general'];
+            const validDifficulties = ['easy', 'medium', 'hard'];
+            
+            for (let i = 0; i < entries.length; i++) {
+                const [id, q] = entries[i];
+                
+                try {
+                    // Valider og sett defaults
+                    let topic = q.topic || 'general';
+                    let difficulty = q.difficulty || 'medium';
+                    const qId = q.id || id;
+                    
+                    // Normaliser topic
+                    topic = topic.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (!validTopics.includes(topic)) {
+                        topic = 'general';
+                    }
+                    
+                    // Normaliser difficulty
+                    difficulty = difficulty.toLowerCase();
+                    if (!validDifficulties.includes(difficulty)) {
+                        if (difficulty.includes('lett') || difficulty.includes('easy')) difficulty = 'easy';
+                        else if (difficulty.includes('vansk') || difficulty.includes('hard')) difficulty = 'hard';
+                        else difficulty = 'medium';
+                    }
+                    
+                    // === SPØRSMÅL (uten fasit) ===
+                    const questionPath = `questions/corporate_finance/${topic}/${difficulty}/${qId}`;
+                    const questionData = {
+                        id: qId,
+                        category: 'corporate_finance',
+                        module: 'corporate_finance',
+                        topic: topic,
+                        difficulty: difficulty,
+                        type: q.type || 'mc',
+                        title: q.title || '',
+                        q: q.q || q.question || '',
+                        question: q.question || q.q || '',
+                        options: q.options || null,
+                        data: q.data || null,
+                        scenarioData: q.scenarioData || null,
+                        linkedTo: q.linkedTo || null,
+                        input_fields: q.input_fields || null,
+                        tags: q.tags || [],
+                        source: q.source || '',
+                        wiki: q.wiki || q.wikiLinks || q.w || [],
+                        formulas: q.formulas || [],
+                        createdAt: q.createdAt || Date.now()
+                    };
+                    
+                    // Fjern null/undefined
+                    Object.keys(questionData).forEach(key => {
+                        if (questionData[key] === null || questionData[key] === undefined) {
+                            delete questionData[key];
+                        }
+                    });
+                    
+                    // === LØSNING ===
+                    const solutionPath = `solutions/corporate_finance/${qId}`;
+                    const solutionData = {
+                        correct: q.a || q.answer || q.correct || '',
+                        answer: q.answer || q.a || q.correct || '',
+                        tolerance: q.tolerance || 0,
+                        hints: Array.isArray(q.hints) ? q.hints : [],
+                        explanation: q.explanation || q.exp || '',
+                        exp: q.exp || q.explanation || '',
+                        formula: q.formula || '',
+                        steps: q.steps || [],
+                        learning_objectives: q.learning_objectives || []
+                    };
+                    
+                    // Fjern tomme arrays og null
+                    Object.keys(solutionData).forEach(key => {
+                        if (solutionData[key] === null || 
+                            solutionData[key] === undefined ||
+                            solutionData[key] === '' ||
+                            (Array.isArray(solutionData[key]) && solutionData[key].length === 0)) {
+                            delete solutionData[key];
+                        }
+                    });
+                    
+                    // Skriv til Firebase
+                    await db.ref(questionPath).set(questionData);
+                    await db.ref(solutionPath).set(solutionData);
+                    
+                    successCount++;
+                    
+                } catch (err) {
+                    errorCount++;
+                    errors.push(`${id}: ${err.message}`);
+                    console.error(`Error importing ${id}:`, err);
+                }
+                
+                // Oppdater progress
+                prog.style.width = `${20 + Math.round((i / total) * 80)}%`;
+            }
+            
+            // Logg resultater
+            console.log(`[CF Import] Success: ${successCount}, Errors: ${errorCount}`);
+            if (errors.length > 0) {
+                console.log('[CF Import] Errors:', errors);
+            }
+            
+            if (errorCount > 0) {
+                showMsg('seeder-message', 
+                    `⚠️ Importert ${successCount} spørsmål med ${errorCount} feil. Se konsollen for detaljer.`, 
+                    'info');
+            }
+        }
+
+        /**
+         * Importer vanlige quiz-spørsmål til quizQuestions
+         */
+        async function importRegularQuestions(questions, prog) {
+            const entries = Object.entries(questions);
+            const batchSize = 50;
+            let imported = 0;
+
+            for (let i = 0; i < entries.length; i += batchSize) {
+                const batch = entries.slice(i, i + batchSize);
+                const updates = {};
+                
+                batch.forEach(([id, question]) => {
+                    if (!question.createdAt) {
+                        question.createdAt = Date.now();
+                    }
+                    updates[id] = question;
+                });
+
+                await db.ref('quizQuestions').update(updates);
+                
+                imported += batch.length;
+                prog.style.width = `${Math.round((imported / entries.length) * 100)}%`;
             }
         }
     </script>

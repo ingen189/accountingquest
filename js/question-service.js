@@ -1,25 +1,13 @@
 /**
  * AccountingQuest - Question Service (Sikker versjon)
  * 
+ * OPPDATERT: Lagt til getQuestionsByModule() wrapper for corporate_finance.html
+ * 
  * ARKITEKTUR:
  * - questions/ - Spørsmål UTEN svar (åpen lesing)
  * - solutions/ - Fasit og forklaringer (IKKE tilgjengelig for klient)
  * - submissions/ - Brukerens svar (write-trigger for validering)
  * - validated_answers/ - Resultater med hint/forklaring (kun etter svar)
- * 
- * FLYT:
- * 1. Klient henter spørsmål fra questions/
- * 2. Klient sender svar til submissions/
- * 3. Firebase Rules validerer mot solutions/
- * 4. Klient leser resultat fra validated_answers/
- * 
- * BRUK:
- * <script src="js/firebase-config.js"></script>
- * <script src="js/question-service.js"></script>
- * 
- * QuestionService.getQuestion(type, id) - Hent spørsmål
- * QuestionService.submitAnswer(type, id, answer) - Send svar
- * QuestionService.getCategories(type) - Hent kategorier
  */
 
 var QuestionService = (function() {
@@ -57,22 +45,67 @@ var QuestionService = (function() {
         return null;
     }
     
+    /**
+     * Sanitize spørsmål - fjern løsningsdata
+     */
+    function sanitizeQuestion(id, data, category) {
+        return {
+            id: id,
+            category: category || data.category,
+            topic: data.topic || category,
+            difficulty: data.difficulty,
+            type: data.type || 'mc',
+            title: data.title || '',
+            q: data.q || data.question || '',
+            question: data.question || data.q || '',
+            options: data.options || null,
+            data: data.data || null,
+            scenarioData: data.scenarioData || null,
+            linkedTo: data.linkedTo || null,
+            tags: data.tags || [],
+            source: data.source || '',
+            wiki: data.wiki || data.w || []
+        };
+    }
+    
+    /**
+     * Formater kategorinavn
+     */
+    function formatCategoryName(key) {
+        var names = {
+            'mva': 'MVA',
+            'regnskap': 'Regnskap',
+            'skatt': 'Skatt',
+            'bokforing': 'Bokføring',
+            'revision': 'Revisjon',
+            'npv': 'NPV & IRR',
+            'bonds': 'Obligasjoner',
+            'stocks': 'Aksjer & Utbytte',
+            'wacc': 'WACC',
+            'portfolio': 'Portefølje',
+            'annuity': 'Annuiteter',
+            'forex': 'Valuta',
+            'options': 'Opsjoner',
+            'leverage': 'Gearing',
+            'capm': 'CAPM',
+            'macro': 'Makro'
+        };
+        return names[key] || key.charAt(0).toUpperCase() + key.slice(1);
+    }
+    
     // =========================================
     // QUIZ SPØRSMÅL
     // =========================================
     
-    /**
-     * Hent quiz-spørsmål etter kategori
-     * @param {string} category - Kategori (mva, regnskap, etc.)
-     * @returns {Promise<Array>} Spørsmål uten fasit
-     */
     function getQuizQuestions(category) {
         var cacheKey = 'quiz_' + category;
         if (questionCache[cacheKey]) {
             return Promise.resolve(questionCache[cacheKey]);
         }
         
-        return getDb().ref('questions/quiz/' + category).once('value')
+        var path = category ? 'quizQuestions' : 'quizQuestions';
+        
+        return getDb().ref(path).orderByChild('category').equalTo(category).once('value')
             .then(function(snapshot) {
                 if (!snapshot.exists()) {
                     return [];
@@ -80,20 +113,7 @@ var QuestionService = (function() {
                 
                 var questions = [];
                 snapshot.forEach(function(child) {
-                    var q = child.val();
-                    // Fjern sensitiv info (ekstra sikkerhet)
-                    questions.push({
-                        id: child.key,
-                        type: q.type,
-                        question: q.question || q.q,
-                        options: q.options || q.opts,
-                        category: category,
-                        difficulty: q.difficulty,
-                        tags: q.tags,
-                        law: q.law || q.l,
-                        wiki: q.wiki || q.w
-                        // IKKE: answer, a, explanation, exp, hint
-                    });
+                    questions.push(sanitizeQuestion(child.key, child.val(), category));
                 });
                 
                 questionCache[cacheKey] = questions;
@@ -101,279 +121,64 @@ var QuestionService = (function() {
             });
     }
     
-    /**
-     * Hent alle quiz-kategorier
-     */
     function getQuizCategories() {
         if (categoryCache.quiz) {
             return Promise.resolve(categoryCache.quiz);
         }
         
-        return getDb().ref('questions/quiz').once('value')
+        return getDb().ref('quizQuestions').once('value')
             .then(function(snapshot) {
                 if (!snapshot.exists()) {
                     return [];
                 }
                 
-                var categories = [];
+                var categories = {};
                 snapshot.forEach(function(child) {
-                    var count = child.numChildren();
-                    categories.push({
-                        id: child.key,
-                        name: formatCategoryName(child.key),
-                        count: count
-                    });
+                    var cat = child.val().category;
+                    if (cat && !categories[cat]) {
+                        categories[cat] = {
+                            id: cat,
+                            name: formatCategoryName(cat)
+                        };
+                    }
                 });
                 
-                categoryCache.quiz = categories;
-                return categories;
+                var result = Object.values(categories);
+                categoryCache.quiz = result;
+                return result;
             });
     }
     
-    /**
-     * Send quiz-svar og få resultat
-     * @param {string} category - Kategori
-     * @param {string} questionId - Spørsmåls-ID
-     * @param {*} answer - Brukerens svar
-     * @returns {Promise<Object>} Resultat med isCorrect, hint, explanation
-     */
-    function submitQuizAnswer(category, questionId, answer) {
+    function submitQuizAnswer(questionId, answer, category) {
         var userId = getUserId();
         if (!userId) {
-            return Promise.reject(new Error('Må være innlogget'));
+            return Promise.reject(new Error('Ikke innlogget'));
         }
         
-        var submissionRef = getDb().ref('quiz_submissions/' + userId + '/' + category + '/' + questionId);
-        var resultRef = getDb().ref('quiz_results/' + userId + '/' + category + '/' + questionId);
+        var path = 'quiz_submissions/' + userId + '/' + category + '/' + questionId;
         
-        // Skriv svar
-        return submissionRef.set({
+        return getDb().ref(path).set({
             answer: answer,
-            submittedAt: firebase.database.ServerValue.TIMESTAMP
+            timestamp: firebase.database.ServerValue.TIMESTAMP
         }).then(function() {
-            // Vent litt og les resultat (settes av Cloud Function eller Rules)
-            return new Promise(function(resolve) {
-                // Prøv å lese resultat etter kort delay
-                setTimeout(function() {
-                    resultRef.once('value').then(function(snap) {
-                        if (snap.exists()) {
-                            resolve(snap.val());
-                        } else {
-                            // Fallback: Sjekk lokalt (for utvikling)
-                            checkAnswerLocally(category, questionId, answer).then(resolve);
-                        }
-                    });
-                }, 100);
-            });
+            var resultPath = 'quiz_results/' + userId + '/' + category + '/' + questionId;
+            return getDb().ref(resultPath).once('value');
+        }).then(function(snap) {
+            return snap.val() || { pending: true };
         });
     }
     
-    /**
-     * Lokal svarsjekking (kun for utvikling/fallback)
-     * I produksjon skal dette ALDRI brukes - Cloud Function gjør jobben
-     */
-    function checkAnswerLocally(category, questionId, userAnswer) {
-        return getDb().ref('solutions/quiz/' + category + '/' + questionId).once('value')
-            .then(function(snapshot) {
-                if (!snapshot.exists()) {
-                    return { isCorrect: false, error: 'Løsning ikke funnet' };
-                }
-                
-                var solution = snapshot.val();
-                var isCorrect = checkAnswer(userAnswer, solution.answer, solution.type);
-                
-                return {
-                    isCorrect: isCorrect,
-                    correctAnswer: isCorrect ? solution.answer : null,
-                    hint: solution.hint,
-                    explanation: solution.explanation,
-                    law: solution.law,
-                    wiki: solution.wiki
-                };
-            })
-            .catch(function(error) {
-                // Forventet feil hvis rules blokkerer
-                console.log('Kan ikke lese løsning direkte (som forventet):', error.message);
-                return { isCorrect: false, error: 'Kunne ikke validere' };
-            });
-    }
-    
     // =========================================
-    // BOKFØRING OPPGAVER
+    // BOKFØRING
     // =========================================
     
-    /**
-     * Hent bokføringsoppgaver etter vanskelighetsgrad
-     * @param {string} difficulty - easy/medium/hard
-     */
     function getBokforingTasks(difficulty) {
         var cacheKey = 'bokforing_' + difficulty;
         if (questionCache[cacheKey]) {
             return Promise.resolve(questionCache[cacheKey]);
         }
         
-        return getDb().ref('questions/bokforing/' + difficulty).once('value')
-            .then(function(snapshot) {
-                if (!snapshot.exists()) {
-                    return [];
-                }
-                
-                var tasks = [];
-                snapshot.forEach(function(child) {
-                    var t = child.val();
-                    tasks.push({
-                        id: child.key,
-                        description: t.description,
-                        difficulty: difficulty,
-                        relevantAccounts: t.relevantAccounts,
-                        prefill: t.prefill,
-                        // IKKE: solution, hint
-                    });
-                });
-                
-                questionCache[cacheKey] = tasks;
-                return tasks;
-            });
-    }
-    
-    /**
-     * Send bokføring-svar
-     * @param {string} taskId - Oppgave-ID
-     * @param {Array} entries - Brukerens posteringer [{account, debit, credit}]
-     */
-    function submitBokforingAnswer(taskId, entries) {
-        var userId = getUserId();
-        if (!userId) {
-            return Promise.reject(new Error('Må være innlogget'));
-        }
-        
-        var submissionRef = getDb().ref('bokforing_submissions/' + userId + '/' + taskId);
-        
-        return submissionRef.set({
-            entries: entries,
-            submittedAt: firebase.database.ServerValue.TIMESTAMP
-        }).then(function() {
-            // Les resultat
-            return getDb().ref('bokforing_results/' + userId + '/' + taskId).once('value');
-        }).then(function(snap) {
-            if (snap.exists()) {
-                return snap.val();
-            }
-            // Fallback for utvikling
-            return checkBokforingLocally(taskId, entries);
-        });
-    }
-    
-    /**
-     * Lokal bokføring-sjekking (fallback)
-     */
-    function checkBokforingLocally(taskId, userEntries) {
-        // Finn difficulty fra taskId
-        var difficulties = ['easy', 'medium', 'hard'];
-        
-        return Promise.all(difficulties.map(function(diff) {
-            return getDb().ref('solutions/bokforing/' + diff + '/' + taskId).once('value');
-        })).then(function(snapshots) {
-            for (var i = 0; i < snapshots.length; i++) {
-                if (snapshots[i].exists()) {
-                    var solution = snapshots[i].val();
-                    var result = validateBokforingEntries(userEntries, solution.solution);
-                    
-                    return {
-                        isCorrect: result.isCorrect,
-                        correctEntries: result.isCorrect ? null : solution.solution,
-                        hint: solution.hint,
-                        errors: result.errors
-                    };
-                }
-            }
-            return { isCorrect: false, error: 'Oppgave ikke funnet' };
-        });
-    }
-    
-    /**
-     * Valider bokføringsposteringer
-     */
-    function validateBokforingEntries(userEntries, correctSolution) {
-        var errors = [];
-        
-        // Sjekk at debet = kredit
-        var totalDebit = 0, totalCredit = 0;
-        userEntries.forEach(function(e) {
-            totalDebit += parseFloat(e.debit) || 0;
-            totalCredit += parseFloat(e.credit) || 0;
-        });
-        
-        if (Math.abs(totalDebit - totalCredit) > 0.01) {
-            errors.push('Debet (' + totalDebit + ') er ikke lik kredit (' + totalCredit + ')');
-        }
-        
-        // Sjekk mot løsning
-        var isCorrect = true;
-        
-        // Normaliser og sammenlign
-        var userNorm = normalizeEntries(userEntries);
-        var correctNorm = normalizeEntries(correctSolution);
-        
-        if (userNorm.length !== correctNorm.length) {
-            isCorrect = false;
-            errors.push('Feil antall posteringer');
-        } else {
-            // Sjekk hver postering
-            for (var i = 0; i < correctNorm.length; i++) {
-                var found = false;
-                for (var j = 0; j < userNorm.length; j++) {
-                    if (entriesMatch(userNorm[j], correctNorm[i])) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    isCorrect = false;
-                    errors.push('Mangler postering for konto ' + correctNorm[i].account);
-                }
-            }
-        }
-        
-        return { isCorrect: isCorrect, errors: errors };
-    }
-    
-    function normalizeEntries(entries) {
-        return entries.map(function(e) {
-            return {
-                account: String(e.account).trim(),
-                debit: parseFloat(e.debit) || 0,
-                credit: parseFloat(e.credit) || 0
-            };
-        }).filter(function(e) {
-            return e.debit > 0 || e.credit > 0;
-        });
-    }
-    
-    function entriesMatch(a, b) {
-        return a.account === b.account &&
-               Math.abs(a.debit - b.debit) < 0.01 &&
-               Math.abs(a.credit - b.credit) < 0.01;
-    }
-    
-    // =========================================
-    // CORPORATE FINANCE
-    // =========================================
-    
-    /**
-     * Hent corporate finance spørsmål
-     * @param {string} topic - time_value/valuation/capital_budgeting/etc.
-     * @param {string} difficulty - beginner/intermediate/advanced
-     */
-    function getCorpFinQuestions(topic, difficulty) {
-        var cacheKey = 'corpfin_' + topic + '_' + difficulty;
-        if (questionCache[cacheKey]) {
-            return Promise.resolve(questionCache[cacheKey]);
-        }
-        
-        var path = difficulty 
-            ? 'questions/corporate_finance/' + topic + '/' + difficulty
-            : 'questions/corporate_finance/' + topic;
+        var path = 'bokforingTasks/' + difficulty;
         
         return getDb().ref(path).once('value')
             .then(function(snapshot) {
@@ -381,15 +186,80 @@ var QuestionService = (function() {
                     return [];
                 }
                 
+                var tasks = [];
+                snapshot.forEach(function(child) {
+                    var task = child.val();
+                    task.id = child.key;
+                    tasks.push(task);
+                });
+                
+                questionCache[cacheKey] = tasks;
+                return tasks;
+            });
+    }
+    
+    function submitBokforingAnswer(taskId, answer, difficulty) {
+        var userId = getUserId();
+        if (!userId) {
+            return Promise.reject(new Error('Ikke innlogget'));
+        }
+        
+        var path = 'bokforing_submissions/' + userId + '/' + difficulty + '/' + taskId;
+        
+        return getDb().ref(path).set({
+            answer: answer,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(function() {
+            var resultPath = 'bokforing_results/' + userId + '/' + difficulty + '/' + taskId;
+            return getDb().ref(resultPath).once('value');
+        }).then(function(snap) {
+            return snap.val() || { pending: true };
+        });
+    }
+    
+    // =========================================
+    // CORPORATE FINANCE
+    // =========================================
+    
+    /**
+     * Hent Corporate Finance spørsmål
+     * Firebase-sti: questions/corporate_finance/{topic}/{difficulty}/{id}
+     */
+    function getCorpFinQuestions(topic, difficulty) {
+        var cacheKey = 'corpfin_' + (topic || 'all') + '_' + (difficulty || 'all');
+        if (questionCache[cacheKey]) {
+            return Promise.resolve(questionCache[cacheKey]);
+        }
+        
+        var path;
+        if (topic && difficulty) {
+            path = 'questions/corporate_finance/' + topic + '/' + difficulty;
+        } else if (topic) {
+            path = 'questions/corporate_finance/' + topic;
+        } else {
+            path = 'questions/corporate_finance';
+        }
+        
+        console.log('[QuestionService] Loading CF questions from:', path);
+        
+        return getDb().ref(path).once('value')
+            .then(function(snapshot) {
+                if (!snapshot.exists()) {
+                    console.log('[QuestionService] No questions found at:', path);
+                    return [];
+                }
+                
                 var questions = [];
                 
-                if (difficulty) {
-                    // Direkte liste
+                if (topic && difficulty) {
+                    // Direkte liste: questions/corporate_finance/npv/medium/{id}
                     snapshot.forEach(function(child) {
-                        questions.push(sanitizeQuestion(child.key, child.val(), topic));
+                        var q = sanitizeQuestion(child.key, child.val(), topic);
+                        q.difficulty = difficulty;
+                        questions.push(q);
                     });
-                } else {
-                    // Har difficulty-nivåer
+                } else if (topic) {
+                    // Har difficulty-nivåer: questions/corporate_finance/npv/{difficulty}/{id}
                     snapshot.forEach(function(diffSnap) {
                         diffSnap.forEach(function(child) {
                             var q = sanitizeQuestion(child.key, child.val(), topic);
@@ -397,10 +267,27 @@ var QuestionService = (function() {
                             questions.push(q);
                         });
                     });
+                } else {
+                    // Hent alle: questions/corporate_finance/{topic}/{difficulty}/{id}
+                    snapshot.forEach(function(topicSnap) {
+                        topicSnap.forEach(function(diffSnap) {
+                            diffSnap.forEach(function(child) {
+                                var q = sanitizeQuestion(child.key, child.val(), topicSnap.key);
+                                q.difficulty = diffSnap.key;
+                                q.topic = topicSnap.key;
+                                questions.push(q);
+                            });
+                        });
+                    });
                 }
                 
+                console.log('[QuestionService] Loaded', questions.length, 'CF questions');
                 questionCache[cacheKey] = questions;
                 return questions;
+            })
+            .catch(function(err) {
+                console.error('[QuestionService] Error loading CF questions:', err);
+                return [];
             });
     }
     
@@ -431,148 +318,154 @@ var QuestionService = (function() {
             });
     }
     
-    /**
-     * Submit corp fin answer
-     */
-    function submitCorpFinAnswer(topic, questionId, answer) {
+    function submitCorpFinAnswer(questionId, answer, topic, difficulty) {
         var userId = getUserId();
         if (!userId) {
-            return Promise.reject(new Error('Må være innlogget'));
+            return Promise.reject(new Error('Ikke innlogget'));
         }
         
-        return getDb().ref('corpfin_submissions/' + userId + '/' + topic + '/' + questionId).set({
+        var path = 'corpfin_submissions/' + userId + '/' + topic + '/' + questionId;
+        
+        return getDb().ref(path).set({
             answer: answer,
-            submittedAt: firebase.database.ServerValue.TIMESTAMP
+            difficulty: difficulty,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
         }).then(function() {
-            return getDb().ref('corpfin_results/' + userId + '/' + topic + '/' + questionId).once('value');
+            var resultPath = 'corpfin_results/' + userId + '/' + topic + '/' + questionId;
+            return getDb().ref(resultPath).once('value');
         }).then(function(snap) {
-            return snap.exists() ? snap.val() : { validated: false };
+            return snap.val() || { pending: true };
         });
     }
     
     // =========================================
-    // HJELPEFUNKSJONER
+    // WRAPPER: getQuestionsByModule
+    // Brukes av corporate_finance.html
     // =========================================
     
     /**
-     * Fjern sensitiv info fra spørsmål
+     * Universell wrapper for å hente spørsmål etter modul
+     * @param {string} module - 'corporate_finance', 'quiz', 'bokforing'
+     * @param {string} topic - Emne/kategori (kan være null for alle)
+     * @param {string} difficulty - Vanskelighetsgrad (kan være null for alle)
      */
-    function sanitizeQuestion(id, q, category) {
-        return {
-            id: id,
-            type: q.type,
-            question: q.question || q.q,
-            options: q.options || q.opts,
-            category: category,
-            difficulty: q.difficulty,
-            tags: q.tags,
-            formula: q.formula,
-            image: q.image
-            // Fjernet: answer, a, explanation, exp, hint, solution
-        };
-    }
-    
-    /**
-     * Generisk svarsjekk
-     */
-    function checkAnswer(userAnswer, correctAnswer, type) {
-        switch (type) {
-            case 'mc':
-            case 'multiple_choice':
-                return parseInt(userAnswer) === parseInt(correctAnswer);
-                
-            case 'tf':
-            case 'true_false':
-                return Boolean(userAnswer) === Boolean(correctAnswer);
-                
-            case 'multi':
-            case 'multiple_select':
-                if (!Array.isArray(userAnswer) || !Array.isArray(correctAnswer)) {
-                    return false;
-                }
-                var userSorted = userAnswer.slice().sort();
-                var correctSorted = correctAnswer.slice().sort();
-                return JSON.stringify(userSorted) === JSON.stringify(correctSorted);
-                
-            case 'para':
-            case 'input':
-            case 'text':
-                var userStr = String(userAnswer).toLowerCase().trim();
-                if (Array.isArray(correctAnswer)) {
-                    // Flere gyldige svar
-                    return correctAnswer.some(function(valid) {
-                        return userStr === String(valid).toLowerCase().trim();
-                    });
-                }
-                return userStr === String(correctAnswer).toLowerCase().trim();
-                
-            case 'numeric':
-            case 'number':
-                var tolerance = 0.01;
-                return Math.abs(parseFloat(userAnswer) - parseFloat(correctAnswer)) <= tolerance;
-                
-            default:
-                return userAnswer === correctAnswer;
+    function getQuestionsByModule(module, topic, difficulty) {
+        console.log('[QuestionService] getQuestionsByModule:', module, topic, difficulty);
+        
+        if (module === 'corporate_finance') {
+            return getCorpFinQuestions(topic, difficulty);
+        } else if (module === 'quiz') {
+            return getQuizQuestions(topic);
+        } else if (module === 'bokforing') {
+            return getBokforingTasks(difficulty);
         }
+        
+        console.warn('[QuestionService] Unknown module:', module);
+        return Promise.resolve([]);
     }
     
-    /**
-     * Formater kategorinavn
-     */
-    function formatCategoryName(key) {
-        var names = {
-            'grunnleggende_regnskap': 'Grunnleggende Regnskap',
-            'mva': 'Merverdiavgift (MVA)',
-            'bokforing': 'Bokføring',
-            'skatt': 'Skatt',
-            'revisjon': 'Revisjon og Kontroll',
-            'regnskapsanalyse': 'Regnskapsanalyse',
-            'arsregnskap': 'Årsregnskap og Noter',
-            'regnskapsforing': 'Regnskapsføring',
-            'ekonomistyring': 'Økonomistyring',
-            'regnskapsavslutning': 'Regnskapsavslutning',
-            'time_value': 'Tidsverdien av penger',
-            'valuation': 'Verdsettelse',
-            'capital_budgeting': 'Kapitalbudsjettering',
-            'risk_return': 'Risiko og avkastning',
-            'cost_of_capital': 'Kapitalkostnad',
-            'capital_structure': 'Kapitalstruktur'
-        };
-        return names[key] || key.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
-    }
+    // =========================================
+    // UTILITIES
+    // =========================================
     
-    /**
-     * Tøm cache
-     */
     function clearCache() {
         questionCache = {};
         categoryCache = {};
+        console.log('[QuestionService] Cache cleared');
     }
     
     /**
-     * Hent hint for spørsmål (kun etter forsøk)
+     * Sjekk svar mot solutions/ i Firebase
      */
-    function getHint(type, category, questionId) {
-        var userId = getUserId();
-        if (!userId) {
-            return Promise.reject(new Error('Må være innlogget'));
-        }
+    function checkAnswer(module, questionId, userAnswer) {
+        var solutionPath = 'solutions/' + module + '/' + questionId;
         
-        // Sjekk at bruker har prøvd å svare
-        var submissionPath = type + '_submissions/' + userId + '/' + category + '/' + questionId;
-        
-        return getDb().ref(submissionPath).once('value')
-            .then(function(snap) {
-                if (!snap.exists()) {
-                    return { error: 'Du må prøve å svare først' };
+        return getDb().ref(solutionPath).once('value')
+            .then(function(snapshot) {
+                if (!snapshot.exists()) {
+                    return { error: 'Løsning ikke funnet', correct: false };
                 }
                 
-                // Hent hint fra results
-                var resultPath = type + '_results/' + userId + '/' + category + '/' + questionId;
-                return getDb().ref(resultPath + '/hint').once('value');
+                var solution = snapshot.val();
+                var correctAnswer = solution.correct || solution.answer || solution.a;
+                var tolerance = solution.tolerance || 0;
+                var result = { correct: false, correctAnswer: correctAnswer };
+                
+                // String/multiple choice
+                if (typeof correctAnswer === 'string') {
+                    result.correct = (String(userAnswer).toLowerCase() === correctAnswer.toLowerCase());
+                }
+                // Number
+                else if (typeof correctAnswer === 'number') {
+                    var userNum = parseFloat(userAnswer);
+                    result.correct = !isNaN(userNum) && Math.abs(userNum - correctAnswer) <= tolerance;
+                }
+                // Boolean
+                else if (typeof correctAnswer === 'boolean') {
+                    result.correct = (userAnswer === correctAnswer || 
+                                      String(userAnswer).toLowerCase() === String(correctAnswer));
+                }
+                // Object (multi-field)
+                else if (typeof correctAnswer === 'object' && correctAnswer !== null) {
+                    result.correct = true;
+                    Object.keys(correctAnswer).forEach(function(key) {
+                        var expected = correctAnswer[key];
+                        var actual = userAnswer ? userAnswer[key] : null;
+                        
+                        if (typeof expected === 'number') {
+                            var actualNum = parseFloat(actual);
+                            if (isNaN(actualNum) || Math.abs(actualNum - expected) > tolerance) {
+                                result.correct = false;
+                            }
+                        } else if (String(actual) !== String(expected)) {
+                            result.correct = false;
+                        }
+                    });
+                }
+                
+                return result;
             })
-            .then(function(snap) {
-                return { hint: snap.val() };
+            .catch(function(err) {
+                console.error('[QuestionService] checkAnswer error:', err);
+                return { error: err.message, correct: false };
+            });
+    }
+    
+    /**
+     * Hent hint
+     */
+    function getHint(module, questionId, hintLevel) {
+        var path = 'solutions/' + module + '/' + questionId + '/hints';
+        
+        return getDb().ref(path).once('value')
+            .then(function(snapshot) {
+                var hints = snapshot.val() || [];
+                var level = hintLevel || 0;
+                
+                return {
+                    hint: hints[level] || null,
+                    level: level + 1,
+                    total: hints.length,
+                    hasMore: level + 1 < hints.length
+                };
+            });
+    }
+    
+    /**
+     * Hent forklaring
+     */
+    function getExplanation(module, questionId) {
+        var path = 'solutions/' + module + '/' + questionId;
+        
+        return getDb().ref(path).once('value')
+            .then(function(snapshot) {
+                var solution = snapshot.val() || {};
+                return {
+                    explanation: solution.explanation || solution.exp || '',
+                    formula: solution.formula || '',
+                    steps: solution.steps || [],
+                    learning_objectives: solution.learning_objectives || []
+                };
             });
     }
     
@@ -595,8 +488,12 @@ var QuestionService = (function() {
         getCorpFinTopics: getCorpFinTopics,
         submitCorpFinAnswer: submitCorpFinAnswer,
         
+        // NYTT: Universal modul-wrapper (brukes av corporate_finance.html)
+        getQuestionsByModule: getQuestionsByModule,
+        
         // Utilities
         getHint: getHint,
+        getExplanation: getExplanation,
         clearCache: clearCache,
         checkAnswer: checkAnswer,
         formatCategoryName: formatCategoryName
