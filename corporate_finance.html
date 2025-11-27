@@ -1378,26 +1378,41 @@
             var db = firebase.database();
             var basePath = 'questions/corporate_finance';
             
-            topics.forEach(function(topic) {
-                if (topic.id === 'mixed') {
-                    db.ref(basePath).once('value').then(function(snap) {
-                        var total = 0;
-                        snap.forEach(function(topicSnap) {
-                            topicSnap.forEach(function(diffSnap) {
-                                total += diffSnap.numChildren();
-                            });
-                        });
-                        document.getElementById('count-mixed').textContent = total + ' oppgaver';
-                    });
-                } else {
-                    db.ref(basePath + '/' + topic.id).once('value').then(function(snap) {
-                        var total = 0;
-                        snap.forEach(function(diffSnap) {
-                            total += diffSnap.numChildren();
-                        });
-                        document.getElementById('count-' + topic.id).textContent = total + ' oppgaver';
-                    });
-                }
+            // All questions are flat under questions/corporate_finance/{questionId}
+            db.ref(basePath).once('value').then(function(snap) {
+                var counts = {};
+                var total = 0;
+                
+                // Initialize counts for all topics
+                topics.forEach(function(t) {
+                    counts[t.id] = 0;
+                });
+                
+                snap.forEach(function(qSnap) {
+                    var q = qSnap.val();
+                    if (!q || !q.topic) return;
+                    
+                    total++;
+                    if (counts[q.topic] !== undefined) {
+                        counts[q.topic]++;
+                    }
+                });
+                
+                // Update UI
+                topics.forEach(function(topic) {
+                    var countEl = document.getElementById('count-' + topic.id);
+                    if (countEl) {
+                        if (topic.id === 'mixed') {
+                            countEl.textContent = total + ' oppgaver';
+                        } else {
+                            countEl.textContent = counts[topic.id] + ' oppgaver';
+                        }
+                    }
+                });
+                
+                console.log('Question counts:', counts, 'Total:', total);
+            }).catch(function(err) {
+                console.error('Error loading question counts:', err);
             });
         }
         
@@ -1448,39 +1463,33 @@
                 var questions = [];
                 var basePath = 'questions/corporate_finance';
                 
-                if (gameState.currentTopic === 'mixed') {
-                    db.ref(basePath).once('value').then(function(snap) {
-                        snap.forEach(function(topicSnap) {
-                            topicSnap.forEach(function(diffSnap) {
-                                diffSnap.forEach(function(qSnap) {
-                                    var q = qSnap.val();
-                                    q.id = qSnap.key;
-                                    q.topic = topicSnap.key;
-                                    q.difficulty = diffSnap.key;
-                                    questions.push(q);
-                                });
-                            });
-                        });
-                        gameState.allQuestions = questions;
-                        gameState.questions = shuffleArray(questions).slice(0, 10);
-                        resolve();
+                // Questions are stored flat under questions/corporate_finance/{questionId}
+                db.ref(basePath).once('value').then(function(snap) {
+                    snap.forEach(function(qSnap) {
+                        var q = qSnap.val();
+                        
+                        // Skip metadata or non-question entries
+                        if (!q || !q.id || !q.type) return;
+                        
+                        q.id = qSnap.key;
+                        
+                        // Filter by topic if not mixed
+                        if (gameState.currentTopic !== 'mixed') {
+                            if (q.topic !== gameState.currentTopic) return;
+                        }
+                        
+                        questions.push(q);
                     });
-                } else {
-                    db.ref(basePath + '/' + gameState.currentTopic).once('value').then(function(snap) {
-                        snap.forEach(function(diffSnap) {
-                            diffSnap.forEach(function(qSnap) {
-                                var q = qSnap.val();
-                                q.id = qSnap.key;
-                                q.topic = gameState.currentTopic;
-                                q.difficulty = diffSnap.key;
-                                questions.push(q);
-                            });
-                        });
-                        gameState.allQuestions = questions;
-                        gameState.questions = shuffleArray(questions).slice(0, 10);
-                        resolve();
-                    });
-                }
+                    
+                    console.log('Loaded ' + questions.length + ' questions for topic: ' + gameState.currentTopic);
+                    
+                    gameState.allQuestions = questions;
+                    gameState.questions = shuffleArray(questions).slice(0, 10);
+                    resolve();
+                }).catch(function(err) {
+                    console.error('Error loading questions:', err);
+                    resolve();
+                });
             });
         }
         
@@ -1666,28 +1675,69 @@
         
         function renderExcelGrid(q) {
             document.getElementById('excel-grid-container').style.display = 'block';
-            var grid = q.grid || q.excel_grid || { columns: ['Verdi'], rows: [] };
             
             var thead = document.getElementById('excel-thead');
             var tbody = document.getElementById('excel-tbody');
             
-            thead.innerHTML = '<tr><th>Parameter</th>' + grid.columns.map(function(c) { return '<th>' + c + '</th>'; }).join('') + '</tr>';
+            // Check if we have a proper grid structure
+            var grid = q.grid || q.excel_grid;
             
-            var bodyHtml = '';
-            (grid.rows || []).forEach(function(row, ri) {
-                bodyHtml += '<tr><td class="row-label">' + row.label + '</td>';
-                (row.cells || []).forEach(function(cell, ci) {
-                    var isReadonly = cell.readonly;
-                    var val = cell.value !== undefined ? cell.value : '';
-                    if (isReadonly) {
-                        bodyHtml += '<td><input class="excel-cell readonly" value="' + val + '" readonly></td>';
-                    } else {
-                        bodyHtml += '<td><input class="excel-cell" id="cell-' + ri + '-' + ci + '" data-row="' + ri + '" data-col="' + ci + '" placeholder="?"></td>';
-                    }
+            if (grid && grid.rows && grid.rows.length > 0) {
+                // Use the provided grid structure
+                thead.innerHTML = '<tr><th>Parameter</th>' + (grid.columns || ['Verdi']).map(function(c) { return '<th>' + c + '</th>'; }).join('') + '</tr>';
+                
+                var bodyHtml = '';
+                grid.rows.forEach(function(row, ri) {
+                    bodyHtml += '<tr><td class="row-label">' + row.label + '</td>';
+                    (row.cells || []).forEach(function(cell, ci) {
+                        var isReadonly = cell.readonly;
+                        var val = cell.value !== undefined ? cell.value : '';
+                        if (isReadonly) {
+                            bodyHtml += '<td><input class="excel-cell readonly" value="' + val + '" readonly></td>';
+                        } else {
+                            var cellId = cell.id || ('cell-' + ri + '-' + ci);
+                            bodyHtml += '<td><input class="excel-cell" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" placeholder="?"></td>';
+                        }
+                    });
+                    bodyHtml += '</tr>';
                 });
-                bodyHtml += '</tr>';
-            });
-            tbody.innerHTML = bodyHtml;
+                tbody.innerHTML = bodyHtml;
+            } else {
+                // Auto-generate grid from data and input_fields
+                console.log('Auto-generating Excel grid from data and input_fields');
+                
+                thead.innerHTML = '<tr><th>Parameter</th><th>Verdi</th></tr>';
+                
+                var bodyHtml = '';
+                
+                // First add readonly data rows
+                if (q.data) {
+                    Object.keys(q.data).forEach(function(key) {
+                        var val = q.data[key];
+                        if (typeof val !== 'object') {
+                            bodyHtml += '<tr>';
+                            bodyHtml += '<td class="row-label">' + formatLabel(key) + '</td>';
+                            bodyHtml += '<td><input class="excel-cell readonly" value="' + formatNumber(val) + '" readonly></td>';
+                            bodyHtml += '</tr>';
+                        }
+                    });
+                }
+                
+                // Then add input fields as editable rows
+                var fields = q.input_fields || [];
+                fields.forEach(function(field, idx) {
+                    bodyHtml += '<tr>';
+                    bodyHtml += '<td class="row-label" style="color: var(--accent);">' + (field.label || field.id) + '</td>';
+                    bodyHtml += '<td><input class="excel-cell" id="input-' + field.id + '" data-id="' + field.id + '" placeholder="Skriv svar..."></td>';
+                    bodyHtml += '</tr>';
+                });
+                
+                tbody.innerHTML = bodyHtml;
+                
+                if (fields.length === 0) {
+                    tbody.innerHTML += '<tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Ingen input-felt definert</td></tr>';
+                }
+            }
         }
         
         function renderVariables(q) {
@@ -1722,7 +1772,18 @@
             
             console.log('Checking answer for question:', q.id);
             console.log('Question type:', q.type);
-            console.log('Looking for solution at: solutions/corporate_finance/' + q.id);
+            console.log('Question data:', q);
+            
+            // First check if solution is embedded in the question
+            if (q.solution || q.correct || q.answer) {
+                console.log('Using embedded solution');
+                var solution = q.solution || { correct: q.correct || q.answer };
+                processAnswer(q, solution);
+                return;
+            }
+            
+            // Otherwise fetch from solutions/corporate_finance/
+            console.log('Fetching solution from: solutions/corporate_finance/' + q.id);
             
             firebase.database().ref('solutions/corporate_finance/' + q.id).once('value')
                 .then(function(snap) {
@@ -1736,21 +1797,30 @@
                         return;
                     }
                     
-                    var correct;
-                    if (q.type === 'multiple_choice' || q.type === 'mc' || q.type === 'true_false' || q.type === 'tf') {
-                        correct = checkMC(solution);
-                    } else {
-                        correct = checkCalc(solution);
-                    }
-                    
-                    if (correct) handleCorrect(); else handleIncorrect();
-                    document.getElementById('btn-check').disabled = false;
+                    processAnswer(q, solution);
                 })
                 .catch(function(err) {
                     console.error('Error fetching solution:', err);
                     alert('Feil ved henting av fasit: ' + err.message);
                     document.getElementById('btn-check').disabled = false;
                 });
+        }
+        
+        function processAnswer(q, solution) {
+            var correct;
+            if (q.type === 'multiple_choice' || q.type === 'mc' || q.type === 'true_false' || q.type === 'tf') {
+                correct = checkMC(solution);
+            } else {
+                correct = checkCalc(solution);
+            }
+            
+            if (correct === null) {
+                document.getElementById('btn-check').disabled = false;
+                return;
+            }
+            
+            if (correct) handleCorrect(); else handleIncorrect();
+            document.getElementById('btn-check').disabled = false;
         }
         
         function checkMC(solution) {
@@ -1995,16 +2065,22 @@
             // Save final progress
             saveProgress();
             
-            // Save to leaderboard if logged in
-            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            // Save to Firebase if logged in (with correct structure)
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                 var user = firebase.auth().currentUser;
                 var db = firebase.database();
                 
-                // Update user stats
+                // Update user stats - match the rules structure
                 db.ref('user_progress/' + user.uid + '/corporate_finance/' + gameState.currentTopic).update({
-                    lastScore: gameState.score,
-                    lastPercent: pct,
-                    completedAt: firebase.database.ServerValue.TIMESTAMP
+                    score: gameState.score,
+                    correct: gameState.correctCount,
+                    total: gameState.questions.length,
+                    completed: true,
+                    lastAttempt: Date.now()
+                }).then(function() {
+                    console.log('Final results saved to Firebase');
+                }).catch(function(err) {
+                    console.error('Failed to save final results:', err);
                 });
             }
             
@@ -2097,12 +2173,13 @@
             var db = firebase.database();
             var path = 'user_progress/' + user.uid + '/corporate_finance/' + data.topic;
             
+            // Match the database rules structure
             db.ref(path).update({
                 score: data.score,
                 correct: data.correctCount,
                 total: data.totalQuestions,
-                completed: data.answeredQuestions,
-                lastAttempt: firebase.database.ServerValue.TIMESTAMP
+                completed: data.answeredQuestions.length > 0,
+                lastAttempt: Date.now() // Use regular timestamp, not ServerValue
             }).then(function() {
                 console.log('Progress saved to Firebase at:', path);
             }).catch(function(err) {
@@ -2133,19 +2210,9 @@
                 console.error('Answer save failed:', e);
             }
             
-            // Save to Firebase if logged in
-            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                var user = firebase.auth().currentUser;
-                var db = firebase.database();
-                var path = 'user_progress/' + user.uid + '/corporate_finance/answers/' + questionId;
-                db.ref(path).set(result)
-                    .then(function() {
-                        console.log('Answer saved to Firebase:', path);
-                    })
-                    .catch(function(err) {
-                        console.error('Firebase answer save failed:', err);
-                    });
-            }
+            // For Firebase, we don't save individual answers under user_progress
+            // because the rules don't allow arbitrary fields under corporate_finance/$topicId
+            // Instead, we update the topic progress which includes completed count
         }
         
         function loadSavedProgress() {
