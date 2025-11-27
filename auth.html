@@ -718,6 +718,17 @@
         // Check if already logged in
         auth.onAuthStateChanged(user => {
             if (user && !user.isAnonymous) {
+                // Check for redirect parameter first
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectTo = urlParams.get('redirect');
+                
+                if (redirectTo && redirectTo.endsWith('.html')) {
+                    // Redirect directly to requested page
+                    window.location.href = redirectTo;
+                    return;
+                }
+                
+                // Show logged in state
                 const container = document.querySelector('.auth-container');
                 container.innerHTML = `
                     <div class="auth-logo">
