@@ -377,10 +377,9 @@
                 <div class="sidebar-item" data-page="teachers">👨‍🏫 Lærere</div>
                 
                 <div class="sidebar-section">Innhold</div>
-                <div class="sidebar-item" data-page="quiz">❓ Quiz</div>
+                <div class="sidebar-item" data-page="grunnleggende">📚 Grunnleggende Regnskap</div>
                 <div class="sidebar-item" data-page="corporate-finance">📈 Corporate Finance</div>
-                <div class="sidebar-item" data-page="bokforing">📖 Bokføring</div>
-                <div class="sidebar-item" data-page="wiki">📚 Wiki</div>
+                <div class="sidebar-item" data-page="wiki">📖 Wiki</div>
                 
                 <div class="sidebar-section">Verktøy</div>
                 <div class="sidebar-item" data-page="seeder">🌱 Seed Data</div>
@@ -443,23 +442,57 @@
                 </div>
                 
                 <!-- Quiz -->
-                <div id="page-quiz" class="page">
+                <!-- Grunnleggende Regnskap (Quiz + Bokføring kombinert) -->
+                <div id="page-grunnleggende" class="page">
                     <div class="page-header">
-                        <h2 class="page-title">❓ Quiz</h2>
+                        <h2 class="page-title">📚 Grunnleggende Regnskap</h2>
                         <div>
-                            <button class="btn btn-info" onclick="openQuizModal()">+ Nytt spørsmål</button>
-                            <button class="btn btn-primary" onclick="loadQuiz()">🔄 Oppdater</button>
+                            <button class="btn btn-info" onclick="openQuizModal()">+ Nytt Quiz-spørsmål</button>
+                            <button class="btn btn-info" onclick="openBokforingModal()">+ Ny Bokføringsoppgave</button>
+                            <button class="btn btn-primary" onclick="loadGrunnleggende()">🔄 Oppdater</button>
                         </div>
                     </div>
-                    <div class="table-container">
-                        <div class="table-header">
-                            <input type="text" class="search-input" placeholder="Søk..." id="quiz-search" onkeyup="filterQuiz()">
+                    
+                    <!-- Tabs -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <button class="btn btn-primary" id="tab-quiz" onclick="showGrunnlegendeTab('quiz')">❓ Quiz</button>
+                        <button class="btn btn-secondary" id="tab-bokforing" onclick="showGrunnlegendeTab('bokforing')">📖 Bokføring</button>
+                    </div>
+                    
+                    <!-- Quiz Tab -->
+                    <div id="grunnleggende-quiz" class="grunnleggende-tab">
+                        <div class="table-container">
+                            <div class="table-header">
+                                <input type="text" class="search-input" placeholder="Søk quiz..." id="quiz-search" onkeyup="filterQuiz()">
+                            </div>
+                            <div class="data-table-scroll">
+                                <table class="data-table">
+                                    <thead><tr><th>Spørsmål</th><th>Kategori</th><th>Type</th><th>Handlinger</th></tr></thead>
+                                    <tbody id="quiz-table-body"><tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="data-table-scroll">
-                            <table class="data-table">
-                                <thead><tr><th>Spørsmål</th><th>Kategori</th><th>Type</th><th>Handlinger</th></tr></thead>
-                                <tbody id="quiz-table-body"><tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
-                            </table>
+                        <div class="danger-zone">
+                            <h3>⚠️ Danger Zone - Quiz</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 15px;">Slett alle quiz-spørsmål. Denne handlingen kan ikke angres!</p>
+                            <button class="btn btn-danger" onclick="purgeQuiz()">🗑️ Slett alle Quiz-spørsmål</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Bokføring Tab -->
+                    <div id="grunnleggende-bokforing" class="grunnleggende-tab" style="display: none;">
+                        <div class="table-container">
+                            <div class="data-table-scroll">
+                                <table class="data-table">
+                                    <thead><tr><th>Nr</th><th>Beskrivelse</th><th>Nivå</th><th>Handlinger</th></tr></thead>
+                                    <tbody id="bokforing-table-body"><tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="danger-zone">
+                            <h3>⚠️ Danger Zone - Bokføring</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 15px;">Slett alle bokføringsoppgaver. Denne handlingen kan ikke angres!</p>
+                            <button class="btn btn-danger" onclick="purgeBokforing()">🗑️ Slett alle Bokføringsoppgaver</button>
                         </div>
                     </div>
                 </div>
@@ -488,33 +521,15 @@
                     </div>
                     <div class="danger-zone">
                         <h3>⚠️ Danger Zone</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 15px;">Slett alle CF-oppgaver. Denne handlingen kan ikke angres!</p>
                         <button class="btn btn-danger" onclick="purgeCF()">🗑️ Slett alle CF-oppgaver</button>
-                    </div>
-                </div>
-                
-                <!-- Bokføring -->
-                <div id="page-bokforing" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">📖 Bokføring</h2>
-                        <div>
-                            <button class="btn btn-info" onclick="openBokforingModal()">+ Ny oppgave</button>
-                            <button class="btn btn-primary" onclick="loadBokforing()">🔄 Oppdater</button>
-                        </div>
-                    </div>
-                    <div class="table-container">
-                        <div class="data-table-scroll">
-                            <table class="data-table">
-                                <thead><tr><th>Nr</th><th>Beskrivelse</th><th>Nivå</th><th>Handlinger</th></tr></thead>
-                                <tbody id="bokforing-table-body"><tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
-                            </table>
-                        </div>
                     </div>
                 </div>
                 
                 <!-- Wiki -->
                 <div id="page-wiki" class="page">
                     <div class="page-header">
-                        <h2 class="page-title">📚 Wiki</h2>
+                        <h2 class="page-title">📖 Wiki</h2>
                         <div>
                             <button class="btn btn-info" onclick="openWikiModal()">+ Ny artikkel</button>
                             <button class="btn btn-primary" onclick="loadWiki()">🔄 Oppdater</button>
@@ -527,6 +542,11 @@
                                 <tbody id="wiki-table-body"><tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
                             </table>
                         </div>
+                    </div>
+                    <div class="danger-zone">
+                        <h3>⚠️ Danger Zone</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 15px;">Slett alle wiki-artikler. Denne handlingen kan ikke angres!</p>
+                        <button class="btn btn-danger" onclick="purgeWiki()">🗑️ Slett alle Wiki-artikler</button>
                     </div>
                 </div>
                 
@@ -1024,23 +1044,107 @@
         // Dashboard
         async function refreshAll() {
             showToast('Oppdaterer...', 'info');
-            const [users, quiz, cf, bokforing, wiki, teachers] = await Promise.all([
-                db.ref('users').once('value'),
-                db.ref('quizQuestions').once('value'),
-                db.ref('solutions/corporate_finance').once('value'),
-                db.ref('bokforing').once('value'),
-                db.ref('wiki').once('value'),
-                db.ref('teachers').once('value')
-            ]);
+            try {
+                console.log('Fetching data with UID:', currentUser?.uid);
+                
+                const [users, quiz, cf, bokforing, wiki, teachers] = await Promise.all([
+                    db.ref('users').once('value').catch(e => { console.error('users error:', e); return { val: () => ({}) }; }),
+                    db.ref('quizQuestions').once('value').catch(e => { console.error('quiz error:', e); return { val: () => ({}) }; }),
+                    db.ref('solutions/corporate_finance').once('value').catch(e => { console.error('cf error:', e); return { val: () => ({}) }; }),
+                    db.ref('bokforing').once('value').catch(e => { console.error('bokforing error:', e); return { val: () => ({}) }; }),
+                    db.ref('wiki').once('value').catch(e => { console.error('wiki error:', e); return { val: () => ({}) }; }),
+                    db.ref('teachers').once('value').catch(e => { console.error('teachers error:', e); return { val: () => ({}) }; })
+                ]);
+                
+                document.getElementById('stat-users').textContent = Object.keys(users.val() || {}).length;
+                document.getElementById('stat-teachers').textContent = Object.keys(teachers.val() || {}).length;
+                document.getElementById('stat-quiz').textContent = Object.keys(quiz.val() || {}).length;
+                document.getElementById('stat-cf').textContent = Object.keys(cf.val() || {}).length;
+                document.getElementById('stat-bokforing').textContent = Object.keys(bokforing.val() || {}).length;
+                document.getElementById('stat-wiki').textContent = Object.keys(wiki.val() || {}).length;
+                
+                showToast('Oppdatert!', 'success');
+            } catch (err) {
+                console.error('refreshAll error:', err);
+                showToast('Feil ved lasting: ' + err.message, 'error');
+            }
+        }
+        
+        // Grunnleggende Regnskap tabs
+        function showGrunnlegendeTab(tab) {
+            document.getElementById('grunnleggende-quiz').style.display = tab === 'quiz' ? 'block' : 'none';
+            document.getElementById('grunnleggende-bokforing').style.display = tab === 'bokforing' ? 'block' : 'none';
+            document.getElementById('tab-quiz').className = tab === 'quiz' ? 'btn btn-primary' : 'btn btn-secondary';
+            document.getElementById('tab-bokforing').className = tab === 'bokforing' ? 'btn btn-primary' : 'btn btn-secondary';
             
-            document.getElementById('stat-users').textContent = Object.keys(users.val() || {}).length;
-            document.getElementById('stat-teachers').textContent = Object.keys(teachers.val() || {}).length;
-            document.getElementById('stat-quiz').textContent = Object.keys(quiz.val() || {}).length;
-            document.getElementById('stat-cf').textContent = Object.keys(cf.val() || {}).length;
-            document.getElementById('stat-bokforing').textContent = Object.keys(bokforing.val() || {}).length;
-            document.getElementById('stat-wiki').textContent = Object.keys(wiki.val() || {}).length;
+            if (tab === 'quiz') loadQuiz();
+            else loadBokforing();
+        }
+        
+        function loadGrunnleggende() {
+            loadQuiz();
+            loadBokforing();
+        }
+        
+        // Purge functions
+        async function purgeQuiz() {
+            if (!confirm('Er du HELT sikker på at du vil slette ALLE quiz-spørsmål?')) return;
+            if (!confirm('Dette kan IKKE angres! Skriv "SLETT" for å bekrefte.')) return;
             
-            showToast('Oppdatert!', 'success');
+            const input = prompt('Skriv SLETT for å bekrefte:');
+            if (input !== 'SLETT') {
+                showToast('Avbrutt - feil bekreftelse', 'info');
+                return;
+            }
+            
+            try {
+                await db.ref('quizQuestions').remove();
+                showToast('Alle quiz-spørsmål slettet!', 'success');
+                loadQuiz();
+                refreshAll();
+            } catch (err) {
+                showToast('Feil: ' + err.message, 'error');
+            }
+        }
+        
+        async function purgeBokforing() {
+            if (!confirm('Er du HELT sikker på at du vil slette ALLE bokføringsoppgaver?')) return;
+            if (!confirm('Dette kan IKKE angres! Skriv "SLETT" for å bekrefte.')) return;
+            
+            const input = prompt('Skriv SLETT for å bekrefte:');
+            if (input !== 'SLETT') {
+                showToast('Avbrutt - feil bekreftelse', 'info');
+                return;
+            }
+            
+            try {
+                await db.ref('bokforing').remove();
+                showToast('Alle bokføringsoppgaver slettet!', 'success');
+                loadBokforing();
+                refreshAll();
+            } catch (err) {
+                showToast('Feil: ' + err.message, 'error');
+            }
+        }
+        
+        async function purgeWiki() {
+            if (!confirm('Er du HELT sikker på at du vil slette ALLE wiki-artikler?')) return;
+            if (!confirm('Dette kan IKKE angres! Skriv "SLETT" for å bekrefte.')) return;
+            
+            const input = prompt('Skriv SLETT for å bekrefte:');
+            if (input !== 'SLETT') {
+                showToast('Avbrutt - feil bekreftelse', 'info');
+                return;
+            }
+            
+            try {
+                await db.ref('wiki').remove();
+                showToast('Alle wiki-artikler slettet!', 'success');
+                loadWiki();
+                refreshAll();
+            } catch (err) {
+                showToast('Feil: ' + err.message, 'error');
+            }
         }
         
         // Users
@@ -1574,22 +1678,79 @@
             prog.style.width = '10%';
             showMsg('seeder-message', '🔄 Seeder Corporate Finance...', 'info');
             
-            const questions = {
-                cf_npv_calc_001: {id:'cf_npv_calc_001',module:'corporate_finance',topic:'npv',difficulty:'medium',type:'calculation',title:'NPV Beregning',question:'Investering 100.000, CF år 1: 40.000, år 2: 50.000. r=10%. Beregn NPV.',data:{investment:100000,cf_year1:40000,cf_year2:50000,discount_rate:0.10},input_fields:[{id:'npv',label:'NPV',unit:'NOK'}]},
-                cf_stocks_mc_001: {id:'cf_stocks_mc_001',module:'corporate_finance',topic:'stocks',difficulty:'easy',type:'multiple_choice',title:'Gordon Growth',question:'Hvilken formel beskriver Gordon Growth Model?',options:[{id:'a',text:'P₀ = D₁ / (r - g)'},{id:'b',text:'P₀ = D₀ / (r + g)'},{id:'c',text:'P₀ = D₁ × (r - g)'}]}
-            };
-            
-            const solutions = {
-                cf_npv_calc_001: {correct:{npv:-17355.37},tolerance:10,explanation:'NPV = 40000/1.1 + 50000/1.1² - 100000'},
-                cf_stocks_mc_001: {correct:'a',explanation:'Gordon Growth: P₀ = D₁ / (r - g)'}
-            };
-            
-            prog.style.width = '50%';
-            await db.ref('questions/corporate_finance').update(questions);
-            await db.ref('solutions/corporate_finance').update(solutions);
-            prog.style.width = '100%';
-            showMsg('seeder-message', '✅ CF-eksempler lagt til!', 'success');
-            refreshAll();
+            try {
+                // Seed to solutions/corporate_finance (this is where CF module reads from)
+                const solutions = {
+                    cf_npv_calc_001: {
+                        id: 'cf_npv_calc_001',
+                        module: 'corporate_finance',
+                        topic: 'npv',
+                        difficulty: 'medium',
+                        type: 'calculation',
+                        title: 'NPV Beregning',
+                        question: 'Et selskap vurderer en investering på kr 100.000. Forventede kontantstrømmer er kr 40.000 i år 1 og kr 50.000 i år 2. Avkastningskravet er 10%. Beregn NPV.',
+                        correct: { npv: -17355.37 },
+                        tolerance: 50,
+                        explanation: 'NPV = 40000/1.1 + 50000/1.21 - 100000 = 36363.64 + 41322.31 - 100000 = -22314.05',
+                        formula: 'NPV = Σ(CF_t / (1+r)^t) - I₀'
+                    },
+                    cf_stocks_mc_001: {
+                        id: 'cf_stocks_mc_001',
+                        module: 'corporate_finance',
+                        topic: 'stocks',
+                        difficulty: 'easy',
+                        type: 'multiple_choice',
+                        title: 'Gordon Growth Model',
+                        question: 'Hvilken formel beskriver Gordon Growth Model for aksjeverdsettelse?',
+                        options: [
+                            { id: 'a', text: 'P₀ = D₁ / (r - g)' },
+                            { id: 'b', text: 'P₀ = D₀ / (r + g)' },
+                            { id: 'c', text: 'P₀ = D₁ × (r - g)' },
+                            { id: 'd', text: 'P₀ = D₀ × (1 + g) / r' }
+                        ],
+                        correct: 'a',
+                        explanation: 'Gordon Growth Model: P₀ = D₁ / (r - g), der D₁ er neste års utbytte, r er avkastningskrav og g er vekstrate.'
+                    },
+                    cf_wacc_mc_001: {
+                        id: 'cf_wacc_mc_001',
+                        module: 'corporate_finance',
+                        topic: 'wacc',
+                        difficulty: 'medium',
+                        type: 'multiple_choice',
+                        title: 'WACC Komponenter',
+                        question: 'Hva inngår IKKE i beregningen av WACC (Weighted Average Cost of Capital)?',
+                        options: [
+                            { id: 'a', text: 'Egenkapitalkostnad' },
+                            { id: 'b', text: 'Gjeldskostnad etter skatt' },
+                            { id: 'c', text: 'Kapitalstruktur (vekter)' },
+                            { id: 'd', text: 'Selskapets omsetning' }
+                        ],
+                        correct: 'd',
+                        explanation: 'WACC = (E/V) × Re + (D/V) × Rd × (1-T). Omsetning er ikke en del av formelen.'
+                    },
+                    cf_irr_calc_001: {
+                        id: 'cf_irr_calc_001',
+                        module: 'corporate_finance',
+                        topic: 'irr',
+                        difficulty: 'hard',
+                        type: 'calculation',
+                        title: 'IRR Estimering',
+                        question: 'En investering koster kr 50.000 og gir kr 30.000 i år 1 og kr 30.000 i år 2. Hva er omtrentlig IRR?',
+                        correct: { irr: 13.1 },
+                        tolerance: 1,
+                        explanation: 'IRR er renten der NPV = 0. Ved prøving: 30000/1.131 + 30000/1.131² ≈ 50000'
+                    }
+                };
+                
+                prog.style.width = '50%';
+                await db.ref('solutions/corporate_finance').update(solutions);
+                prog.style.width = '100%';
+                showMsg('seeder-message', '✅ ' + Object.keys(solutions).length + ' CF-oppgaver lagt til!', 'success');
+                refreshAll();
+            } catch (err) {
+                console.error('CF seed error:', err);
+                showMsg('seeder-message', '❌ Feil: ' + err.message, 'error');
+            }
         }
         
         async function seedHjernetrim() {
