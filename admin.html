@@ -946,44 +946,69 @@
         let pendingJsonData = null;
         
         // Auth
+        let authChecked = false;
         auth.onAuthStateChanged(async user => {
-            if (!user) {
-                window.location.href = 'auth.html?redirect=admin.html';
-                return;
-            }
+            // Prevent double-checking
+            if (authChecked) return;
+            authChecked = true;
             
-            currentUser = user;
-            console.log('Logged in as:', user.uid);
+            console.log('Auth state:', user ? user.email : 'not logged in');
             
-            const snap = await db.ref('users/' + user.uid).once('value');
-            const userData = snap.val() || {};
-            
-            // Accept multiple admin role formats (admin, Administrator, etc.)
-            const userRole = (userData.role || '').toLowerCase();
-            const isAdminRole = userRole === 'admin' || userRole === 'administrator';
-            const isAdmin = user.uid === ADMIN_UID || isAdminRole;
-            
-            console.log('Auth check:', { 
-                uid: user.uid, 
-                ADMIN_UID, 
-                isAdmin, 
-                role: userData.role,
-                userRole,
-                isAdminRole,
-                uidMatch: user.uid === ADMIN_UID 
-            });
-            
-            if (!isAdmin) {
+            if (!user || user.isAnonymous) {
+                // Not logged in - show access denied with login button
                 document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('access-denied').innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 4em; margin-bottom: 20px;">🔒</div>
+                        <h2 style="margin-bottom: 10px;">Logg inn for å fortsette</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Du må være logget inn som admin for å få tilgang.</p>
+                        <a href="auth.html" class="btn btn-primary" style="text-decoration: none;">🔑 Logg inn</a>
+                        <br><br>
+                        <a href="index.html" class="btn btn-secondary" style="text-decoration: none;">← Tilbake til forsiden</a>
+                    </div>
+                `;
                 document.getElementById('access-denied').style.display = 'flex';
                 return;
             }
             
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            document.getElementById('user-info').textContent = user.email;
+            currentUser = user;
+            console.log('Logged in as:', user.uid, user.email);
             
-            refreshAll();
+            try {
+                const snap = await db.ref('users/' + user.uid).once('value');
+                const userData = snap.val() || {};
+                
+                // Accept multiple admin role formats (admin, Administrator, etc.)
+                const userRole = (userData.role || '').toLowerCase();
+                const isAdminRole = userRole === 'admin' || userRole === 'administrator';
+                const isAdmin = user.uid === ADMIN_UID || isAdminRole;
+                
+                console.log('Auth check:', { 
+                    uid: user.uid, 
+                    ADMIN_UID, 
+                    isAdmin, 
+                    role: userData.role,
+                    userRole,
+                    isAdminRole,
+                    uidMatch: user.uid === ADMIN_UID 
+                });
+                
+                if (!isAdmin) {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('access-denied').style.display = 'flex';
+                    return;
+                }
+                
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                document.getElementById('user-info').textContent = user.email;
+                
+                refreshAll();
+            } catch (err) {
+                console.error('Error checking admin status:', err);
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('access-denied').style.display = 'flex';
+            }
         });
         
         function logout() { auth.signOut().then(() => window.location.href = 'index.html'); }
