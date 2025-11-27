@@ -831,7 +831,8 @@
             border-radius: var(--radius-md);
             padding: var(--space-md);
             box-shadow: var(--shadow-lg);
-            width: 240px;
+            width: 260px;
+            user-select: none;
         }
         
         .calculator-header {
@@ -841,7 +842,11 @@
             margin-bottom: var(--space-sm);
             padding-bottom: var(--space-sm);
             border-bottom: 1px solid var(--border-color);
-            cursor: move;
+            cursor: grab;
+        }
+        
+        .calculator-header:active {
+            cursor: grabbing;
         }
         
         .calculator-title {
@@ -854,11 +859,18 @@
             background: var(--error);
             border: none;
             color: white;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 0.8em;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .calculator-close:hover {
+            background: #dc2626;
         }
         
         .calc-display {
@@ -1122,8 +1134,9 @@
                     <div class="controls">
                         <button class="aq-btn aq-btn-primary" onclick="checkAnswer()" id="btn-check">✓ Sjekk svar</button>
                         <button class="aq-btn aq-btn-warning" onclick="showHint()" id="btn-hint">💡 Hint</button>
+                        <button class="aq-btn aq-btn-secondary" onclick="toggleCalculator()">🔢 Kalkulator</button>
                         <button class="aq-btn aq-btn-info" onclick="toggleExplanation()" id="btn-explanation" style="display: none;">📖 Forklaring</button>
-                        <button class="aq-btn aq-btn-secondary" onclick="nextQuestion()" id="btn-next" style="display: none;">Neste →</button>
+                        <button class="aq-btn aq-btn-accent" onclick="nextQuestion()" id="btn-next" style="display: none;">Neste →</button>
                     </div>
                     
                     <div class="hint-box" id="hint-box">
@@ -1310,6 +1323,9 @@
             
             loadQuestionCounts();
             loadFormulasForTopic('npv');
+            
+            // Load saved progress after a short delay
+            setTimeout(loadSavedProgress, 500);
         });
         
         // ==================== SIDEBAR ====================
@@ -1811,6 +1827,12 @@
             gameState.correctCount++;
             gameState.score += Math.max(100 - gameState.hintsUsed * 25, 25);
             
+            // Save the result
+            var q = gameState.currentQuestion;
+            var userAnswer = getUserAnswer(q);
+            saveQuestionResult(q.id, true, userAnswer);
+            saveProgress();
+            
             document.getElementById('nav-score').textContent = gameState.score;
             document.getElementById('nav-correct').textContent = gameState.correctCount;
             document.getElementById('btn-explanation').style.display = 'inline-flex';
@@ -1825,8 +1847,27 @@
         }
         
         function handleIncorrect() {
+            // Save incorrect attempt
+            var q = gameState.currentQuestion;
+            var userAnswer = getUserAnswer(q);
+            saveQuestionResult(q.id, false, userAnswer);
+            
             if (gameState.hintsUsed === 0) showHint();
             document.getElementById('btn-explanation').style.display = 'inline-flex';
+        }
+        
+        function getUserAnswer(q) {
+            if (q.type === 'multiple_choice' || q.type === 'mc' || q.type === 'true_false') {
+                return gameState.selectedAnswer;
+            } else {
+                var fields = q.input_fields || [{ id: 'answer' }];
+                var answers = {};
+                fields.forEach(function(f) {
+                    var inp = document.getElementById('input-' + f.id);
+                    if (inp) answers[f.id] = inp.value;
+                });
+                return answers;
+            }
         }
         
         // ==================== HINTS & EXPLANATIONS ====================
@@ -1894,6 +1935,23 @@
         
         function showResults() {
             var pct = Math.round((gameState.correctCount / gameState.questions.length) * 100);
+            
+            // Save final progress
+            saveProgress();
+            
+            // Save to leaderboard if logged in
+            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                var user = firebase.auth().currentUser;
+                var db = firebase.database();
+                
+                // Update user stats
+                db.ref('user_progress/' + user.uid + '/corporate_finance/' + gameState.currentTopic).update({
+                    lastScore: gameState.score,
+                    lastPercent: pct,
+                    completedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+            
             document.getElementById('result-correct').textContent = gameState.correctCount;
             document.getElementById('result-total').textContent = gameState.questions.length;
             document.getElementById('result-percent').textContent = pct + '%';
@@ -1923,11 +1981,209 @@
             gameState.allQuestions = [];
         }
         
-        // ==================== CALCULATOR ====================
+        // ==================== PROGRESS SAVING ====================
+        function saveProgress() {
+            var progressData = {
+                topic: gameState.currentTopic,
+                difficulty: gameState.currentDifficulty,
+                score: gameState.score,
+                correctCount: gameState.correctCount,
+                totalQuestions: gameState.questions.length,
+                answeredQuestions: gameState.answered.map(function(a, i) {
+                    return a ? gameState.questions[i].id : null;
+                }).filter(Boolean),
+                lastUpdated: Date.now()
+            };
+            
+            // Save to localStorage always (as backup)
+            saveToLocalStorage(progressData);
+            
+            // Save to Firebase if logged in
+            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                saveToFirebase(progressData);
+            }
+        }
+        
+        function saveToLocalStorage(data) {
+            try {
+                var key = 'cf_progress_' + data.topic;
+                localStorage.setItem(key, JSON.stringify(data));
+                
+                // Also save overall stats
+                var stats = JSON.parse(localStorage.getItem('cf_stats') || '{}');
+                stats[data.topic] = {
+                    bestScore: Math.max(stats[data.topic]?.bestScore || 0, data.score),
+                    totalAttempts: (stats[data.topic]?.totalAttempts || 0) + 1,
+                    lastPlayed: Date.now()
+                };
+                localStorage.setItem('cf_stats', JSON.stringify(stats));
+            } catch (e) {
+                console.log('LocalStorage save failed:', e);
+            }
+        }
+        
+        function saveToFirebase(data) {
+            var user = firebase.auth().currentUser;
+            if (!user) return;
+            
+            var db = firebase.database();
+            var path = 'user_progress/' + user.uid + '/corporate_finance/' + data.topic;
+            
+            db.ref(path).update({
+                score: data.score,
+                correct: data.correctCount,
+                total: data.totalQuestions,
+                completed: data.answeredQuestions,
+                lastAttempt: firebase.database.ServerValue.TIMESTAMP
+            }).then(function() {
+                console.log('Progress saved to Firebase');
+            }).catch(function(err) {
+                console.log('Firebase save failed:', err);
+            });
+        }
+        
+        function saveQuestionResult(questionId, isCorrect, userAnswer) {
+            // Save individual question result
+            var result = {
+                questionId: questionId,
+                correct: isCorrect,
+                answer: userAnswer,
+                timestamp: Date.now(),
+                hintsUsed: gameState.hintsUsed
+            };
+            
+            // Save to localStorage
+            try {
+                var key = 'cf_answers_' + gameState.currentTopic;
+                var answers = JSON.parse(localStorage.getItem(key) || '{}');
+                answers[questionId] = result;
+                localStorage.setItem(key, JSON.stringify(answers));
+            } catch (e) {
+                console.log('Answer save failed:', e);
+            }
+            
+            // Save to Firebase if logged in
+            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                var user = firebase.auth().currentUser;
+                var db = firebase.database();
+                db.ref('user_progress/' + user.uid + '/corporate_finance/answers/' + questionId).set(result);
+            }
+        }
+        
+        function loadSavedProgress() {
+            // Try to load from Firebase first, then localStorage
+            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                var user = firebase.auth().currentUser;
+                var db = firebase.database();
+                
+                db.ref('user_progress/' + user.uid + '/corporate_finance').once('value')
+                    .then(function(snap) {
+                        var data = snap.val();
+                        if (data) {
+                            console.log('Loaded progress from Firebase:', data);
+                            updateProgressDisplay(data);
+                        }
+                    });
+            } else {
+                // Load from localStorage
+                var stats = JSON.parse(localStorage.getItem('cf_stats') || '{}');
+                if (Object.keys(stats).length > 0) {
+                    console.log('Loaded progress from localStorage:', stats);
+                    updateProgressDisplay(stats);
+                }
+            }
+        }
+        
+        function updateProgressDisplay(data) {
+            // Update topic items with completion status
+            topics.forEach(function(topic) {
+                var topicData = data[topic.id];
+                if (topicData && topicData.bestScore) {
+                    var el = document.getElementById('topic-' + topic.id);
+                    if (el) {
+                        var countEl = el.querySelector('.topic-item-count');
+                        if (countEl) {
+                            var currentText = countEl.textContent;
+                            countEl.innerHTML = currentText + ' <span style="color: var(--success);">★ ' + topicData.bestScore + '</span>';
+                        }
+                    }
+                }
+            });
+        }
         var calcState = { equation: '', display: '0' };
+        var calcDrag = { isDragging: false, offsetX: 0, offsetY: 0 };
+        
+        function initCalculatorDrag() {
+            var calc = document.getElementById('floating-calculator');
+            var header = document.querySelector('.calculator-header');
+            
+            header.addEventListener('mousedown', function(e) {
+                calcDrag.isDragging = true;
+                calcDrag.offsetX = e.clientX - calc.offsetLeft;
+                calcDrag.offsetY = e.clientY - calc.offsetTop;
+                calc.style.transition = 'none';
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!calcDrag.isDragging) return;
+                e.preventDefault();
+                var x = e.clientX - calcDrag.offsetX;
+                var y = e.clientY - calcDrag.offsetY;
+                
+                // Keep within bounds
+                x = Math.max(0, Math.min(x, window.innerWidth - calc.offsetWidth));
+                y = Math.max(0, Math.min(y, window.innerHeight - calc.offsetHeight));
+                
+                calc.style.left = x + 'px';
+                calc.style.top = y + 'px';
+                calc.style.right = 'auto';
+                calc.style.bottom = 'auto';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                calcDrag.isDragging = false;
+                document.getElementById('floating-calculator').style.transition = '';
+            });
+            
+            // Touch support
+            header.addEventListener('touchstart', function(e) {
+                var touch = e.touches[0];
+                calcDrag.isDragging = true;
+                calcDrag.offsetX = touch.clientX - calc.offsetLeft;
+                calcDrag.offsetY = touch.clientY - calc.offsetTop;
+                calc.style.transition = 'none';
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (!calcDrag.isDragging) return;
+                var touch = e.touches[0];
+                var x = touch.clientX - calcDrag.offsetX;
+                var y = touch.clientY - calcDrag.offsetY;
+                
+                x = Math.max(0, Math.min(x, window.innerWidth - calc.offsetWidth));
+                y = Math.max(0, Math.min(y, window.innerHeight - calc.offsetHeight));
+                
+                calc.style.left = x + 'px';
+                calc.style.top = y + 'px';
+                calc.style.right = 'auto';
+                calc.style.bottom = 'auto';
+            });
+            
+            document.addEventListener('touchend', function() {
+                calcDrag.isDragging = false;
+                document.getElementById('floating-calculator').style.transition = '';
+            });
+        }
         
         function toggleCalculator() {
-            document.getElementById('floating-calculator').classList.toggle('visible');
+            var calc = document.getElementById('floating-calculator');
+            calc.classList.toggle('visible');
+            
+            // Initialize drag on first open
+            if (calc.classList.contains('visible') && !calcDrag.initialized) {
+                initCalculatorDrag();
+                calcDrag.initialized = true;
+            }
         }
         
         function calcInput(v) {
