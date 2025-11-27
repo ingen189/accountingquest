@@ -1,0 +1,3151 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grunnleggende Regnskap - AccountingQuest</title>
+    
+    <!-- Felles stilark -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <style>
+        /* ==================== LAYOUT ==================== */
+        .app-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* === ICON MENU (leftmost) === */
+        .icon-menu {
+            width: 60px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            gap: var(--space-xs);
+        }
+        
+        .icon-btn {
+            width: 46px;
+            height: 46px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+            position: relative;
+        }
+        
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .icon-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .icon-btn-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--error);
+            color: white;
+            font-size: 0.5em;
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .icon-menu-divider {
+            width: 30px;
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--space-sm) 0;
+        }
+        
+        /* === SIDEBAR PANEL === */
+        .sidebar-panel {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-title {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1em;
+        }
+        
+        .sidebar-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+        }
+        
+        .sidebar-close:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-sm);
+        }
+        
+        /* Sidebar views */
+        .sidebar-view {
+            display: none;
+        }
+        
+        .sidebar-view.active {
+            display: block;
+        }
+        
+        /* === TOPICS VIEW === */
+        .topic-item {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-xs);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            padding: var(--space-sm) var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        
+        .topic-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .topic-item.active {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.15);
+        }
+        
+        .topic-item-icon {
+            font-size: 1.3em;
+        }
+        
+        .topic-item-info {
+            flex: 1;
+        }
+        
+        .topic-item-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+        
+        .topic-item-count {
+            font-size: 0.75em;
+            color: var(--accent);
+        }
+        
+        /* === DIFFICULTY VIEW === */
+        .diff-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-sm);
+        }
+        
+        .diff-card {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+        
+        .diff-card:hover {
+            border-color: var(--accent);
+        }
+        
+        .diff-card.active {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.2);
+        }
+        
+        .diff-card-icon {
+            font-size: 1.8em;
+            margin-bottom: var(--space-xs);
+        }
+        
+        .diff-card-name {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--text-primary);
+        }
+        
+        .diff-card-count {
+            font-size: 0.8em;
+            color: var(--accent);
+            margin-top: 2px;
+        }
+        
+        /* === FORMULAS VIEW === */
+        .formula-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        
+        .formula-item {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: var(--space-sm);
+        }
+        
+        .formula-name {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.85em;
+            margin-bottom: 4px;
+        }
+        
+        .formula-equation {
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin-bottom: 4px;
+        }
+        
+        .formula-description {
+            color: var(--text-secondary);
+            font-size: 0.75em;
+        }
+        
+        /* === DATA VIEW === */
+        .data-item {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: var(--space-sm);
+            margin-bottom: var(--space-xs);
+        }
+        
+        .data-label {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+            margin-bottom: 2px;
+        }
+        
+        .data-value {
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+            font-size: 0.95em;
+        }
+        
+        /* === MAIN CONTENT === */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Progress Bar */
+        .progress-section {
+            padding: var(--space-sm) var(--space-lg);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: none;
+        }
+        
+        .progress-section.visible {
+            display: block;
+        }
+        
+        .progress-bar-container {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            height: 16px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7em;
+            font-weight: bold;
+            transition: width var(--transition-slow);
+            min-width: 30px;
+        }
+        
+        /* Question Selector */
+        .question-selector {
+            padding: var(--space-sm) var(--space-lg);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: none;
+        }
+        
+        .question-selector.visible {
+            display: block;
+        }
+        
+        .question-selector-grid {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .question-selector-item {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            min-width: 32px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+        
+        .question-selector-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .question-selector-item.current {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .question-selector-item.completed {
+            background: rgba(74, 222, 128, 0.2);
+            border-color: var(--accent);
+        }
+        
+        /* Workspace */
+        .workspace {
+            flex: 1;
+            padding: var(--space-lg);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: var(--space-2xl);
+            height: 100%;
+        }
+        
+        .welcome-screen h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-md);
+        }
+        
+        .welcome-screen p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            max-width: 500px;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .welcome-hint {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--accent);
+            font-size: 1em;
+        }
+        
+        .welcome-hint-icon {
+            font-size: 1.5em;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-5px); }
+        }
+        
+        /* Game View */
+        .game-view {
+            display: none;
+        }
+        
+        .game-view.visible {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        /* Question Header */
+        .question-header {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            border-left: 4px solid var(--accent);
+        }
+        
+        .question-number {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            margin-bottom: 4px;
+        }
+        
+        .question-title {
+            color: var(--accent);
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .question-text {
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .question-badges {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .badge-topic {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-secondary);
+        }
+        
+        .badge-type {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+        
+        .badge-diff {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--accent);
+        }
+        
+        /* Data Display */
+        .data-display {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+        }
+        
+        .data-display h4 {
+            color: var(--warning);
+            margin-bottom: var(--space-md);
+            font-size: 1em;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+        
+        .data-table td {
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+        }
+        
+        /* Options Container */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        
+        .option-item {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        
+        .option-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .option-item.selected {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .option-item.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.15);
+        }
+        
+        .option-item.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.15);
+        }
+        
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+        
+        .option-item.selected .option-letter {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .option-item.correct .option-letter {
+            background: var(--success);
+            color: white;
+        }
+        
+        .option-item.incorrect .option-letter {
+            background: var(--error);
+            color: white;
+        }
+        
+        /* Input Fields */
+        .input-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .input-group label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .input-group input {
+            padding: 12px var(--space-md);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+            font-size: 1em;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .input-group input.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--success);
+        }
+        
+        .input-group input.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--error);
+        }
+        
+        /* Excel Grid */
+        .excel-grid-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        
+        .excel-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-tertiary);
+        }
+        
+        .excel-title {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .excel-hint {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+        }
+        
+        .excel-grid-wrapper {
+            overflow-x: auto;
+        }
+        
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Consolas', 'Monaco', monospace;
+            min-width: 400px;
+        }
+        
+        .excel-table th {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        
+        .excel-table td {
+            border: 1px solid var(--border-color);
+            padding: 0;
+            min-width: 100px;
+        }
+        
+        .excel-table td.row-label {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 10px 15px;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        
+        .excel-cell {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 10px 12px;
+            font-size: 0.9em;
+            font-family: 'Consolas', 'Monaco', monospace;
+            text-align: right;
+            outline: none;
+        }
+        
+        .excel-cell:focus {
+            outline: 2px solid var(--accent);
+            background: rgba(74, 222, 128, 0.05);
+        }
+        
+        .excel-cell.readonly {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        .excel-cell.correct {
+            background: rgba(34, 197, 94, 0.2) !important;
+            color: var(--success);
+        }
+        
+        .excel-cell.incorrect {
+            background: rgba(239, 68, 68, 0.2) !important;
+            color: var(--error);
+        }
+        
+        /* True/False Buttons */
+        .tf-container {
+            display: flex;
+            gap: var(--space-md);
+        }
+        
+        .tf-btn {
+            flex: 1;
+            padding: var(--space-lg);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .tf-btn:hover {
+            border-color: var(--accent);
+        }
+        
+        .tf-btn.selected {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .tf-btn.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.15);
+        }
+        
+        .tf-btn.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.15);
+        }
+        
+        /* Drag & Drop */
+        .dnd-container {
+            display: flex;
+            gap: var(--space-lg);
+            flex-wrap: wrap;
+        }
+        
+        .dnd-source {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .dnd-source-title {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .dnd-targets {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        .dnd-item {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm) var(--space-md);
+            margin-bottom: var(--space-xs);
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .dnd-item:active {
+            cursor: grabbing;
+        }
+        
+        .dnd-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .dnd-item.dragging {
+            opacity: 0.5;
+            transform: scale(1.02);
+        }
+        
+        .dnd-target {
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            min-height: 80px;
+        }
+        
+        .dnd-target.drag-over {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .dnd-target.correct {
+            border-color: var(--success);
+            border-style: solid;
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .dnd-target.incorrect {
+            border-color: var(--error);
+            border-style: solid;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .dnd-target-label {
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--text-secondary);
+        }
+        
+        .dnd-target-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            min-height: 40px;
+        }
+        
+        .dnd-target .dnd-item {
+            margin-bottom: 0;
+        }
+        
+        /* Journal Entry (Bilagsføring) */
+        .journal-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+        }
+        
+        .balance-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+        
+        .balance-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+        
+        .balance-label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .balance-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .balance-value.debit { color: var(--info); }
+        .balance-value.credit { color: var(--warning); }
+        .balance-value.balanced { color: var(--success); }
+        .balance-value.unbalanced { color: var(--error); }
+        
+        .journal-grid-wrapper {
+            overflow-x: auto;
+        }
+        
+        .journal-grid-wrapper .excel-cell.account-cell {
+            text-align: left;
+        }
+        
+        .journal-grid-wrapper .excel-cell.drag-over {
+            background: rgba(74, 222, 128, 0.2) !important;
+            outline: 2px dashed var(--accent) !important;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+            padding-top: var(--space-md);
+        }
+        
+        /* Hint & Explanation Boxes */
+        .hint-box, .explanation-box {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            display: none;
+            overflow: hidden;
+        }
+        
+        .hint-box.visible, .explanation-box.visible {
+            display: block;
+        }
+        
+        .hint-box {
+            border: 2px solid var(--warning);
+        }
+        
+        .explanation-box {
+            border: 2px solid var(--success);
+        }
+        
+        .hint-header, .explanation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            background: var(--bg-tertiary);
+        }
+        
+        .hint-content, .explanation-content {
+            padding: var(--space-md);
+        }
+        
+        .hint-close, .explanation-close {
+            background: none;
+            border: none;
+            font-size: 1.3em;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        /* Result Modal */
+        .result-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .result-modal.visible {
+            display: flex;
+        }
+        
+        .result-content {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .result-icon {
+            font-size: 3em;
+            margin-bottom: var(--space-md);
+        }
+        
+        .result-title {
+            font-size: 1.5em;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .result-title.success { color: var(--success); }
+        .result-title.error { color: var(--error); }
+        
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-xl);
+            margin: var(--space-lg) 0;
+        }
+        
+        .result-stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .result-stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        /* Calculator */
+        .floating-calculator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 500;
+            display: none;
+        }
+        
+        .floating-calculator.visible {
+            display: block;
+        }
+        
+        .calculator {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            box-shadow: var(--shadow-lg);
+            width: 260px;
+            user-select: none;
+        }
+        
+        .calculator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-sm);
+            padding-bottom: var(--space-sm);
+            border-bottom: 1px solid var(--border-color);
+            cursor: grab;
+        }
+        
+        .calculator-header:active {
+            cursor: grabbing;
+        }
+        
+        .calculator-title {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .calculator-close {
+            background: var(--error);
+            border: none;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .calculator-close:hover {
+            background: #dc2626;
+        }
+        
+        .calc-display {
+            background: var(--bg-primary);
+            padding: var(--space-sm);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-sm);
+            text-align: right;
+        }
+        
+        .calc-equation {
+            color: var(--text-secondary);
+            font-size: 0.75em;
+            min-height: 16px;
+        }
+        
+        .calc-result {
+            color: var(--text-primary);
+            font-size: 1.3em;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+        
+        .calc-btn {
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 1em;
+            cursor: pointer;
+        }
+        
+        .calc-btn:hover {
+            background: var(--border-light);
+        }
+        
+        .calc-btn.operator {
+            background: var(--accent-secondary);
+            color: white;
+        }
+        
+        .calc-btn.equals {
+            background: var(--accent);
+            color: var(--bg-primary);
+            grid-column: span 2;
+        }
+        
+        .calc-btn.function {
+            background: #a855f7;
+            color: white;
+            font-size: 0.85em;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .icon-menu {
+                width: 50px;
+            }
+            
+            .icon-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+            
+            .sidebar-panel {
+                width: 240px;
+            }
+            
+            .workspace {
+                padding: var(--space-md);
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .controls .aq-btn {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .sidebar-panel {
+                position: fixed;
+                left: 50px;
+                top: 60px;
+                bottom: 0;
+                z-index: 100;
+                display: none;
+            }
+            
+            .sidebar-panel.mobile-visible {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="aq-header">
+        <div class="aq-header-left">
+            <a href="index.html" class="aq-btn aq-btn-ghost">← Tilbake</a>
+            <span style="color: var(--text-secondary);">Modul: <strong style="color: var(--accent);">Grunnleggende Regnskap</strong></span>
+        </div>
+        <div class="aq-header-right">
+            <div class="aq-stat">
+                <span class="aq-stat-label">Spørsmål:</span>
+                <span class="aq-stat-value" id="nav-progress">-</span>
+            </div>
+            <div class="aq-stat">
+                <span class="aq-stat-label">Riktige:</span>
+                <span class="aq-stat-value" id="nav-correct">0</span>
+            </div>
+            <div class="aq-stat">
+                <span class="aq-stat-label">Poeng:</span>
+                <span class="aq-stat-value" id="nav-score">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="app-layout">
+        <!-- Icon Menu -->
+        <nav class="icon-menu">
+            <button class="icon-btn active" id="btn-topics" onclick="showSidebarView('topics')" title="Temaer">
+                📚
+            </button>
+            <button class="icon-btn" id="btn-difficulty" onclick="showSidebarView('difficulty')" title="Vanskelighetsgrad">
+                🎯
+            </button>
+            <div class="icon-menu-divider"></div>
+            <button class="icon-btn" id="btn-formulas" onclick="showSidebarView('formulas')" title="Formler">
+                📐
+            </button>
+            <button class="icon-btn" id="btn-data" onclick="showSidebarView('data')" title="Data">
+                📊
+            </button>
+            <div class="icon-menu-divider"></div>
+            <button class="icon-btn" onclick="toggleCalculator()" title="Kalkulator">
+                🔢
+            </button>
+        </nav>
+        
+        <!-- Sidebar Panel -->
+        <aside class="sidebar-panel" id="sidebar-panel">
+            <div class="sidebar-header">
+                <span class="sidebar-title" id="sidebar-title">Velg tema</span>
+            </div>
+            
+            <div class="sidebar-content">
+                <!-- Topics View -->
+                <div class="sidebar-view active" id="view-topics">
+                    <div id="topic-list"></div>
+                </div>
+                
+                <!-- Difficulty View -->
+                <div class="sidebar-view" id="view-difficulty">
+                    <div class="diff-grid" id="difficulty-grid">
+                        <div class="diff-card active" onclick="filterByDifficulty('all')">
+                            <div class="diff-card-icon">📚</div>
+                            <div class="diff-card-name">Alle</div>
+                            <div class="diff-card-count" id="diff-count-all">-</div>
+                        </div>
+                        <div class="diff-card" onclick="filterByDifficulty('easy')">
+                            <div class="diff-card-icon">🌱</div>
+                            <div class="diff-card-name">Lett</div>
+                            <div class="diff-card-count" id="diff-count-easy">-</div>
+                        </div>
+                        <div class="diff-card" onclick="filterByDifficulty('medium')">
+                            <div class="diff-card-icon">💪</div>
+                            <div class="diff-card-name">Middels</div>
+                            <div class="diff-card-count" id="diff-count-medium">-</div>
+                        </div>
+                        <div class="diff-card" onclick="filterByDifficulty('hard')">
+                            <div class="diff-card-icon">🔥</div>
+                            <div class="diff-card-name">Vanskelig</div>
+                            <div class="diff-card-count" id="diff-count-hard">-</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Formulas View -->
+                <div class="sidebar-view" id="view-formulas">
+                    <div class="formula-list" id="formula-list"></div>
+                </div>
+                
+                <!-- Data View -->
+                <div class="sidebar-view" id="view-data">
+                    <div id="variable-list">
+                        <p style="color: var(--text-secondary); text-align: center; padding: var(--space-lg);">
+                            Velg et tema og start en oppgave for å se data.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Progress Bar -->
+            <div class="progress-section" id="progress-section">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%">0%</div>
+                </div>
+            </div>
+            
+            <!-- Question Selector -->
+            <div class="question-selector" id="question-selector-section">
+                <div class="question-selector-grid" id="question-selector"></div>
+            </div>
+            
+            <!-- Workspace -->
+            <main class="workspace">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcome-screen">
+                    <h1>Grunnleggende Regnskap</h1>
+                    <p>Mestre bokføring, regnskapsloven og norske regnskapsprinsipper.</p>
+                    <div class="welcome-hint">
+                        <span class="welcome-hint-icon">←</span>
+                        <span>Velg et tema fra menyen for å starte</span>
+                    </div>
+                </div>
+                
+                <!-- Game View -->
+                <div class="game-view" id="game-view">
+                    <div class="question-header">
+                        <div class="question-number" id="question-number">Spørsmål 1 av 10</div>
+                        <div class="question-title" id="question-title">Laster...</div>
+                        <div class="question-text" id="question-text"></div>
+                        <div class="question-badges" id="question-badges"></div>
+                    </div>
+                    
+                    <div class="data-display" id="data-display" style="display: none;">
+                        <h4>📋 Oppgavedata</h4>
+                        <table class="data-table" id="data-table"><tbody></tbody></table>
+                    </div>
+                    
+                    <div class="options-container" id="options-container" style="display: none;"></div>
+                    <div class="input-fields" id="input-fields" style="display: none;"></div>
+                    
+                    <!-- True/False Container -->
+                    <div class="tf-container" id="tf-container" style="display: none;">
+                        <button class="tf-btn" data-value="true" onclick="selectTF(true)">✓ Sant</button>
+                        <button class="tf-btn" data-value="false" onclick="selectTF(false)">✗ Usant</button>
+                    </div>
+                    
+                    <!-- Drag & Drop Container -->
+                    <div class="dnd-container" id="dnd-container" style="display: none;">
+                        <div class="dnd-source" id="dnd-source">
+                            <div class="dnd-source-title">Dra elementene til riktig kategori:</div>
+                            <div class="dnd-items" id="dnd-items"></div>
+                        </div>
+                        <div class="dnd-targets" id="dnd-targets"></div>
+                    </div>
+                    
+                    <!-- Journal Entry Container (Bilagsføring) -->
+                    <div class="journal-container" id="journal-container" style="display: none;">
+                        <div class="balance-display" id="balance-display">
+                            <div class="balance-item">
+                                <div class="balance-label">Sum Debet</div>
+                                <div class="balance-value debit" id="sum-debit">0</div>
+                            </div>
+                            <div class="balance-item">
+                                <div class="balance-label">Sum Kredit</div>
+                                <div class="balance-value credit" id="sum-credit">0</div>
+                            </div>
+                            <div class="balance-item">
+                                <div class="balance-label">Differanse</div>
+                                <div class="balance-value" id="balance-diff">0</div>
+                            </div>
+                        </div>
+                        <div class="journal-grid-wrapper">
+                            <table class="excel-table" id="journal-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;">#</th>
+                                        <th style="width: 100px;">Konto</th>
+                                        <th>Kontonavn</th>
+                                        <th style="width: 120px;">Debet</th>
+                                        <th style="width: 120px;">Kredit</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="journal-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="excel-grid-container" id="excel-grid-container" style="display: none;">
+                        <div class="excel-header-row">
+                            <span class="excel-title">📊 Beregningstabell</span>
+                            <span class="excel-hint">Fyll inn de tomme cellene</span>
+                        </div>
+                        <div class="excel-grid-wrapper">
+                            <table class="excel-table">
+                                <thead id="excel-thead"></thead>
+                                <tbody id="excel-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="controls">
+                        <button class="aq-btn aq-btn-primary" onclick="checkAnswer()" id="btn-check">✓ Sjekk svar</button>
+                        <button class="aq-btn aq-btn-warning" onclick="showHint()" id="btn-hint">💡 Hint</button>
+                        <button class="aq-btn aq-btn-secondary" onclick="toggleCalculator()">🔢 Kalkulator</button>
+                        <button class="aq-btn aq-btn-info" onclick="toggleExplanation()" id="btn-explanation" style="display: none;">📖 Forklaring</button>
+                        <button class="aq-btn aq-btn-accent" onclick="nextQuestion()" id="btn-next" style="display: none;">Neste →</button>
+                    </div>
+                    
+                    <div class="hint-box" id="hint-box">
+                        <div class="hint-header">
+                            <span style="color: var(--warning);" id="hint-level">💡 Hint</span>
+                            <button class="hint-close" onclick="closeHint()">×</button>
+                        </div>
+                        <div class="hint-content">
+                            <p id="hint-text"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="explanation-box" id="explanation-box">
+                        <div class="explanation-header">
+                            <span style="color: var(--success);">📖 Forklaring</span>
+                            <button class="explanation-close" onclick="closeExplanation()">×</button>
+                        </div>
+                        <div class="explanation-content">
+                            <div id="explanation-main"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="result-modal" id="result-modal">
+        <div class="result-content">
+            <div class="result-icon" id="result-icon">🎉</div>
+            <h2 class="result-title" id="result-title">Gratulerer!</h2>
+            <p class="result-message" id="result-message"></p>
+            <div class="result-stats">
+                <div class="result-stat">
+                    <div class="result-stat-value" id="result-correct">0</div>
+                    <div class="result-stat-label">Riktige</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-value" id="result-total">0</div>
+                    <div class="result-stat-label">Totalt</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-value" id="result-percent">0%</div>
+                    <div class="result-stat-label">Score</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: var(--space-sm); justify-content: center;">
+                <button class="aq-btn aq-btn-primary" onclick="restartGame()">🔄 Prøv igjen</button>
+                <button class="aq-btn aq-btn-ghost" onclick="backToWelcome()">← Nytt tema</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator -->
+    <div class="floating-calculator" id="floating-calculator">
+        <div class="calculator" id="calculator-drag">
+            <div class="calculator-header">
+                <span class="calculator-title">🔢 Kalkulator</span>
+                <button class="calculator-close" onclick="toggleCalculator()">×</button>
+            </div>
+            <div class="calc-display">
+                <div class="calc-equation" id="calc-equation"></div>
+                <div class="calc-result" id="calc-result">0</div>
+            </div>
+            <div class="calc-buttons">
+                <button class="calc-btn function" onclick="calcFunction('pv')">PV</button>
+                <button class="calc-btn function" onclick="calcFunction('fv')">FV</button>
+                <button class="calc-btn function" onclick="calcFunction('sqrt')">√</button>
+                <button class="calc-btn operator" onclick="calcInput('/')">/</button>
+                <button class="calc-btn" onclick="calcInput('7')">7</button>
+                <button class="calc-btn" onclick="calcInput('8')">8</button>
+                <button class="calc-btn" onclick="calcInput('9')">9</button>
+                <button class="calc-btn operator" onclick="calcInput('*')">×</button>
+                <button class="calc-btn" onclick="calcInput('4')">4</button>
+                <button class="calc-btn" onclick="calcInput('5')">5</button>
+                <button class="calc-btn" onclick="calcInput('6')">6</button>
+                <button class="calc-btn operator" onclick="calcInput('-')">−</button>
+                <button class="calc-btn" onclick="calcInput('1')">1</button>
+                <button class="calc-btn" onclick="calcInput('2')">2</button>
+                <button class="calc-btn" onclick="calcInput('3')">3</button>
+                <button class="calc-btn operator" onclick="calcInput('+')">+</button>
+                <button class="calc-btn" onclick="calcInput('0')">0</button>
+                <button class="calc-btn" onclick="calcInput('.')">.</button>
+                <button class="calc-btn" onclick="calcClear()">C</button>
+                <button class="calc-btn operator" onclick="calcInput('^')">^</button>
+                <button class="calc-btn equals" onclick="calcEquals()">=</button>
+                <button class="calc-btn" onclick="calcInput('(')">(</button>
+                <button class="calc-btn" onclick="calcInput(')')">)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/EXCEL-GRID-FINAL.js"></script>
+    
+    <script>
+        // ==================== CONFIGURATION ====================
+        var topics = [
+            { id: 'grunnleggende', name: 'Grunnleggende regnskap', icon: '📖' },
+            { id: 'bokforing', name: 'Regnskapsførsel', icon: '📝' },
+            { id: 'mva', name: 'Merverdiavgift', icon: '💰' },
+            { id: 'skatt', name: 'Skatt', icon: '🏛️' },
+            { id: 'arsavslutning', name: 'Årsavslutning', icon: '📅' },
+            { id: 'analyse', name: 'Regnskapsanalyse', icon: '📊' },
+            { id: 'driftsregnskap', name: 'Driftsregnskap', icon: '🏭' },
+            { id: 'lonn', name: 'Lønn', icon: '💵' },
+            { id: 'mixed', name: 'Blandet Quiz', icon: '🎲' }
+        ];
+        
+        var formulas = {
+            grunnleggende: [
+                { name: 'Regnskapslikningen', equation: 'E = EK + G', description: 'Eiendeler = Egenkapital + Gjeld' },
+                { name: 'Balansekrav', equation: 'Debet = Kredit', description: 'Sum debet = Sum kredit' }
+            ],
+            bokforing: [
+                { name: 'Oppbevaringstid', equation: '5 år', description: 'Regnskapsmateriale (BOKL § 13)' },
+                { name: 'Bilagskrav', equation: 'Dato + Beløp + Parter', description: 'Minstekrav til bilag' }
+            ],
+            mva: [
+                { name: 'Alminnelig MVA', equation: '25%', description: 'Standard sats' },
+                { name: 'Mat-MVA', equation: '15%', description: 'Næringsmidler' },
+                { name: 'Lav MVA', equation: '12%', description: 'Transport, overnatting' },
+                { name: 'MVA-beregning', equation: 'Netto × 1.25 = Brutto', description: 'Fra netto til brutto' }
+            ],
+            skatt: [
+                { name: 'Selskapsskatt', equation: '22%', description: 'Skatt på alminnelig inntekt' },
+                { name: 'Betalbar skatt', equation: 'Alm. inntekt × 22%', description: 'Skatteberegning' }
+            ],
+            arsavslutning: [
+                { name: 'Lineær avskr.', equation: 'Kostpris / Levetid', description: 'Årlig avskrivning' },
+                { name: 'Saldoavskr.', equation: 'Bokført × Sats%', description: 'Skattemessig avskrivning' }
+            ],
+            analyse: [
+                { name: 'LG1', equation: 'OM / KG', description: 'Likviditetsgrad 1' },
+                { name: 'LG2', equation: '(OM - Varelager) / KG', description: 'Likviditetsgrad 2' },
+                { name: 'EK-andel', equation: 'EK / TK × 100', description: 'Egenkapitalandel' },
+                { name: 'TKR', equation: '(DR + FI) / Gj.sn TK × 100', description: 'Totalkapitalrentabilitet' },
+                { name: 'EKR', equation: 'Resultat / Gj.sn EK × 100', description: 'Egenkapitalrentabilitet' }
+            ],
+            driftsregnskap: [
+                { name: 'Dekningsbidrag', equation: 'Pris - VK', description: 'Bidrag per enhet' },
+                { name: 'DG', equation: 'DB / Pris × 100', description: 'Dekningsgrad' },
+                { name: 'Nullpunkt', equation: 'FK / DB per enhet', description: 'Break-even mengde' }
+            ],
+            lonn: [
+                { name: 'AGA', equation: '14,1%', description: 'Arbeidsgiveravgift sone 1' },
+                { name: 'Feriepenger', equation: '10,2%', description: 'Normal feriepengesats' }
+            ],
+            mixed: []
+        };
+        
+        // Kontoplan (NS 4102) for journal entries
+        var KONTOPLAN = {
+            "1000": "Forskning og utvikling",
+            "1200": "Tomter og bygninger",
+            "1250": "Maskiner og anlegg",
+            "1280": "Kontormaskiner",
+            "1400": "Varelager råvarer",
+            "1460": "Varelager ferdigvarer",
+            "1500": "Kundefordringer",
+            "1580": "Avsetning tap på fordringer",
+            "1700": "Forskuddsbetalt leie",
+            "1720": "Forskuddsbetalt forsikring",
+            "1900": "Kontanter",
+            "1920": "Bankinnskudd",
+            "1950": "Bankinnskudd skattetrekk",
+            "2000": "Aksjekapital",
+            "2050": "Annen egenkapital",
+            "2400": "Leverandørgjeld",
+            "2500": "Betalbar skatt",
+            "2600": "Skattetrekk",
+            "2700": "Utgående merverdiavgift",
+            "2710": "Inngående merverdiavgift",
+            "2740": "Oppgjørskonto MVA",
+            "2770": "Skyldig arbeidsgiveravgift",
+            "2780": "Påløpt arbeidsgiveravgift",
+            "2930": "Påløpt lønn",
+            "2940": "Påløpt feriepenger",
+            "3000": "Salgsinntekt, avgiftspliktig",
+            "3100": "Salgsinntekt, avgiftsfri",
+            "4000": "Innkjøp av råvarer",
+            "4300": "Innkjøp varer for videresalg",
+            "4360": "Frakt og toll",
+            "5000": "Lønn",
+            "5180": "Feriepenger",
+            "5400": "Arbeidsgiveravgift",
+            "6000": "Avskrivning bygninger",
+            "6010": "Avskrivning maskiner",
+            "6300": "Leie lokaler",
+            "6340": "Lys, varme",
+            "6800": "Kontorrekvisita",
+            "7000": "Bilkostnader",
+            "7500": "Forsikringer",
+            "7830": "Tap på fordringer",
+            "8050": "Renteinntekt",
+            "8150": "Rentekostnad",
+            "8300": "Betalbar skatt",
+            "8800": "Årsresultat"
+        };
+        
+        // ==================== STATE ====================
+        var gameState = {
+            currentTopic: null,
+            currentDifficulty: 'all',
+            questions: [],
+            allQuestions: [],
+            currentIndex: 0,
+            currentQuestion: null,
+            selectedAnswer: null,
+            selectedAnswers: [], // for multi-select
+            tfAnswer: null,      // for true/false
+            dndState: {},        // for drag & drop
+            answeredCorrectly: false,
+            hintsUsed: 0,
+            score: 0,
+            correctCount: 0,
+            answered: []
+        };
+        
+        var currentSidebarView = 'topics';
+        
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTopicList();
+            
+            // Firebase init
+            var firebaseConfig = {
+                apiKey: "AIzaSyDmLjTJPexLM2PkDHLHhO0KLVozxaEB9JM",
+                authDomain: "accountingquest-multiplayer.firebaseapp.com",
+                databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "accountingquest-multiplayer",
+                storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+                messagingSenderId: "1042365043389",
+                appId: "1:1042365043389:web:a9f933aef3d5c3f6c37edc"
+            };
+            
+            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            
+            loadQuestionCounts();
+            loadFormulasForTopic('grunnleggende');
+            
+            // Load saved progress after a short delay
+            setTimeout(loadSavedProgress, 500);
+        });
+        
+        // ==================== SIDEBAR ====================
+        function showSidebarView(viewId) {
+            currentSidebarView = viewId;
+            
+            // Update icon buttons
+            document.querySelectorAll('.icon-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            document.getElementById('btn-' + viewId).classList.add('active');
+            
+            // Update sidebar views
+            document.querySelectorAll('.sidebar-view').forEach(function(view) {
+                view.classList.remove('active');
+            });
+            document.getElementById('view-' + viewId).classList.add('active');
+            
+            // Update title
+            var titles = {
+                topics: 'Velg tema',
+                difficulty: 'Vanskelighetsgrad',
+                formulas: 'Formler',
+                data: 'Oppgavedata'
+            };
+            document.getElementById('sidebar-title').textContent = titles[viewId];
+            
+            // Mobile: show sidebar
+            document.getElementById('sidebar-panel').classList.add('mobile-visible');
+        }
+        
+        // ==================== TOPICS ====================
+        function renderTopicList() {
+            var html = '';
+            topics.forEach(function(topic) {
+                html += '<div class="topic-item" id="topic-' + topic.id + '" onclick="startGame(\'' + topic.id + '\')">';
+                html += '<span class="topic-item-icon">' + topic.icon + '</span>';
+                html += '<div class="topic-item-info">';
+                html += '<div class="topic-item-name">' + topic.name + '</div>';
+                html += '<div class="topic-item-count" id="count-' + topic.id + '">Laster...</div>';
+                html += '</div>';
+                html += '</div>';
+            });
+            document.getElementById('topic-list').innerHTML = html;
+        }
+        
+        // Topic ID mapping (database values -> our IDs)
+        var topicMapping = {
+            'grunnleggende': 'grunnleggende',
+            'grunnlag': 'grunnleggende',
+            'basis': 'grunnleggende',
+            'bokforing': 'bokforing',
+            'bokføring': 'bokforing',
+            'bilag': 'bokforing',
+            'journal': 'bokforing',
+            'mva': 'mva',
+            'merverdiavgift': 'mva',
+            'avgift': 'mva',
+            'skatt': 'skatt',
+            'beskatning': 'skatt',
+            'selskapsskatt': 'skatt',
+            'arsavslutning': 'arsavslutning',
+            'årsavslutning': 'arsavslutning',
+            'avslutning': 'arsavslutning',
+            'avskrivning': 'arsavslutning',
+            'analyse': 'analyse',
+            'regnskapsanalyse': 'analyse',
+            'nøkkeltall': 'analyse',
+            'driftsregnskap': 'driftsregnskap',
+            'kalkyle': 'driftsregnskap',
+            'dekningsbidrag': 'driftsregnskap',
+            'lonn': 'lonn',
+            'lønn': 'lonn',
+            'feriepenger': 'lonn',
+            'aga': 'lonn'
+        };
+        
+        function mapTopic(dbTopic) {
+            if (!dbTopic) return null;
+            var lower = dbTopic.toLowerCase();
+            return topicMapping[lower] || lower;
+        }
+        
+        function loadQuestionCounts() {
+            if (typeof firebase === 'undefined') return;
+            
+            var db = firebase.database();
+            
+            // Try multiple possible paths - solutions seems to have the data
+            var possiblePaths = [
+                'solutions/accounting',
+                'questions/accounting',
+                'accounting',
+                'accounting/exercises'
+            ];
+            
+            tryLoadFromPath(db, possiblePaths, 0);
+        }
+        
+        function tryLoadFromPath(db, paths, index) {
+            if (index >= paths.length) {
+                console.error('Could not find questions in any path:', paths);
+                return;
+            }
+            
+            var path = paths[index];
+            console.log('Trying to load questions from:', path);
+            
+            db.ref(path).once('value').then(function(snap) {
+                var counts = {};
+                var total = 0;
+                var foundTopics = {};
+                
+                // Initialize counts
+                topics.forEach(function(t) {
+                    counts[t.id] = 0;
+                });
+                
+                snap.forEach(function(qSnap) {
+                    var q = qSnap.val();
+                    if (!q || typeof q !== 'object') return;
+                    
+                    // For solutions path, we need to check for 'correct' field
+                    // For questions path, check for type/question/title
+                    var isQuestion = q.type || q.question || q.title || q.description || q.correct;
+                    if (!isQuestion) return;
+                    
+                    total++;
+                    
+                    // Try to get topic from the question ID if not in data
+                    var dbTopic = q.topic;
+                    if (!dbTopic) {
+                        // Try to extract from question ID like acc_mva_calc_001 -> mva
+                        var key = qSnap.key;
+                        if (key.includes('grunn')) dbTopic = 'grunnleggende';
+                        else if (key.includes('bokf')) dbTopic = 'bokforing';
+                        else if (key.includes('mva')) dbTopic = 'mva';
+                        else if (key.includes('skatt')) dbTopic = 'skatt';
+                        else if (key.includes('aars') || key.includes('avskr')) dbTopic = 'arsavslutning';
+                        else if (key.includes('analyse') || key.includes('nokkel')) dbTopic = 'analyse';
+                        else if (key.includes('drift') || key.includes('kalkyl')) dbTopic = 'driftsregnskap';
+                        else if (key.includes('lonn') || key.includes('ferie')) dbTopic = 'lonn';
+                    }
+                    
+                    var mappedTopic = mapTopic(dbTopic);
+                    
+                    foundTopics[dbTopic || 'unknown'] = (foundTopics[dbTopic || 'unknown'] || 0) + 1;
+                    
+                    if (mappedTopic && counts[mappedTopic] !== undefined) {
+                        counts[mappedTopic]++;
+                    }
+                });
+                
+                if (total > 0) {
+                    console.log('SUCCESS! Found questions at:', path);
+                    console.log('Found topics:', foundTopics);
+                    console.log('Mapped counts:', counts);
+                    console.log('Total:', total);
+                    
+                    // Store the working path
+                    gameState.questionsPath = path;
+                    
+                    // Update UI
+                    topics.forEach(function(topic) {
+                        var countEl = document.getElementById('count-' + topic.id);
+                        if (countEl) {
+                            if (topic.id === 'mixed') {
+                                countEl.textContent = total + ' oppgaver';
+                            } else {
+                                countEl.textContent = counts[topic.id] + ' oppgaver';
+                            }
+                        }
+                    });
+                } else {
+                    console.log('No questions found at:', path, '- trying next path');
+                    tryLoadFromPath(db, paths, index + 1);
+                }
+            }).catch(function(err) {
+                console.log('Error loading from', path, ':', err.message);
+                tryLoadFromPath(db, paths, index + 1);
+            });
+        }
+        
+        // ==================== GAME ====================
+        function startGame(topicId) {
+            gameState.currentTopic = topicId;
+            gameState.currentDifficulty = 'all';
+            gameState.score = 0;
+            gameState.correctCount = 0;
+            gameState.currentIndex = 0;
+            gameState.answered = [];
+            gameState.allQuestions = [];
+            
+            // Update UI
+            document.querySelectorAll('.topic-item').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            document.getElementById('topic-' + topicId).classList.add('active');
+            
+            document.getElementById('nav-score').textContent = '0';
+            document.getElementById('nav-correct').textContent = '0';
+            
+            loadQuestions().then(function() {
+                if (gameState.allQuestions.length === 0) {
+                    alert('Ingen spørsmål funnet for dette temaet.');
+                    return;
+                }
+                
+                updateDifficultyCounts();
+                loadFormulasForTopic(topicId);
+                
+                // Show game UI
+                document.getElementById('welcome-screen').style.display = 'none';
+                document.getElementById('game-view').classList.add('visible');
+                document.getElementById('progress-section').classList.add('visible');
+                document.getElementById('question-selector-section').classList.add('visible');
+                
+                renderQuestionSelector();
+                loadQuestion(0);
+            });
+        }
+        
+        function loadQuestions() {
+            return new Promise(function(resolve) {
+                if (typeof firebase === 'undefined') { resolve(); return; }
+                
+                var db = firebase.database();
+                var questions = [];
+                
+                // Use the path we found, or try solutions first
+                var basePath = gameState.questionsPath || 'solutions/accounting';
+                
+                console.log('Loading questions from:', basePath);
+                
+                db.ref(basePath).once('value').then(function(snap) {
+                    snap.forEach(function(qSnap) {
+                        var q = qSnap.val();
+                        
+                        // Skip non-question entries
+                        if (!q || typeof q !== 'object') return;
+                        
+                        q.id = qSnap.key;
+                        
+                        // Extract topic from ID if not present
+                        if (!q.topic) {
+                            var key = qSnap.key;
+                            if (key.includes('grunn')) q.topic = 'grunnleggende';
+                            else if (key.includes('bokf')) q.topic = 'bokforing';
+                            else if (key.includes('mva')) q.topic = 'mva';
+                            else if (key.includes('skatt')) q.topic = 'skatt';
+                            else if (key.includes('aars') || key.includes('avskr')) q.topic = 'arsavslutning';
+                            else if (key.includes('analyse') || key.includes('nokkel')) q.topic = 'analyse';
+                            else if (key.includes('drift') || key.includes('kalkyl')) q.topic = 'driftsregnskap';
+                            else if (key.includes('lonn') || key.includes('ferie')) q.topic = 'lonn';
+                        }
+                        
+                        // Determine type from ID if not present
+                        if (!q.type) {
+                            var key = qSnap.key;
+                            if (key.includes('_mc_')) q.type = 'multiple_choice';
+                            else if (key.includes('_tf_')) q.type = 'true_false';
+                            else if (key.includes('_calc_')) q.type = 'calculation';
+                            else if (key.includes('_grid_')) q.type = 'excel_grid';
+                            else if (key.includes('_journal_')) q.type = 'journal_entry';
+                            else if (key.includes('_dnd_')) q.type = 'dnd';
+                            else q.type = 'calculation'; // default
+                        }
+                        
+                        // Create title from ID if not present
+                        if (!q.title) {
+                            q.title = q.id.replace(/acc_/g, '').replace(/_/g, ' ').replace(/\d+/g, '').trim();
+                            q.title = q.title.charAt(0).toUpperCase() + q.title.slice(1);
+                        }
+                        
+                        // Map topic
+                        var mappedTopic = mapTopic(q.topic);
+                        
+                        // Filter by topic if not mixed
+                        if (gameState.currentTopic !== 'mixed') {
+                            if (mappedTopic !== gameState.currentTopic) return;
+                        }
+                        
+                        questions.push(q);
+                    });
+                    
+                    console.log('Loaded ' + questions.length + ' questions for topic: ' + gameState.currentTopic);
+                    if (questions.length > 0) {
+                        console.log('Sample question:', questions[0]);
+                    }
+                    
+                    gameState.allQuestions = questions;
+                    gameState.questions = shuffleArray(questions).slice(0, 10);
+                    resolve();
+                }).catch(function(err) {
+                    console.error('Error loading questions:', err);
+                    resolve();
+                });
+            });
+        }
+        
+        function updateDifficultyCounts() {
+            var counts = { all: 0, easy: 0, medium: 0, hard: 0 };
+            gameState.allQuestions.forEach(function(q) {
+                counts.all++;
+                if (counts[q.difficulty] !== undefined) counts[q.difficulty]++;
+            });
+            
+            document.getElementById('diff-count-all').textContent = counts.all;
+            document.getElementById('diff-count-easy').textContent = counts.easy;
+            document.getElementById('diff-count-medium').textContent = counts.medium;
+            document.getElementById('diff-count-hard').textContent = counts.hard;
+        }
+        
+        function filterByDifficulty(diff) {
+            gameState.currentDifficulty = diff;
+            
+            // Update UI
+            document.querySelectorAll('.diff-card').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            event.target.closest('.diff-card').classList.add('active');
+            
+            // Filter
+            var filtered = diff === 'all' 
+                ? gameState.allQuestions.slice() 
+                : gameState.allQuestions.filter(function(q) { return q.difficulty === diff; });
+            
+            if (filtered.length === 0) {
+                alert('Ingen spørsmål med denne vanskelighetsgraden.');
+                return;
+            }
+            
+            // Reset game
+            gameState.questions = shuffleArray(filtered).slice(0, 10);
+            gameState.currentIndex = 0;
+            gameState.answered = [];
+            gameState.score = 0;
+            gameState.correctCount = 0;
+            
+            document.getElementById('nav-score').textContent = '0';
+            document.getElementById('nav-correct').textContent = '0';
+            
+            renderQuestionSelector();
+            loadQuestion(0);
+        }
+        
+        function loadFormulasForTopic(topicId) {
+            var list = formulas[topicId] || formulas.grunnleggende;
+            if (topicId === 'mixed') {
+                list = [];
+                Object.keys(formulas).forEach(function(t) {
+                    list = list.concat(formulas[t].slice(0, 1));
+                });
+            }
+            
+            var html = '';
+            list.forEach(function(f) {
+                html += '<div class="formula-item">';
+                html += '<div class="formula-name">' + f.name + '</div>';
+                html += '<div class="formula-equation">' + f.equation + '</div>';
+                html += '<div class="formula-description">' + f.description + '</div>';
+                html += '</div>';
+            });
+            document.getElementById('formula-list').innerHTML = html;
+        }
+        
+        // ==================== QUESTION RENDERING ====================
+        function renderQuestionSelector() {
+            var html = '';
+            for (var i = 0; i < gameState.questions.length; i++) {
+                var cls = 'question-selector-item';
+                if (i === gameState.currentIndex) cls += ' current';
+                if (gameState.answered[i]) cls += ' completed';
+                html += '<div class="' + cls + '" onclick="loadQuestion(' + i + ')">' + (i + 1) + '</div>';
+            }
+            document.getElementById('question-selector').innerHTML = html;
+            
+            var pct = Math.round((gameState.answered.filter(Boolean).length / gameState.questions.length) * 100);
+            document.getElementById('progress-bar').style.width = pct + '%';
+            document.getElementById('progress-bar').textContent = pct + '%';
+            document.getElementById('nav-progress').textContent = (gameState.currentIndex + 1) + '/' + gameState.questions.length;
+        }
+        
+        function loadQuestion(idx) {
+            gameState.currentIndex = idx;
+            gameState.currentQuestion = gameState.questions[idx];
+            gameState.selectedAnswer = null;
+            gameState.answeredCorrectly = false;
+            gameState.hintsUsed = 0;
+            
+            var q = gameState.currentQuestion;
+            
+            document.getElementById('question-number').textContent = 'Spørsmål ' + (idx + 1) + ' av ' + gameState.questions.length;
+            document.getElementById('question-title').textContent = q.title || 'Oppgave';
+            document.getElementById('question-text').textContent = q.question || q.description || '';
+            
+            var badgesHtml = '<span class="badge badge-topic">' + q.topic + '</span>';
+            badgesHtml += '<span class="badge badge-type">' + (q.type || 'calc') + '</span>';
+            badgesHtml += '<span class="badge badge-diff">' + (q.difficulty || 'medium') + '</span>';
+            document.getElementById('question-badges').innerHTML = badgesHtml;
+            
+            // Reset UI
+            document.getElementById('hint-box').classList.remove('visible');
+            document.getElementById('explanation-box').classList.remove('visible');
+            document.getElementById('btn-check').style.display = 'inline-flex';
+            document.getElementById('btn-check').disabled = false;
+            document.getElementById('btn-next').style.display = 'none';
+            document.getElementById('btn-explanation').style.display = 'none';
+            document.getElementById('btn-hint').disabled = false;
+            
+            renderQuestionContent(q);
+            renderVariables(q);
+            renderQuestionSelector();
+        }
+        
+        function renderQuestionContent(q) {
+            // Hide all containers
+            document.getElementById('options-container').style.display = 'none';
+            document.getElementById('input-fields').style.display = 'none';
+            document.getElementById('data-display').style.display = 'none';
+            document.getElementById('excel-grid-container').style.display = 'none';
+            document.getElementById('tf-container').style.display = 'none';
+            document.getElementById('dnd-container').style.display = 'none';
+            document.getElementById('journal-container').style.display = 'none';
+            
+            // Reset state
+            gameState.selectedAnswer = null;
+            gameState.selectedAnswers = [];
+            gameState.tfAnswer = null;
+            gameState.dndState = {};
+            
+            if (q.data) renderDataTable(q.data);
+            
+            var type = q.type || 'calculation';
+            
+            if (type === 'multiple_choice' || type === 'mc') {
+                renderMultipleChoice(q);
+            } else if (type === 'multi' || type === 'multi_select') {
+                renderMultiSelect(q);
+            } else if (type === 'true_false' || type === 'tf') {
+                renderTrueFalse(q);
+            } else if (type === 'dnd' || type === 'drag_drop') {
+                renderDragDrop(q);
+            } else if (type === 'journal_entry' || type === 'journal') {
+                renderJournalEntry(q);
+            } else if (type === 'excel_grid') {
+                renderExcelGrid(q);
+            } else {
+                renderCalculation(q);
+            }
+        }
+        
+        function renderDataTable(data) {
+            document.getElementById('data-display').style.display = 'block';
+            var html = '';
+            Object.keys(data).forEach(function(k) {
+                var v = data[k];
+                if (typeof v !== 'object' || Array.isArray(v)) {
+                    html += '<tr><th>' + formatLabel(k) + '</th><td>' + formatNumber(v) + '</td></tr>';
+                }
+            });
+            document.getElementById('data-table').querySelector('tbody').innerHTML = html;
+        }
+        
+        function renderMultipleChoice(q) {
+            var container = document.getElementById('options-container');
+            container.style.display = 'flex';
+            var opts = q.options || [];
+            var html = '';
+            opts.forEach(function(o, i) {
+                var id = o.id || i.toString();
+                var text = typeof o === 'string' ? o : o.text;
+                html += '<div class="option-item" data-id="' + id + '" onclick="selectOption(\'' + id + '\')">';
+                html += '<div class="option-letter">' + String.fromCharCode(65 + i) + '</div>';
+                html += '<div>' + text + '</div>';
+                html += '</div>';
+            });
+            container.innerHTML = html;
+        }
+        
+        function renderTrueFalse(q) {
+            document.getElementById('tf-container').style.display = 'flex';
+            // Reset buttons
+            document.querySelectorAll('.tf-btn').forEach(function(btn) {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+            });
+        }
+        
+        function selectTF(value) {
+            if (gameState.answeredCorrectly || gameState.answered[gameState.currentIndex]) return;
+            gameState.tfAnswer = value;
+            document.querySelectorAll('.tf-btn').forEach(function(btn) {
+                var btnVal = btn.dataset.value === 'true';
+                btn.classList.toggle('selected', btnVal === value);
+            });
+        }
+        
+        function renderMultiSelect(q) {
+            var container = document.getElementById('options-container');
+            container.style.display = 'flex';
+            var opts = q.options || [];
+            var html = '<p style="color: var(--text-secondary); margin-bottom: var(--space-sm); width: 100%;">Velg alle riktige svar:</p>';
+            opts.forEach(function(o, i) {
+                var id = o.id || i.toString();
+                var text = typeof o === 'string' ? o : o.text;
+                html += '<div class="option-item" data-id="' + id + '" onclick="toggleMultiOption(\'' + id + '\')">' +
+                    '<div class="option-letter"></div>' +
+                    '<div>' + text + '</div></div>';
+            });
+            container.innerHTML = html;
+        }
+        
+        function toggleMultiOption(optId) {
+            if (gameState.answeredCorrectly || gameState.answered[gameState.currentIndex]) return;
+            var idx = gameState.selectedAnswers.indexOf(optId);
+            if (idx > -1) {
+                gameState.selectedAnswers.splice(idx, 1);
+            } else {
+                gameState.selectedAnswers.push(optId);
+            }
+            document.querySelectorAll('.option-item').forEach(function(item) {
+                var isSelected = gameState.selectedAnswers.indexOf(item.dataset.id) > -1;
+                item.classList.toggle('selected', isSelected);
+                item.querySelector('.option-letter').textContent = isSelected ? '✓' : '';
+            });
+        }
+        
+        function renderDragDrop(q) {
+            document.getElementById('dnd-container').style.display = 'flex';
+            var items = q.items || [];
+            var targets = q.targets || [];
+            
+            // Render draggable items
+            var itemsHtml = '';
+            items.forEach(function(item) {
+                itemsHtml += '<div class="dnd-item" draggable="true" data-item-id="' + item.id + '">' + item.text + '</div>';
+            });
+            document.getElementById('dnd-items').innerHTML = itemsHtml;
+            
+            // Render drop targets
+            var targetsHtml = '';
+            targets.forEach(function(target) {
+                targetsHtml += '<div class="dnd-target" data-target-id="' + target.id + '">' +
+                    '<div class="dnd-target-label">' + target.label + '</div>' +
+                    '<div class="dnd-target-items"></div></div>';
+            });
+            document.getElementById('dnd-targets').innerHTML = targetsHtml;
+            
+            // Initialize drag & drop
+            initDragDrop();
+        }
+        
+        function initDragDrop() {
+            var items = document.querySelectorAll('.dnd-item');
+            var targets = document.querySelectorAll('.dnd-target');
+            var source = document.getElementById('dnd-items');
+            
+            items.forEach(function(item) {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', item.dataset.itemId);
+                    item.classList.add('dragging');
+                });
+                item.addEventListener('dragend', function() {
+                    item.classList.remove('dragging');
+                });
+            });
+            
+            targets.forEach(function(target) {
+                target.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    target.classList.add('drag-over');
+                });
+                target.addEventListener('dragleave', function() {
+                    target.classList.remove('drag-over');
+                });
+                target.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    target.classList.remove('drag-over');
+                    if (gameState.answered[gameState.currentIndex]) return;
+                    var itemId = e.dataTransfer.getData('text/plain');
+                    var item = document.querySelector('[data-item-id="' + itemId + '"]');
+                    if (item) {
+                        target.querySelector('.dnd-target-items').appendChild(item);
+                    }
+                });
+            });
+            
+            // Allow drop back to source
+            source.addEventListener('dragover', function(e) { e.preventDefault(); });
+            source.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (gameState.answered[gameState.currentIndex]) return;
+                var itemId = e.dataTransfer.getData('text/plain');
+                var item = document.querySelector('[data-item-id="' + itemId + '"]');
+                if (item) source.appendChild(item);
+            });
+        }
+        
+        function renderJournalEntry(q) {
+            document.getElementById('journal-container').style.display = 'block';
+            var tbody = document.getElementById('journal-tbody');
+            var rows = q.rows || 3;
+            
+            var html = '';
+            for (var i = 0; i < rows; i++) {
+                html += '<tr>' +
+                    '<td class="row-number">' + (i + 1) + '</td>' +
+                    '<td><input type="text" class="excel-cell account-cell" data-row="' + i + '" data-col="account" placeholder="Konto" oninput="updateAccountName(this)" ondrop="dropAccount(event, this)" ondragover="event.preventDefault(); this.classList.add(\'drag-over\')" ondragleave="this.classList.remove(\'drag-over\')"></td>' +
+                    '<td><input type="text" class="excel-cell account-cell readonly" data-row="' + i + '" data-col="name" readonly placeholder="Kontonavn"></td>' +
+                    '<td><input type="text" class="excel-cell" data-row="' + i + '" data-col="debit" placeholder="0" oninput="updateJournalBalance()"></td>' +
+                    '<td><input type="text" class="excel-cell" data-row="' + i + '" data-col="credit" placeholder="0" oninput="updateJournalBalance()"></td>' +
+                    '</tr>';
+            }
+            tbody.innerHTML = html;
+            updateJournalBalance();
+        }
+        
+        function updateAccountName(input) {
+            var row = input.dataset.row;
+            var code = input.value.trim();
+            var nameCell = document.querySelector('[data-row="' + row + '"][data-col="name"]');
+            if (nameCell) {
+                nameCell.value = KONTOPLAN[code] || '';
+            }
+        }
+        
+        function dropAccount(event, cell) {
+            event.preventDefault();
+            cell.classList.remove('drag-over');
+            if (gameState.answered[gameState.currentIndex]) return;
+            try {
+                var data = JSON.parse(event.dataTransfer.getData('application/json'));
+                cell.value = data.code;
+                updateAccountName(cell);
+            } catch (e) {}
+        }
+        
+        function updateJournalBalance() {
+            var totalDebit = 0;
+            var totalCredit = 0;
+            document.querySelectorAll('#journal-tbody [data-col="debit"]').forEach(function(cell) {
+                totalDebit += parseFloat(cell.value) || 0;
+            });
+            document.querySelectorAll('#journal-tbody [data-col="credit"]').forEach(function(cell) {
+                totalCredit += parseFloat(cell.value) || 0;
+            });
+            var diff = totalDebit - totalCredit;
+            
+            document.getElementById('sum-debit').textContent = totalDebit.toLocaleString('nb-NO');
+            document.getElementById('sum-credit').textContent = totalCredit.toLocaleString('nb-NO');
+            
+            var diffEl = document.getElementById('balance-diff');
+            diffEl.textContent = diff.toLocaleString('nb-NO');
+            diffEl.className = 'balance-value ' + (diff === 0 && totalDebit > 0 ? 'balanced' : 'unbalanced');
+        }
+        
+        function renderCalculation(q) {
+            document.getElementById('input-fields').style.display = 'grid';
+            var fields = q.input_fields || [{ id: 'answer', label: 'Svar' }];
+            var html = '';
+            fields.forEach(function(f) {
+                html += '<div class="input-group"><label>' + f.label + '</label><input type="text" id="input-' + f.id + '" placeholder="0"></div>';
+            });
+            document.getElementById('input-fields').innerHTML = html;
+        }
+        
+        function renderExcelGrid(q) {
+            document.getElementById('excel-grid-container').style.display = 'block';
+            
+            var thead = document.getElementById('excel-thead');
+            var tbody = document.getElementById('excel-tbody');
+            
+            // Check if we have a proper grid structure
+            var grid = q.grid || q.excel_grid;
+            
+            if (grid && grid.rows && grid.rows.length > 0) {
+                // Use the provided grid structure
+                thead.innerHTML = '<tr><th>Parameter</th>' + (grid.columns || ['Verdi']).map(function(c) { return '<th>' + c + '</th>'; }).join('') + '</tr>';
+                
+                var bodyHtml = '';
+                grid.rows.forEach(function(row, ri) {
+                    bodyHtml += '<tr><td class="row-label">' + row.label + '</td>';
+                    (row.cells || []).forEach(function(cell, ci) {
+                        var isReadonly = cell.readonly;
+                        var val = cell.value !== undefined ? cell.value : '';
+                        if (isReadonly) {
+                            bodyHtml += '<td><input class="excel-cell readonly" value="' + val + '" readonly></td>';
+                        } else {
+                            var cellId = cell.id || ('cell-' + ri + '-' + ci);
+                            bodyHtml += '<td><input class="excel-cell" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" placeholder="?"></td>';
+                        }
+                    });
+                    bodyHtml += '</tr>';
+                });
+                tbody.innerHTML = bodyHtml;
+            } else {
+                // Auto-generate grid from data and input_fields
+                console.log('Auto-generating Excel grid from data and input_fields');
+                
+                thead.innerHTML = '<tr><th>Parameter</th><th>Verdi</th></tr>';
+                
+                var bodyHtml = '';
+                
+                // First add readonly data rows
+                if (q.data) {
+                    Object.keys(q.data).forEach(function(key) {
+                        var val = q.data[key];
+                        if (typeof val !== 'object') {
+                            bodyHtml += '<tr>';
+                            bodyHtml += '<td class="row-label">' + formatLabel(key) + '</td>';
+                            bodyHtml += '<td><input class="excel-cell readonly" value="' + formatNumber(val) + '" readonly></td>';
+                            bodyHtml += '</tr>';
+                        }
+                    });
+                }
+                
+                // Then add input fields as editable rows
+                var fields = q.input_fields || [];
+                fields.forEach(function(field, idx) {
+                    bodyHtml += '<tr>';
+                    bodyHtml += '<td class="row-label" style="color: var(--accent);">' + (field.label || field.id) + '</td>';
+                    bodyHtml += '<td><input class="excel-cell" id="input-' + field.id + '" data-id="' + field.id + '" placeholder="Skriv svar..."></td>';
+                    bodyHtml += '</tr>';
+                });
+                
+                tbody.innerHTML = bodyHtml;
+                
+                if (fields.length === 0) {
+                    tbody.innerHTML += '<tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Ingen input-felt definert</td></tr>';
+                }
+            }
+        }
+        
+        function renderVariables(q) {
+            var container = document.getElementById('variable-list');
+            if (!q.data) {
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Ingen data for denne oppgaven.</p>';
+                return;
+            }
+            
+            var html = '';
+            Object.keys(q.data).forEach(function(k) {
+                var v = q.data[k];
+                if (typeof v !== 'object') {
+                    html += '<div class="data-item"><div class="data-label">' + formatLabel(k) + '</div><div class="data-value">' + formatNumber(v) + '</div></div>';
+                }
+            });
+            container.innerHTML = html || '<p style="color: var(--text-secondary);">Ingen data</p>';
+        }
+        
+        // ==================== ANSWER HANDLING ====================
+        function selectOption(id) {
+            if (gameState.answeredCorrectly) return;
+            gameState.selectedAnswer = id;
+            document.querySelectorAll('.option-item').forEach(function(el) {
+                el.classList.toggle('selected', el.dataset.id === id);
+            });
+        }
+        
+        function checkAnswer() {
+            var q = gameState.currentQuestion;
+            document.getElementById('btn-check').disabled = true;
+            
+            console.log('Checking answer for question:', q.id);
+            console.log('Question data:', q);
+            
+            // The question data from solutions/accounting already contains the solution
+            // It has 'correct', 'explanation', 'hints', 'tolerance' etc.
+            if (q.correct !== undefined || q.answer !== undefined) {
+                console.log('Using embedded solution data');
+                processAnswer(q, q);
+                return;
+            }
+            
+            // Fallback: try to fetch from solutions path
+            var solutionPath = 'solutions/accounting/' + q.id;
+            console.log('Fetching solution from:', solutionPath);
+            
+            firebase.database().ref(solutionPath).once('value')
+                .then(function(snap) {
+                    var solution = snap.val();
+                    console.log('Solution found:', solution);
+                    
+                    if (!solution) {
+                        console.error('No solution found for:', q.id);
+                        alert('Ingen fasit funnet for: ' + q.id);
+                        document.getElementById('btn-check').disabled = false;
+                        return;
+                    }
+                    
+                    processAnswer(q, solution);
+                })
+                .catch(function(err) {
+                    console.error('Error fetching solution:', err);
+                    alert('Feil ved henting av fasit: ' + err.message);
+                    document.getElementById('btn-check').disabled = false;
+                });
+        }
+        
+        function processAnswer(q, solution) {
+            var correct;
+            var type = q.type || 'calculation';
+            
+            if (type === 'multiple_choice' || type === 'mc') {
+                correct = checkMC(solution);
+            } else if (type === 'true_false' || type === 'tf') {
+                correct = checkTF(solution);
+            } else if (type === 'multi' || type === 'multi_select') {
+                correct = checkMultiSelect(solution);
+            } else if (type === 'dnd' || type === 'drag_drop') {
+                correct = checkDnD(solution);
+            } else if (type === 'journal_entry' || type === 'journal') {
+                correct = checkJournalEntry(solution);
+            } else {
+                correct = checkCalc(solution);
+            }
+            
+            if (correct === null) {
+                document.getElementById('btn-check').disabled = false;
+                return;
+            }
+            
+            if (correct) handleCorrect(); else handleIncorrect();
+            document.getElementById('btn-check').disabled = false;
+        }
+        
+        function checkTF(solution) {
+            if (gameState.tfAnswer === null) {
+                alert('Velg Sant eller Usant!');
+                return null;
+            }
+            
+            var correctVal = solution.correct;
+            if (typeof correctVal === 'string') {
+                correctVal = correctVal.toLowerCase() === 'true';
+            }
+            
+            var isCorrect = gameState.tfAnswer === correctVal;
+            
+            document.querySelectorAll('.tf-btn').forEach(function(btn) {
+                var btnVal = btn.dataset.value === 'true';
+                if (btnVal === correctVal) {
+                    btn.classList.add('correct');
+                } else if (btnVal === gameState.tfAnswer && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+            
+            return isCorrect;
+        }
+        
+        function checkMultiSelect(solution) {
+            if (gameState.selectedAnswers.length === 0) {
+                alert('Velg minst ett svar!');
+                return null;
+            }
+            
+            var correctAnswers = solution.correct || [];
+            var userSorted = gameState.selectedAnswers.slice().sort();
+            var correctSorted = correctAnswers.slice().sort();
+            
+            var isCorrect = JSON.stringify(userSorted) === JSON.stringify(correctSorted);
+            
+            document.querySelectorAll('.option-item').forEach(function(el) {
+                var optId = el.dataset.id;
+                if (correctAnswers.indexOf(optId) > -1) {
+                    el.classList.add('correct');
+                } else if (gameState.selectedAnswers.indexOf(optId) > -1) {
+                    el.classList.add('incorrect');
+                }
+            });
+            
+            return isCorrect;
+        }
+        
+        function checkDnD(solution) {
+            var correctMapping = solution.correct || {};
+            var allCorrect = true;
+            
+            document.querySelectorAll('.dnd-target').forEach(function(target) {
+                var targetId = target.dataset.targetId;
+                var itemsInTarget = [];
+                target.querySelectorAll('.dnd-item').forEach(function(item) {
+                    itemsInTarget.push(item.dataset.itemId);
+                });
+                
+                var correctItems = correctMapping[targetId] || [];
+                var isTargetCorrect = JSON.stringify(itemsInTarget.sort()) === JSON.stringify(correctItems.slice().sort());
+                
+                if (isTargetCorrect) {
+                    target.classList.add('correct');
+                } else {
+                    target.classList.add('incorrect');
+                    allCorrect = false;
+                }
+            });
+            
+            return allCorrect;
+        }
+        
+        function checkJournalEntry(solution) {
+            var correctEntries = solution.correct || [];
+            var matchedSolutions = [];
+            var allCorrect = true;
+            var hasEntries = false;
+            
+            document.querySelectorAll('#journal-tbody tr').forEach(function(row) {
+                var accountCell = row.querySelector('[data-col="account"]');
+                var debitCell = row.querySelector('[data-col="debit"]');
+                var creditCell = row.querySelector('[data-col="credit"]');
+                
+                if (!accountCell || !debitCell || !creditCell) return;
+                
+                var account = accountCell.value.trim();
+                var debit = parseFloat(debitCell.value) || 0;
+                var credit = parseFloat(creditCell.value) || 0;
+                
+                if (!account && debit === 0 && credit === 0) return;
+                hasEntries = true;
+                
+                var found = false;
+                correctEntries.forEach(function(sol, idx) {
+                    if (matchedSolutions.indexOf(idx) > -1) return;
+                    if (sol.account === account && sol.debit === debit && sol.credit === credit) {
+                        found = true;
+                        matchedSolutions.push(idx);
+                    }
+                });
+                
+                if (found) {
+                    accountCell.classList.add('correct');
+                    debitCell.classList.add('correct');
+                    creditCell.classList.add('correct');
+                } else {
+                    if (account || debit || credit) {
+                        accountCell.classList.add('incorrect');
+                        debitCell.classList.add('incorrect');
+                        creditCell.classList.add('incorrect');
+                        allCorrect = false;
+                    }
+                }
+            });
+            
+            if (matchedSolutions.length !== correctEntries.length) {
+                allCorrect = false;
+            }
+            
+            if (!hasEntries) {
+                alert('Fyll inn bilagsføringen!');
+                return null;
+            }
+            
+            return allCorrect;
+        }
+        
+        function checkMC(solution) {
+            if (!gameState.selectedAnswer) { 
+                alert('Velg et svar!'); 
+                return null; 
+            }
+            
+            // Get correct answer - handle different formats
+            var correctId = solution.correct || solution.answer;
+            if (typeof correctId !== 'string') {
+                correctId = String(correctId);
+            }
+            correctId = correctId.toLowerCase().trim();
+            
+            var userAnswer = gameState.selectedAnswer.toLowerCase().trim();
+            
+            console.log('MC Check - User:', userAnswer, 'Correct:', correctId);
+            
+            // Mark options
+            document.querySelectorAll('.option-item').forEach(function(el) {
+                var optId = el.dataset.id.toLowerCase().trim();
+                if (optId === correctId) {
+                    el.classList.add('correct');
+                } else if (optId === userAnswer && userAnswer !== correctId) {
+                    el.classList.add('incorrect');
+                }
+            });
+            
+            return userAnswer === correctId;
+        }
+        
+        function checkCalc(solution) {
+            var q = gameState.currentQuestion;
+            var fields = q.input_fields || [{ id: 'answer', label: 'Svar' }];
+            var ok = true;
+            
+            // Handle different solution structures
+            var correctValues = solution.correct || solution;
+            var tol = solution.tolerance !== undefined ? solution.tolerance : 0.1;
+            
+            console.log('checkCalc - Fields:', fields);
+            console.log('checkCalc - Correct values:', correctValues);
+            console.log('checkCalc - Tolerance:', tol);
+            
+            // If correctValues is a number, wrap it
+            if (typeof correctValues === 'number') {
+                correctValues = { answer: correctValues };
+            }
+            
+            // If correctValues is an array, convert to object
+            if (Array.isArray(correctValues)) {
+                var temp = {};
+                correctValues.forEach(function(v, i) {
+                    if (fields[i]) temp[fields[i].id] = v;
+                });
+                correctValues = temp;
+            }
+            
+            // Create flexible lookup map
+            var valueMap = {};
+            if (typeof correctValues === 'object') {
+                Object.keys(correctValues).forEach(function(k) {
+                    var v = correctValues[k];
+                    if (typeof v === 'number' || typeof v === 'string') {
+                        // Add multiple key variations
+                        valueMap[k] = v;
+                        valueMap[k.toLowerCase()] = v;
+                        valueMap[k.replace(/_/g, '')] = v;
+                        valueMap[k.replace(/_/g, '').toLowerCase()] = v;
+                        // Also add camelCase to snake_case conversions
+                        var snakeCase = k.replace(/([A-Z])/g, '_$1').toLowerCase();
+                        valueMap[snakeCase] = v;
+                    }
+                });
+            }
+            
+            console.log('checkCalc - Value map:', valueMap);
+            
+            fields.forEach(function(f, idx) {
+                var inp = document.getElementById('input-' + f.id);
+                if (!inp) {
+                    console.log('Input not found:', 'input-' + f.id);
+                    return;
+                }
+                
+                // Parse user input
+                var userStr = inp.value.replace(/\s/g, '').replace(',', '.');
+                var user = parseFloat(userStr);
+                
+                console.log('Field:', f.id, 'User input:', userStr, 'Parsed:', user);
+                
+                if (isNaN(user)) {
+                    inp.classList.add('incorrect');
+                    ok = false;
+                    return;
+                }
+                
+                // Find correct value - try multiple approaches
+                var corr = null;
+                
+                // Try exact field id
+                if (valueMap[f.id] !== undefined) corr = valueMap[f.id];
+                // Try lowercase
+                else if (valueMap[f.id.toLowerCase()] !== undefined) corr = valueMap[f.id.toLowerCase()];
+                // Try without underscores/special chars
+                else if (valueMap[f.id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()] !== undefined) {
+                    corr = valueMap[f.id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()];
+                }
+                // Try matching by index if counts match
+                else if (Object.keys(correctValues).length === fields.length) {
+                    var keys = Object.keys(correctValues);
+                    corr = correctValues[keys[idx]];
+                }
+                // Try first/only value if single field
+                else if (fields.length === 1 && Object.keys(correctValues).length >= 1) {
+                    var firstKey = Object.keys(correctValues)[0];
+                    corr = correctValues[firstKey];
+                }
+                
+                console.log('Looking for match - Field:', f.id, 'Found correct:', corr);
+                
+                if (corr !== null && corr !== undefined) {
+                    var corrNum = parseFloat(corr);
+                    if (!isNaN(corrNum)) {
+                        // Use tolerance - either absolute or percentage based
+                        var tolerance = Math.max(tol, Math.abs(corrNum) * 0.01);
+                        var diff = Math.abs(user - corrNum);
+                        var isOk = diff <= tolerance;
+                        
+                        console.log('Comparing:', user, 'vs', corrNum, 'Diff:', diff, 'Tolerance:', tolerance, 'Result:', isOk);
+                        
+                        inp.classList.add(isOk ? 'correct' : 'incorrect');
+                        if (!isOk) ok = false;
+                    }
+                } else {
+                    console.log('No matching correct value found for field:', f.id);
+                    // Don't mark as incorrect if we can't find answer - might be data issue
+                }
+            });
+            
+            return ok;
+        }
+        
+        function handleCorrect() {
+            gameState.answeredCorrectly = true;
+            gameState.answered[gameState.currentIndex] = true;
+            gameState.correctCount++;
+            gameState.score += Math.max(100 - gameState.hintsUsed * 25, 25);
+            
+            // Save the result
+            var q = gameState.currentQuestion;
+            var userAnswer = getUserAnswer(q);
+            saveQuestionResult(q.id, true, userAnswer);
+            saveProgress();
+            
+            document.getElementById('nav-score').textContent = gameState.score;
+            document.getElementById('nav-correct').textContent = gameState.correctCount;
+            document.getElementById('btn-explanation').style.display = 'inline-flex';
+            document.getElementById('btn-check').style.display = 'none';
+            document.getElementById('btn-hint').style.display = 'none';
+            document.getElementById('btn-next').style.display = 'inline-flex';
+            
+            renderQuestionSelector();
+            if (gameState.answered.filter(Boolean).length === gameState.questions.length) {
+                setTimeout(showResults, 1000);
+            }
+        }
+        
+        function handleIncorrect() {
+            // Save incorrect attempt
+            var q = gameState.currentQuestion;
+            var userAnswer = getUserAnswer(q);
+            saveQuestionResult(q.id, false, userAnswer);
+            
+            if (gameState.hintsUsed === 0) showHint();
+            document.getElementById('btn-explanation').style.display = 'inline-flex';
+        }
+        
+        function getUserAnswer(q) {
+            if (q.type === 'multiple_choice' || q.type === 'mc' || q.type === 'true_false' || q.type === 'tf') {
+                return gameState.selectedAnswer;
+            } else {
+                var fields = q.input_fields || [{ id: 'answer' }];
+                var answers = {};
+                fields.forEach(function(f) {
+                    var inp = document.getElementById('input-' + f.id);
+                    if (inp) answers[f.id] = inp.value;
+                });
+                return answers;
+            }
+        }
+        
+        // ==================== HINTS & EXPLANATIONS ====================
+        function showHint() {
+            var q = gameState.currentQuestion;
+            document.getElementById('hint-text').textContent = 'Laster...';
+            document.getElementById('hint-box').classList.add('visible');
+            
+            firebase.database().ref('solutions/accounting/' + q.id + '/hints/' + gameState.hintsUsed).once('value')
+                .then(function(snap) {
+                    var hint = snap.val();
+                    if (!hint) {
+                        document.getElementById('hint-text').textContent = 'Ingen flere hints.';
+                        document.getElementById('btn-hint').disabled = true;
+                        return;
+                    }
+                    document.getElementById('hint-text').textContent = typeof hint === 'string' ? hint : hint.text;
+                    gameState.hintsUsed++;
+                });
+        }
+        
+        function closeHint() {
+            document.getElementById('hint-box').classList.remove('visible');
+        }
+        
+        function toggleExplanation() {
+            var box = document.getElementById('explanation-box');
+            if (box.classList.contains('visible')) {
+                closeExplanation();
+            } else {
+                showExplanation();
+            }
+        }
+        
+        function showExplanation() {
+            var q = gameState.currentQuestion;
+            document.getElementById('explanation-main').innerHTML = '<em>Laster...</em>';
+            document.getElementById('explanation-box').classList.add('visible');
+            
+            firebase.database().ref('solutions/accounting/' + q.id).once('value')
+                .then(function(snap) {
+                    var sol = snap.val();
+                    document.getElementById('explanation-main').innerHTML = sol && sol.explanation 
+                        ? sol.explanation.replace(/\n/g, '<br>') 
+                        : 'Ingen forklaring tilgjengelig.';
+                });
+        }
+        
+        function closeExplanation() {
+            document.getElementById('explanation-box').classList.remove('visible');
+        }
+        
+        // ==================== NAVIGATION ====================
+        function nextQuestion() {
+            var next = gameState.currentIndex + 1;
+            while (next < gameState.questions.length && gameState.answered[next]) next++;
+            if (next >= gameState.questions.length) {
+                for (var i = 0; i < gameState.questions.length; i++) {
+                    if (!gameState.answered[i]) { next = i; break; }
+                }
+            }
+            if (next < gameState.questions.length) loadQuestion(next);
+            else showResults();
+        }
+        
+        function showResults() {
+            var pct = Math.round((gameState.correctCount / gameState.questions.length) * 100);
+            
+            // Save final progress
+            saveProgress();
+            
+            // Save to Firebase if logged in (with correct structure)
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                var user = firebase.auth().currentUser;
+                var db = firebase.database();
+                
+                // Update user stats - match the rules structure
+                db.ref('user_progress/' + user.uid + '/accounting/' + gameState.currentTopic).update({
+                    score: gameState.score,
+                    correct: gameState.correctCount,
+                    total: gameState.questions.length,
+                    completed: true,
+                    lastAttempt: Date.now()
+                }).then(function() {
+                    console.log('Final results saved to Firebase');
+                }).catch(function(err) {
+                    console.error('Failed to save final results:', err);
+                });
+            }
+            
+            document.getElementById('result-correct').textContent = gameState.correctCount;
+            document.getElementById('result-total').textContent = gameState.questions.length;
+            document.getElementById('result-percent').textContent = pct + '%';
+            document.getElementById('result-icon').textContent = pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '📚';
+            document.getElementById('result-title').textContent = pct >= 80 ? 'Fantastisk!' : pct >= 50 ? 'Bra jobbet!' : 'Fortsett å øve';
+            document.getElementById('result-title').className = 'result-title ' + (pct >= 50 ? 'success' : 'error');
+            document.getElementById('result-modal').classList.add('visible');
+        }
+        
+        function restartGame() {
+            document.getElementById('result-modal').classList.remove('visible');
+            startGame(gameState.currentTopic);
+        }
+        
+        function backToWelcome() {
+            document.getElementById('result-modal').classList.remove('visible');
+            document.getElementById('game-view').classList.remove('visible');
+            document.getElementById('welcome-screen').style.display = 'flex';
+            document.getElementById('progress-section').classList.remove('visible');
+            document.getElementById('question-selector-section').classList.remove('visible');
+            
+            document.querySelectorAll('.topic-item').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            
+            gameState.questions = [];
+            gameState.allQuestions = [];
+        }
+        
+        // ==================== PROGRESS SAVING ====================
+        function saveProgress() {
+            console.log('Saving progress...');
+            
+            var progressData = {
+                topic: gameState.currentTopic,
+                difficulty: gameState.currentDifficulty,
+                score: gameState.score,
+                correctCount: gameState.correctCount,
+                totalQuestions: gameState.questions.length,
+                answeredQuestions: gameState.answered.map(function(a, i) {
+                    return a ? gameState.questions[i].id : null;
+                }).filter(Boolean),
+                lastUpdated: Date.now()
+            };
+            
+            console.log('Progress data:', progressData);
+            
+            // Save to localStorage always (as backup)
+            saveToLocalStorage(progressData);
+            
+            // Save to Firebase if logged in
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                saveToFirebase(progressData);
+            } else {
+                console.log('Not logged in - saving to localStorage only');
+            }
+        }
+        
+        function saveToLocalStorage(data) {
+            try {
+                var key = 'acc_progress_' + data.topic;
+                localStorage.setItem(key, JSON.stringify(data));
+                console.log('Saved to localStorage:', key);
+                
+                // Also save overall stats
+                var stats = JSON.parse(localStorage.getItem('cf_stats') || '{}');
+                if (!stats[data.topic]) stats[data.topic] = {};
+                stats[data.topic].bestScore = Math.max(stats[data.topic].bestScore || 0, data.score);
+                stats[data.topic].totalAttempts = (stats[data.topic].totalAttempts || 0) + 1;
+                stats[data.topic].lastPlayed = Date.now();
+                localStorage.setItem('cf_stats', JSON.stringify(stats));
+                console.log('Saved stats:', stats);
+            } catch (e) {
+                console.error('LocalStorage save failed:', e);
+            }
+        }
+        
+        function saveToFirebase(data) {
+            var user = firebase.auth().currentUser;
+            if (!user) {
+                console.log('No user logged in for Firebase save');
+                return;
+            }
+            
+            console.log('Saving to Firebase for user:', user.uid);
+            
+            var db = firebase.database();
+            var path = 'user_progress/' + user.uid + '/accounting/' + data.topic;
+            
+            // Match the database rules structure
+            db.ref(path).update({
+                score: data.score,
+                correct: data.correctCount,
+                total: data.totalQuestions,
+                completed: data.answeredQuestions.length > 0,
+                lastAttempt: Date.now() // Use regular timestamp, not ServerValue
+            }).then(function() {
+                console.log('Progress saved to Firebase at:', path);
+            }).catch(function(err) {
+                console.error('Firebase save failed:', err);
+            });
+        }
+        
+        function saveQuestionResult(questionId, isCorrect, userAnswer) {
+            console.log('Saving question result:', questionId, isCorrect);
+            
+            // Save individual question result
+            var result = {
+                questionId: questionId,
+                correct: isCorrect,
+                answer: userAnswer,
+                timestamp: Date.now(),
+                hintsUsed: gameState.hintsUsed
+            };
+            
+            // Save to localStorage
+            try {
+                var key = 'cf_answers_' + gameState.currentTopic;
+                var answers = JSON.parse(localStorage.getItem(key) || '{}');
+                answers[questionId] = result;
+                localStorage.setItem(key, JSON.stringify(answers));
+                console.log('Answer saved to localStorage:', key, result);
+            } catch (e) {
+                console.error('Answer save failed:', e);
+            }
+            
+            // For Firebase, we don't save individual answers under user_progress
+            // because the rules don't allow arbitrary fields under accounting/$topicId
+            // Instead, we update the topic progress which includes completed count
+        }
+        
+        function loadSavedProgress() {
+            // Try to load from Firebase first, then localStorage
+            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                var user = firebase.auth().currentUser;
+                var db = firebase.database();
+                
+                db.ref('user_progress/' + user.uid + '/accounting').once('value')
+                    .then(function(snap) {
+                        var data = snap.val();
+                        if (data) {
+                            console.log('Loaded progress from Firebase:', data);
+                            updateProgressDisplay(data);
+                        }
+                    });
+            } else {
+                // Load from localStorage
+                var stats = JSON.parse(localStorage.getItem('cf_stats') || '{}');
+                if (Object.keys(stats).length > 0) {
+                    console.log('Loaded progress from localStorage:', stats);
+                    updateProgressDisplay(stats);
+                }
+            }
+        }
+        
+        function updateProgressDisplay(data) {
+            // Update topic items with completion status
+            topics.forEach(function(topic) {
+                var topicData = data[topic.id];
+                if (topicData && topicData.bestScore) {
+                    var el = document.getElementById('topic-' + topic.id);
+                    if (el) {
+                        var countEl = el.querySelector('.topic-item-count');
+                        if (countEl) {
+                            var currentText = countEl.textContent;
+                            countEl.innerHTML = currentText + ' <span style="color: var(--success);">★ ' + topicData.bestScore + '</span>';
+                        }
+                    }
+                }
+            });
+        }
+        var calcState = { equation: '', display: '0' };
+        var calcDrag = { isDragging: false, offsetX: 0, offsetY: 0 };
+        
+        function initCalculatorDrag() {
+            var calc = document.getElementById('floating-calculator');
+            var header = document.querySelector('.calculator-header');
+            
+            header.addEventListener('mousedown', function(e) {
+                calcDrag.isDragging = true;
+                calcDrag.offsetX = e.clientX - calc.offsetLeft;
+                calcDrag.offsetY = e.clientY - calc.offsetTop;
+                calc.style.transition = 'none';
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!calcDrag.isDragging) return;
+                e.preventDefault();
+                var x = e.clientX - calcDrag.offsetX;
+                var y = e.clientY - calcDrag.offsetY;
+                
+                // Keep within bounds
+                x = Math.max(0, Math.min(x, window.innerWidth - calc.offsetWidth));
+                y = Math.max(0, Math.min(y, window.innerHeight - calc.offsetHeight));
+                
+                calc.style.left = x + 'px';
+                calc.style.top = y + 'px';
+                calc.style.right = 'auto';
+                calc.style.bottom = 'auto';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                calcDrag.isDragging = false;
+                document.getElementById('floating-calculator').style.transition = '';
+            });
+            
+            // Touch support
+            header.addEventListener('touchstart', function(e) {
+                var touch = e.touches[0];
+                calcDrag.isDragging = true;
+                calcDrag.offsetX = touch.clientX - calc.offsetLeft;
+                calcDrag.offsetY = touch.clientY - calc.offsetTop;
+                calc.style.transition = 'none';
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (!calcDrag.isDragging) return;
+                var touch = e.touches[0];
+                var x = touch.clientX - calcDrag.offsetX;
+                var y = touch.clientY - calcDrag.offsetY;
+                
+                x = Math.max(0, Math.min(x, window.innerWidth - calc.offsetWidth));
+                y = Math.max(0, Math.min(y, window.innerHeight - calc.offsetHeight));
+                
+                calc.style.left = x + 'px';
+                calc.style.top = y + 'px';
+                calc.style.right = 'auto';
+                calc.style.bottom = 'auto';
+            });
+            
+            document.addEventListener('touchend', function() {
+                calcDrag.isDragging = false;
+                document.getElementById('floating-calculator').style.transition = '';
+            });
+        }
+        
+        function toggleCalculator() {
+            var calc = document.getElementById('floating-calculator');
+            calc.classList.toggle('visible');
+            
+            // Initialize drag on first open
+            if (calc.classList.contains('visible') && !calcDrag.initialized) {
+                initCalculatorDrag();
+                calcDrag.initialized = true;
+            }
+        }
+        
+        function calcInput(v) {
+            calcState.display = calcState.display === '0' && v !== '.' ? v : calcState.display + v;
+            document.getElementById('calc-result').textContent = calcState.display;
+        }
+        
+        function calcClear() {
+            calcState.display = '0';
+            calcState.equation = '';
+            document.getElementById('calc-result').textContent = '0';
+            document.getElementById('calc-equation').textContent = '';
+        }
+        
+        function calcEquals() {
+            try {
+                var r = eval(calcState.display.replace(/×/g, '*').replace(/−/g, '-').replace(/\^/g, '**'));
+                calcState.equation = calcState.display + ' =';
+                calcState.display = Math.round(r * 10000) / 10000 + '';
+            } catch (e) {
+                calcState.display = 'Error';
+            }
+            document.getElementById('calc-equation').textContent = calcState.equation;
+            document.getElementById('calc-result').textContent = calcState.display;
+        }
+        
+        function calcFunction(fn) {
+            var v = parseFloat(calcState.display) || 0;
+            if (fn === 'sqrt') calcState.display = Math.round(Math.sqrt(v) * 10000) / 10000 + '';
+            else if (fn === 'pv' || fn === 'fv') {
+                var r = parseFloat(prompt('Rente (f.eks. 0.10):')), n = parseFloat(prompt('Perioder:'));
+                if (!isNaN(r) && !isNaN(n)) calcState.display = Math.round((fn === 'pv' ? 1 / Math.pow(1 + r, n) : Math.pow(1 + r, n)) * 10000) / 10000 + '';
+            }
+            document.getElementById('calc-result').textContent = calcState.display;
+        }
+        
+        // ==================== UTILS ====================
+        function shuffleArray(a) {
+            var b = a.slice();
+            for (var i = b.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var t = b[i]; b[i] = b[j]; b[j] = t;
+            }
+            return b;
+        }
+        
+        function formatNumber(n) {
+            return typeof n === 'number' ? n.toLocaleString('nb-NO') : (Array.isArray(n) ? n.join(', ') : n);
+        }
+        
+        function formatLabel(k) {
+            return k.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, function(s) { return s.toUpperCase(); });
+        }
+    </script>
+</body>
+</html>
