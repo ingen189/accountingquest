@@ -23,7 +23,6 @@
             --accent: #4ade80;
             --accent-hover: #22c55e;
             --accent-glow: rgba(74, 222, 128, 0.3);
-            --accent-secondary: #3b82f6;
             --success: #22c55e;
             --warning: #f59e0b;
             --error: #ef4444;
@@ -198,10 +197,7 @@
         .aq-logo-text {
             font-size: 1.4em;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--accent);
         }
 
         .aq-module-name {
@@ -305,10 +301,7 @@
         .settings-title {
             font-size: 2em;
             margin-bottom: 30px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--accent);
         }
 
         .settings-section {
@@ -870,10 +863,7 @@
                 <!-- Admin/Teacher Links -->
                 <div id="admin-links" class="admin-links" style="display: none;">
                     <a href="admin.html" class="aq-btn aq-btn-primary" id="admin-btn" style="display: none;">
-                        🛡️ Admin Dashboard
-                    </a>
-                    <a href="admin-dashboard.html" class="aq-btn aq-btn-primary" id="admin-dash-btn" style="display: none;">
-                        📊 Admin Dashboard (Ny)
+                        🔧 Admin Dashboard
                     </a>
                     <a href="teacher_portal.html" class="aq-btn aq-btn-secondary" id="teacher-btn" style="display: none;">
                         👨‍🏫 Lærerportal
@@ -881,26 +871,11 @@
                     <a href="classroom_admin.html" class="aq-btn aq-btn-secondary" id="classroom-btn" style="display: none;">
                         🏫 Klasserom Admin
                     </a>
-                    <a href="data-seeder-secure.html" class="aq-btn aq-btn-secondary" id="seeder-btn" style="display: none;">
-                        🌱 Data Seeder
-                    </a>
                 </div>
                 
                 <div class="data-actions" style="margin-top: 15px;">
                     <button class="aq-btn aq-btn-secondary" onclick="signOut()">
                         🚪 Logg ut
-                    </button>
-                </div>
-                
-                <!-- Danger Zone -->
-                <div class="danger-zone">
-                    <h4>⚠️ Faresone</h4>
-                    <p>
-                        Sletting av kontoen er permanent. All data, fremgang og klasseromstilknytning vil bli fjernet.
-                        Du har 48 timer til å angre etter at sletting er igangsatt.
-                    </p>
-                    <button class="aq-btn aq-btn-danger" onclick="openDeleteModal()">
-                        🗑️ Slett kontoen min
                     </button>
                 </div>
             </div>
@@ -1039,6 +1014,18 @@
                 <a href="terms.html">📜 Vilkår for bruk</a>
             </div>
         </section>
+        
+        <!-- Faresone - nederst -->
+        <section class="settings-section danger-zone" id="danger-zone-section" style="display: none;">
+            <h3>⚠️ Faresone</h3>
+            <p>
+                Sletting av kontoen er permanent. All data, fremgang og klasseromstilknytning vil bli fjernet.
+                Du har 48 timer til å angre etter at sletting er igangsatt.
+            </p>
+            <button class="aq-btn aq-btn-danger" onclick="openDeleteModal()">
+                🗑️ Slett kontoen min
+            </button>
+        </section>
     </div>
     
     <!-- Delete Account Modal -->
@@ -1081,7 +1068,7 @@
                 <div class="delete-step" id="delete-step-2">
                     <div style="text-align: center; margin-bottom: 20px;">
                         <p>Vi har sendt en 6-sifret kode til:</p>
-                        <strong id="code-sent-email">din@epost.no</strong>
+                        <strong id="code-sent-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="81e5e8efc1e4f1eef2f5afefee">[email&#160;protected]</a></strong>
                     </div>
                     
                     <div class="form-group">
@@ -1138,7 +1125,7 @@
     </div>
     
     <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
@@ -1227,6 +1214,7 @@
                 currentUser = user;
                 document.getElementById('logged-out-view').style.display = 'none';
                 document.getElementById('logged-in-view').style.display = 'block';
+                document.getElementById('danger-zone-section').style.display = 'block';
                 
                 document.getElementById('user-email').textContent = user.email || '-';
                 
@@ -1274,6 +1262,7 @@
             } else {
                 document.getElementById('logged-out-view').style.display = 'block';
                 document.getElementById('logged-in-view').style.display = 'none';
+                document.getElementById('danger-zone-section').style.display = 'none';
             }
         });
         
@@ -1290,10 +1279,8 @@
             // Admin gets all links
             if (isAdmin) {
                 document.getElementById('admin-btn').style.display = 'inline-flex';
-                document.getElementById('admin-dash-btn').style.display = 'inline-flex';
                 document.getElementById('teacher-btn').style.display = 'inline-flex';
                 document.getElementById('classroom-btn').style.display = 'inline-flex';
-                document.getElementById('seeder-btn').style.display = 'inline-flex';
             } 
             // Teachers get teacher-specific links
             else if (isTeacher) {
@@ -1704,11 +1691,4 @@
             updateStorageInfo();
         });
         
-        document.getElementById('delete-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeDeleteModal();
-            }
-        });
-    </script>
-</body>
-</html>
+  

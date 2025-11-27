@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate Finance Admin</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f1419;
+            color: #e7e9ea;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #00d4aa; margin-bottom: 20px; }
+        h2 { color: #ffb800; margin: 30px 0 15px; font-size: 1.3em; }
+        
+        .auth-section {
+            background: #1a1f26;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #00d4aa; color: #000; }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-warning { background: #f59e0b; color: #000; }
+        .btn-secondary { background: #374151; color: #fff; }
+        .btn:hover { opacity: 0.8; transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #1a1f26;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-value { font-size: 2em; color: #00d4aa; font-weight: bold; }
+        .stat-label { color: #9ca3af; margin-top: 5px; }
+        
+        .question-list {
+            background: #1a1f26;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .question-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #2d3748;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .question-item:hover { background: #252d38; }
+        .question-info { flex: 1; }
+        .question-id { color: #00d4aa; font-family: monospace; font-size: 0.9em; }
+        .question-title { margin-top: 5px; }
+        .question-meta { color: #9ca3af; font-size: 0.85em; margin-top: 3px; }
+        .question-meta span { 
+            background: #374151; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            margin-right: 5px;
+        }
+        
+        .log {
+            background: #000;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log-entry { margin: 3px 0; }
+        .log-success { color: #22c55e; }
+        .log-error { color: #ef4444; }
+        .log-info { color: #60a5fa; }
+        .log-warning { color: #f59e0b; }
+        
+        .danger-zone {
+            background: #2d1f1f;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .danger-zone h2 { color: #ef4444; margin-top: 0; }
+        
+        .path-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .path-btn {
+            padding: 8px 16px;
+            background: #374151;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+        }
+        .path-btn.active { border-color: #00d4aa; background: #1a3a35; }
+        
+        input[type="text"], input[type="email"], input[type="password"] {
+            padding: 10px 15px;
+            border: 2px solid #374151;
+            border-radius: 8px;
+            background: #0f1419;
+            color: #fff;
+            font-size: 14px;
+            width: 250px;
+            margin-right: 10px;
+        }
+        input:focus { border-color: #00d4aa; outline: none; }
+        
+        .hidden { display: none !important; }
+        
+        .structure-preview {
+            background: #0f1419;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre;
+            overflow-x: auto;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Corporate Finance Admin</h1>
+        
+        <!-- Auth Section -->
+        <div class="auth-section">
+            <div id="auth-status">Laster...</div>
+            <div id="auth-form" class="hidden" style="margin-top: 15px;">
+                <input type="email" id="email" placeholder="E-post">
+                <input type="password" id="password" placeholder="Passord">
+                <button class="btn btn-primary" onclick="login()">Logg inn</button>
+            </div>
+            <div id="auth-info" class="hidden" style="margin-top: 15px;">
+                <span id="user-email"></span>
+                <button class="btn btn-secondary" onclick="logout()">Logg ut</button>
+            </div>
+        </div>
+        
+        <!-- Path Selector -->
+        <h2>📁 Velg database-sti</h2>
+        <div class="path-selector">
+            <button class="path-btn active" data-path="solutions/corporate_finance">solutions/corporate_finance</button>
+            <button class="path-btn" data-path="questions/corporate_finance">questions/corporate_finance</button>
+            <button class="path-btn" data-path="corporateFinance/exercises">corporateFinance/exercises</button>
+            <button class="path-btn" data-path="corporateFinance">corporateFinance</button>
+        </div>
+        
+        <!-- Stats -->
+        <h2>📊 Statistikk</h2>
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="total-count">-</div>
+                <div class="stat-label">Totalt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="mc-count">-</div>
+                <div class="stat-label">Multiple Choice</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="calc-count">-</div>
+                <div class="stat-label">Beregning</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="tf-count">-</div>
+                <div class="stat-label">Sant/Usant</div>
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" onclick="loadQuestions()">🔄 Last inn oppgaver</button>
+        <button class="btn btn-secondary" onclick="exportData()">📥 Eksporter JSON</button>
+        
+        <!-- Question List -->
+        <h2>📝 Oppgaver</h2>
+        <div class="question-list" id="question-list">
+            <div class="question-item">
+                <div class="question-info">Klikk "Last inn oppgaver" for å se oppgaver</div>
+            </div>
+        </div>
+        
+        <!-- Danger Zone -->
+        <div class="danger-zone">
+            <h2>⚠️ Danger Zone</h2>
+            <p style="color: #f87171; margin-bottom: 15px;">Disse handlingene kan ikke angres!</p>
+            
+            <button class="btn btn-danger" onclick="purgeAll()">🗑️ Slett ALLE oppgaver</button>
+            <button class="btn btn-warning" onclick="purgeByTopic()">🗑️ Slett etter topic</button>
+            <button class="btn btn-warning" onclick="purgeSolutions()">🗑️ Slett bare solutions/</button>
+            
+            <div style="margin-top: 20px;">
+                <h3 style="color: #f59e0b; margin-bottom: 10px;">Anbefalt ny struktur:</h3>
+                <div class="structure-preview">
+questions/
+  corporate_finance/
+    {questionId}/
+      id: "cf_npv_001"
+      module: "corporate_finance"
+      topic: "npv"           // npv, bonds, stocks, wacc, portfolio, annuity, forex, options
+      difficulty: "easy"     // easy, medium, hard
+      type: "calculation"    // calculation, multiple_choice, true_false, excel_grid
+      title: "NPV Beregning"
+      question: "Beregn NPV..."
+      data: { ... }
+      input_fields: [{ id: "npv", label: "NPV", unit: "NOK" }]
+      hints: ["Hint 1", "Hint 2"]
+      
+solutions/
+  corporate_finance/
+    {questionId}/
+      correct: { npv: 1234.56 }  // or "b" for MC
+      explanation: "..."
+      tolerance: 0.01
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log -->
+        <h2>📋 Logg</h2>
+        <div class="log" id="log"></div>
+    </div>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDmLjTJPexLM2PkDHLHhO0KLVozxaEB9JM",
+            authDomain: "accountingquest-multiplayer.firebaseapp.com",
+            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest-multiplayer",
+            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+            messagingSenderId: "1042365043389",
+            appId: "1:1042365043389:web:a9f933aef3d5c3f6c37edc"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+        
+        let currentPath = 'solutions/corporate_finance';
+        let questionsData = {};
+        
+        // Auth
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('auth-status').textContent = '✅ Logget inn som:';
+                document.getElementById('auth-form').classList.add('hidden');
+                document.getElementById('auth-info').classList.remove('hidden');
+                document.getElementById('user-email').textContent = user.email;
+                log('Logget inn som ' + user.email, 'success');
+            } else {
+                document.getElementById('auth-status').textContent = '❌ Ikke logget inn';
+                document.getElementById('auth-form').classList.remove('hidden');
+                document.getElementById('auth-info').classList.add('hidden');
+                log('Ikke logget inn - logg inn for å gjøre endringer', 'warning');
+            }
+        });
+        
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => log('Innlogging vellykket', 'success'))
+                .catch(err => log('Innlogging feilet: ' + err.message, 'error'));
+        }
+        
+        function logout() {
+            auth.signOut();
+            log('Logget ut', 'info');
+        }
+        
+        // Path selection
+        document.querySelectorAll('.path-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.path-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentPath = btn.dataset.path;
+                log('Byttet til sti: ' + currentPath, 'info');
+                loadQuestions();
+            });
+        });
+        
+        // Load questions
+        function loadQuestions() {
+            log('Laster oppgaver fra: ' + currentPath, 'info');
+            
+            db.ref(currentPath).once('value')
+                .then(snap => {
+                    questionsData = {};
+                    let total = 0, mc = 0, calc = 0, tf = 0;
+                    
+                    snap.forEach(child => {
+                        const data = child.val();
+                        if (!data || typeof data !== 'object') return;
+                        
+                        questionsData[child.key] = data;
+                        total++;
+                        
+                        const type = data.type || 'unknown';
+                        if (type.includes('mc') || type.includes('multiple')) mc++;
+                        else if (type.includes('calc') || type.includes('grid')) calc++;
+                        else if (type.includes('tf') || type.includes('true')) tf++;
+                        else calc++; // default
+                    });
+                    
+                    document.getElementById('total-count').textContent = total;
+                    document.getElementById('mc-count').textContent = mc;
+                    document.getElementById('calc-count').textContent = calc;
+                    document.getElementById('tf-count').textContent = tf;
+                    
+                    log(`Fant ${total} oppgaver`, 'success');
+                    renderQuestionList();
+                })
+                .catch(err => {
+                    log('Feil ved lasting: ' + err.message, 'error');
+                });
+        }
+        
+        function renderQuestionList() {
+            const container = document.getElementById('question-list');
+            const keys = Object.keys(questionsData);
+            
+            if (keys.length === 0) {
+                container.innerHTML = '<div class="question-item"><div class="question-info">Ingen oppgaver funnet på denne stien</div></div>';
+                return;
+            }
+            
+            container.innerHTML = keys.map(key => {
+                const q = questionsData[key];
+                return `
+                    <div class="question-item">
+                        <div class="question-info">
+                            <div class="question-id">${key}</div>
+                            <div class="question-title">${q.title || q.question || 'Ingen tittel'}</div>
+                            <div class="question-meta">
+                                <span>${q.topic || 'ukjent'}</span>
+                                <span>${q.type || 'ukjent'}</span>
+                                <span>${q.difficulty || 'ukjent'}</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" onclick="deleteQuestion('${key}')">🗑️</button>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function deleteQuestion(id) {
+            if (!confirm(`Sikker på at du vil slette "${id}"?`)) return;
+            
+            db.ref(currentPath + '/' + id).remove()
+                .then(() => {
+                    log(`Slettet: ${id}`, 'success');
+                    delete questionsData[id];
+                    renderQuestionList();
+                    loadQuestions();
+                })
+                .catch(err => log('Feil ved sletting: ' + err.message, 'error'));
+        }
+        
+        function purgeAll() {
+            const count = Object.keys(questionsData).length;
+            if (!confirm(`⚠️ ADVARSEL!\n\nDette vil slette ALLE ${count} oppgaver fra:\n${currentPath}\n\nDenne handlingen kan IKKE angres!\n\nEr du HELT sikker?`)) return;
+            if (!confirm('Siste sjanse! Vil du virkelig slette alt?')) return;
+            
+            log('Starter sletting av alle oppgaver...', 'warning');
+            
+            db.ref(currentPath).remove()
+                .then(() => {
+                    log(`✅ Slettet alle ${count} oppgaver fra ${currentPath}`, 'success');
+                    questionsData = {};
+                    renderQuestionList();
+                    loadQuestions();
+                })
+                .catch(err => log('Feil ved sletting: ' + err.message, 'error'));
+        }
+        
+        function purgeByTopic() {
+            const topic = prompt('Skriv inn topic å slette (f.eks. "npv", "stocks", "portfolio"):');
+            if (!topic) return;
+            
+            const toDelete = Object.keys(questionsData).filter(key => {
+                const q = questionsData[key];
+                return q.topic === topic || key.includes(topic);
+            });
+            
+            if (toDelete.length === 0) {
+                log(`Ingen oppgaver funnet for topic: ${topic}`, 'warning');
+                return;
+            }
+            
+            if (!confirm(`Vil du slette ${toDelete.length} oppgaver med topic "${topic}"?`)) return;
+            
+            const updates = {};
+            toDelete.forEach(key => {
+                updates[key] = null;
+            });
+            
+            db.ref(currentPath).update(updates)
+                .then(() => {
+                    log(`Slettet ${toDelete.length} oppgaver med topic: ${topic}`, 'success');
+                    loadQuestions();
+                })
+                .catch(err => log('Feil: ' + err.message, 'error'));
+        }
+        
+        function purgeSolutions() {
+            if (!confirm('⚠️ Vil du slette HELE solutions/corporate_finance/?')) return;
+            
+            db.ref('solutions/corporate_finance').remove()
+                .then(() => {
+                    log('Slettet solutions/corporate_finance', 'success');
+                    loadQuestions();
+                })
+                .catch(err => log('Feil: ' + err.message, 'error'));
+        }
+        
+        function exportData() {
+            const json = JSON.stringify(questionsData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cf_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            log('Eksporterte data til JSON', 'success');
+        }
+        
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry log-' + type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEl.insertBefore(entry, logEl.firstChild);
+        }
+        
+        // Initial load
+        loadQuestions();
+    </script>
+</body>
+</html>
