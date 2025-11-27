@@ -919,9 +919,6 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // Version 2.0 - Cache bust
-        console.log('🔧 Admin Dashboard v2.0 loading...');
-        
         const firebaseConfig = {
             apiKey: "AIzaSyDmLjTJPexLM2PkDHLHhO0KLVozxaEB9JM",
             authDomain: "accountingquest-multiplayer.firebaseapp.com",
@@ -936,11 +933,8 @@
         const db = firebase.database();
         const auth = firebase.auth();
         
-        console.log('🔥 Firebase initialized');
-        
-        // Your UID from Firebase
         const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
-        const ROLE_LABELS = { admin: 'Admin', superadmin: 'Super Admin', teacher_pro: 'Lærer Pro', teacher: 'Lærer', pro: 'Pro', student: 'Student', free: 'Gratis' };
+        const ROLE_LABELS = { admin: 'Admin', teacher_pro: 'Lærer Pro', teacher: 'Lærer', pro: 'Pro', student: 'Student', free: 'Gratis' };
         
         let currentUser = null;
         let allUsers = [];
@@ -951,35 +945,19 @@
         let selectedRole = null;
         let pendingJsonData = null;
         
-        // Wait for persistence to be set, then check auth
-        async function initAuth() {
-            console.log('⏳ Setting up auth...');
+        // Auth
+        auth.onAuthStateChanged(async user => {
+            console.log('Auth state:', user ? user.email : 'not logged in');
             
-            try {
-                await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-                console.log('🔐 Auth persistence set to LOCAL');
-            } catch (err) {
-                console.warn('Auth persistence warning:', err);
-            }
-            
-            // Now check current user
-            const user = auth.currentUser;
-            console.log('👤 Current user on load:', user ? `${user.email} (${user.uid})` : 'NO USER YET');
-            
-            // Set up listener for auth changes
-            auth.onAuthStateChanged(async user => {
-                console.log('👤 Auth state changed:', user ? `${user.email} (${user.uid})` : 'NO USER');
-                console.log('👤 isAnonymous:', user?.isAnonymous);
-                
-                if (!user || user.isAnonymous) {
-                    console.log('❌ Not logged in or anonymous');
-                    document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('access-denied').innerHTML = `
-                        <div style="text-align: center;">
-                            <div style="font-size: 4em; margin-bottom: 20px;">🔒</div>
-                            <h2 style="margin-bottom: 10px;">Logg inn for å fortsette</h2>
-                            <p style="color: var(--text-secondary); margin-bottom: 20px;">Du må være logget inn som admin for å få tilgang.</p>
-                            <a href="auth.html" class="btn btn-primary" style="text-decoration: none;">🔑 Logg inn</a>
+            if (!user) {
+                // Show login required - don't redirect to avoid loops
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('access-denied').innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 4em; margin-bottom: 20px;">🔒</div>
+                        <h2 style="margin-bottom: 10px;">Logg inn for å fortsette</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Du må være logget inn som admin for å få tilgang.</p>
+                        <a href="auth.html?redirect=admin.html" class="btn btn-primary" style="text-decoration: none;">🔑 Logg inn</a>
                         <br><br>
                         <a href="index.html" class="btn btn-secondary" style="text-decoration: none;">← Tilbake til forsiden</a>
                     </div>
@@ -989,49 +967,38 @@
             }
             
             currentUser = user;
-            console.log('Logged in as:', user.uid, user.email);
+            console.log('Logged in as:', user.uid);
             
-            try {
-                const snap = await db.ref('users/' + user.uid).once('value');
-                const userData = snap.val() || {};
-                
-                // Accept multiple admin role formats (admin, Administrator, superadmin, etc.)
-                const userRole = (userData.role || '').toLowerCase();
-                const isAdminRole = userRole === 'admin' || userRole === 'administrator' || userRole === 'superadmin';
-                const isAdmin = user.uid === ADMIN_UID || isAdminRole;
-                
-                console.log('Auth check:', { 
-                    uid: user.uid, 
-                    ADMIN_UID, 
-                    isAdmin, 
-                    role: userData.role,
-                    userRole,
-                    isAdminRole,
-                    uidMatch: user.uid === ADMIN_UID 
-                });
-                
-                if (!isAdmin) {
-                    document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('access-denied').style.display = 'flex';
-                    return;
-                }
-                
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('access-denied').style.display = 'none';
-                document.getElementById('app').style.display = 'block';
-                document.getElementById('user-info').textContent = user.email;
-                
-                refreshAll();
-            } catch (err) {
-                console.error('Error checking admin status:', err);
+            const snap = await db.ref('users/' + user.uid).once('value');
+            const userData = snap.val() || {};
+            
+            // Accept multiple admin role formats (admin, Administrator, superadmin, etc.)
+            const userRole = (userData.role || '').toLowerCase();
+            const isAdminRole = userRole === 'admin' || userRole === 'administrator' || userRole === 'superadmin';
+            const isAdmin = user.uid === ADMIN_UID || isAdminRole;
+            
+            console.log('Auth check:', { 
+                uid: user.uid, 
+                ADMIN_UID, 
+                isAdmin, 
+                role: userData.role,
+                userRole,
+                isAdminRole,
+                uidMatch: user.uid === ADMIN_UID 
+            });
+            
+            if (!isAdmin) {
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('access-denied').style.display = 'flex';
+                return;
             }
+            
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('user-info').textContent = user.email;
+            
+            refreshAll();
         });
-        }
-        
-        // Start auth initialization
-        initAuth();
         
         function logout() { auth.signOut().then(() => window.location.href = 'index.html'); }
         
