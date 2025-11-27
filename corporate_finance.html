@@ -92,60 +92,85 @@
         
         .topic-item-count {
             font-size: 0.8em;
-            color: var(--text-secondary);
+            color: var(--accent);
         }
         
-        .topic-item-expand {
-            color: var(--text-secondary);
-            transition: transform var(--transition-fast);
+        /* Topic item clickable */
+        .topic-item {
+            cursor: pointer;
         }
         
-        .topic-item.active .topic-item-expand {
-            transform: rotate(180deg);
+        .topic-item:hover {
+            border-color: var(--accent);
+            transform: translateX(3px);
         }
         
-        /* Difficulty Selection inside topic */
-        .difficulty-options {
+        .topic-item.active {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.15);
+        }
+        
+        /* Difficulty filter in sidebar during game */
+        .difficulty-filter {
+            padding: var(--space-md);
+            border-top: 1px solid var(--border-color);
             display: none;
-            padding: 0 var(--space-md) var(--space-md);
+        }
+        
+        .difficulty-filter.visible {
+            display: block;
+        }
+        
+        .difficulty-filter h4 {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            margin-bottom: var(--space-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .difficulty-buttons {
+            display: flex;
+            flex-direction: column;
             gap: var(--space-xs);
         }
         
-        .topic-item.active .difficulty-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-        }
-        
-        .diff-btn {
-            padding: var(--space-sm);
-            background: var(--bg-primary);
+        .diff-filter-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             cursor: pointer;
-            text-align: center;
             transition: all var(--transition-fast);
+            color: var(--text-primary);
+            font-size: 0.9em;
         }
         
-        .diff-btn:hover {
+        .diff-filter-btn:hover {
             border-color: var(--accent);
             background: rgba(74, 222, 128, 0.1);
         }
         
-        .diff-btn-icon {
-            font-size: 1.2em;
-            display: block;
-            margin-bottom: 2px;
+        .diff-filter-btn.active {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.2);
         }
         
-        .diff-btn-label {
-            font-size: 0.75em;
-            color: var(--text-secondary);
+        .diff-filter-btn .diff-icon {
+            font-size: 1.1em;
         }
         
-        .diff-btn-count {
-            font-size: 0.7em;
+        .diff-filter-btn .diff-label {
+            flex: 1;
+        }
+        
+        .diff-filter-btn .diff-count {
             color: var(--accent);
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 0.85em;
         }
         
         /* === MAIN CONTENT AREA === */
@@ -977,10 +1002,37 @@
         <aside class="topic-sidebar">
             <div class="sidebar-header">
                 <h2>📊 Velg tema</h2>
-                <p>Klikk for å velge vanskelighetsgrad</p>
+                <p>Klikk for å starte</p>
             </div>
             <div class="topic-list" id="topic-list">
                 <!-- Topics will be rendered here -->
+            </div>
+            
+            <!-- Difficulty filter - shows when in game -->
+            <div class="difficulty-filter" id="difficulty-filter">
+                <h4>Filtrer vanskelighetsgrad</h4>
+                <div class="difficulty-buttons">
+                    <button class="diff-filter-btn active" onclick="filterByDifficulty('all')">
+                        <span class="diff-icon">📚</span>
+                        <span class="diff-label">Alle</span>
+                        <span class="diff-count" id="diff-count-all">-</span>
+                    </button>
+                    <button class="diff-filter-btn" onclick="filterByDifficulty('easy')">
+                        <span class="diff-icon">🌱</span>
+                        <span class="diff-label">Lett</span>
+                        <span class="diff-count" id="diff-count-easy">-</span>
+                    </button>
+                    <button class="diff-filter-btn" onclick="filterByDifficulty('medium')">
+                        <span class="diff-icon">💪</span>
+                        <span class="diff-label">Middels</span>
+                        <span class="diff-count" id="diff-count-medium">-</span>
+                    </button>
+                    <button class="diff-filter-btn" onclick="filterByDifficulty('hard')">
+                        <span class="diff-icon">🔥</span>
+                        <span class="diff-label">Vanskelig</span>
+                        <span class="diff-count" id="diff-count-hard">-</span>
+                    </button>
+                </div>
             </div>
         </aside>
 
@@ -1175,13 +1227,6 @@
             { id: 'mixed', name: 'Blandet Quiz', icon: '🎲', desc: 'Alle temaer' }
         ];
         
-        var difficulties = [
-            { id: 'easy', name: 'Lett', icon: '🌱' },
-            { id: 'medium', name: 'Middels', icon: '💪' },
-            { id: 'hard', name: 'Vanskelig', icon: '🔥' },
-            { id: 'challenge', name: 'Utfordring', icon: '⚡' }
-        ];
-        
         var formulas = {
             npv: [
                 { name: 'NPV', equation: 'NPV = Σ CFₜ / (1+r)ᵗ', description: 'Sum av nåverdier' },
@@ -1265,87 +1310,58 @@
         function renderTopicSidebar() {
             var html = '';
             topics.forEach(function(topic) {
-                html += '<div class="topic-item" id="topic-' + topic.id + '" onclick="toggleTopic(\'' + topic.id + '\')">';
+                html += '<div class="topic-item" id="topic-' + topic.id + '" onclick="startGame(\'' + topic.id + '\')">';
                 html += '<div class="topic-item-header">';
                 html += '<span class="topic-item-icon">' + topic.icon + '</span>';
                 html += '<div class="topic-item-info">';
                 html += '<div class="topic-item-name">' + topic.name + '</div>';
                 html += '<div class="topic-item-count" id="count-' + topic.id + '">Laster...</div>';
                 html += '</div>';
-                html += '<span class="topic-item-expand">▼</span>';
-                html += '</div>';
-                html += '<div class="difficulty-options">';
-                difficulties.forEach(function(diff) {
-                    html += '<div class="diff-btn" onclick="event.stopPropagation(); startGame(\'' + topic.id + '\', \'' + diff.id + '\')">';
-                    html += '<span class="diff-btn-icon">' + diff.icon + '</span>';
-                    html += '<span class="diff-btn-label">' + diff.name + '</span>';
-                    html += '<span class="diff-btn-count" id="count-' + topic.id + '-' + diff.id + '">-</span>';
-                    html += '</div>';
-                });
                 html += '</div>';
                 html += '</div>';
             });
             document.getElementById('topic-list').innerHTML = html;
         }
         
-        function toggleTopic(topicId) {
-            var item = document.getElementById('topic-' + topicId);
-            var wasActive = item.classList.contains('active');
-            
-            // Close all
+        function setActiveTopic(topicId) {
             document.querySelectorAll('.topic-item').forEach(function(el) {
                 el.classList.remove('active');
             });
-            
-            // Open clicked if it wasn't already open
-            if (!wasActive) {
-                item.classList.add('active');
-            }
+            var item = document.getElementById('topic-' + topicId);
+            if (item) item.classList.add('active');
         }
         
         function loadQuestionCounts() {
             var db = firebase.database();
+            var basePath = 'questions/corporate_finance';
             
             topics.forEach(function(topic) {
                 if (topic.id === 'mixed') {
-                    // Mixed uses all questions
-                    db.ref('corporateFinance').once('value').then(function(snap) {
+                    // Mixed counts all questions
+                    db.ref(basePath).once('value').then(function(snap) {
                         var total = 0;
-                        var byDiff = { easy: 0, medium: 0, hard: 0, challenge: 0 };
-                        
                         snap.forEach(function(topicSnap) {
-                            topicSnap.forEach(function(qSnap) {
-                                total++;
-                                var diff = qSnap.val().difficulty || 'medium';
-                                if (byDiff[diff] !== undefined) byDiff[diff]++;
+                            topicSnap.forEach(function(diffSnap) {
+                                diffSnap.forEach(function(qSnap) {
+                                    total++;
+                                });
                             });
                         });
-                        
                         document.getElementById('count-mixed').textContent = total + ' oppgaver';
-                        Object.keys(byDiff).forEach(function(d) {
-                            var el = document.getElementById('count-mixed-' + d);
-                            if (el) el.textContent = byDiff[d];
-                        });
+                    }).catch(function() {
+                        document.getElementById('count-mixed').textContent = '? oppgaver';
                     });
                 } else {
-                    db.ref('corporateFinance/' + topic.id).once('value').then(function(snap) {
+                    db.ref(basePath + '/' + topic.id).once('value').then(function(snap) {
                         var total = 0;
-                        var byDiff = { easy: 0, medium: 0, hard: 0, challenge: 0 };
-                        
-                        snap.forEach(function(qSnap) {
-                            total++;
-                            var diff = qSnap.val().difficulty || 'medium';
-                            if (byDiff[diff] !== undefined) byDiff[diff]++;
+                        snap.forEach(function(diffSnap) {
+                            diffSnap.forEach(function(qSnap) {
+                                total++;
+                            });
                         });
-                        
                         document.getElementById('count-' + topic.id).textContent = total + ' oppgaver';
-                        Object.keys(byDiff).forEach(function(d) {
-                            var el = document.getElementById('count-' + topic.id + '-' + d);
-                            if (el) el.textContent = byDiff[d];
-                        });
-                        
-                        gameState.questionCounts[topic.id] = { total: total, byDiff: byDiff };
-                    }).catch(function(err) {
+                        gameState.questionCounts[topic.id] = total;
+                    }).catch(function() {
                         document.getElementById('count-' + topic.id).textContent = '? oppgaver';
                     });
                 }
@@ -1353,22 +1369,29 @@
         }
         
         // ==================== GAME LOGIC ====================
-        function startGame(topicId, difficulty) {
+        function startGame(topicId) {
             gameState.currentTopic = topicId;
-            gameState.currentDifficulty = difficulty;
+            gameState.currentDifficulty = 'all';
             gameState.score = 0;
             gameState.correctCount = 0;
             gameState.currentIndex = 0;
             gameState.answered = [];
+            gameState.allQuestions = []; // Store all questions for filtering
+            
+            setActiveTopic(topicId);
             
             document.getElementById('nav-score').textContent = '0';
             document.getElementById('nav-correct').textContent = '0';
             
             loadQuestions().then(function() {
-                if (gameState.questions.length === 0) {
-                    alert('Ingen spørsmål funnet for dette temaet og vanskelighetsgraden.');
+                if (gameState.allQuestions.length === 0) {
+                    alert('Ingen spørsmål funnet for dette temaet.');
                     return;
                 }
+                
+                // Show difficulty filter
+                document.getElementById('difficulty-filter').classList.add('visible');
+                updateDifficultyCounts();
                 
                 // Show game UI
                 document.getElementById('welcome-screen').style.display = 'none';
@@ -1382,48 +1405,110 @@
             });
         }
         
+        function updateDifficultyCounts() {
+            var counts = { all: 0, easy: 0, medium: 0, hard: 0 };
+            
+            gameState.allQuestions.forEach(function(q) {
+                counts.all++;
+                var diff = q.difficulty || 'medium';
+                if (counts[diff] !== undefined) counts[diff]++;
+            });
+            
+            document.getElementById('diff-count-all').textContent = counts.all;
+            document.getElementById('diff-count-easy').textContent = counts.easy;
+            document.getElementById('diff-count-medium').textContent = counts.medium;
+            document.getElementById('diff-count-hard').textContent = counts.hard;
+        }
+        
+        function filterByDifficulty(difficulty) {
+            gameState.currentDifficulty = difficulty;
+            
+            // Update active button
+            document.querySelectorAll('.diff-filter-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.diff-filter-btn').classList.add('active');
+            
+            // Filter questions
+            var filtered;
+            if (difficulty === 'all') {
+                filtered = gameState.allQuestions.slice();
+            } else {
+                filtered = gameState.allQuestions.filter(function(q) {
+                    return q.difficulty === difficulty;
+                });
+            }
+            
+            if (filtered.length === 0) {
+                alert('Ingen spørsmål med denne vanskelighetsgraden.');
+                return;
+            }
+            
+            // Reset game with filtered questions
+            gameState.questions = shuffleArray(filtered).slice(0, 10);
+            gameState.currentIndex = 0;
+            gameState.answered = [];
+            gameState.score = 0;
+            gameState.correctCount = 0;
+            
+            document.getElementById('nav-score').textContent = '0';
+            document.getElementById('nav-correct').textContent = '0';
+            
+            renderQuestionSelector();
+            loadQuestion(0);
+        }
+        
         function loadQuestions() {
             return new Promise(function(resolve) {
                 var db = firebase.database();
                 var questions = [];
+                var basePath = 'questions/corporate_finance';
                 
                 if (gameState.currentTopic === 'mixed') {
                     // Load from all topics
-                    db.ref('corporateFinance').once('value').then(function(snap) {
+                    db.ref(basePath).once('value').then(function(snap) {
                         snap.forEach(function(topicSnap) {
-                            topicSnap.forEach(function(qSnap) {
-                                var q = qSnap.val();
-                                q.id = qSnap.key;
-                                q.topic = topicSnap.key;
-                                
-                                if (gameState.currentDifficulty === 'challenge' || 
-                                    q.difficulty === gameState.currentDifficulty ||
-                                    (!q.difficulty && gameState.currentDifficulty === 'medium')) {
+                            var topicKey = topicSnap.key;
+                            topicSnap.forEach(function(diffSnap) {
+                                diffSnap.forEach(function(qSnap) {
+                                    var q = qSnap.val();
+                                    q.id = qSnap.key;
+                                    q.topic = topicKey;
+                                    q.difficulty = diffSnap.key;
                                     questions.push(q);
-                                }
+                                });
                             });
                         });
                         
+                        // Store all questions for filtering
+                        gameState.allQuestions = questions;
                         gameState.questions = shuffleArray(questions).slice(0, 10);
                         resolve();
-                    }).catch(function() { resolve(); });
+                    }).catch(function(err) {
+                        console.error('Error loading questions:', err);
+                        resolve();
+                    });
                 } else {
-                    db.ref('corporateFinance/' + gameState.currentTopic).once('value').then(function(snap) {
-                        snap.forEach(function(qSnap) {
-                            var q = qSnap.val();
-                            q.id = qSnap.key;
-                            q.topic = gameState.currentTopic;
-                            
-                            if (gameState.currentDifficulty === 'challenge' || 
-                                q.difficulty === gameState.currentDifficulty ||
-                                (!q.difficulty && gameState.currentDifficulty === 'medium')) {
+                    // Load all questions from specific topic (all difficulties)
+                    db.ref(basePath + '/' + gameState.currentTopic).once('value').then(function(snap) {
+                        snap.forEach(function(diffSnap) {
+                            diffSnap.forEach(function(qSnap) {
+                                var q = qSnap.val();
+                                q.id = qSnap.key;
+                                q.topic = gameState.currentTopic;
+                                q.difficulty = diffSnap.key;
                                 questions.push(q);
-                            }
+                            });
                         });
                         
+                        // Store all questions for filtering
+                        gameState.allQuestions = questions;
                         gameState.questions = shuffleArray(questions).slice(0, 10);
                         resolve();
-                    }).catch(function() { resolve(); });
+                    }).catch(function(err) {
+                        console.error('Error loading questions:', err);
+                        resolve();
+                    });
                 }
             });
         }
@@ -2010,8 +2095,15 @@
             document.getElementById('welcome-screen').style.display = 'flex';
             document.getElementById('progress-section').style.display = 'none';
             document.getElementById('question-selector-section').classList.remove('visible');
+            document.getElementById('difficulty-filter').classList.remove('visible');
+            
+            // Remove active state from topics
+            document.querySelectorAll('.topic-item').forEach(function(el) {
+                el.classList.remove('active');
+            });
             
             gameState.questions = [];
+            gameState.allQuestions = [];
             gameState.currentQuestion = null;
         }
         
