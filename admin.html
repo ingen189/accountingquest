@@ -946,16 +946,11 @@
         let pendingJsonData = null;
         
         // Auth
-        let authChecked = false;
         auth.onAuthStateChanged(async user => {
-            // Prevent double-checking
-            if (authChecked) return;
-            authChecked = true;
-            
-            console.log('Auth state:', user ? user.email : 'not logged in');
+            console.log('Auth state changed:', user ? user.email : 'not logged in', 'isAnonymous:', user?.isAnonymous);
             
             if (!user || user.isAnonymous) {
-                // Not logged in - show access denied with login button
+                // Not logged in - show login prompt
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('access-denied').innerHTML = `
                     <div style="text-align: center;">
@@ -1000,6 +995,7 @@
                 }
                 
                 document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('access-denied').style.display = 'none';
                 document.getElementById('app').style.display = 'block';
                 document.getElementById('user-info').textContent = user.email;
                 
