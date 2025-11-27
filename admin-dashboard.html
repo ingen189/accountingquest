@@ -520,27 +520,37 @@
         let currentFilter = { quiz: 'all', bokforing: 'all' };
         let allData = { quiz: [], bokforing: [], wiki: [], users: [], teachers: [] };
 
-        // Auth med bedre feilhåndtering
+        // Auth med bedre feilhåndtering - venter på Firebase
+        let authChecked = false;
+        
+        // Timeout hvis ingenting skjer på 10 sekunder
         let authTimeout = setTimeout(() => {
-            console.error('Auth timeout - Firebase tar for lang tid');
-            document.getElementById('loading-screen').innerHTML = `
-                <div style="text-align:center;">
-                    <p style="color:#ef4444;margin-bottom:20px;">⚠️ Firebase-tilkobling tar for lang tid</p>
-                    <p style="color:#9ca3af;margin-bottom:20px;">Sjekk internettforbindelse eller prøv igjen.</p>
-                    <button class="btn btn-primary" onclick="location.reload()">🔄 Prøv igjen</button>
-                    <br><br>
-                    <a href="index.html" class="btn btn-secondary">← Tilbake</a>
-                </div>
-            `;
-        }, 10000); // 10 sekunder timeout
+            if (!authChecked) {
+                console.error('Auth timeout - Firebase tar for lang tid');
+                document.getElementById('loading-screen').innerHTML = `
+                    <div style="text-align:center;">
+                        <p style="color:#ef4444;margin-bottom:20px;">⚠️ Firebase-tilkobling tar for lang tid</p>
+                        <p style="color:#9ca3af;margin-bottom:20px;">Sjekk internettforbindelse eller prøv igjen.</p>
+                        <button class="btn btn-primary" onclick="location.reload()">🔄 Prøv igjen</button>
+                        <br><br>
+                        <a href="index.html" class="btn btn-secondary">← Tilbake</a>
+                    </div>
+                `;
+            }
+        }, 10000);
 
         auth.onAuthStateChanged(async (user) => {
+            // Ignorer hvis allerede behandlet
+            if (authChecked) return;
+            authChecked = true;
             clearTimeout(authTimeout);
+            
             console.log('Auth state:', user ? user.email : 'ikke innlogget');
             
             if (!user) { 
                 console.log('Ikke innlogget, redirecter til auth.html');
-                window.location.href = 'auth.html'; 
+                // Legg til returnUrl så auth.html kan sende tilbake hit
+                window.location.href = 'auth.html?returnUrl=admin-dashboard.html'; 
                 return; 
             }
             
