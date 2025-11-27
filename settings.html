@@ -7,14 +7,138 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
     <meta name="theme-color" content="#0f1419">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
-    <link rel="stylesheet" href="css/main.css">
-    
     <style>
+        /* ========== THEME VARIABLES ========== */
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f26;
+            --bg-tertiary: #2d3748;
+            --bg-card: #1e2530;
+            --bg-input: #0f1419;
+            --text-primary: #e0e0e0;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: #2d3748;
+            --border-light: #374151;
+            --accent: #4ade80;
+            --accent-hover: #22c55e;
+            --accent-glow: rgba(74, 222, 128, 0.3);
+            --accent-secondary: #3b82f6;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 15px;
+            --radius-full: 50px;
+            --space-xs: 5px;
+            --space-sm: 10px;
+            --space-md: 15px;
+            --space-lg: 20px;
+            --space-xl: 30px;
+        }
+
+        /* Light theme */
+        [data-theme="light"] {
+            --bg-primary: #f5f5f0;
+            --bg-secondary: #fafaf8;
+            --bg-tertiary: #eaeae5;
+            --bg-card: #ffffff;
+            --bg-input: #f5f5f0;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --text-muted: #9ca3af;
+            --border-color: #e5e5e0;
+            --border-light: #d1d1cc;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="cream"] {
+            --bg-primary: #f9f6f1;
+            --bg-secondary: #fffcf7;
+            --bg-tertiary: #f0ebe3;
+            --bg-card: #fffef9;
+            --bg-input: #f5f2ed;
+            --text-primary: #2d2a26;
+            --text-secondary: #5c5650;
+            --border-color: #e8e4dc;
+            --border-light: #d9d4cb;
+        }
+
+        [data-theme="dark-blue"] {
+            --bg-primary: #0a192f;
+            --bg-secondary: #112240;
+            --bg-tertiary: #1d3461;
+            --bg-card: #172a46;
+            --bg-input: #0a192f;
+            --text-primary: #ccd6f6;
+            --text-secondary: #8892b0;
+            --border-color: #1d3461;
+            --border-light: #233554;
+        }
+
+        [data-theme="midnight"] {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #171717;
+            --bg-card: #0f0f0f;
+            --bg-input: #050505;
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --border-color: #262626;
+            --border-light: #404040;
+        }
+
+        [data-theme="charcoal"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #242424;
+            --bg-tertiary: #333333;
+            --bg-card: #2a2a2a;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --border-color: #3d3d3d;
+            --border-light: #4a4a4a;
+        }
+
+        [data-theme="slate"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --border-light: #475569;
+        }
+
+        [data-theme="forest"] {
+            --bg-primary: #0c1a14;
+            --bg-secondary: #142b1f;
+            --bg-tertiary: #1f3d2b;
+            --bg-card: #183225;
+            --text-primary: #d4e8dc;
+            --text-secondary: #8fb89e;
+            --border-color: #1f3d2b;
+            --border-light: #2a5038;
+        }
+
+        [data-theme="purple-night"] {
+            --bg-primary: #13111c;
+            --bg-secondary: #1c1829;
+            --bg-tertiary: #2d2640;
+            --bg-card: #211d30;
+            --text-primary: #e8e4f0;
+            --text-secondary: #a39bb8;
+            --border-color: #2d2640;
+            --border-light: #3d3455;
+        }
+
         /* Accent colors */
         [data-accent="green"] { --accent: #4ade80; --accent-hover: #22c55e; --accent-glow: rgba(74, 222, 128, 0.3); }
         [data-accent="blue"] { --accent: #3b82f6; --accent-hover: #2563eb; --accent-glow: rgba(59, 130, 246, 0.3); }
@@ -27,6 +151,7 @@
         [data-accent="teal"] { --accent: #14b8a6; --accent-hover: #0d9488; --accent-glow: rgba(20, 184, 166, 0.3); }
         [data-accent="indigo"] { --accent: #6366f1; --accent-hover: #4f46e5; --accent-glow: rgba(99, 102, 241, 0.3); }
 
+        /* ========== BASE STYLES ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -40,7 +165,7 @@
 
         a { color: var(--accent); text-decoration: none; }
 
-        /* Header */
+        /* ========== HEADER ========== */
         .aq-header {
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
@@ -81,45 +206,42 @@
 
         .aq-module-name {
             color: var(--accent);
-            font-size: 0.9em;
-            font-weight: 600;
+            font-weight: 500;
         }
 
-        /* Buttons */
+        /* ========== BUTTONS ========== */
         .aq-btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            padding: 10px 20px;
-            border: none;
+            padding: 10px 18px;
             border-radius: var(--radius-md);
-            font-size: 0.95em;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
-            transition: all var(--transition-normal);
+            transition: all var(--transition-fast);
+            border: none;
+            font-size: 0.95em;
             text-decoration: none;
         }
 
         .aq-btn-primary {
             background: var(--accent);
-            color: var(--bg-primary);
+            color: #000;
         }
 
         .aq-btn-primary:hover {
             background: var(--accent-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px var(--accent-glow);
+            transform: translateY(-1px);
         }
 
         .aq-btn-secondary {
             background: var(--bg-tertiary);
             color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
 
         .aq-btn-secondary:hover {
-            background: var(--border-light);
-            transform: translateY(-2px);
+            background: var(--border-color);
         }
 
         .aq-btn-danger {
@@ -131,47 +253,49 @@
             background: #dc2626;
         }
 
-        .aq-btn-small {
-            padding: 6px 12px;
-            font-size: 0.85em;
+        .aq-btn-link {
+            background: transparent;
+            color: var(--accent);
+            padding: 10px 15px;
         }
 
-        /* Badges */
+        .aq-btn-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ========== BADGES ========== */
         .aq-badge {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: var(--radius-full);
             font-size: 0.8em;
-            font-weight: 600;
+            font-weight: 500;
         }
 
-        .aq-badge-primary { background: var(--accent); color: var(--bg-primary); }
+        .aq-badge-primary { background: var(--accent); color: #000; }
         .aq-badge-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
-        .aq-badge-success { background: var(--success); color: white; }
-        .aq-badge-info { background: var(--info); color: white; }
-        .aq-badge-warning { background: var(--warning); color: var(--bg-primary); }
-        .aq-badge-premium { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-        .aq-badge-admin { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
-        .aq-badge-teacher { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+        .aq-badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .aq-badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .aq-badge-info { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+        .aq-badge-error { background: rgba(239, 68, 68, 0.2); color: var(--error); }
 
-        /* Progress */
+        /* ========== PROGRESS ========== */
         .aq-progress {
+            height: 8px;
             background: var(--bg-tertiary);
             border-radius: var(--radius-full);
-            height: 10px;
             overflow: hidden;
         }
 
         .aq-progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+            background: var(--accent);
             border-radius: var(--radius-full);
-            transition: width 0.5s ease;
+            transition: width 0.3s ease;
         }
 
-        /* Settings */
+        /* ========== SETTINGS SPECIFIC ========== */
         .settings-container {
             max-width: 800px;
             margin: 0 auto;
@@ -180,7 +304,6 @@
 
         .settings-title {
             font-size: 2em;
-            text-align: center;
             margin-bottom: 30px;
             background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
             -webkit-background-clip: text;
@@ -192,39 +315,37 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 20px;
+            padding: 25px;
             margin-bottom: 20px;
         }
 
         .settings-section h3 {
-            color: var(--accent);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
             font-size: 1.2em;
+            margin-bottom: 15px;
+            color: var(--text-primary);
         }
 
         .settings-section p {
             color: var(--text-secondary);
             margin-bottom: 15px;
+            line-height: 1.6;
         }
 
         /* Theme grid */
         .theme-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
         }
 
         .theme-card {
             background: var(--bg-tertiary);
-            border: 3px solid var(--border-color);
+            border: 2px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 15px;
+            padding: 10px;
             cursor: pointer;
-            transition: all var(--transition-normal);
+            transition: all var(--transition-fast);
             text-align: center;
         }
 
@@ -239,18 +360,11 @@
         }
 
         .theme-preview {
-            width: 100%;
             height: 50px;
             border-radius: var(--radius-sm);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
-        .theme-name {
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-
-        /* Theme preview colors */
         .theme-preview-dark { background: linear-gradient(135deg, #0f1419, #1a1f26); }
         .theme-preview-light { background: linear-gradient(135deg, #f5f5f0, #fafaf8); }
         .theme-preview-cream { background: linear-gradient(135deg, #f9f6f1, #fffcf7); }
@@ -261,21 +375,27 @@
         .theme-preview-forest { background: linear-gradient(135deg, #0c1a14, #142b1f); }
         .theme-preview-purple-night { background: linear-gradient(135deg, #13111c, #1c1829); }
 
-        /* Accent buttons */
+        .theme-name {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
+        /* Accent grid */
         .accent-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-top: 15px;
         }
 
         .accent-btn {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             border: 3px solid transparent;
             cursor: pointer;
-            transition: all var(--transition-normal);
+            transition: all var(--transition-fast);
+            position: relative;
         }
 
         .accent-btn:hover {
@@ -283,8 +403,21 @@
         }
 
         .accent-btn.active {
-            border-color: var(--text-primary);
-            box-shadow: 0 0 10px var(--accent-glow);
+            border-color: white;
+            box-shadow: 0 0 15px currentColor;
+            transform: scale(1.1);
+        }
+
+        .accent-btn.active::after {
+            content: '✓';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            color: white;
+            text-shadow: 0 0 3px rgba(0,0,0,0.5);
         }
 
         .accent-green { background: #4ade80; }
@@ -355,7 +488,7 @@
             margin-top: 15px;
         }
 
-        /* Account section styles */
+        /* Account section */
         .account-info {
             background: var(--bg-tertiary);
             border-radius: var(--radius-md);
@@ -380,191 +513,159 @@
 
         .account-value {
             color: var(--text-primary);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-weight: 500;
         }
 
-        .account-actions {
+        /* Admin links */
+        .admin-links {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
         }
 
-        /* Editable username */
-        .username-display {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .username-input-wrapper {
-            display: none;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .username-input-wrapper.active {
-            display: flex;
-        }
-
-        .username-display.hidden {
-            display: none;
-        }
-
-        .username-input {
-            padding: 8px 12px;
-            background: var(--bg-primary);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            color: var(--text-primary);
-            font-size: 0.95em;
-            width: 180px;
-        }
-
-        .username-input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .edit-username-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 5px;
-            font-size: 1em;
-            transition: color var(--transition-fast);
-        }
-
-        .edit-username-btn:hover {
-            color: var(--accent);
-        }
-
-        /* Role display */
-        .role-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border-radius: var(--radius-full);
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-
-        .role-free {
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-
-        .role-student {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-            border: 1px solid #3b82f6;
-        }
-
-        .role-pro {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
-            color: #fbbf24;
-            border: 1px solid #f59e0b;
-        }
-
-        .role-teacher-lite {
-            background: rgba(139, 92, 246, 0.2);
-            color: #a78bfa;
-            border: 1px solid #8b5cf6;
-        }
-
-        .role-teacher-pro {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(124, 58, 237, 0.3));
-            color: #c4b5fd;
-            border: 1px solid #8b5cf6;
-        }
-
-        .role-admin {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
-            color: #fca5a5;
-            border: 1px solid #ef4444;
-        }
-
-        /* Subscription info */
-        .subscription-info {
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            padding: 15px;
-            margin-top: 15px;
-        }
-
-        .subscription-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .subscription-title {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .subscription-features {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .feature-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-sm);
-            font-size: 0.8em;
-            color: var(--text-secondary);
-        }
-
-        .feature-tag.active {
-            background: rgba(74, 222, 128, 0.15);
-            color: var(--success);
-            border: 1px solid var(--success);
-        }
-
-        .feature-tag.locked {
-            opacity: 0.5;
-        }
-
-        /* Password form */
-        .password-form {
-            display: none;
-            background: var(--bg-tertiary);
+        /* Delete account section */
+        .danger-zone {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
             border-radius: var(--radius-md);
             padding: 20px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
-        .password-form.show { display: block; }
+        .danger-zone h4 {
+            color: var(--error);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .danger-zone p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            max-width: 450px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.2s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h3 {
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .modal-close:hover { color: var(--text-primary); }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* Delete steps */
+        .delete-step {
+            display: none;
+        }
+
+        .delete-step.active {
+            display: block;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border-color);
+        }
+
+        .step-dot.active {
+            background: var(--accent);
+        }
+
+        .step-dot.completed {
+            background: var(--success);
+        }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
-            color: var(--text-secondary);
-            font-size: 0.9em;
             margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px;
-            background: var(--bg-primary);
-            border: 2px solid var(--border-color);
+            padding: 12px 15px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             color: var(--text-primary);
             font-size: 1em;
@@ -575,71 +676,122 @@
             border-color: var(--accent);
         }
 
-        .form-buttons {
+        .form-hint {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .code-input-container {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            justify-content: center;
         }
 
-        .message {
-            padding: 12px;
+        .code-digit {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            background: var(--bg-input);
+            border: 2px solid var(--border-color);
             border-radius: var(--radius-md);
+            color: var(--text-primary);
+        }
+
+        .code-digit:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-md);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .warning-box h4 {
+            color: var(--error);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-box ul {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-left: 20px;
+        }
+
+        .warning-box li {
+            margin-bottom: 5px;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .success-icon {
+            font-size: 4em;
             margin-bottom: 15px;
-            display: none;
         }
 
-        .message.error {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid #ef4444;
-            color: #fca5a5;
-            display: block;
-        }
-
-        .message.success {
-            background: rgba(74, 222, 128, 0.2);
-            border: 1px solid #4ade80;
-            color: #4ade80;
-            display: block;
-        }
-
-        .guest-notice {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid #f59e0b;
+        .countdown-box {
+            background: var(--bg-tertiary);
             border-radius: var(--radius-md);
             padding: 20px;
             text-align: center;
+            margin: 20px 0;
         }
 
-        .guest-notice p {
-            color: #f59e0b;
+        .countdown-time {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--warning);
+            font-family: monospace;
+        }
+
+        /* Pending deletion banner */
+        .pending-deletion-banner {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(234, 179, 8, 0.2));
+            border: 1px solid var(--warning);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .pending-deletion-banner h4 {
+            color: var(--warning);
+            margin-bottom: 10px;
+        }
+
+        .pending-deletion-banner p {
+            color: var(--text-secondary);
             margin-bottom: 15px;
         }
 
-        /* Upgrade CTA */
-        .upgrade-cta {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
-            border: 1px solid #f59e0b;
-            border-radius: var(--radius-md);
-            padding: 15px;
-            margin-top: 15px;
+        /* Legal links */
+        .legal-links {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-wrap: wrap;
             gap: 15px;
+            margin-top: 15px;
         }
 
-        .upgrade-cta-text {
-            color: #fbbf24;
-        }
-
-        .upgrade-cta-text strong {
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .upgrade-cta-text span {
+        .legal-links a {
+            color: var(--accent);
+            text-decoration: none;
             font-size: 0.9em;
-            opacity: 0.8;
+        }
+
+        .legal-links a:hover {
+            text-decoration: underline;
         }
 
         @media (max-width: 600px) {
@@ -649,14 +801,10 @@
             .settings-container {
                 padding: 15px;
             }
-            .account-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            .upgrade-cta {
-                flex-direction: column;
-                text-align: center;
+            .code-digit {
+                width: 40px;
+                height: 50px;
+                font-size: 1.2em;
             }
         }
     </style>
@@ -678,101 +826,82 @@
     
     <div class="settings-container">
         <h1 class="settings-title">⚙️ Innstillinger</h1>
-
-        <!-- Konto (dynamisk) -->
+        
+        <!-- Pending Deletion Banner -->
+        <div id="pending-deletion-banner" class="pending-deletion-banner" style="display: none;">
+            <h4>⚠️ Kontoen din er planlagt for sletting</h4>
+            <p>Kontoen og alle data slettes permanent om <strong id="deletion-countdown">48:00:00</strong></p>
+            <button class="aq-btn aq-btn-primary" onclick="cancelDeletion()">❌ Avbryt sletting</button>
+        </div>
+        
+        <!-- Konto -->
         <section class="settings-section" id="account-section">
             <h3>👤 Konto</h3>
             
-            <!-- Gjest-visning -->
-            <div id="guest-view" class="guest-notice" style="display: none;">
-                <p>⚠️ Du er ikke logget inn. Opprett en konto for å lagre fremgangen din i skyen.</p>
-                <a href="auth.html" class="aq-btn aq-btn-primary">Logg inn / Registrer</a>
+            <div id="auth-loading" style="text-align: center; padding: 30px;">
+                <p>Laster kontoinformasjon...</p>
             </div>
             
-            <!-- Bruker-visning -->
-            <div id="user-view" style="display: none;">
+            <div id="logged-out-view" style="display: none;">
+                <p>Du er ikke logget inn.</p>
+                <a href="auth.html" class="aq-btn aq-btn-primary">Logg inn</a>
+            </div>
+            
+            <div id="logged-in-view" style="display: none;">
                 <div class="account-info">
                     <div class="account-row">
                         <span class="account-label">E-post</span>
                         <span class="account-value" id="user-email">-</span>
                     </div>
                     <div class="account-row">
-                        <span class="account-label">Kallenavn</span>
-                        <span class="account-value">
-                            <div class="username-display" id="username-display">
-                                <span id="user-name">-</span>
-                                <button class="edit-username-btn" onclick="startEditUsername()" title="Endre kallenavn">✏️</button>
-                            </div>
-                            <div class="username-input-wrapper" id="username-input-wrapper">
-                                <input type="text" class="username-input" id="username-input" maxlength="30" placeholder="Ditt kallenavn">
-                                <button class="aq-btn aq-btn-primary aq-btn-small" onclick="saveUsername()">Lagre</button>
-                                <button class="aq-btn aq-btn-secondary aq-btn-small" onclick="cancelEditUsername()">Avbryt</button>
-                            </div>
-                        </span>
+                        <span class="account-label">Brukernavn</span>
+                        <span class="account-value" id="user-name">-</span>
                     </div>
                     <div class="account-row">
                         <span class="account-label">Rolle</span>
-                        <span class="account-value">
-                            <span class="role-badge role-free" id="user-role-badge">
-                                <span id="user-role-icon">👤</span>
-                                <span id="user-role-text">Gratis</span>
-                            </span>
-                        </span>
+                        <span class="account-value" id="user-role">-</span>
                     </div>
                     <div class="account-row">
-                        <span class="account-label">Innloggingsmetode</span>
-                        <span class="account-value" id="user-provider">-</span>
+                        <span class="account-label">Medlem siden</span>
+                        <span class="account-value" id="user-created">-</span>
                     </div>
                 </div>
-
-                <!-- Abonnement/Features info -->
-                <div class="subscription-info" id="subscription-info">
-                    <div class="subscription-header">
-                        <span class="subscription-title">📋 Dine funksjoner</span>
-                        <span class="aq-badge aq-badge-secondary" id="plan-badge">Gratis</span>
-                    </div>
-                    <div class="subscription-features" id="features-list">
-                        <!-- Fylles dynamisk -->
-                    </div>
+                
+                <!-- Admin/Teacher Links -->
+                <div id="admin-links" class="admin-links" style="display: none;">
+                    <a href="admin.html" class="aq-btn aq-btn-primary" id="admin-btn" style="display: none;">
+                        🛡️ Admin Dashboard
+                    </a>
+                    <a href="admin-dashboard.html" class="aq-btn aq-btn-primary" id="admin-dash-btn" style="display: none;">
+                        📊 Admin Dashboard (Ny)
+                    </a>
+                    <a href="teacher_portal.html" class="aq-btn aq-btn-secondary" id="teacher-btn" style="display: none;">
+                        👨‍🏫 Lærerportal
+                    </a>
+                    <a href="classroom_admin.html" class="aq-btn aq-btn-secondary" id="classroom-btn" style="display: none;">
+                        🏫 Klasserom Admin
+                    </a>
+                    <a href="data-seeder-secure.html" class="aq-btn aq-btn-secondary" id="seeder-btn" style="display: none;">
+                        🌱 Data Seeder
+                    </a>
                 </div>
-
-                <!-- Upgrade CTA for free users -->
-                <div class="upgrade-cta" id="upgrade-cta" style="display: none;">
-                    <div class="upgrade-cta-text">
-                        <strong>⭐ Oppgrader til Pro</strong>
-                        <span>Få tilgang til alle funksjoner, ubegrenset øving og mer!</span>
-                    </div>
-                    <a href="pricing.html" class="aq-btn aq-btn-primary">Se priser</a>
-                </div>
-
-                <div class="account-actions">
-                    <button class="aq-btn aq-btn-secondary" id="change-password-btn" onclick="togglePasswordForm()">
-                        🔑 Bytt passord
-                    </button>
-                    <button class="aq-btn aq-btn-danger" onclick="doLogout()">
+                
+                <div class="data-actions" style="margin-top: 15px;">
+                    <button class="aq-btn aq-btn-secondary" onclick="signOut()">
                         🚪 Logg ut
                     </button>
                 </div>
-
-                <!-- Bytt passord form -->
-                <div class="password-form" id="password-form">
-                    <div id="password-message"></div>
-                    <div class="form-group">
-                        <label>Nåværende passord</label>
-                        <input type="password" id="current-password" placeholder="••••••">
-                    </div>
-                    <div class="form-group">
-                        <label>Nytt passord (min 6 tegn)</label>
-                        <input type="password" id="new-password" placeholder="••••••">
-                    </div>
-                    <div class="form-group">
-                        <label>Bekreft nytt passord</label>
-                        <input type="password" id="confirm-password" placeholder="••••••">
-                    </div>
-                    <div class="form-buttons">
-                        <button class="aq-btn aq-btn-primary" onclick="changePassword()">Lagre nytt passord</button>
-                        <button class="aq-btn aq-btn-secondary" onclick="togglePasswordForm()">Avbryt</button>
-                    </div>
+                
+                <!-- Danger Zone -->
+                <div class="danger-zone">
+                    <h4>⚠️ Faresone</h4>
+                    <p>
+                        Sletting av kontoen er permanent. All data, fremgang og klasseromstilknytning vil bli fjernet.
+                        Du har 48 timer til å angre etter at sletting er igangsatt.
+                    </p>
+                    <button class="aq-btn aq-btn-danger" onclick="openDeleteModal()">
+                        🗑️ Slett kontoen min
+                    </button>
                 </div>
             </div>
         </section>
@@ -793,7 +922,7 @@
                 </div>
                 <div class="theme-card" data-theme="cream">
                     <div class="theme-preview theme-preview-cream"></div>
-                    <div class="theme-name">🍦 Krem</div>
+                    <div class="theme-name">🦪 Krem</div>
                 </div>
                 <div class="theme-card" data-theme="dark-blue">
                     <div class="theme-preview theme-preview-dark-blue"></div>
@@ -840,31 +969,31 @@
                 <button class="accent-btn accent-indigo" data-accent="indigo" title="Indigo"></button>
             </div>
             
+            <!-- Preview -->
             <div class="preview-section">
-                <h4>Forhåndsvisning</h4>
+                <h4>Forhåndsvisning:</h4>
                 <div class="preview-components">
-                    <button class="aq-btn aq-btn-primary">Primær knapp</button>
+                    <button class="aq-btn aq-btn-primary">Primær-knapp</button>
                     <button class="aq-btn aq-btn-secondary">Sekundær</button>
                     <span class="aq-badge aq-badge-primary">Badge</span>
                     <div class="aq-progress" style="width: 150px;">
-                        <div class="aq-progress-bar" style="width: 65%;"></div>
+                        <div class="aq-progress-bar" style="width: 70%;"></div>
                     </div>
                 </div>
             </div>
         </section>
         
-        <!-- Data & lagring -->
+        <!-- Brukerdata -->
         <section class="settings-section">
-            <h3>💾 Data & Lagring</h3>
-            <p>Administrer din lokale data og fremgang.</p>
+            <h3>💾 Lokal data</h3>
             
             <div class="storage-info">
                 <div class="storage-item">
-                    <span>Bokføringsoppgaver</span>
+                    <span>Bokføring fremgang</span>
                     <span id="bokforing-count">0 oppgaver</span>
                 </div>
                 <div class="storage-item">
-                    <span>Quiz-fremgang</span>
+                    <span>Quiz fremgang</span>
                     <span id="quiz-count">0 kategorier</span>
                 </div>
                 <div class="storage-item">
@@ -872,7 +1001,7 @@
                     <span id="custom-quiz-count">0 quizzer</span>
                 </div>
                 <div class="storage-item">
-                    <span>Total lagringsplass brukt</span>
+                    <span>Totalt lagret lokalt</span>
                     <span id="total-storage">0 KB</span>
                 </div>
             </div>
@@ -881,372 +1010,176 @@
                 <button class="aq-btn aq-btn-secondary" onclick="exportData()">
                     📥 Eksporter data
                 </button>
-                <label class="aq-btn aq-btn-secondary" style="cursor: pointer;">
+                <button class="aq-btn aq-btn-secondary" onclick="document.getElementById('import-file').click()">
                     📤 Importer data
-                    <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
-                </label>
+                </button>
+                <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
                 <button class="aq-btn aq-btn-danger" onclick="confirmResetData()">
-                    🗑️ Slett all data
+                    🗑️ Nullstill lokal data
                 </button>
             </div>
         </section>
         
-        <!-- Om AccountingQuest -->
+        <!-- Om -->
         <section class="settings-section">
             <h3>ℹ️ Om AccountingQuest</h3>
-            <p>Versjon 2.1.0 • Utviklet for norske regnskapsstudenter</p>
-            
+            <p>
+                AccountingQuest er en gamifisert læringsplattform for norsk bokføring og regnskap.
+                Plattformen er designet for å gjøre det lettere å lære regnskapsføring gjennom
+                interaktive oppgaver basert på norske lover og standarder.
+            </p>
             <div class="badges-row">
-                <span class="aq-badge aq-badge-success">✅ Oppdatert</span>
-                <span class="aq-badge aq-badge-info">📱 Mobilvennlig</span>
-                <span class="aq-badge aq-badge-secondary">🇳🇴 Norsk</span>
+                <span class="aq-badge aq-badge-secondary">Versjon 2.1</span>
+                <span class="aq-badge aq-badge-info">Firebase-støtte</span>
+                <span class="aq-badge aq-badge-success">Multiplayer</span>
+            </div>
+            
+            <div class="legal-links">
+                <a href="privacy.html">🔒 Personvernerklæring</a>
+                <a href="terms.html">📜 Vilkår for bruk</a>
             </div>
         </section>
     </div>
-
+    
+    <!-- Delete Account Modal -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🗑️ Slett konto</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step-dot" id="step-dot-1"></div>
+                    <div class="step-dot" id="step-dot-2"></div>
+                    <div class="step-dot" id="step-dot-3"></div>
+                </div>
+                
+                <!-- Step 1: Password -->
+                <div class="delete-step" id="delete-step-1">
+                    <div class="warning-box">
+                        <h4>⚠️ Advarsel</h4>
+                        <ul>
+                            <li>All fremgang og poeng slettes</li>
+                            <li>Klasseromstilknytninger fjernes</li>
+                            <li>Egne quizzer og innhold slettes</li>
+                            <li>Dette kan ikke angres etter 48 timer</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="delete-password">Skriv inn passordet ditt for å bekrefte:</label>
+                        <input type="password" id="delete-password" placeholder="Ditt passord">
+                    </div>
+                    
+                    <p id="password-error" style="color: var(--error); display: none; margin-bottom: 15px;"></p>
+                </div>
+                
+                <!-- Step 2: Email Code -->
+                <div class="delete-step" id="delete-step-2">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <p>Vi har sendt en 6-sifret kode til:</p>
+                        <strong id="code-sent-email">din@epost.no</strong>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="text-align: center;">Skriv inn koden:</label>
+                        <div class="code-input-container">
+                            <input type="text" class="code-digit" maxlength="1" data-index="0">
+                            <input type="text" class="code-digit" maxlength="1" data-index="1">
+                            <input type="text" class="code-digit" maxlength="1" data-index="2">
+                            <input type="text" class="code-digit" maxlength="1" data-index="3">
+                            <input type="text" class="code-digit" maxlength="1" data-index="4">
+                            <input type="text" class="code-digit" maxlength="1" data-index="5">
+                        </div>
+                        <p class="form-hint" style="text-align: center; margin-top: 10px;">
+                            Koden er gyldig i 15 minutter
+                        </p>
+                    </div>
+                    
+                    <p id="code-error" style="color: var(--error); display: none; text-align: center; margin-bottom: 15px;"></p>
+                    
+                    <div style="text-align: center;">
+                        <button class="aq-btn aq-btn-link" onclick="resendCode()" id="resend-btn">
+                            Ikke mottatt? Send på nytt
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Confirmation -->
+                <div class="delete-step" id="delete-step-3">
+                    <div class="success-message">
+                        <div class="success-icon">✅</div>
+                        <h3 style="color: var(--text-primary); margin-bottom: 10px;">Sletting igangsatt</h3>
+                        <p style="color: var(--text-secondary);">
+                            Din konto og alle data vil bli permanent slettet om 48 timer.
+                        </p>
+                    </div>
+                    
+                    <div class="countdown-box">
+                        <p style="color: var(--text-secondary); margin-bottom: 5px;">Tid til sletting:</p>
+                        <div class="countdown-time" id="modal-countdown">48:00:00</div>
+                    </div>
+                    
+                    <p style="text-align: center; color: var(--text-muted); font-size: 0.9em;">
+                        Du vil motta en e-post når slettingen er fullført.<br>
+                        Logg inn igjen for å avbryte slettingen.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="modal-footer" id="modal-footer">
+                <button class="aq-btn aq-btn-secondary" onclick="closeDeleteModal()" id="cancel-btn">Avbryt</button>
+                <button class="aq-btn aq-btn-danger" onclick="nextDeleteStep()" id="next-btn">Fortsett</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <script>
         // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
-            apiKey: "AIzaSyBPnvICblMUOVXkNSwba7NUqDALNa3lEUg",
-            authDomain: "accountingquest.firebaseapp.com",
-            databaseURL: "https://accountingquest-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest",
-            storageBucket: "accountingquest.firebasestorage.app",
-            messagingSenderId: "495735037392",
-            appId: "1:495735037392:web:ff1dc9d8f498c6926fed2a"
+            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
+            authDomain: "accountingquest-multiplayer.firebaseapp.com",
+            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "accountingquest-multiplayer",
+            storageBucket: "accountingquest-multiplayer.appspot.com",
+            messagingSenderId: "155094858270",
+            appId: "1:155094858270:web:abc123"
         };
+        
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
         
         let currentUser = null;
         let userData = null;
-
-        // ========== ROLE CONFIGURATION ==========
-        const ROLES = {
-            'free': { 
-                icon: '👤', 
-                label: 'Gratis', 
-                class: 'role-free',
-                badge: 'Gratis',
-                badgeClass: 'aq-badge-secondary'
-            },
-            'student': { 
-                icon: '🎓', 
-                label: 'Student', 
-                class: 'role-student',
-                badge: 'Student',
-                badgeClass: 'aq-badge-info'
-            },
-            'pro': { 
-                icon: '⭐', 
-                label: 'Pro', 
-                class: 'role-pro',
-                badge: 'Pro',
-                badgeClass: 'aq-badge-premium'
-            },
-            'teacher_lite': { 
-                icon: '👨‍🏫', 
-                label: 'Lærer Lite', 
-                class: 'role-teacher-lite',
-                badge: 'Lærer Lite',
-                badgeClass: 'aq-badge-teacher'
-            },
-            'teacher': { 
-                icon: '👨‍🏫', 
-                label: 'Lærer Pro', 
-                class: 'role-teacher-pro',
-                badge: 'Lærer Pro',
-                badgeClass: 'aq-badge-teacher'
-            },
-            'teacher_pro': { 
-                icon: '👨‍🏫', 
-                label: 'Lærer Pro', 
-                class: 'role-teacher-pro',
-                badge: 'Lærer Pro',
-                badgeClass: 'aq-badge-teacher'
-            },
-            'admin': { 
-                icon: '🛡️', 
-                label: 'Administrator', 
-                class: 'role-admin',
-                badge: 'Admin',
-                badgeClass: 'aq-badge-admin'
-            }
+        let deleteStep = 1;
+        let verificationCode = null;
+        let codeExpiry = null;
+        
+        const ROLE_LABELS = {
+            'free': 'Gratis bruker',
+            'student': 'Student',
+            'student_free': 'Student (Gratis)',
+            'student_pro': 'Student Pro',
+            'pro': 'Pro',
+            'ta': 'Teaching Assistant',
+            'teacher_lite': 'Lærer Lite',
+            'teacher': 'Lærer',
+            'teacher_pro': 'Lærer Pro',
+            'admin': 'Administrator'
         };
-
-        // Feature access by role
-        const FEATURES = {
-            'quiz': { label: 'Quiz', icon: '❓' },
-            'bokforing': { label: 'Bokføringsspill', icon: '📊' },
-            'analyse': { label: 'Analyse', icon: '📈' },
-            'case': { label: 'Case Studies', icon: '📋' },
-            'hjernetrim': { label: 'Hjernetrim', icon: '🧠' },
-            'multiplayer': { label: 'Multiplayer', icon: '👥' },
-            'duel': { label: 'Duell', icon: '⚔️' },
-            'wiki': { label: 'Wiki', icon: '📖' },
-            'classroom': { label: 'Klasserom', icon: '🏫' },
-            'export': { label: 'Eksporter', icon: '📥' },
-            'custom_quiz': { label: 'Lag quiz', icon: '✏️' }
-        };
-
-        const ROLE_FEATURES = {
-            'free': ['quiz', 'bokforing', 'wiki'],
-            'student': ['quiz', 'bokforing', 'analyse', 'case', 'hjernetrim', 'wiki', 'multiplayer'],
-            'pro': ['quiz', 'bokforing', 'analyse', 'case', 'hjernetrim', 'wiki', 'multiplayer', 'duel', 'custom_quiz', 'export'],
-            'teacher_lite': ['quiz', 'bokforing', 'analyse', 'case', 'hjernetrim', 'wiki', 'multiplayer', 'classroom'],
-            'teacher': ['quiz', 'bokforing', 'analyse', 'case', 'hjernetrim', 'wiki', 'multiplayer', 'duel', 'classroom', 'custom_quiz', 'export'],
-            'teacher_pro': ['quiz', 'bokforing', 'analyse', 'case', 'hjernetrim', 'wiki', 'multiplayer', 'duel', 'classroom', 'custom_quiz', 'export'],
-            'admin': Object.keys(FEATURES)
-        };
-
-        // ========== AUTH STATE ==========
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('guest-view').style.display = 'none';
-                document.getElementById('user-view').style.display = 'block';
-                
-                // Display email
-                document.getElementById('user-email').textContent = user.email || '-';
-                
-                // Determine provider
-                const provider = user.providerData[0]?.providerId || 'unknown';
-                let providerName = 'Ukjent';
-                if (provider === 'password') providerName = 'E-post/Passord';
-                else if (provider === 'google.com') providerName = 'Google';
-                else if (provider === 'facebook.com') providerName = 'Facebook';
-                document.getElementById('user-provider').textContent = providerName;
-                
-                // Show/hide password change button
-                const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
-                document.getElementById('change-password-btn').style.display = hasPasswordProvider ? 'inline-flex' : 'none';
-                
-                // Get user data from database
-                try {
-                    const snap = await db.ref('users/' + user.uid).once('value');
-                    userData = snap.val() || {};
-                    
-                    // Display username
-                    const username = userData.username || userData.displayName || user.displayName || '';
-                    document.getElementById('user-name').textContent = username || '(ikke satt)';
-                    
-                    // Display role
-                    const role = userData.role || 'free';
-                    updateRoleDisplay(role);
-                    
-                    // Update features list
-                    updateFeaturesDisplay(role);
-                    
-                    // Show upgrade CTA for free users
-                    if (role === 'free') {
-                        document.getElementById('upgrade-cta').style.display = 'flex';
-                    }
-                    
-                } catch (e) {
-                    console.error('Error fetching user data:', e);
-                    document.getElementById('user-name').textContent = user.displayName || '(ikke satt)';
-                    updateRoleDisplay('free');
-                    updateFeaturesDisplay('free');
-                }
-                
-            } else {
-                // Guest or not logged in
-                document.getElementById('guest-view').style.display = 'block';
-                document.getElementById('user-view').style.display = 'none';
-            }
-        });
-
-        // ========== ROLE & FEATURES DISPLAY ==========
-        function updateRoleDisplay(role) {
-            const config = ROLES[role] || ROLES['free'];
-            const badge = document.getElementById('user-role-badge');
-            const icon = document.getElementById('user-role-icon');
-            const text = document.getElementById('user-role-text');
-            const planBadge = document.getElementById('plan-badge');
-            
-            // Update role badge
-            badge.className = 'role-badge ' + config.class;
-            icon.textContent = config.icon;
-            text.textContent = config.label;
-            
-            // Update plan badge
-            planBadge.textContent = config.badge;
-            planBadge.className = 'aq-badge ' + config.badgeClass;
-        }
-
-        function updateFeaturesDisplay(role) {
-            const container = document.getElementById('features-list');
-            const activeFeatures = ROLE_FEATURES[role] || ROLE_FEATURES['free'];
-            
-            container.innerHTML = '';
-            
-            Object.keys(FEATURES).forEach(key => {
-                const feature = FEATURES[key];
-                const isActive = activeFeatures.includes(key);
-                
-                const tag = document.createElement('span');
-                tag.className = 'feature-tag' + (isActive ? ' active' : ' locked');
-                tag.innerHTML = `${isActive ? '✓' : '🔒'} ${feature.icon} ${feature.label}`;
-                container.appendChild(tag);
-            });
-        }
-
-        // ========== USERNAME EDITING ==========
-        function startEditUsername() {
-            const display = document.getElementById('username-display');
-            const wrapper = document.getElementById('username-input-wrapper');
-            const input = document.getElementById('username-input');
-            const currentName = document.getElementById('user-name').textContent;
-            
-            display.classList.add('hidden');
-            wrapper.classList.add('active');
-            input.value = currentName === '(ikke satt)' ? '' : currentName;
-            input.focus();
-        }
-
-        function cancelEditUsername() {
-            const display = document.getElementById('username-display');
-            const wrapper = document.getElementById('username-input-wrapper');
-            
-            display.classList.remove('hidden');
-            wrapper.classList.remove('active');
-        }
-
-        async function saveUsername() {
-            const input = document.getElementById('username-input');
-            const newUsername = input.value.trim();
-            
-            if (!newUsername) {
-                alert('Kallenavn kan ikke være tomt');
-                return;
-            }
-            
-            if (newUsername.length > 30) {
-                alert('Kallenavn kan maks være 30 tegn');
-                return;
-            }
-            
-            if (!currentUser) {
-                alert('Du må være logget inn');
-                return;
-            }
-            
-            try {
-                // Update in Firebase
-                await db.ref('users/' + currentUser.uid).update({
-                    username: newUsername,
-                    updatedAt: Date.now()
-                });
-                
-                // Update display
-                document.getElementById('user-name').textContent = newUsername;
-                cancelEditUsername();
-                
-                // Show success briefly
-                const nameEl = document.getElementById('user-name');
-                nameEl.style.color = 'var(--success)';
-                setTimeout(() => {
-                    nameEl.style.color = '';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Error saving username:', error);
-                alert('Kunne ikke lagre kallenavn: ' + error.message);
-            }
-        }
-
-        // Allow Enter key to save username
-        document.getElementById('username-input').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                saveUsername();
-            } else if (e.key === 'Escape') {
-                cancelEditUsername();
-            }
-        });
-
-        // ========== PASSWORD FUNCTIONS ==========
-        function togglePasswordForm() {
-            const form = document.getElementById('password-form');
-            form.classList.toggle('show');
-            
-            // Clear form
-            document.getElementById('current-password').value = '';
-            document.getElementById('new-password').value = '';
-            document.getElementById('confirm-password').value = '';
-            document.getElementById('password-message').innerHTML = '';
-        }
-
-        async function changePassword() {
-            const currentPassword = document.getElementById('current-password').value;
-            const newPassword = document.getElementById('new-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const msgEl = document.getElementById('password-message');
-
-            // Validation
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                msgEl.className = 'message error';
-                msgEl.textContent = 'Fyll inn alle feltene';
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                msgEl.className = 'message error';
-                msgEl.textContent = 'Nytt passord må være minst 6 tegn';
-                return;
-            }
-
-            if (newPassword !== confirmPassword) {
-                msgEl.className = 'message error';
-                msgEl.textContent = 'Passordene stemmer ikke overens';
-                return;
-            }
-
-            try {
-                // Re-authenticate user
-                const credential = firebase.auth.EmailAuthProvider.credential(
-                    currentUser.email,
-                    currentPassword
-                );
-                
-                await currentUser.reauthenticateWithCredential(credential);
-                
-                // Update password
-                await currentUser.updatePassword(newPassword);
-                
-                msgEl.className = 'message success';
-                msgEl.textContent = '✅ Passordet er oppdatert!';
-                
-                // Clear form after 2 seconds
-                setTimeout(() => {
-                    togglePasswordForm();
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Password change error:', error);
-                let errorMsg = 'En feil oppstod';
-                
-                if (error.code === 'auth/wrong-password') {
-                    errorMsg = 'Nåværende passord er feil';
-                } else if (error.code === 'auth/weak-password') {
-                    errorMsg = 'Nytt passord er for svakt';
-                } else if (error.code === 'auth/requires-recent-login') {
-                    errorMsg = 'Logg inn på nytt og prøv igjen';
-                }
-                
-                msgEl.className = 'message error';
-                msgEl.textContent = errorMsg;
-            }
-        }
-
-        function doLogout() {
-            if (confirm('Er du sikker på at du vil logge ut?')) {
-                auth.signOut().then(() => {
-                    window.location.href = 'index.html';
-                });
-            }
-        }
-
+        
+        // Admin UID
+        const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
+        
         // ========== THEME MANAGER ==========
         var ThemeManager = (function() {
             var themes = ['dark', 'light', 'cream', 'dark-blue', 'midnight', 'charcoal', 'slate', 'forest', 'purple-night'];
@@ -1286,6 +1219,352 @@
             return { setTheme: setTheme, setAccent: setAccent, getTheme: getTheme, getAccent: getAccent };
         })();
 
+        // ========== AUTH STATE ==========
+        auth.onAuthStateChanged(async (user) => {
+            document.getElementById('auth-loading').style.display = 'none';
+            
+            if (user) {
+                currentUser = user;
+                document.getElementById('logged-out-view').style.display = 'none';
+                document.getElementById('logged-in-view').style.display = 'block';
+                
+                document.getElementById('user-email').textContent = user.email || '-';
+                
+                // Fetch user data from database
+                try {
+                    const snapshot = await db.ref('users/' + user.uid).once('value');
+                    userData = snapshot.val() || {};
+                    
+                    console.log('User UID:', user.uid);
+                    console.log('Admin UID:', ADMIN_UID);
+                    console.log('Is match:', user.uid === ADMIN_UID);
+                    console.log('Database role:', userData.role);
+                    
+                    document.getElementById('user-name').textContent = userData.username || user.displayName || 'Ikke satt';
+                    
+                    // Check if user is admin by UID first, then by role in database
+                    let role = userData.role || 'free';
+                    if (user.uid === ADMIN_UID) {
+                        role = 'admin';
+                        console.log('Setting role to admin based on UID match');
+                    }
+                    document.getElementById('user-role').textContent = ROLE_LABELS[role] || role;
+                    
+                    const createdAt = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('no-NO') : 
+                                     (user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('no-NO') : '-');
+                    document.getElementById('user-created').textContent = createdAt;
+                    
+                    // Show admin/teacher links based on role
+                    showAdminLinks(user.uid, role);
+                    
+                    // Check for pending deletion
+                    checkPendingDeletion();
+                    
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                    // Check if admin by UID even if database fails
+                    if (user.uid === ADMIN_UID) {
+                        document.getElementById('user-role').textContent = 'Administrator';
+                        showAdminLinks(user.uid, 'admin');
+                    } else {
+                        document.getElementById('user-role').textContent = 'Bruker';
+                        showAdminLinks(user.uid, 'free');
+                    }
+                }
+            } else {
+                document.getElementById('logged-out-view').style.display = 'block';
+                document.getElementById('logged-in-view').style.display = 'none';
+            }
+        });
+        
+        // ========== SHOW ADMIN LINKS ==========
+        function showAdminLinks(uid, role) {
+            const adminLinksContainer = document.getElementById('admin-links');
+            const isAdmin = uid === ADMIN_UID || role === 'admin';
+            const isTeacher = ['teacher', 'teacher_lite', 'teacher_pro', 'ta'].includes(role);
+            
+            if (isAdmin || isTeacher) {
+                adminLinksContainer.style.display = 'flex';
+            }
+            
+            // Admin gets all links
+            if (isAdmin) {
+                document.getElementById('admin-btn').style.display = 'inline-flex';
+                document.getElementById('admin-dash-btn').style.display = 'inline-flex';
+                document.getElementById('teacher-btn').style.display = 'inline-flex';
+                document.getElementById('classroom-btn').style.display = 'inline-flex';
+                document.getElementById('seeder-btn').style.display = 'inline-flex';
+            } 
+            // Teachers get teacher-specific links
+            else if (isTeacher) {
+                document.getElementById('teacher-btn').style.display = 'inline-flex';
+                document.getElementById('classroom-btn').style.display = 'inline-flex';
+            }
+        }
+        
+        // ========== CHECK PENDING DELETION ==========
+        async function checkPendingDeletion() {
+            if (!currentUser) return;
+            
+            try {
+                const snapshot = await db.ref('users/' + currentUser.uid + '/pendingDeletion').once('value');
+                const pendingDeletion = snapshot.val();
+                
+                if (pendingDeletion && pendingDeletion.scheduledAt) {
+                    const deleteTime = new Date(pendingDeletion.scheduledAt);
+                    const now = new Date();
+                    
+                    if (deleteTime > now) {
+                        document.getElementById('pending-deletion-banner').style.display = 'block';
+                        startDeletionCountdown(deleteTime);
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking pending deletion:', error);
+            }
+        }
+        
+        // ========== DELETION COUNTDOWN ==========
+        let countdownInterval = null;
+        
+        function startDeletionCountdown(deleteTime) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            countdownInterval = setInterval(() => {
+                const now = new Date();
+                const diff = deleteTime - now;
+                
+                if (diff <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('deletion-countdown').textContent = '00:00:00';
+                    return;
+                }
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                const formatted = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('deletion-countdown').textContent = formatted;
+                
+                const modalCountdown = document.getElementById('modal-countdown');
+                if (modalCountdown) {
+                    modalCountdown.textContent = formatted;
+                }
+            }, 1000);
+        }
+        
+        // ========== CANCEL DELETION ==========
+        async function cancelDeletion() {
+            if (!currentUser) return;
+            
+            try {
+                await db.ref('users/' + currentUser.uid + '/pendingDeletion').remove();
+                document.getElementById('pending-deletion-banner').style.display = 'none';
+                if (countdownInterval) clearInterval(countdownInterval);
+                alert('✅ Sletting avbrutt. Kontoen din er trygg.');
+            } catch (error) {
+                console.error('Error canceling deletion:', error);
+                alert('Det oppsto en feil. Prøv igjen.');
+            }
+        }
+        
+        // ========== DELETE MODAL ==========
+        function openDeleteModal() {
+            deleteStep = 1;
+            updateDeleteStep();
+            document.getElementById('delete-modal').classList.add('show');
+            document.getElementById('delete-password').value = '';
+            document.getElementById('password-error').style.display = 'none';
+            
+            document.querySelectorAll('.code-digit').forEach(input => {
+                input.value = '';
+            });
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('show');
+            deleteStep = 1;
+        }
+        
+        function updateDeleteStep() {
+            document.querySelectorAll('.delete-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            document.getElementById('delete-step-' + deleteStep).classList.add('active');
+            
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById('step-dot-' + i);
+                dot.classList.remove('active', 'completed');
+                if (i === deleteStep) {
+                    dot.classList.add('active');
+                } else if (i < deleteStep) {
+                    dot.classList.add('completed');
+                }
+            }
+            
+            const nextBtn = document.getElementById('next-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            
+            if (deleteStep === 3) {
+                nextBtn.textContent = 'Lukk';
+                nextBtn.className = 'aq-btn aq-btn-secondary';
+                cancelBtn.style.display = 'none';
+            } else if (deleteStep === 2) {
+                nextBtn.textContent = 'Bekreft sletting';
+            } else {
+                nextBtn.textContent = 'Fortsett';
+                nextBtn.className = 'aq-btn aq-btn-danger';
+                cancelBtn.style.display = 'inline-block';
+            }
+        }
+        
+        async function nextDeleteStep() {
+            if (deleteStep === 1) {
+                const password = document.getElementById('delete-password').value;
+                
+                if (!password) {
+                    document.getElementById('password-error').textContent = 'Vennligst skriv inn passordet ditt.';
+                    document.getElementById('password-error').style.display = 'block';
+                    return;
+                }
+                
+                try {
+                    const credential = firebase.auth.EmailAuthProvider.credential(
+                        currentUser.email,
+                        password
+                    );
+                    await currentUser.reauthenticateWithCredential(credential);
+                    
+                    await sendVerificationCode();
+                    
+                    deleteStep = 2;
+                    updateDeleteStep();
+                    document.getElementById('code-sent-email').textContent = currentUser.email;
+                    
+                } catch (error) {
+                    console.error('Auth error:', error);
+                    document.getElementById('password-error').textContent = 'Feil passord. Prøv igjen.';
+                    document.getElementById('password-error').style.display = 'block';
+                }
+                
+            } else if (deleteStep === 2) {
+                const codeInputs = document.querySelectorAll('.code-digit');
+                let enteredCode = '';
+                codeInputs.forEach(input => {
+                    enteredCode += input.value;
+                });
+                
+                if (enteredCode.length !== 6) {
+                    document.getElementById('code-error').textContent = 'Vennligst skriv inn hele koden.';
+                    document.getElementById('code-error').style.display = 'block';
+                    return;
+                }
+                
+                const now = new Date();
+                if (!verificationCode || now > codeExpiry) {
+                    document.getElementById('code-error').textContent = 'Koden har utløpt. Send en ny kode.';
+                    document.getElementById('code-error').style.display = 'block';
+                    return;
+                }
+                
+                if (enteredCode !== verificationCode) {
+                    document.getElementById('code-error').textContent = 'Feil kode. Prøv igjen.';
+                    document.getElementById('code-error').style.display = 'block';
+                    return;
+                }
+                
+                await scheduleDeletion();
+                
+                deleteStep = 3;
+                updateDeleteStep();
+                
+            } else if (deleteStep === 3) {
+                closeDeleteModal();
+                document.getElementById('pending-deletion-banner').style.display = 'block';
+            }
+        }
+        
+        // ========== VERIFICATION CODE ==========
+        async function sendVerificationCode() {
+            verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            codeExpiry = new Date(Date.now() + 15 * 60 * 1000);
+            
+            await db.ref('deletionCodes/' + currentUser.uid).set({
+                code: verificationCode,
+                expiresAt: codeExpiry.getTime(),
+                createdAt: Date.now()
+            });
+            
+            console.log('🔐 Verification code:', verificationCode);
+            
+            // For production: Use Firebase Cloud Functions to send email
+            alert('📧 Bekreftelseskode sendt!\n\n(For testing: Koden er ' + verificationCode + ')');
+        }
+        
+        async function resendCode() {
+            const btn = document.getElementById('resend-btn');
+            btn.disabled = true;
+            btn.textContent = 'Sender...';
+            
+            await sendVerificationCode();
+            
+            btn.disabled = false;
+            btn.textContent = 'Ikke mottatt? Send på nytt';
+        }
+        
+        // ========== SCHEDULE DELETION ==========
+        async function scheduleDeletion() {
+            const deleteTime = new Date(Date.now() + 48 * 60 * 60 * 1000);
+            
+            await db.ref('users/' + currentUser.uid + '/pendingDeletion').set({
+                scheduledAt: deleteTime.getTime(),
+                initiatedAt: Date.now(),
+                email: currentUser.email
+            });
+            
+            await db.ref('deletionCodes/' + currentUser.uid).remove();
+            
+            startDeletionCountdown(deleteTime);
+        }
+        
+        // ========== CODE INPUT HANDLING ==========
+        document.querySelectorAll('.code-digit').forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value;
+                e.target.value = value.replace(/[^0-9]/g, '');
+                
+                if (value && index < 5) {
+                    document.querySelectorAll('.code-digit')[index + 1].focus();
+                }
+                
+                document.getElementById('code-error').style.display = 'none';
+            });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    document.querySelectorAll('.code-digit')[index - 1].focus();
+                }
+            });
+            
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+                
+                document.querySelectorAll('.code-digit').forEach((inp, i) => {
+                    inp.value = pastedData[i] || '';
+                });
+            });
+        });
+        
+        // ========== SIGN OUT ==========
+        function signOut() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        }
+
         // ========== UI INITIALIZATION ==========
         function initUI() {
             var currentTheme = ThemeManager.getTheme();
@@ -1300,7 +1579,6 @@
             });
         }
 
-        // Theme click handlers
         document.querySelectorAll('.theme-card').forEach(function(card) {
             card.addEventListener('click', function() {
                 ThemeManager.setTheme(this.dataset.theme);
@@ -1308,7 +1586,6 @@
             });
         });
 
-        // Accent click handlers
         document.querySelectorAll('.accent-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 ThemeManager.setAccent(this.dataset.accent);
@@ -1352,7 +1629,7 @@
         function exportData() {
             var data = {
                 exportDate: new Date().toISOString(),
-                version: '2.0',
+                version: '2.1',
                 theme: ThemeManager.getTheme(),
                 accent: ThemeManager.getAccent(),
                 progress: {}
@@ -1406,8 +1683,8 @@
         }
 
         function confirmResetData() {
-            if (confirm('⚠️ Er du sikker på at du vil slette ALL fremgang?\n\nDette kan ikke angres!')) {
-                if (confirm('Siste sjanse! Klikk OK for å slette alt.')) {
+            if (confirm('⚠️ Er du sikker på at du vil slette ALL lokal fremgang?\n\nDette påvirker ikke data lagret i skyen.')) {
+                if (confirm('Siste sjanse! Klikk OK for å slette lokal data.')) {
                     var keysToDelete = [];
                     for (var key in localStorage) {
                         if (key.startsWith('aq_') || key.includes('Progress') || key.includes('quiz')) {
@@ -1415,7 +1692,7 @@
                         }
                     }
                     keysToDelete.forEach(function(key) { localStorage.removeItem(key); });
-                    alert('All data er slettet.');
+                    alert('Lokal data er slettet.');
                     updateStorageInfo();
                 }
             }
@@ -1426,9 +1703,12 @@
             initUI();
             updateStorageInfo();
         });
+        
+        document.getElementById('delete-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
     </script>
-    
-    <!-- Theme Manager (external backup) -->
-    <script src="js/theme-manager.js"></script>
 </body>
 </html>

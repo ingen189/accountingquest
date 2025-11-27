@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="no" data-theme="dark" data-accent="green">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vilkår for bruk - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📜</text></svg>">
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .legal-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .legal-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .legal-updated {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        
+        .legal-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .legal-section h2 {
+            color: var(--accent);
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legal-section h3 {
+            color: var(--text-primary);
+            font-size: 1.1em;
+            margin: 20px 0 10px 0;
+        }
+        
+        .legal-section p, .legal-section li {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+        
+        .legal-section ul, .legal-section ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .legal-section li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight-box {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        }
+        
+        .highlight-box.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .highlight-box.danger {
+            border-left-color: var(--error);
+        }
+        
+        .contact-info {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin-top: 15px;
+        }
+        
+        .contact-info p {
+            margin-bottom: 5px;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: opacity 0.2s;
+        }
+        
+        .back-link:hover {
+            opacity: 0.8;
+        }
+        
+        .toc {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+        }
+        
+        .toc h3 {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .toc ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .toc li {
+            margin-bottom: 5px;
+        }
+        
+        .toc a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            .legal-container {
+                padding: 20px 15px;
+            }
+            .legal-section {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="aq-header">
+        <div class="aq-header-left">
+            <a href="index.html" class="aq-logo">
+                <span class="aq-logo-icon">📚</span>
+                <span class="aq-logo-text">AccountingQuest</span>
+            </a>
+        </div>
+        <div class="aq-header-right">
+            <a href="index.html" class="aq-btn aq-btn-secondary">← Tilbake</a>
+        </div>
+    </header>
+    
+    <div class="legal-container">
+        <a href="index.html" class="back-link">← Tilbake til forsiden</a>
+        
+        <h1 class="legal-title">📜 Vilkår for bruk</h1>
+        <p class="legal-updated">Sist oppdatert: November 2025</p>
+        
+        <!-- Innholdsfortegnelse -->
+        <div class="toc">
+            <h3>Innhold</h3>
+            <ol>
+                <li><a href="#aksept">Aksept av vilkår</a></li>
+                <li><a href="#tjenesten">Om tjenesten</a></li>
+                <li><a href="#konto">Din konto</a></li>
+                <li><a href="#bruk">Tillatt bruk</a></li>
+                <li><a href="#innhold">Innhold og opphavsrett</a></li>
+                <li><a href="#abonnement">Abonnement og betaling</a></li>
+                <li><a href="#ansvar">Ansvarsfraskrivelse</a></li>
+                <li><a href="#endringer">Endringer</a></li>
+                <li><a href="#kontakt">Kontakt</a></li>
+            </ol>
+        </div>
+        
+        <!-- 1. Aksept -->
+        <section class="legal-section" id="aksept">
+            <h2>1. Aksept av vilkår</h2>
+            <p>
+                Ved å opprette en konto eller bruke AccountingQuest aksepterer du disse vilkårene for bruk 
+                og vår <a href="privacy.html">personvernerklæring</a>.
+            </p>
+            <p>
+                Hvis du ikke aksepterer vilkårene, kan du ikke bruke tjenesten.
+            </p>
+            <div class="highlight-box">
+                <strong>Viktig:</strong> Hvis du bruker tjenesten på vegne av en organisasjon 
+                (f.eks. et universitet), garanterer du at du har myndighet til å akseptere disse vilkårene 
+                på vegne av organisasjonen.
+            </div>
+        </section>
+        
+        <!-- 2. Om tjenesten -->
+        <section class="legal-section" id="tjenesten">
+            <h2>2. Om tjenesten</h2>
+            <p>
+                AccountingQuest er en digital læringsplattform som tilbyr:
+            </p>
+            <ul>
+                <li>Interaktive øvelser i bokføring og regnskap</li>
+                <li>Quizzer og kunnskapstester</li>
+                <li>Multiplayer-funksjoner for klasserom</li>
+                <li>Wiki med referanser til norske regnskapslover</li>
+                <li>Verktøy for lærere og undervisningsassistenter</li>
+            </ul>
+            <p>
+                Tjenesten er ment som et supplement til formell utdanning, ikke som erstatning for 
+                profesjonell regnskapsrådgivning.
+            </p>
+        </section>
+        
+        <!-- 3. Din konto -->
+        <section class="legal-section" id="konto">
+            <h2>3. Din konto</h2>
+            
+            <h3>3.1 Registrering</h3>
+            <p>
+                For å bruke visse funksjoner må du opprette en konto. Du må oppgi korrekt informasjon 
+                og holde kontoinformasjonen oppdatert.
+            </p>
+            
+            <h3>3.2 Sikkerhet</h3>
+            <p>Du er ansvarlig for:</p>
+            <ul>
+                <li>Å holde passordet ditt hemmelig</li>
+                <li>All aktivitet som skjer på din konto</li>
+                <li>Å varsle oss umiddelbart hvis du mistenker uautorisert bruk</li>
+            </ul>
+            
+            <h3>3.3 Alderskrav</h3>
+            <p>
+                Du må være minst 16 år for å opprette en konto. Brukere under 16 år må ha samtykke 
+                fra forelder eller foresatt.
+            </p>
+            
+            <h3>3.4 Sletting av konto</h3>
+            <p>
+                Du kan slette kontoen din når som helst via Innstillinger. Ved sletting fjernes 
+                alle dine data permanent innen 48 timer.
+            </p>
+        </section>
+        
+        <!-- 4. Tillatt bruk -->
+        <section class="legal-section" id="bruk">
+            <h2>4. Tillatt bruk</h2>
+            
+            <h3>4.1 Du MAY:</h3>
+            <ul>
+                <li>✅ Bruke tjenesten til personlig læring</li>
+                <li>✅ Delta i klasserom og multiplayer-aktiviteter</li>
+                <li>✅ Dele klasseromskoder med legitime studenter</li>
+                <li>✅ Eksportere dine egne fremgangsdata</li>
+            </ul>
+            
+            <h3>4.2 Du MÅ IKKE:</h3>
+            <ul>
+                <li>❌ Dele kontoen din med andre</li>
+                <li>❌ Forsøke å omgå sikkerhetstiltak eller betalingssperrer</li>
+                <li>❌ Kopiere, distribuere eller selge innhold fra plattformen</li>
+                <li>❌ Bruke automatiserte verktøy (bots) for å samle data</li>
+                <li>❌ Laste opp ondsinnet kode eller forsøke å hacke systemet</li>
+                <li>❌ Trakassere andre brukere eller lærere</li>
+                <li>❌ Bruke tjenesten til ulovlige formål</li>
+                <li>❌ Presentere deg som noen du ikke er</li>
+            </ul>
+            
+            <div class="highlight-box danger">
+                <strong>Konsekvenser:</strong> Brudd på disse reglene kan føre til umiddelbar stenging 
+                av kontoen din uten refusjon.
+            </div>
+        </section>
+        
+        <!-- 5. Innhold og opphavsrett -->
+        <section class="legal-section" id="innhold">
+            <h2>5. Innhold og opphavsrett</h2>
+            
+            <h3>5.1 Vårt innhold</h3>
+            <p>
+                Alt innhold på plattformen (tekst, oppgaver, design, kode, logoer) er beskyttet av 
+                opphavsrett og tilhører AccountingQuest eller våre lisensgivere.
+            </p>
+            
+            <h3>5.2 Ditt innhold</h3>
+            <p>
+                Hvis du oppretter innhold (f.eks. egne quizzer som lærer), beholder du rettighetene til dette. 
+                Du gir oss en begrenset lisens til å vise og distribuere innholdet innenfor plattformen.
+            </p>
+            
+            <h3>5.3 Lovhenvisninger</h3>
+            <p>
+                Plattformen refererer til norske lover som Bokføringsloven, Regnskapsloven og Skatteloven. 
+                Disse lovtekstene er offentlig tilgjengelig via Lovdata og er ikke vår opphavsrett.
+            </p>
+            
+            <div class="highlight-box warning">
+                <strong>Obs:</strong> Lovtekster og regler kan endres. AccountingQuest forsøker å holde 
+                innholdet oppdatert, men du bør alltid verifisere mot offisielle kilder for viktige beslutninger.
+            </div>
+        </section>
+        
+        <!-- 6. Abonnement og betaling -->
+        <section class="legal-section" id="abonnement">
+            <h2>6. Abonnement og betaling</h2>
+            
+            <h3>6.1 Gratisversjon</h3>
+            <p>
+                Grunnleggende funksjoner er tilgjengelig gratis. Noen funksjoner krever betalt abonnement.
+            </p>
+            
+            <h3>6.2 Betalte abonnement</h3>
+            <p>Ved kjøp av abonnement:</p>
+            <ul>
+                <li>Priser vises inkludert mva</li>
+                <li>Abonnement fornyes automatisk med mindre du sier opp</li>
+                <li>Du kan si opp når som helst, men får ikke refusjon for inneværende periode</li>
+            </ul>
+            
+            <h3>6.3 Angrerett</h3>
+            <p>
+                I henhold til angrerettloven har du 14 dagers angrerett fra kjøpsdato. 
+                Angreretten bortfaller hvis du begynner å bruke tjenesten før perioden utløper 
+                og har samtykket til dette.
+            </p>
+            
+            <h3>6.4 Prisendringer</h3>
+            <p>
+                Vi kan endre prisene med 30 dagers varsel. Prisendringer påvirker ikke inneværende 
+                abonnementsperiode.
+            </p>
+        </section>
+        
+        <!-- 7. Ansvarsfraskrivelse -->
+        <section class="legal-section" id="ansvar">
+            <h2>7. Ansvarsfraskrivelse</h2>
+            
+            <h3>7.1 Tjenesten leveres "som den er"</h3>
+            <p>
+                Vi tilstreber høy kvalitet, men kan ikke garantere at tjenesten er feilfri, 
+                alltid tilgjengelig, eller at innholdet er 100% korrekt til enhver tid.
+            </p>
+            
+            <h3>7.2 Ikke profesjonell rådgivning</h3>
+            <p>
+                <strong>AccountingQuest er et læringsverktøy, ikke en erstatning for profesjonell rådgivning.</strong>
+            </p>
+            <ul>
+                <li>Vi er ikke et regnskapsfirma eller revisor</li>
+                <li>Innholdet er ment for læring, ikke for å ta faktiske regnskapsbeslutninger</li>
+                <li>For profesjonelle spørsmål, kontakt en autorisert regnskapsfører</li>
+            </ul>
+            
+            <h3>7.3 Begrensning av ansvar</h3>
+            <p>
+                I den grad loven tillater det, er AccountingQuest ikke ansvarlig for indirekte tap, 
+                følgeskader, tap av data, eller tap av fortjeneste som følge av bruk av tjenesten.
+            </p>
+            
+            <h3>7.4 Maksimalt ansvar</h3>
+            <p>
+                Vårt maksimale ansvar er begrenset til beløpet du har betalt for tjenesten 
+                de siste 12 månedene.
+            </p>
+        </section>
+        
+        <!-- 8. Endringer -->
+        <section class="legal-section" id="endringer">
+            <h2>8. Endringer i vilkårene</h2>
+            <p>
+                Vi kan oppdatere disse vilkårene fra tid til annen. Ved vesentlige endringer 
+                vil vi varsle deg via e-post eller en melding i appen minst 14 dager før endringene trer i kraft.
+            </p>
+            <p>
+                Fortsatt bruk av tjenesten etter at endringer er publisert, anses som aksept 
+                av de nye vilkårene.
+            </p>
+            <p>
+                Hvis du ikke aksepterer nye vilkår, kan du si opp kontoen din før de trer i kraft.
+            </p>
+        </section>
+        
+        <!-- 9. Lovvalg og tvister -->
+        <section class="legal-section">
+            <h2>9. Lovvalg og tvister</h2>
+            <p>
+                Disse vilkårene er underlagt norsk lov. Eventuelle tvister skal først forsøkes 
+                løst i minnelighet. Hvis dette ikke fører frem, kan tvisten bringes inn for 
+                norske domstoler med Stavanger tingrett som verneting.
+            </p>
+            <p>
+                For forbrukertvister kan du også klage til Forbrukerrådet eller Forbrukertilsynet.
+            </p>
+        </section>
+        
+        <!-- 10. Kontakt -->
+        <section class="legal-section" id="kontakt">
+            <h2>10. Kontakt oss</h2>
+            <p>Har du spørsmål om disse vilkårene? Kontakt oss:</p>
+            <div class="contact-info">
+                <p><strong>AccountingQuest</strong></p>
+                <p>E-post: kontakt@accountingquest.app</p>
+                <p>Nettsted: accountingquest.app</p>
+            </div>
+        </section>
+        
+        <!-- Relaterte lenker -->
+        <section class="legal-section">
+            <h2>📎 Relaterte dokumenter</h2>
+            <ul>
+                <li><a href="privacy.html">Personvernerklæring</a></li>
+                <li><a href="settings.html">Innstillinger (for å slette konto)</a></li>
+            </ul>
+        </section>
+    </div>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.init();
+        }
+    </script>
+</body>
+</html>

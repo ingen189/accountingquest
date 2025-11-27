@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="no" data-theme="dark" data-accent="green">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personvernerklæring - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .legal-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .legal-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .legal-updated {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        
+        .legal-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .legal-section h2 {
+            color: var(--accent);
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legal-section h3 {
+            color: var(--text-primary);
+            font-size: 1.1em;
+            margin: 20px 0 10px 0;
+        }
+        
+        .legal-section p, .legal-section li {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+        
+        .legal-section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .legal-section li {
+            margin-bottom: 8px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .data-table td {
+            color: var(--text-secondary);
+        }
+        
+        .highlight-box {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        }
+        
+        .contact-info {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin-top: 15px;
+        }
+        
+        .contact-info p {
+            margin-bottom: 5px;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: opacity 0.2s;
+        }
+        
+        .back-link:hover {
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 600px) {
+            .legal-container {
+                padding: 20px 15px;
+            }
+            .legal-section {
+                padding: 20px 15px;
+            }
+            .data-table {
+                font-size: 0.85em;
+            }
+            .data-table th, .data-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="aq-header">
+        <div class="aq-header-left">
+            <a href="index.html" class="aq-logo">
+                <span class="aq-logo-icon">📚</span>
+                <span class="aq-logo-text">AccountingQuest</span>
+            </a>
+        </div>
+        <div class="aq-header-right">
+            <a href="index.html" class="aq-btn aq-btn-secondary">← Tilbake</a>
+        </div>
+    </header>
+    
+    <div class="legal-container">
+        <a href="index.html" class="back-link">← Tilbake til forsiden</a>
+        
+        <h1 class="legal-title">🔒 Personvernerklæring</h1>
+        <p class="legal-updated">Sist oppdatert: November 2025</p>
+        
+        <!-- Introduksjon -->
+        <section class="legal-section">
+            <h2>📋 Innledning</h2>
+            <p>
+                AccountingQuest er en læringsplattform for norsk bokføring og regnskap. Vi tar ditt personvern på alvor 
+                og behandler dine personopplysninger i samsvar med personopplysningsloven og EUs personvernforordning (GDPR).
+            </p>
+            <p>
+                Denne personvernerklæringen forklarer hvilke opplysninger vi samler inn, hvorfor vi gjør det, 
+                og hvilke rettigheter du har.
+            </p>
+        </section>
+        
+        <!-- Behandlingsansvarlig -->
+        <section class="legal-section">
+            <h2>👤 Behandlingsansvarlig</h2>
+            <p>Behandlingsansvarlig for personopplysningene er:</p>
+            <div class="contact-info">
+                <p><strong>AccountingQuest</strong></p>
+                <p>E-post: personvern@accountingquest.app</p>
+                <p>Nettsted: accountingquest.app</p>
+            </div>
+        </section>
+        
+        <!-- Hva vi samler -->
+        <section class="legal-section">
+            <h2>📊 Hvilke opplysninger samler vi inn?</h2>
+            
+            <h3>Kontoinformasjon</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Formål</th>
+                        <th>Grunnlag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>E-postadresse</td>
+                        <td>Innlogging, kontoverifisering, viktige varsler</td>
+                        <td>Avtale</td>
+                    </tr>
+                    <tr>
+                        <td>Brukernavn</td>
+                        <td>Identifikasjon i spill og klasseromsaktiviteter</td>
+                        <td>Avtale</td>
+                    </tr>
+                    <tr>
+                        <td>Passord (kryptert)</td>
+                        <td>Sikker tilgang til kontoen</td>
+                        <td>Avtale</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Fremgangsdata</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Formål</th>
+                        <th>Grunnlag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Quiz-svar og poeng</td>
+                        <td>Sporing av læringsframgang</td>
+                        <td>Avtale</td>
+                    </tr>
+                    <tr>
+                        <td>Fullførte oppgaver</td>
+                        <td>Vise fremgang og låse opp innhold</td>
+                        <td>Avtale</td>
+                    </tr>
+                    <tr>
+                        <td>Klasseromstilhørighet</td>
+                        <td>Koble studenter med lærere</td>
+                        <td>Avtale</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Preferanser</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Formål</th>
+                        <th>Grunnlag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Valgt tema og farger</td>
+                        <td>Tilpasse brukergrensesnittet</td>
+                        <td>Berettiget interesse</td>
+                    </tr>
+                    <tr>
+                        <td>Språkpreferanse</td>
+                        <td>Vise innhold på riktig språk</td>
+                        <td>Berettiget interesse</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Lovlig grunnlag -->
+        <section class="legal-section">
+            <h2>⚖️ Lovlig grunnlag for behandling</h2>
+            <p>Vi behandler personopplysninger basert på følgende grunnlag:</p>
+            <ul>
+                <li><strong>Avtale (GDPR art. 6(1)(b)):</strong> Behandlingen er nødvendig for å levere tjenesten du har registrert deg for.</li>
+                <li><strong>Berettiget interesse (GDPR art. 6(1)(f)):</strong> For preferanser og forbedring av tjenesten, der vår interesse ikke overstyrer dine rettigheter.</li>
+                <li><strong>Samtykke (GDPR art. 6(1)(a)):</strong> For valgfrie funksjoner som nyhetsbrev eller markedsføring (kun hvis du aktivt samtykker).</li>
+            </ul>
+        </section>
+        
+        <!-- Lagring -->
+        <section class="legal-section">
+            <h2>💾 Lagring og sikkerhet</h2>
+            
+            <h3>Hvor lagres dataene?</h3>
+            <p>
+                Dine data lagres hos Firebase (Google Cloud Platform) i EU-regionen. 
+                Google er GDPR-kompatibel og vi har en databehandleravtale på plass.
+            </p>
+            
+            <h3>Sikkerhetstiltak</h3>
+            <ul>
+                <li>All dataoverføring skjer via HTTPS (kryptert)</li>
+                <li>Passord lagres aldri i klartekst (kun kryptert hash)</li>
+                <li>Tilgangskontroll via Firebase Security Rules</li>
+                <li>Regelmessig sikkerhetsgjennomgang</li>
+            </ul>
+            
+            <h3>Hvor lenge lagres dataene?</h3>
+            <ul>
+                <li><strong>Kontoinformasjon:</strong> Til du sletter kontoen din</li>
+                <li><strong>Fremgangsdata:</strong> Til du sletter kontoen din</li>
+                <li><strong>Preferanser:</strong> Til du endrer dem eller sletter kontoen</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <strong>Sletting av konto:</strong> Du kan når som helst slette kontoen din via Innstillinger. 
+                Etter sletting fjernes alle dine data permanent innen 48 timer.
+            </div>
+        </section>
+        
+        <!-- Deling -->
+        <section class="legal-section">
+            <h2>🔄 Deling av data</h2>
+            
+            <h3>Vi deler IKKE dine data med:</h3>
+            <ul>
+                <li>❌ Annonsenettverk</li>
+                <li>❌ Sosiale medier</li>
+                <li>❌ Datameglere eller tredjeparter for markedsføring</li>
+            </ul>
+            
+            <h3>Vi deler data med:</h3>
+            <ul>
+                <li><strong>Firebase/Google Cloud:</strong> Teknisk infrastruktur (databehandler)</li>
+                <li><strong>Din lærer (hvis du er i et klasserom):</strong> Fremgang og poeng i klasseromsaktiviteter</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <strong>Viktig:</strong> Vi selger aldri dine personopplysninger. Dine data brukes kun for å levere og forbedre tjenesten.
+            </div>
+        </section>
+        
+        <!-- Dine rettigheter -->
+        <section class="legal-section">
+            <h2>✋ Dine rettigheter</h2>
+            <p>I henhold til GDPR har du følgende rettigheter:</p>
+            
+            <ul>
+                <li><strong>Rett til innsyn:</strong> Du kan be om en kopi av alle data vi har om deg.</li>
+                <li><strong>Rett til retting:</strong> Du kan be oss korrigere feilaktige opplysninger.</li>
+                <li><strong>Rett til sletting:</strong> Du kan be om at vi sletter alle dine data.</li>
+                <li><strong>Rett til dataportabilitet:</strong> Du kan eksportere dine data i et maskinlesbart format.</li>
+                <li><strong>Rett til å protestere:</strong> Du kan protestere mot behandling basert på berettiget interesse.</li>
+                <li><strong>Rett til å trekke samtykke:</strong> Hvis behandling er basert på samtykke, kan du trekke det tilbake.</li>
+            </ul>
+            
+            <h3>Slik utøver du dine rettigheter:</h3>
+            <ul>
+                <li><strong>Eksportere data:</strong> Gå til Innstillinger → Eksporter data</li>
+                <li><strong>Slette konto:</strong> Gå til Innstillinger → Slett konto</li>
+                <li><strong>Andre forespørsler:</strong> Send e-post til personvern@accountingquest.app</li>
+            </ul>
+            
+            <p>Vi svarer på forespørsler innen 30 dager.</p>
+        </section>
+        
+        <!-- Cookies -->
+        <section class="legal-section">
+            <h2>🍪 Informasjonskapsler (Cookies)</h2>
+            
+            <h3>Nødvendige cookies/lagring vi bruker:</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Navn</th>
+                        <th>Formål</th>
+                        <th>Varighet</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Firebase Auth</td>
+                        <td>Holde deg innlogget</td>
+                        <td>Sesjon</td>
+                    </tr>
+                    <tr>
+                        <td>aq_theme</td>
+                        <td>Huske ditt valgte tema</td>
+                        <td>Permanent</td>
+                    </tr>
+                    <tr>
+                        <td>aq_accent</td>
+                        <td>Huske din accent-farge</td>
+                        <td>Permanent</td>
+                    </tr>
+                    <tr>
+                        <td>aq_cookie_consent</td>
+                        <td>Huske at du har sett cookie-meldingen</td>
+                        <td>1 år</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="highlight-box">
+                <strong>Ingen sporing:</strong> Vi bruker ikke analyse-cookies eller sporings-teknologi som Google Analytics. 
+                Alle cookies vi bruker er teknisk nødvendige for tjenesten.
+            </div>
+        </section>
+        
+        <!-- Barn -->
+        <section class="legal-section">
+            <h2>👶 Barn under 16 år</h2>
+            <p>
+                AccountingQuest er primært rettet mot studenter ved høyskoler og universiteter. 
+                Vi samler ikke bevisst inn personopplysninger fra barn under 16 år uten forelders samtykke.
+            </p>
+            <p>
+                Hvis du er under 16 år og ønsker å bruke tjenesten, må du ha samtykke fra forelder eller foresatt.
+            </p>
+        </section>
+        
+        <!-- Endringer -->
+        <section class="legal-section">
+            <h2>📝 Endringer i personvernerklæringen</h2>
+            <p>
+                Vi kan oppdatere denne personvernerklæringen fra tid til annen. Ved vesentlige endringer 
+                vil vi varsle deg via e-post eller en melding i appen.
+            </p>
+            <p>
+                Fortsatt bruk av tjenesten etter at endringer er publisert, anses som aksept av den nye erklæringen.
+            </p>
+        </section>
+        
+        <!-- Klage -->
+        <section class="legal-section">
+            <h2>📞 Kontakt og klage</h2>
+            <p>
+                Hvis du har spørsmål om personvern eller ønsker å utøve dine rettigheter, kontakt oss:
+            </p>
+            <div class="contact-info">
+                <p><strong>E-post:</strong> personvern@accountingquest.app</p>
+            </div>
+            <p style="margin-top: 15px;">
+                Du har også rett til å klage til Datatilsynet hvis du mener at behandlingen av dine 
+                personopplysninger ikke er i samsvar med loven:
+            </p>
+            <div class="contact-info">
+                <p><strong>Datatilsynet</strong></p>
+                <p>Postboks 458 Sentrum, 0105 Oslo</p>
+                <p>postkasse@datatilsynet.no</p>
+                <p>www.datatilsynet.no</p>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Theme Manager -->
+    <script src="js/theme-manager.js"></script>
+    <script>
+        if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.init();
+        }
+    </script>
+</body>
+</html>
