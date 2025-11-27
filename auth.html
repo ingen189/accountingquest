@@ -683,6 +683,10 @@
 
         function showError(msg) {
             const el = document.getElementById('message');
+            if (!el) {
+                alert(msg);
+                return;
+            }
             el.className = 'message error';
             el.textContent = msg;
             el.style.display = 'block';
@@ -690,13 +694,18 @@
 
         function showSuccess(msg) {
             const el = document.getElementById('message');
+            if (!el) {
+                alert(msg);
+                return;
+            }
             el.className = 'message success';
             el.textContent = msg;
             el.style.display = 'block';
         }
 
         function hideMessage() {
-            document.getElementById('message').style.display = 'none';
+            const el = document.getElementById('message');
+            if (el) el.style.display = 'none';
         }
 
         function getErrorMsg(code) {
