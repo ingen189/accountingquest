@@ -1720,17 +1720,24 @@
             var q = gameState.currentQuestion;
             document.getElementById('btn-check').disabled = true;
             
+            console.log('Checking answer for question:', q.id);
+            console.log('Question type:', q.type);
+            console.log('Looking for solution at: solutions/corporate_finance/' + q.id);
+            
             firebase.database().ref('solutions/corporate_finance/' + q.id).once('value')
                 .then(function(snap) {
                     var solution = snap.val();
+                    console.log('Solution found:', solution);
+                    
                     if (!solution) {
-                        alert('Ingen fasit funnet.');
+                        console.error('No solution found for:', q.id);
+                        alert('Ingen fasit funnet for: ' + q.id);
                         document.getElementById('btn-check').disabled = false;
                         return;
                     }
                     
                     var correct;
-                    if (q.type === 'multiple_choice' || q.type === 'mc' || q.type === 'true_false') {
+                    if (q.type === 'multiple_choice' || q.type === 'mc' || q.type === 'true_false' || q.type === 'tf') {
                         correct = checkMC(solution);
                     } else {
                         correct = checkCalc(solution);
@@ -1738,17 +1745,42 @@
                     
                     if (correct) handleCorrect(); else handleIncorrect();
                     document.getElementById('btn-check').disabled = false;
+                })
+                .catch(function(err) {
+                    console.error('Error fetching solution:', err);
+                    alert('Feil ved henting av fasit: ' + err.message);
+                    document.getElementById('btn-check').disabled = false;
                 });
         }
         
         function checkMC(solution) {
-            if (!gameState.selectedAnswer) { alert('Velg et svar!'); return null; }
-            var correctId = solution.correct.toString();
+            if (!gameState.selectedAnswer) { 
+                alert('Velg et svar!'); 
+                return null; 
+            }
+            
+            // Get correct answer - handle different formats
+            var correctId = solution.correct || solution.answer;
+            if (typeof correctId !== 'string') {
+                correctId = String(correctId);
+            }
+            correctId = correctId.toLowerCase().trim();
+            
+            var userAnswer = gameState.selectedAnswer.toLowerCase().trim();
+            
+            console.log('MC Check - User:', userAnswer, 'Correct:', correctId);
+            
+            // Mark options
             document.querySelectorAll('.option-item').forEach(function(el) {
-                if (el.dataset.id === correctId) el.classList.add('correct');
-                else if (el.dataset.id === gameState.selectedAnswer) el.classList.add('incorrect');
+                var optId = el.dataset.id.toLowerCase().trim();
+                if (optId === correctId) {
+                    el.classList.add('correct');
+                } else if (optId === userAnswer && userAnswer !== correctId) {
+                    el.classList.add('incorrect');
+                }
             });
-            return gameState.selectedAnswer === correctId;
+            
+            return userAnswer === correctId;
         }
         
         function checkCalc(solution) {
@@ -1760,62 +1792,86 @@
             
             console.log('Checking calculation:', { fields: fields, correctValues: correctValues, tolerance: tol });
             
-            fields.forEach(function(f) {
+            // If correctValues is an array, convert to object by index
+            if (Array.isArray(correctValues)) {
+                var temp = {};
+                correctValues.forEach(function(v, i) {
+                    if (fields[i]) temp[fields[i].id] = v;
+                });
+                correctValues = temp;
+            }
+            
+            // Create a map of all possible keys to values
+            var valueMap = {};
+            if (typeof correctValues === 'object') {
+                Object.keys(correctValues).forEach(function(k) {
+                    var v = correctValues[k];
+                    // Add original key
+                    valueMap[k] = v;
+                    // Add lowercase
+                    valueMap[k.toLowerCase()] = v;
+                    // Add without underscores
+                    valueMap[k.replace(/_/g, '')] = v;
+                    valueMap[k.toLowerCase().replace(/_/g, '')] = v;
+                });
+            }
+            
+            console.log('Value map:', valueMap);
+            
+            fields.forEach(function(f, idx) {
                 var inp = document.getElementById('input-' + f.id);
                 if (!inp) {
                     console.log('Input not found for field:', f.id);
                     return;
                 }
                 
-                // Parse user input (handle both comma and dot as decimal separator)
+                // Parse user input
                 var userStr = inp.value.replace(/\s/g, '').replace(',', '.');
                 var user = parseFloat(userStr);
                 
-                // Find correct value - try multiple possible keys
-                var corr = null;
-                if (typeof correctValues === 'object') {
-                    // Try exact match first
-                    if (correctValues[f.id] !== undefined) {
-                        corr = correctValues[f.id];
-                    }
-                    // Try lowercase
-                    else if (correctValues[f.id.toLowerCase()] !== undefined) {
-                        corr = correctValues[f.id.toLowerCase()];
-                    }
-                    // Try field label as key
-                    else if (f.label && correctValues[f.label] !== undefined) {
-                        corr = correctValues[f.label];
-                    }
-                    // If only one field and one correct value, use it
-                    else if (fields.length === 1) {
-                        var keys = Object.keys(correctValues);
-                        if (keys.length === 1) {
-                            corr = correctValues[keys[0]];
-                        }
-                    }
-                } else if (typeof correctValues === 'number') {
-                    corr = correctValues;
+                if (isNaN(user)) {
+                    inp.classList.add('incorrect');
+                    ok = false;
+                    return;
                 }
                 
-                console.log('Field:', f.id, 'User:', user, 'Correct:', corr, 'Tolerance:', tol);
+                // Find correct value - try multiple approaches
+                var corr = null;
                 
-                if (corr !== null && typeof corr === 'number') {
-                    // Use relative tolerance for larger numbers, absolute for smaller
-                    var isOk;
-                    if (Math.abs(corr) > 1) {
-                        // For larger numbers, use relative tolerance (0.5%)
-                        isOk = Math.abs(user - corr) <= Math.abs(corr) * 0.005 || Math.abs(user - corr) <= tol;
-                    } else {
-                        // For smaller numbers, use absolute tolerance
-                        isOk = Math.abs(user - corr) <= tol;
+                // Try exact field id
+                if (valueMap[f.id] !== undefined) corr = valueMap[f.id];
+                // Try lowercase
+                else if (valueMap[f.id.toLowerCase()] !== undefined) corr = valueMap[f.id.toLowerCase()];
+                // Try without special chars
+                else if (valueMap[f.id.replace(/[^a-zA-Z0-9]/g, '')] !== undefined) corr = valueMap[f.id.replace(/[^a-zA-Z0-9]/g, '')];
+                // Try by index if only one correct value or matching count
+                else if (typeof correctValues === 'number') corr = correctValues;
+                else if (Object.keys(correctValues).length === fields.length) {
+                    var keys = Object.keys(correctValues);
+                    corr = correctValues[keys[idx]];
+                }
+                // Try first value if only one field
+                else if (fields.length === 1 && Object.keys(correctValues).length >= 1) {
+                    corr = correctValues[Object.keys(correctValues)[0]];
+                }
+                
+                console.log('Field:', f.id, 'User:', user, 'Correct:', corr);
+                
+                if (corr !== null && corr !== undefined) {
+                    var corrNum = parseFloat(corr);
+                    if (!isNaN(corrNum)) {
+                        // Calculate tolerance based on value size
+                        var tolerance = Math.max(tol, Math.abs(corrNum) * 0.01); // 1% or absolute tolerance
+                        var isOk = Math.abs(user - corrNum) <= tolerance;
+                        
+                        inp.classList.add(isOk ? 'correct' : 'incorrect');
+                        if (!isOk) ok = false;
+                        
+                        console.log('Tolerance:', tolerance, 'Diff:', Math.abs(user - corrNum), 'Result:', isOk ? 'CORRECT' : 'INCORRECT');
                     }
-                    
-                    inp.classList.add(isOk ? 'correct' : 'incorrect');
-                    if (!isOk) ok = false;
-                    
-                    console.log('Result:', isOk ? 'CORRECT' : 'INCORRECT');
                 } else {
                     console.log('No matching correct value found for field:', f.id);
+                    // Don't mark as incorrect if we can't find the answer - might be a data issue
                 }
             });
             return ok;
@@ -1857,7 +1913,7 @@
         }
         
         function getUserAnswer(q) {
-            if (q.type === 'multiple_choice' || q.type === 'mc' || q.type === 'true_false') {
+            if (q.type === 'multiple_choice' || q.type === 'mc' || q.type === 'true_false' || q.type === 'tf') {
                 return gameState.selectedAnswer;
             } else {
                 var fields = q.input_fields || [{ id: 'answer' }];
@@ -1983,6 +2039,8 @@
         
         // ==================== PROGRESS SAVING ====================
         function saveProgress() {
+            console.log('Saving progress...');
+            
             var progressData = {
                 topic: gameState.currentTopic,
                 difficulty: gameState.currentDifficulty,
@@ -1995,12 +2053,16 @@
                 lastUpdated: Date.now()
             };
             
+            console.log('Progress data:', progressData);
+            
             // Save to localStorage always (as backup)
             saveToLocalStorage(progressData);
             
             // Save to Firebase if logged in
-            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                 saveToFirebase(progressData);
+            } else {
+                console.log('Not logged in - saving to localStorage only');
             }
         }
         
@@ -2008,23 +2070,29 @@
             try {
                 var key = 'cf_progress_' + data.topic;
                 localStorage.setItem(key, JSON.stringify(data));
+                console.log('Saved to localStorage:', key);
                 
                 // Also save overall stats
                 var stats = JSON.parse(localStorage.getItem('cf_stats') || '{}');
-                stats[data.topic] = {
-                    bestScore: Math.max(stats[data.topic]?.bestScore || 0, data.score),
-                    totalAttempts: (stats[data.topic]?.totalAttempts || 0) + 1,
-                    lastPlayed: Date.now()
-                };
+                if (!stats[data.topic]) stats[data.topic] = {};
+                stats[data.topic].bestScore = Math.max(stats[data.topic].bestScore || 0, data.score);
+                stats[data.topic].totalAttempts = (stats[data.topic].totalAttempts || 0) + 1;
+                stats[data.topic].lastPlayed = Date.now();
                 localStorage.setItem('cf_stats', JSON.stringify(stats));
+                console.log('Saved stats:', stats);
             } catch (e) {
-                console.log('LocalStorage save failed:', e);
+                console.error('LocalStorage save failed:', e);
             }
         }
         
         function saveToFirebase(data) {
             var user = firebase.auth().currentUser;
-            if (!user) return;
+            if (!user) {
+                console.log('No user logged in for Firebase save');
+                return;
+            }
+            
+            console.log('Saving to Firebase for user:', user.uid);
             
             var db = firebase.database();
             var path = 'user_progress/' + user.uid + '/corporate_finance/' + data.topic;
@@ -2036,13 +2104,15 @@
                 completed: data.answeredQuestions,
                 lastAttempt: firebase.database.ServerValue.TIMESTAMP
             }).then(function() {
-                console.log('Progress saved to Firebase');
+                console.log('Progress saved to Firebase at:', path);
             }).catch(function(err) {
-                console.log('Firebase save failed:', err);
+                console.error('Firebase save failed:', err);
             });
         }
         
         function saveQuestionResult(questionId, isCorrect, userAnswer) {
+            console.log('Saving question result:', questionId, isCorrect);
+            
             // Save individual question result
             var result = {
                 questionId: questionId,
@@ -2058,15 +2128,23 @@
                 var answers = JSON.parse(localStorage.getItem(key) || '{}');
                 answers[questionId] = result;
                 localStorage.setItem(key, JSON.stringify(answers));
+                console.log('Answer saved to localStorage:', key, result);
             } catch (e) {
-                console.log('Answer save failed:', e);
+                console.error('Answer save failed:', e);
             }
             
             // Save to Firebase if logged in
-            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                 var user = firebase.auth().currentUser;
                 var db = firebase.database();
-                db.ref('user_progress/' + user.uid + '/corporate_finance/answers/' + questionId).set(result);
+                var path = 'user_progress/' + user.uid + '/corporate_finance/answers/' + questionId;
+                db.ref(path).set(result)
+                    .then(function() {
+                        console.log('Answer saved to Firebase:', path);
+                    })
+                    .catch(function(err) {
+                        console.error('Firebase answer save failed:', err);
+                    });
             }
         }
         
