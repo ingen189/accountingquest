@@ -936,13 +936,6 @@
         const db = firebase.database();
         const auth = firebase.auth();
         
-        // Ensure auth state persists across pages
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
-            console.log('🔐 Auth persistence set to LOCAL');
-        }).catch(err => {
-            console.error('Auth persistence error:', err);
-        });
-        
         console.log('🔥 Firebase initialized');
         
         // Your UID from Firebase
@@ -958,22 +951,35 @@
         let selectedRole = null;
         let pendingJsonData = null;
         
-        // Auth - wait for Firebase to be ready
-        console.log('⏳ Waiting for auth state...');
-        auth.onAuthStateChanged(async user => {
-            console.log('👤 Auth state changed:', user ? `${user.email} (${user.uid})` : 'NO USER');
-            console.log('👤 isAnonymous:', user?.isAnonymous);
+        // Wait for persistence to be set, then check auth
+        async function initAuth() {
+            console.log('⏳ Setting up auth...');
             
-            if (!user || user.isAnonymous) {
-                console.log('❌ Not logged in or anonymous');
-                // Not logged in - show login prompt
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('access-denied').innerHTML = `
-                    <div style="text-align: center;">
-                        <div style="font-size: 4em; margin-bottom: 20px;">🔒</div>
-                        <h2 style="margin-bottom: 10px;">Logg inn for å fortsette</h2>
-                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Du må være logget inn som admin for å få tilgang.</p>
-                        <a href="auth.html" class="btn btn-primary" style="text-decoration: none;">🔑 Logg inn</a>
+            try {
+                await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+                console.log('🔐 Auth persistence set to LOCAL');
+            } catch (err) {
+                console.warn('Auth persistence warning:', err);
+            }
+            
+            // Now check current user
+            const user = auth.currentUser;
+            console.log('👤 Current user on load:', user ? `${user.email} (${user.uid})` : 'NO USER YET');
+            
+            // Set up listener for auth changes
+            auth.onAuthStateChanged(async user => {
+                console.log('👤 Auth state changed:', user ? `${user.email} (${user.uid})` : 'NO USER');
+                console.log('👤 isAnonymous:', user?.isAnonymous);
+                
+                if (!user || user.isAnonymous) {
+                    console.log('❌ Not logged in or anonymous');
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('access-denied').innerHTML = `
+                        <div style="text-align: center;">
+                            <div style="font-size: 4em; margin-bottom: 20px;">🔒</div>
+                            <h2 style="margin-bottom: 10px;">Logg inn for å fortsette</h2>
+                            <p style="color: var(--text-secondary); margin-bottom: 20px;">Du må være logget inn som admin for å få tilgang.</p>
+                            <a href="auth.html" class="btn btn-primary" style="text-decoration: none;">🔑 Logg inn</a>
                         <br><br>
                         <a href="index.html" class="btn btn-secondary" style="text-decoration: none;">← Tilbake til forsiden</a>
                     </div>
@@ -1022,6 +1028,10 @@
                 document.getElementById('access-denied').style.display = 'flex';
             }
         });
+        }
+        
+        // Start auth initialization
+        initAuth();
         
         function logout() { auth.signOut().then(() => window.location.href = 'index.html'); }
         
