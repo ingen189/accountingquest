@@ -584,7 +584,7 @@
             <div class="modules-grid">
                 
                 <!-- Grunnleggende Regnskap -->
-                <article class="module-card grunnleggende" onclick="toggleSubmodules(this)">
+                <article class="module-card grunnleggende" onclick="window.location.href='grunnleggende_regnskap.html'">
                     <div class="module-header">
                         <div class="module-icon">📚</div>
                         <span class="status-badge popular">Populær</span>
@@ -601,20 +601,6 @@
                         <div class="progress-bar">
                             <div class="progress-fill" id="grunnleggende-bar" style="width: 0%"></div>
                         </div>
-                    </div>
-                    <div class="submodules">
-                        <button class="submodule-btn" onclick="event.stopPropagation(); window.location.href='bokforingsspill_excel.html'">
-                            <span>📖</span> Bokføring
-                        </button>
-                        <button class="submodule-btn" onclick="event.stopPropagation(); window.location.href='quiz_updated.html'">
-                            <span>❓</span> Quiz
-                        </button>
-                        <button class="submodule-btn" onclick="event.stopPropagation(); window.location.href='regnskapsanalyse.html'">
-                            <span>📊</span> Analyse
-                        </button>
-                        <button class="submodule-btn" onclick="event.stopPropagation(); window.location.href='case_studies_fixed.html'">
-                            <span>💼</span> Case
-                        </button>
                     </div>
                 </article>
 
@@ -801,6 +787,9 @@
                 usernameEl.textContent = 'Gjest';
                 userIcon.textContent = '👤';
             }
+            
+            // Last inn fremgang etter auth er klar
+            loadProgress();
         });
 
         async function checkTeacherStatus(uid) {
@@ -893,29 +882,98 @@
         }
 
         // Load progress
-        function loadProgress() {
-            let total = 0, completed = 0;
+        async function loadProgress() {
+            let grunnleggendeCompleted = 0;
+            let corporateCompleted = 0;
             
+            // Først prøv å hente fra Firebase hvis innlogget
+            if (currentUser && !currentUser.isAnonymous) {
+                try {
+                    const snap = await db.ref('user_progress/' + currentUser.uid).once('value');
+                    const data = snap.val();
+                    
+                    if (data && data.accounting) {
+                        // Tell fullførte topics i grunnleggende regnskap
+                        Object.keys(data.accounting).forEach(topic => {
+                            if (data.accounting[topic].completed) {
+                                grunnleggendeCompleted++;
+                            }
+                        });
+                    }
+                    
+                    if (data && data.corporate_finance) {
+                        Object.keys(data.corporate_finance).forEach(topic => {
+                            if (data.corporate_finance[topic].completed) {
+                                corporateCompleted++;
+                            }
+                        });
+                    }
+                    
+                    console.log('Loaded progress from Firebase:', { grunnleggende: grunnleggendeCompleted, corporate: corporateCompleted });
+                } catch(e) {
+                    console.log('Firebase progress load failed, using localStorage:', e);
+                }
+            }
+            
+            // Hent også fra localStorage (som backup eller for gjester)
             try {
+                // Grunnleggende Regnskap stats (ny struktur)
+                const cfStats = JSON.parse(localStorage.getItem('cf_stats') || '{}');
+                const grunnleggendeTopics = ['bokforing', 'quiz', 'analyse', 'case', 'grunnleggende', 'skattefradrag', 'mva', 'avskrivninger'];
+                
+                grunnleggendeTopics.forEach(topic => {
+                    if (cfStats[topic] && cfStats[topic].bestScore > 0) {
+                        grunnleggendeCompleted = Math.max(grunnleggendeCompleted, Object.keys(cfStats).filter(t => cfStats[t].bestScore > 0).length);
+                    }
+                });
+                
+                // Gammel bokføringsspill progress (bakoverkompatibel)
                 const bk = JSON.parse(localStorage.getItem('bokforingsspill_progress') || '{}');
-                completed += (bk.completedLessons || []).length;
-            } catch(e) {}
-            
-            try {
+                if (bk.completedLessons && bk.completedLessons.length > 0) {
+                    grunnleggendeCompleted = Math.max(grunnleggendeCompleted, bk.completedLessons.length);
+                }
+                
+                // Gammel quiz progress (bakoverkompatibel)
                 const qz = JSON.parse(localStorage.getItem('quiz_v2') || '{}');
                 if (qz.answeredQuestions) {
+                    let quizCount = 0;
                     Object.values(qz.answeredQuestions).forEach(cat => {
-                        completed += Object.keys(cat).length;
+                        quizCount += Object.keys(cat).length;
                     });
+                    grunnleggendeCompleted = Math.max(grunnleggendeCompleted, quizCount);
+                }
+                
+            } catch(e) {
+                console.log('LocalStorage progress load error:', e);
+            }
+            
+            // Corporate Finance progress
+            try {
+                const cfProgress = JSON.parse(localStorage.getItem('corporate_finance_progress') || '{}');
+                if (cfProgress.completedTopics) {
+                    corporateCompleted = Math.max(corporateCompleted, cfProgress.completedTopics.length);
                 }
             } catch(e) {}
             
-            document.getElementById('completed-count').textContent = completed;
-            document.getElementById('total-progress').textContent = Math.min(100, Math.round(completed / 1.5)) + '%';
-            document.getElementById('grunnleggende-bar').style.width = Math.min(100, Math.round(completed / 1.5)) + '%';
+            // Beregn prosenter (max 100%)
+            const grunnleggendePercent = Math.min(100, Math.round((grunnleggendeCompleted / 15) * 100));
+            const corporatePercent = Math.min(100, Math.round((corporateCompleted / 10) * 100));
+            const totalCompleted = grunnleggendeCompleted + corporateCompleted;
+            const totalPercent = Math.min(100, Math.round((totalCompleted / 25) * 100));
+            
+            // Oppdater UI
+            document.getElementById('completed-count').textContent = totalCompleted;
+            document.getElementById('total-progress').textContent = totalPercent + '%';
+            document.getElementById('grunnleggende-bar').style.width = grunnleggendePercent + '%';
+            
+            // Corporate Finance bar hvis den finnes
+            const corporateBar = document.getElementById('corporate-bar');
+            if (corporateBar) {
+                corporateBar.style.width = corporatePercent + '%';
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', loadProgress);
+        // loadProgress kalles nå fra auth.onAuthStateChanged
     </script>
     
     <script src="js/theme-manager.js"></script>
