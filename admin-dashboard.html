@@ -520,76 +520,45 @@
         let currentFilter = { quiz: 'all', bokforing: 'all' };
         let allData = { quiz: [], bokforing: [], wiki: [], users: [], teachers: [] };
 
-        // Auth med bedre feilhåndtering - venter på Firebase
-        let authChecked = false;
-        
-        // Timeout hvis ingenting skjer på 10 sekunder
-        let authTimeout = setTimeout(() => {
-            if (!authChecked) {
-                console.error('Auth timeout - Firebase tar for lang tid');
-                document.getElementById('loading-screen').innerHTML = `
-                    <div style="text-align:center;">
-                        <p style="color:#ef4444;margin-bottom:20px;">⚠️ Firebase-tilkobling tar for lang tid</p>
-                        <p style="color:#9ca3af;margin-bottom:20px;">Sjekk internettforbindelse eller prøv igjen.</p>
-                        <button class="btn btn-primary" onclick="location.reload()">🔄 Prøv igjen</button>
-                        <br><br>
-                        <a href="index.html" class="btn btn-secondary">← Tilbake</a>
-                    </div>
-                `;
-            }
-        }, 10000);
+        // Admin UID - hardkodet for sikkerhet (samme som admin.html)
+        const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
 
+        // Check auth - samme mønster som admin.html
         auth.onAuthStateChanged(async (user) => {
-            // Ignorer hvis allerede behandlet
-            if (authChecked) return;
-            authChecked = true;
-            clearTimeout(authTimeout);
-            
             console.log('Auth state:', user ? user.email : 'ikke innlogget');
             
-            if (!user) { 
+            if (!user) {
                 console.log('Ikke innlogget, redirecter til auth.html');
-                // Legg til returnUrl så auth.html kan sende tilbake hit
-                window.location.href = 'auth.html?returnUrl=admin-dashboard.html'; 
-                return; 
+                window.location.href = 'auth.html';
+                return;
             }
             
             currentUser = user;
             console.log('Bruker UID:', user.uid);
             
-            try {
-                const adminSnap = await db.ref('admins/' + user.uid).once('value');
-                console.log('Admin-sjekk:', adminSnap.exists() ? 'ER admin' : 'IKKE admin');
-                
-                if (!adminSnap.exists()) {
-                    document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('access-denied').style.display = 'flex';
-                    // Vis UID så bruker kan legge den til
-                    document.getElementById('access-denied').innerHTML += `
-                        <p style="color:#6b7280;margin-top:20px;font-size:0.8em;">
-                            Din UID: <code style="background:#2d333b;padding:2px 8px;border-radius:4px;">${user.uid}</code>
-                        </p>
-                        <p style="color:#6b7280;font-size:0.8em;">Legg til denne i Firebase: admins/${user.uid}</p>
-                    `;
-                    return;
-                }
-                
+            // Check if admin - by UID or role in database (samme som admin.html)
+            const snap = await db.ref('users/' + user.uid).once('value');
+            const userData = snap.val() || {};
+            
+            const isAdmin = user.uid === ADMIN_UID || userData.role === 'admin';
+            console.log('Admin-sjekk:', isAdmin ? 'ER admin' : 'IKKE admin');
+            
+            if (!isAdmin) {
                 document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('app').style.display = 'block';
-                document.getElementById('user-info').textContent = user.email;
-                document.getElementById('my-uid').textContent = user.uid;
-                loadDashboard();
-                
-            } catch (error) {
-                console.error('Feil ved admin-sjekk:', error);
-                document.getElementById('loading-screen').innerHTML = `
-                    <div style="text-align:center;">
-                        <p style="color:#ef4444;margin-bottom:10px;">❌ Feil ved Firebase-tilkobling</p>
-                        <p style="color:#9ca3af;margin-bottom:20px;">${error.message}</p>
-                        <button class="btn btn-primary" onclick="location.reload()">🔄 Prøv igjen</button>
-                    </div>
+                document.getElementById('access-denied').style.display = 'flex';
+                document.getElementById('access-denied').innerHTML += `
+                    <p style="color:#6b7280;margin-top:20px;font-size:0.8em;">
+                        Din UID: <code style="background:#2d333b;padding:2px 8px;border-radius:4px;">${user.uid}</code>
+                    </p>
                 `;
+                return;
             }
+            
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('user-info').textContent = user.email;
+            document.getElementById('my-uid').textContent = user.uid;
+            loadDashboard();
         });
 
         function logout() { auth.signOut().then(() => window.location.href = 'index.html'); }
