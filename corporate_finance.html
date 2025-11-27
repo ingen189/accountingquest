@@ -1855,14 +1855,23 @@
         
         function checkCalc(solution) {
             var q = gameState.currentQuestion;
-            var fields = q.input_fields || [{ id: 'answer' }];
+            var fields = q.input_fields || [{ id: 'answer', label: 'Svar' }];
             var ok = true;
+            
+            // Handle different solution structures
             var correctValues = solution.correct || solution;
-            var tol = solution.tolerance !== undefined ? solution.tolerance : 0.01;
+            var tol = solution.tolerance !== undefined ? solution.tolerance : 0.1;
             
-            console.log('Checking calculation:', { fields: fields, correctValues: correctValues, tolerance: tol });
+            console.log('checkCalc - Fields:', fields);
+            console.log('checkCalc - Correct values:', correctValues);
+            console.log('checkCalc - Tolerance:', tol);
             
-            // If correctValues is an array, convert to object by index
+            // If correctValues is a number, wrap it
+            if (typeof correctValues === 'number') {
+                correctValues = { answer: correctValues };
+            }
+            
+            // If correctValues is an array, convert to object
             if (Array.isArray(correctValues)) {
                 var temp = {};
                 correctValues.forEach(function(v, i) {
@@ -1871,33 +1880,38 @@
                 correctValues = temp;
             }
             
-            // Create a map of all possible keys to values
+            // Create flexible lookup map
             var valueMap = {};
             if (typeof correctValues === 'object') {
                 Object.keys(correctValues).forEach(function(k) {
                     var v = correctValues[k];
-                    // Add original key
-                    valueMap[k] = v;
-                    // Add lowercase
-                    valueMap[k.toLowerCase()] = v;
-                    // Add without underscores
-                    valueMap[k.replace(/_/g, '')] = v;
-                    valueMap[k.toLowerCase().replace(/_/g, '')] = v;
+                    if (typeof v === 'number' || typeof v === 'string') {
+                        // Add multiple key variations
+                        valueMap[k] = v;
+                        valueMap[k.toLowerCase()] = v;
+                        valueMap[k.replace(/_/g, '')] = v;
+                        valueMap[k.replace(/_/g, '').toLowerCase()] = v;
+                        // Also add camelCase to snake_case conversions
+                        var snakeCase = k.replace(/([A-Z])/g, '_$1').toLowerCase();
+                        valueMap[snakeCase] = v;
+                    }
                 });
             }
             
-            console.log('Value map:', valueMap);
+            console.log('checkCalc - Value map:', valueMap);
             
             fields.forEach(function(f, idx) {
                 var inp = document.getElementById('input-' + f.id);
                 if (!inp) {
-                    console.log('Input not found for field:', f.id);
+                    console.log('Input not found:', 'input-' + f.id);
                     return;
                 }
                 
                 // Parse user input
                 var userStr = inp.value.replace(/\s/g, '').replace(',', '.');
                 var user = parseFloat(userStr);
+                
+                console.log('Field:', f.id, 'User input:', userStr, 'Parsed:', user);
                 
                 if (isNaN(user)) {
                     inp.classList.add('incorrect');
@@ -1912,38 +1926,42 @@
                 if (valueMap[f.id] !== undefined) corr = valueMap[f.id];
                 // Try lowercase
                 else if (valueMap[f.id.toLowerCase()] !== undefined) corr = valueMap[f.id.toLowerCase()];
-                // Try without special chars
-                else if (valueMap[f.id.replace(/[^a-zA-Z0-9]/g, '')] !== undefined) corr = valueMap[f.id.replace(/[^a-zA-Z0-9]/g, '')];
-                // Try by index if only one correct value or matching count
-                else if (typeof correctValues === 'number') corr = correctValues;
+                // Try without underscores/special chars
+                else if (valueMap[f.id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()] !== undefined) {
+                    corr = valueMap[f.id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()];
+                }
+                // Try matching by index if counts match
                 else if (Object.keys(correctValues).length === fields.length) {
                     var keys = Object.keys(correctValues);
                     corr = correctValues[keys[idx]];
                 }
-                // Try first value if only one field
+                // Try first/only value if single field
                 else if (fields.length === 1 && Object.keys(correctValues).length >= 1) {
-                    corr = correctValues[Object.keys(correctValues)[0]];
+                    var firstKey = Object.keys(correctValues)[0];
+                    corr = correctValues[firstKey];
                 }
                 
-                console.log('Field:', f.id, 'User:', user, 'Correct:', corr);
+                console.log('Looking for match - Field:', f.id, 'Found correct:', corr);
                 
                 if (corr !== null && corr !== undefined) {
                     var corrNum = parseFloat(corr);
                     if (!isNaN(corrNum)) {
-                        // Calculate tolerance based on value size
-                        var tolerance = Math.max(tol, Math.abs(corrNum) * 0.01); // 1% or absolute tolerance
-                        var isOk = Math.abs(user - corrNum) <= tolerance;
+                        // Use tolerance - either absolute or percentage based
+                        var tolerance = Math.max(tol, Math.abs(corrNum) * 0.01);
+                        var diff = Math.abs(user - corrNum);
+                        var isOk = diff <= tolerance;
+                        
+                        console.log('Comparing:', user, 'vs', corrNum, 'Diff:', diff, 'Tolerance:', tolerance, 'Result:', isOk);
                         
                         inp.classList.add(isOk ? 'correct' : 'incorrect');
                         if (!isOk) ok = false;
-                        
-                        console.log('Tolerance:', tolerance, 'Diff:', Math.abs(user - corrNum), 'Result:', isOk ? 'CORRECT' : 'INCORRECT');
                     }
                 } else {
                     console.log('No matching correct value found for field:', f.id);
-                    // Don't mark as incorrect if we can't find the answer - might be a data issue
+                    // Don't mark as incorrect if we can't find answer - might be data issue
                 }
             });
+            
             return ok;
         }
         
