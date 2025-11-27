@@ -1372,47 +1372,136 @@
             document.getElementById('topic-list').innerHTML = html;
         }
         
+        // Topic ID mapping (database values -> our IDs)
+        var topicMapping = {
+            'npv': 'npv',
+            'irr': 'npv',
+            'bonds': 'bonds',
+            'bond': 'bonds',
+            'obligasjoner': 'bonds',
+            'stocks': 'stocks',
+            'stock': 'stocks',
+            'aksjer': 'stocks',
+            'dividend': 'stocks',
+            'wacc': 'wacc',
+            'kapitalstruktur': 'wacc',
+            'portfolio': 'portfolio',
+            'portefølje': 'portfolio',
+            'risiko': 'portfolio',
+            'annuity': 'annuity',
+            'annuiteter': 'annuity',
+            'lån': 'annuity',
+            'forex': 'forex',
+            'valuta': 'forex',
+            'hedging': 'forex',
+            'options': 'options',
+            'opsjoner': 'options',
+            'option': 'options'
+        };
+        
+        function mapTopic(dbTopic) {
+            if (!dbTopic) return null;
+            var lower = dbTopic.toLowerCase();
+            return topicMapping[lower] || lower;
+        }
+        
         function loadQuestionCounts() {
             if (typeof firebase === 'undefined') return;
             
             var db = firebase.database();
-            var basePath = 'questions/corporate_finance';
             
-            // All questions are flat under questions/corporate_finance/{questionId}
-            db.ref(basePath).once('value').then(function(snap) {
+            // Try multiple possible paths - solutions seems to have the data
+            var possiblePaths = [
+                'solutions/corporate_finance',
+                'questions/corporate_finance',
+                'corporateFinance',
+                'corporateFinance/exercises'
+            ];
+            
+            tryLoadFromPath(db, possiblePaths, 0);
+        }
+        
+        function tryLoadFromPath(db, paths, index) {
+            if (index >= paths.length) {
+                console.error('Could not find questions in any path:', paths);
+                return;
+            }
+            
+            var path = paths[index];
+            console.log('Trying to load questions from:', path);
+            
+            db.ref(path).once('value').then(function(snap) {
                 var counts = {};
                 var total = 0;
+                var foundTopics = {};
                 
-                // Initialize counts for all topics
+                // Initialize counts
                 topics.forEach(function(t) {
                     counts[t.id] = 0;
                 });
                 
                 snap.forEach(function(qSnap) {
                     var q = qSnap.val();
-                    if (!q || !q.topic) return;
+                    if (!q || typeof q !== 'object') return;
+                    
+                    // For solutions path, we need to check for 'correct' field
+                    // For questions path, check for type/question/title
+                    var isQuestion = q.type || q.question || q.title || q.description || q.correct;
+                    if (!isQuestion) return;
                     
                     total++;
-                    if (counts[q.topic] !== undefined) {
-                        counts[q.topic]++;
+                    
+                    // Try to get topic from the question ID if not in data
+                    var dbTopic = q.topic;
+                    if (!dbTopic) {
+                        // Try to extract from question ID like cf_port_calc_001 -> port -> portfolio
+                        var key = qSnap.key;
+                        if (key.includes('npv') || key.includes('irr')) dbTopic = 'npv';
+                        else if (key.includes('bond')) dbTopic = 'bonds';
+                        else if (key.includes('stock')) dbTopic = 'stocks';
+                        else if (key.includes('wacc')) dbTopic = 'wacc';
+                        else if (key.includes('port')) dbTopic = 'portfolio';
+                        else if (key.includes('annuit') || key.includes('loan')) dbTopic = 'annuity';
+                        else if (key.includes('forex') || key.includes('fx')) dbTopic = 'forex';
+                        else if (key.includes('opt')) dbTopic = 'options';
+                    }
+                    
+                    var mappedTopic = mapTopic(dbTopic);
+                    
+                    foundTopics[dbTopic || 'unknown'] = (foundTopics[dbTopic || 'unknown'] || 0) + 1;
+                    
+                    if (mappedTopic && counts[mappedTopic] !== undefined) {
+                        counts[mappedTopic]++;
                     }
                 });
                 
-                // Update UI
-                topics.forEach(function(topic) {
-                    var countEl = document.getElementById('count-' + topic.id);
-                    if (countEl) {
-                        if (topic.id === 'mixed') {
-                            countEl.textContent = total + ' oppgaver';
-                        } else {
-                            countEl.textContent = counts[topic.id] + ' oppgaver';
+                if (total > 0) {
+                    console.log('SUCCESS! Found questions at:', path);
+                    console.log('Found topics:', foundTopics);
+                    console.log('Mapped counts:', counts);
+                    console.log('Total:', total);
+                    
+                    // Store the working path
+                    gameState.questionsPath = path;
+                    
+                    // Update UI
+                    topics.forEach(function(topic) {
+                        var countEl = document.getElementById('count-' + topic.id);
+                        if (countEl) {
+                            if (topic.id === 'mixed') {
+                                countEl.textContent = total + ' oppgaver';
+                            } else {
+                                countEl.textContent = counts[topic.id] + ' oppgaver';
+                            }
                         }
-                    }
-                });
-                
-                console.log('Question counts:', counts, 'Total:', total);
+                    });
+                } else {
+                    console.log('No questions found at:', path, '- trying next path');
+                    tryLoadFromPath(db, paths, index + 1);
+                }
             }).catch(function(err) {
-                console.error('Error loading question counts:', err);
+                console.log('Error loading from', path, ':', err.message);
+                tryLoadFromPath(db, paths, index + 1);
             });
         }
         
@@ -1461,27 +1550,65 @@
                 
                 var db = firebase.database();
                 var questions = [];
-                var basePath = 'questions/corporate_finance';
                 
-                // Questions are stored flat under questions/corporate_finance/{questionId}
+                // Use the path we found, or try solutions first
+                var basePath = gameState.questionsPath || 'solutions/corporate_finance';
+                
+                console.log('Loading questions from:', basePath);
+                
                 db.ref(basePath).once('value').then(function(snap) {
                     snap.forEach(function(qSnap) {
                         var q = qSnap.val();
                         
-                        // Skip metadata or non-question entries
-                        if (!q || !q.id || !q.type) return;
+                        // Skip non-question entries
+                        if (!q || typeof q !== 'object') return;
                         
                         q.id = qSnap.key;
                         
+                        // Extract topic from ID if not present
+                        if (!q.topic) {
+                            var key = qSnap.key;
+                            if (key.includes('npv') || key.includes('irr')) q.topic = 'npv';
+                            else if (key.includes('bond')) q.topic = 'bonds';
+                            else if (key.includes('stock')) q.topic = 'stocks';
+                            else if (key.includes('wacc')) q.topic = 'wacc';
+                            else if (key.includes('port')) q.topic = 'portfolio';
+                            else if (key.includes('annuit') || key.includes('loan')) q.topic = 'annuity';
+                            else if (key.includes('forex') || key.includes('fx')) q.topic = 'forex';
+                            else if (key.includes('opt')) q.topic = 'options';
+                        }
+                        
+                        // Determine type from ID if not present
+                        if (!q.type) {
+                            var key = qSnap.key;
+                            if (key.includes('_mc_')) q.type = 'multiple_choice';
+                            else if (key.includes('_tf_')) q.type = 'true_false';
+                            else if (key.includes('_calc_')) q.type = 'calculation';
+                            else if (key.includes('_grid_')) q.type = 'excel_grid';
+                            else q.type = 'calculation'; // default
+                        }
+                        
+                        // Create title from ID if not present
+                        if (!q.title) {
+                            q.title = q.id.replace(/cf_/g, '').replace(/_/g, ' ').replace(/\d+/g, '').trim();
+                            q.title = q.title.charAt(0).toUpperCase() + q.title.slice(1);
+                        }
+                        
+                        // Map topic
+                        var mappedTopic = mapTopic(q.topic);
+                        
                         // Filter by topic if not mixed
                         if (gameState.currentTopic !== 'mixed') {
-                            if (q.topic !== gameState.currentTopic) return;
+                            if (mappedTopic !== gameState.currentTopic) return;
                         }
                         
                         questions.push(q);
                     });
                     
                     console.log('Loaded ' + questions.length + ' questions for topic: ' + gameState.currentTopic);
+                    if (questions.length > 0) {
+                        console.log('Sample question:', questions[0]);
+                    }
                     
                     gameState.allQuestions = questions;
                     gameState.questions = shuffleArray(questions).slice(0, 10);
@@ -1771,21 +1898,21 @@
             document.getElementById('btn-check').disabled = true;
             
             console.log('Checking answer for question:', q.id);
-            console.log('Question type:', q.type);
             console.log('Question data:', q);
             
-            // First check if solution is embedded in the question
-            if (q.solution || q.correct || q.answer) {
-                console.log('Using embedded solution');
-                var solution = q.solution || { correct: q.correct || q.answer };
-                processAnswer(q, solution);
+            // The question data from solutions/corporate_finance already contains the solution
+            // It has 'correct', 'explanation', 'hints', 'tolerance' etc.
+            if (q.correct !== undefined || q.answer !== undefined) {
+                console.log('Using embedded solution data');
+                processAnswer(q, q);
                 return;
             }
             
-            // Otherwise fetch from solutions/corporate_finance/
-            console.log('Fetching solution from: solutions/corporate_finance/' + q.id);
+            // Fallback: try to fetch from solutions path
+            var solutionPath = 'solutions/corporate_finance/' + q.id;
+            console.log('Fetching solution from:', solutionPath);
             
-            firebase.database().ref('solutions/corporate_finance/' + q.id).once('value')
+            firebase.database().ref(solutionPath).once('value')
                 .then(function(snap) {
                     var solution = snap.val();
                     console.log('Solution found:', solution);
