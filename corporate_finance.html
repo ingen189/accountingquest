@@ -1740,18 +1740,66 @@
             var fields = q.input_fields || [{ id: 'answer' }];
             var ok = true;
             var correctValues = solution.correct || solution;
+            var tol = solution.tolerance !== undefined ? solution.tolerance : 0.01;
+            
+            console.log('Checking calculation:', { fields: fields, correctValues: correctValues, tolerance: tol });
             
             fields.forEach(function(f) {
                 var inp = document.getElementById('input-' + f.id);
-                if (!inp) return;
-                var user = parseFloat(inp.value.replace(/\s/g, '').replace(',', '.'));
-                var corr = typeof correctValues === 'object' ? correctValues[f.id] : correctValues;
-                var tol = solution.tolerance || 1;
+                if (!inp) {
+                    console.log('Input not found for field:', f.id);
+                    return;
+                }
                 
-                if (typeof corr === 'number') {
-                    var isOk = Math.abs(user - corr) <= tol;
+                // Parse user input (handle both comma and dot as decimal separator)
+                var userStr = inp.value.replace(/\s/g, '').replace(',', '.');
+                var user = parseFloat(userStr);
+                
+                // Find correct value - try multiple possible keys
+                var corr = null;
+                if (typeof correctValues === 'object') {
+                    // Try exact match first
+                    if (correctValues[f.id] !== undefined) {
+                        corr = correctValues[f.id];
+                    }
+                    // Try lowercase
+                    else if (correctValues[f.id.toLowerCase()] !== undefined) {
+                        corr = correctValues[f.id.toLowerCase()];
+                    }
+                    // Try field label as key
+                    else if (f.label && correctValues[f.label] !== undefined) {
+                        corr = correctValues[f.label];
+                    }
+                    // If only one field and one correct value, use it
+                    else if (fields.length === 1) {
+                        var keys = Object.keys(correctValues);
+                        if (keys.length === 1) {
+                            corr = correctValues[keys[0]];
+                        }
+                    }
+                } else if (typeof correctValues === 'number') {
+                    corr = correctValues;
+                }
+                
+                console.log('Field:', f.id, 'User:', user, 'Correct:', corr, 'Tolerance:', tol);
+                
+                if (corr !== null && typeof corr === 'number') {
+                    // Use relative tolerance for larger numbers, absolute for smaller
+                    var isOk;
+                    if (Math.abs(corr) > 1) {
+                        // For larger numbers, use relative tolerance (0.5%)
+                        isOk = Math.abs(user - corr) <= Math.abs(corr) * 0.005 || Math.abs(user - corr) <= tol;
+                    } else {
+                        // For smaller numbers, use absolute tolerance
+                        isOk = Math.abs(user - corr) <= tol;
+                    }
+                    
                     inp.classList.add(isOk ? 'correct' : 'incorrect');
                     if (!isOk) ok = false;
+                    
+                    console.log('Result:', isOk ? 'CORRECT' : 'INCORRECT');
+                } else {
+                    console.log('No matching correct value found for field:', f.id);
                 }
             });
             return ok;
