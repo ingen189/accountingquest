@@ -1125,7 +1125,7 @@
     </div>
     
     <!-- Firebase -->
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
@@ -1136,9 +1136,9 @@
             authDomain: "accountingquest-multiplayer.firebaseapp.com",
             databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "accountingquest-multiplayer",
-            storageBucket: "accountingquest-multiplayer.appspot.com",
-            messagingSenderId: "155094858270",
-            appId: "1:155094858270:web:abc123"
+            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
+            messagingSenderId: "525417361926",
+            appId: "1:525417361926:web:ec9b737f82af9b21700987"
         };
         
         firebase.initializeApp(firebaseConfig);
@@ -1566,19 +1566,23 @@
             });
         }
 
-        document.querySelectorAll('.theme-card').forEach(function(card) {
-            card.addEventListener('click', function() {
-                ThemeManager.setTheme(this.dataset.theme);
-                initUI();
+        function setupThemeListeners() {
+            document.querySelectorAll('.theme-card').forEach(function(card) {
+                card.addEventListener('click', function() {
+                    console.log('Theme clicked:', this.dataset.theme);
+                    ThemeManager.setTheme(this.dataset.theme);
+                    initUI();
+                });
             });
-        });
 
-        document.querySelectorAll('.accent-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                ThemeManager.setAccent(this.dataset.accent);
-                initUI();
+            document.querySelectorAll('.accent-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    console.log('Accent clicked:', this.dataset.accent);
+                    ThemeManager.setAccent(this.dataset.accent);
+                    initUI();
+                });
             });
-        });
+        }
 
         // ========== STORAGE INFO ==========
         function updateStorageInfo() {
@@ -1687,8 +1691,18 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', function() {
+            setupThemeListeners();
             initUI();
             updateStorageInfo();
+            
+            // Timeout fallback hvis Firebase ikke responderer innen 5 sekunder
+            setTimeout(function() {
+                var authLoading = document.getElementById('auth-loading');
+                if (authLoading && authLoading.style.display !== 'none') {
+                    console.log('Auth timeout - showing logged out view');
+                    authLoading.innerHTML = '<p style="color: var(--warning);">⚠️ Kunne ikke koble til. <a href="auth.html">Logg inn</a> eller prøv å laste siden på nytt.</p>';
+                }
+            }, 5000);
         });
         
   
