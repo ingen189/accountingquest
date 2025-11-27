@@ -531,7 +531,10 @@
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
                     showSuccess('Logget inn! Omdirigerer...');
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+                    // Check for redirect parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirectTo = urlParams.get('redirect') || 'index.html';
+                    setTimeout(() => { window.location.href = redirectTo; }, 1000);
                 })
                 .catch(error => {
                     showError(getErrorMsg(error.code));
@@ -596,7 +599,9 @@
                 })
                 .then(() => {
                     showSuccess('Konto opprettet! Omdirigerer...');
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirectTo = urlParams.get('redirect') || 'index.html';
+                    setTimeout(() => { window.location.href = redirectTo; }, 1000);
                 })
                 .catch(error => {
                     showError(getErrorMsg(error.code));
@@ -651,7 +656,9 @@
                 })
                 .then(() => {
                     showSuccess('Logget inn med Google!');
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirectTo = urlParams.get('redirect') || 'index.html';
+                    setTimeout(() => { window.location.href = redirectTo; }, 1000);
                 })
                 .catch(error => {
                     console.error(error);
@@ -666,7 +673,9 @@
 
             auth.signInAnonymously()
                 .then(() => {
-                    window.location.href = 'index.html';
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirectTo = urlParams.get('redirect') || 'index.html';
+                    window.location.href = redirectTo;
                 })
                 .catch(error => {
                     showError('Kunne ikke koble til. Prøv igjen.');
