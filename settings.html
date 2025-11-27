@@ -1207,64 +1207,75 @@
         })();
 
         // ========== AUTH STATE ==========
-        auth.onAuthStateChanged(async (user) => {
-            document.getElementById('auth-loading').style.display = 'none';
+        console.log('Setting up auth state listener...');
+        
+        // Check if Firebase is properly initialized
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+            console.error('Firebase not loaded!');
+            document.getElementById('auth-loading').innerHTML = '<p style="color: var(--error);">Firebase ikke lastet. Sjekk internettforbindelsen.</p>';
+        } else {
+            console.log('Firebase loaded, setting up auth listener...');
             
-            if (user) {
-                currentUser = user;
-                document.getElementById('logged-out-view').style.display = 'none';
-                document.getElementById('logged-in-view').style.display = 'block';
-                document.getElementById('danger-zone-section').style.display = 'block';
+            auth.onAuthStateChanged(async (user) => {
+                console.log('Auth state changed:', user ? 'User logged in' : 'No user');
+                document.getElementById('auth-loading').style.display = 'none';
                 
-                document.getElementById('user-email').textContent = user.email || '-';
-                
-                // Fetch user data from database
-                try {
-                    const snapshot = await db.ref('users/' + user.uid).once('value');
-                    userData = snapshot.val() || {};
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-out-view').style.display = 'none';
+                    document.getElementById('logged-in-view').style.display = 'block';
+                    document.getElementById('danger-zone-section').style.display = 'block';
                     
-                    console.log('User UID:', user.uid);
-                    console.log('Admin UID:', ADMIN_UID);
-                    console.log('Is match:', user.uid === ADMIN_UID);
-                    console.log('Database role:', userData.role);
+                    document.getElementById('user-email').textContent = user.email || '-';
                     
-                    document.getElementById('user-name').textContent = userData.username || user.displayName || 'Ikke satt';
-                    
-                    // Check if user is admin by UID first, then by role in database
-                    let role = userData.role || 'free';
-                    if (user.uid === ADMIN_UID) {
-                        role = 'admin';
-                        console.log('Setting role to admin based on UID match');
+                    // Fetch user data from database
+                    try {
+                        const snapshot = await db.ref('users/' + user.uid).once('value');
+                        userData = snapshot.val() || {};
+                        
+                        console.log('User UID:', user.uid);
+                        console.log('Admin UID:', ADMIN_UID);
+                        console.log('Is match:', user.uid === ADMIN_UID);
+                        console.log('Database role:', userData.role);
+                        
+                        document.getElementById('user-name').textContent = userData.username || user.displayName || 'Ikke satt';
+                        
+                        // Check if user is admin by UID first, then by role in database
+                        let role = userData.role || 'free';
+                        if (user.uid === ADMIN_UID) {
+                            role = 'admin';
+                            console.log('Setting role to admin based on UID match');
+                        }
+                        document.getElementById('user-role').textContent = ROLE_LABELS[role] || role;
+                        
+                        const createdAt = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('no-NO') : 
+                                         (user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('no-NO') : '-');
+                        document.getElementById('user-created').textContent = createdAt;
+                        
+                        // Show admin/teacher links based on role
+                        showAdminLinks(user.uid, role);
+                        
+                        // Check for pending deletion
+                        checkPendingDeletion();
+                        
+                    } catch (error) {
+                        console.error('Error fetching user data:', error);
+                        // Check if admin by UID even if database fails
+                        if (user.uid === ADMIN_UID) {
+                            document.getElementById('user-role').textContent = 'Administrator';
+                            showAdminLinks(user.uid, 'admin');
+                        } else {
+                            document.getElementById('user-role').textContent = 'Bruker';
+                            showAdminLinks(user.uid, 'free');
+                        }
                     }
-                    document.getElementById('user-role').textContent = ROLE_LABELS[role] || role;
-                    
-                    const createdAt = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('no-NO') : 
-                                     (user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('no-NO') : '-');
-                    document.getElementById('user-created').textContent = createdAt;
-                    
-                    // Show admin/teacher links based on role
-                    showAdminLinks(user.uid, role);
-                    
-                    // Check for pending deletion
-                    checkPendingDeletion();
-                    
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
-                    // Check if admin by UID even if database fails
-                    if (user.uid === ADMIN_UID) {
-                        document.getElementById('user-role').textContent = 'Administrator';
-                        showAdminLinks(user.uid, 'admin');
-                    } else {
-                        document.getElementById('user-role').textContent = 'Bruker';
-                        showAdminLinks(user.uid, 'free');
-                    }
+                } else {
+                    document.getElementById('logged-out-view').style.display = 'block';
+                    document.getElementById('logged-in-view').style.display = 'none';
+                    document.getElementById('danger-zone-section').style.display = 'none';
                 }
-            } else {
-                document.getElementById('logged-out-view').style.display = 'block';
-                document.getElementById('logged-in-view').style.display = 'none';
-                document.getElementById('danger-zone-section').style.display = 'none';
-            }
-        });
+            });
+        }
         
         // ========== SHOW ADMIN LINKS ==========
         function showAdminLinks(uid, role) {
@@ -1567,21 +1578,34 @@
         }
 
         function setupThemeListeners() {
-            document.querySelectorAll('.theme-card').forEach(function(card) {
-                card.addEventListener('click', function() {
+            console.log('Setting up theme listeners...');
+            var themeCards = document.querySelectorAll('.theme-card');
+            console.log('Found theme cards:', themeCards.length);
+            
+            themeCards.forEach(function(card) {
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     console.log('Theme clicked:', this.dataset.theme);
                     ThemeManager.setTheme(this.dataset.theme);
                     initUI();
                 });
             });
 
-            document.querySelectorAll('.accent-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
+            var accentBtns = document.querySelectorAll('.accent-btn');
+            console.log('Found accent buttons:', accentBtns.length);
+            
+            accentBtns.forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     console.log('Accent clicked:', this.dataset.accent);
                     ThemeManager.setAccent(this.dataset.accent);
                     initUI();
                 });
             });
+            
+            console.log('Theme listeners setup complete');
         }
 
         // ========== STORAGE INFO ==========
@@ -1704,5 +1728,6 @@
                 }
             }, 5000);
         });
-        
-  
+    </script>
+</body>
+</html>
