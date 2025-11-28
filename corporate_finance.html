@@ -1527,48 +1527,6 @@
             mixed: []
         };
         
-        // Topic ID mapping (database values -> our IDs)
-        var topicMapping = {
-            'npv': 'npv',
-            'irr': 'npv',
-            'tvm': 'npv',
-            'bonds': 'bonds',
-            'bond': 'bonds',
-            'obligasjoner': 'bonds',
-            'stocks': 'stocks',
-            'stock': 'stocks',
-            'aksjer': 'stocks',
-            'dividend': 'stocks',
-            'dividends': 'stocks',
-            'wacc': 'wacc',
-            'capm': 'wacc',
-            'kapitalstruktur': 'wacc',
-            'capital_structure': 'wacc',
-            'portfolio': 'portfolio',
-            'portefølje': 'portfolio',
-            'risiko': 'portfolio',
-            'diversification': 'portfolio',
-            'annuity': 'annuity',
-            'annuiteter': 'annuity',
-            'lån': 'annuity',
-            'loan': 'annuity',
-            'forex': 'forex',
-            'valuta': 'forex',
-            'hedging': 'forex',
-            'options': 'options',
-            'opsjoner': 'options',
-            'option': 'options',
-            'markets': 'npv',
-            'statistics': 'portfolio',
-            'general': 'mixed'
-        };
-        
-        function mapTopic(dbTopic) {
-            if (!dbTopic) return 'mixed';
-            var lower = dbTopic.toLowerCase();
-            return topicMapping[lower] || 'mixed';
-        }
-        
         // ==================== STATE ====================
         var gameState = {
             currentTopic: null,
@@ -1655,11 +1613,11 @@
             console.log('renderTopicList() called, topics:', topics);
             var html = '';
             topics.forEach(function(topic) {
-                html += '<div class="topic-item" id="topic-' + topic.id + '" onclick="startGame(\'' + topic.id + '\')" style="background:#2d333b;border:2px solid #404040;border-radius:8px;margin-bottom:8px;cursor:pointer;padding:12px 16px;display:flex;align-items:center;gap:12px;">';
-                html += '<span class="topic-item-icon" style="font-size:1.5em;">' + topic.icon + '</span>';
-                html += '<div class="topic-item-info" style="flex:1;">';
-                html += '<div class="topic-item-name" style="font-weight:600;color:#e0e0e0;font-size:0.95em;">' + topic.name + '</div>';
-                html += '<div class="topic-item-count" id="count-' + topic.id + '" style="font-size:0.8em;color:#4ade80;">Laster...</div>';
+                html += '<div class="topic-item" id="topic-' + topic.id + '" onclick="startGame(\'' + topic.id + '\')">';
+                html += '<span class="topic-item-icon">' + topic.icon + '</span>';
+                html += '<div class="topic-item-info">';
+                html += '<div class="topic-item-name">' + topic.name + '</div>';
+                html += '<div class="topic-item-count" id="count-' + topic.id + '">Laster...</div>';
                 html += '</div>';
                 html += '</div>';
             });
@@ -1670,7 +1628,6 @@
             } else {
                 console.error('❌ #topic-list element not found!');
             }
-        }
         }
         
         // Topic ID mapping (database values -> our IDs)
@@ -1809,7 +1766,6 @@
             }).catch(function(err) {
                 console.error('Error loading questions:', err);
             });
-        }
         }
         
         // ==================== GAME ====================
