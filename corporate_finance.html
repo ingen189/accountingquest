@@ -1532,7 +1532,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="js/firebase-config.js"></script>
-    <script src="js/EXCEL-GRID-FINAL.js"></script>
     
     <script>
         // ==================== CONFIGURATION ====================
@@ -2384,15 +2383,15 @@
                 });
             } else {
                 // Auto-generate grid from data and input_fields
-                headers = ['Parameter', 'Verdi'];
+                // Use single column layout for easier formula references (A1, A2, etc.)
+                headers = ['Verdi'];
                 
-                // Add data rows (readonly)
+                // Add data rows (readonly) with labels stored for display
                 Object.keys(data).forEach(function(key) {
                     var val = data[key];
                     if (typeof val !== 'object') {
                         gridRows.push([
-                            { value: formatLabel(key), readonly: true },
-                            { value: formatNumber(val), readonly: true }
+                            { value: val, readonly: true, rowLabel: formatLabel(key) }
                         ]);
                     }
                 });
@@ -2414,8 +2413,7 @@
                 // Add editable answer rows
                 answerFields.forEach(function(field) {
                     gridRows.push([
-                        { value: field.label || formatLabel(field.id), readonly: true, highlight: true },
-                        { value: '', readonly: false, answer: field.answer || (q.solution && q.solution[field.id]) }
+                        { value: '', readonly: false, answer: field.answer || (q.solution && q.solution[field.id]), rowLabel: field.label || formatLabel(field.id), highlight: true }
                     ]);
                 });
             }

@@ -64,6 +64,11 @@ class ExcelGrid {
             headersHTML += '<th class="row-number-header">#</th>';
         }
         
+        // Add Parameter column header if we have rowLabels
+        if (this.options.showRowLabels !== false) {
+            headersHTML += '<th>Parameter</th>';
+        }
+        
         this.options.headers.forEach(header => {
             headersHTML += `<th>${header}</th>`;
         });
@@ -76,6 +81,13 @@ class ExcelGrid {
         this.data = rows;
         this.tbody.innerHTML = '';
         this.cells.clear();
+        
+        // Check if data has rowLabels
+        if (rows.length > 0 && rows[0][0] && rows[0][0].rowLabel) {
+            this.options.showRowLabels = true;
+            // Re-render headers to include Parameter column
+            this.renderHeaders();
+        }
         
         rows.forEach((row, rowIndex) => {
             this.addRow(row, rowIndex);
@@ -91,6 +103,13 @@ class ExcelGrid {
             cellHTML += `<td class="row-number">${rowIndex + 1}</td>`;
         }
         
+        // Check if first cell has rowLabel - add label column
+        const firstCell = rowData[0];
+        if (firstCell && firstCell.rowLabel) {
+            const labelClass = firstCell.highlight ? 'row-label highlight' : 'row-label';
+            cellHTML += `<td class="${labelClass}">${firstCell.rowLabel}</td>`;
+        }
+        
         // Data cells
         rowData.forEach((cellData, colIndex) => {
             const isReadonly = this.isColumnReadonly(colIndex) || cellData.readonly;
@@ -101,11 +120,12 @@ class ExcelGrid {
                 <td>
                     <div class="cell-wrapper">
                         <input type="text"
-                               class="excel-cell ${isReadonly ? 'readonly' : ''}"
+                               class="excel-cell ${isReadonly ? 'readonly' : ''} ${cellData.highlight ? 'highlight' : ''}"
                                value="${value}"
                                data-row="${rowIndex}"
                                data-col="${colIndex}"
                                data-cell-id="${cellId}"
+                               ${cellData.answer !== undefined ? `data-answer="${cellData.answer}"` : ''}
                                ${isReadonly ? 'readonly' : ''}
                                placeholder="${isReadonly ? '' : '?'}">
                         ${!isReadonly ? '<div class="fill-handle"></div>' : ''}
