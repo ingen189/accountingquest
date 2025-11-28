@@ -1701,28 +1701,11 @@
             if (typeof firebase === 'undefined') return;
             
             var db = firebase.database();
+            var questionsPath = 'questions/grunnleggende_regnskap';
             
-            // Try multiple possible paths - solutions seems to have the data
-            var possiblePaths = [
-                'solutions/accounting',
-                'questions/accounting',
-                'accounting',
-                'accounting/exercises'
-            ];
+            console.log('Loading question counts from:', questionsPath);
             
-            tryLoadFromPath(db, possiblePaths, 0);
-        }
-        
-        function tryLoadFromPath(db, paths, index) {
-            if (index >= paths.length) {
-                console.error('Could not find questions in any path:', paths);
-                return;
-            }
-            
-            var path = paths[index];
-            console.log('Trying to load questions from:', path);
-            
-            db.ref(path).once('value').then(function(snap) {
+            db.ref(questionsPath).once('value').then(function(snap) {
                 var counts = {};
                 var total = 0;
                 var foundTopics = {};
@@ -1736,19 +1719,17 @@
                     var q = qSnap.val();
                     if (!q || typeof q !== 'object') return;
                     
-                    // For solutions path, we need to check for 'correct' field
-                    // For questions path, check for type/question/title
-                    var isQuestion = q.type || q.question || q.title || q.description || q.correct;
+                    // Check for valid question
+                    var isQuestion = q.type || q.question || q.title || q.correct;
                     if (!isQuestion) return;
                     
                     total++;
                     
-                    // Try to get topic from the question ID if not in data
+                    // Get topic
                     var dbTopic = q.topic;
                     if (!dbTopic) {
-                        // Try to extract from question ID like acc_mva_calc_001 -> mva
-                        var key = qSnap.key;
-                        if (key.includes('grunn')) dbTopic = 'grunnleggende';
+                        var key = qSnap.key.toLowerCase();
+                        if (key.includes('grunn') || key.includes('generelt')) dbTopic = 'grunnleggende';
                         else if (key.includes('bokf')) dbTopic = 'bokforing';
                         else if (key.includes('mva')) dbTopic = 'mva';
                         else if (key.includes('skatt')) dbTopic = 'skatt';
@@ -1756,10 +1737,10 @@
                         else if (key.includes('analyse') || key.includes('nokkel')) dbTopic = 'analyse';
                         else if (key.includes('drift') || key.includes('kalkyl')) dbTopic = 'driftsregnskap';
                         else if (key.includes('lonn') || key.includes('ferie')) dbTopic = 'lonn';
+                        else dbTopic = 'grunnleggende';
                     }
                     
                     var mappedTopic = mapTopic(dbTopic);
-                    
                     foundTopics[dbTopic || 'unknown'] = (foundTopics[dbTopic || 'unknown'] || 0) + 1;
                     
                     if (mappedTopic && counts[mappedTopic] !== undefined) {
@@ -1767,33 +1748,25 @@
                     }
                 });
                 
-                if (total > 0) {
-                    console.log('SUCCESS! Found questions at:', path);
-                    console.log('Found topics:', foundTopics);
-                    console.log('Mapped counts:', counts);
-                    console.log('Total:', total);
-                    
-                    // Store the working path
-                    gameState.questionsPath = path;
-                    
-                    // Update UI
-                    topics.forEach(function(topic) {
-                        var countEl = document.getElementById('count-' + topic.id);
-                        if (countEl) {
-                            if (topic.id === 'mixed') {
-                                countEl.textContent = total + ' oppgaver';
-                            } else {
-                                countEl.textContent = counts[topic.id] + ' oppgaver';
-                            }
+                console.log('Found ' + total + ' questions');
+                console.log('Topics:', foundTopics);
+                
+                // Store the working path
+                gameState.questionsPath = questionsPath;
+                
+                // Update UI
+                topics.forEach(function(topic) {
+                    var countEl = document.getElementById('count-' + topic.id);
+                    if (countEl) {
+                        if (topic.id === 'mixed') {
+                            countEl.textContent = total + ' oppgaver';
+                        } else {
+                            countEl.textContent = counts[topic.id] + ' oppgaver';
                         }
-                    });
-                } else {
-                    console.log('No questions found at:', path, '- trying next path');
-                    tryLoadFromPath(db, paths, index + 1);
-                }
+                    }
+                });
             }).catch(function(err) {
-                console.log('Error loading from', path, ':', err.message);
-                tryLoadFromPath(db, paths, index + 1);
+                console.error('Error loading questions:', err);
             });
         }
         
@@ -1843,8 +1816,8 @@
                 var db = firebase.database();
                 var questions = [];
                 
-                // Use the path we found, or try solutions first
-                var basePath = gameState.questionsPath || 'solutions/accounting';
+                // Use the path we found, or try questions/grunnleggende_regnskap first
+                var basePath = gameState.questionsPath || 'questions/grunnleggende_regnskap';
                 
                 console.log('Loading questions from:', basePath);
                 
@@ -2380,7 +2353,7 @@
             console.log('Checking answer for question:', q.id);
             console.log('Question data:', q);
             
-            // The question data from solutions/accounting already contains the solution
+            // The question data from questions/grunnleggende_regnskap already contains the solution
             // It has 'correct', 'explanation', 'hints', 'tolerance' etc.
             if (q.correct !== undefined || q.answer !== undefined) {
                 console.log('Using embedded solution data');
@@ -2389,7 +2362,7 @@
             }
             
             // Fallback: try to fetch from solutions path
-            var solutionPath = 'solutions/accounting/' + q.id;
+            var solutionPath = 'solutions/grunnleggende_regnskap/' + q.id;
             console.log('Fetching solution from:', solutionPath);
             
             firebase.database().ref(solutionPath).once('value')
@@ -2766,7 +2739,7 @@
             document.getElementById('hint-text').textContent = 'Laster...';
             document.getElementById('hint-box').classList.add('visible');
             
-            firebase.database().ref('solutions/accounting/' + q.id + '/hints/' + gameState.hintsUsed).once('value')
+            firebase.database().ref('solutions/grunnleggende_regnskap/' + q.id + '/hints/' + gameState.hintsUsed).once('value')
                 .then(function(snap) {
                     var hint = snap.val();
                     if (!hint) {
@@ -2797,7 +2770,7 @@
             document.getElementById('explanation-main').innerHTML = '<em>Laster...</em>';
             document.getElementById('explanation-box').classList.add('visible');
             
-            firebase.database().ref('solutions/accounting/' + q.id).once('value')
+            firebase.database().ref('solutions/grunnleggende_regnskap/' + q.id).once('value')
                 .then(function(snap) {
                     var sol = snap.val();
                     document.getElementById('explanation-main').innerHTML = sol && sol.explanation 
@@ -2835,7 +2808,7 @@
                 var db = firebase.database();
                 
                 // Update user stats - match the rules structure
-                db.ref('user_progress/' + user.uid + '/accounting/' + gameState.currentTopic).update({
+                db.ref('user_progress/' + user.uid + '/grunnleggende_regnskap/' + gameState.currentTopic).update({
                     score: gameState.score,
                     correct: gameState.correctCount,
                     total: gameState.questions.length,
@@ -2935,7 +2908,7 @@
             console.log('Saving to Firebase for user:', user.uid);
             
             var db = firebase.database();
-            var path = 'user_progress/' + user.uid + '/accounting/' + data.topic;
+            var path = 'user_progress/' + user.uid + '/grunnleggende_regnskap/' + data.topic;
             
             // Match the database rules structure
             db.ref(path).update({
@@ -2975,7 +2948,7 @@
             }
             
             // For Firebase, we don't save individual answers under user_progress
-            // because the rules don't allow arbitrary fields under accounting/$topicId
+            // because the rules don't allow arbitrary fields under grunnleggende_regnskap/$topicId
             // Instead, we update the topic progress which includes completed count
         }
         
@@ -2985,7 +2958,7 @@
                 var user = firebase.auth().currentUser;
                 var db = firebase.database();
                 
-                db.ref('user_progress/' + user.uid + '/accounting').once('value')
+                db.ref('user_progress/' + user.uid + '/grunnleggende_regnskap').once('value')
                     .then(function(snap) {
                         var data = snap.val();
                         if (data) {
