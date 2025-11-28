@@ -2621,7 +2621,7 @@
         }
         
         function checkDnD(solution) {
-            var correctMapping = solution.correct || {};
+            var correctMapping = solution.correct || solution;
             var allCorrect = true;
             
             document.querySelectorAll('.dnd-target').forEach(function(target) {
@@ -2632,6 +2632,8 @@
                 });
                 
                 var correctItems = correctMapping[targetId] || [];
+                // Convert to strings for comparison
+                correctItems = correctItems.map(function(i) { return String(i); });
                 var isTargetCorrect = JSON.stringify(itemsInTarget.sort()) === JSON.stringify(correctItems.slice().sort());
                 
                 if (isTargetCorrect) {
