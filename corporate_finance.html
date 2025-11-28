@@ -709,6 +709,187 @@
             color: var(--error);
         }
         
+        /* True/False Buttons */
+        .tf-container {
+            display: flex;
+            gap: var(--space-md);
+        }
+        
+        .tf-btn {
+            flex: 1;
+            padding: var(--space-lg);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .tf-btn:hover {
+            border-color: var(--accent);
+        }
+        
+        .tf-btn.selected {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .tf-btn.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.15);
+        }
+        
+        .tf-btn.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.15);
+        }
+        
+        /* Drag & Drop */
+        .dnd-container {
+            display: flex;
+            gap: var(--space-lg);
+            flex-wrap: wrap;
+        }
+        
+        .dnd-source {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .dnd-source-title {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .dnd-targets {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        .dnd-item {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm) var(--space-md);
+            margin-bottom: var(--space-xs);
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .dnd-item:active {
+            cursor: grabbing;
+        }
+        
+        .dnd-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .dnd-item.dragging {
+            opacity: 0.5;
+            transform: scale(1.02);
+        }
+        
+        .dnd-target {
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            min-height: 80px;
+        }
+        
+        .dnd-target.drag-over {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .dnd-target.correct {
+            border-color: var(--success);
+            border-style: solid;
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .dnd-target.incorrect {
+            border-color: var(--error);
+            border-style: solid;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .dnd-target-label {
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--text-secondary);
+        }
+        
+        .dnd-target-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            min-height: 40px;
+        }
+        
+        .dnd-target .dnd-item {
+            margin-bottom: 0;
+        }
+        
+        /* Journal Entry (Bilagsføring) */
+        .journal-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+        }
+        
+        .balance-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+        
+        .balance-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+        
+        .balance-label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .balance-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .balance-value.debit { color: var(--info); }
+        .balance-value.credit { color: var(--warning); }
+        .balance-value.balanced { color: var(--success); }
+        .balance-value.unbalanced { color: var(--error); }
+        
+        .journal-grid-wrapper {
+            overflow-x: auto;
+        }
+        
+        .journal-grid-wrapper .excel-cell.account-cell {
+            text-align: left;
+        }
+        
+        .journal-grid-wrapper .excel-cell.drag-over {
+            background: rgba(74, 222, 128, 0.2) !important;
+            outline: 2px dashed var(--accent) !important;
+        }
+        
         /* Controls */
         .controls {
             display: flex;
@@ -1094,7 +1275,7 @@
                 <!-- Welcome Screen -->
                 <div class="welcome-screen" id="welcome-screen">
                     <h1>Corporate Finance</h1>
-                    <p>Mestre investering, verdivurdering og finansiell analyse.</p>
+                    <p>Mestre NPV, WACC, CAPM, obligasjoner, porteføljeteori og finansiell analyse.</p>
                     <div class="welcome-hint">
                         <span class="welcome-hint-icon">←</span>
                         <span>Velg et tema fra menyen for å starte</span>
@@ -1117,6 +1298,53 @@
                     
                     <div class="options-container" id="options-container" style="display: none;"></div>
                     <div class="input-fields" id="input-fields" style="display: none;"></div>
+                    
+                    <!-- True/False Container -->
+                    <div class="tf-container" id="tf-container" style="display: none;">
+                        <button class="tf-btn" data-value="true" onclick="selectTF(true)">✓ Sant</button>
+                        <button class="tf-btn" data-value="false" onclick="selectTF(false)">✗ Usant</button>
+                    </div>
+                    
+                    <!-- Drag & Drop Container -->
+                    <div class="dnd-container" id="dnd-container" style="display: none;">
+                        <div class="dnd-source" id="dnd-source">
+                            <div class="dnd-source-title">Dra elementene til riktig kategori:</div>
+                            <div class="dnd-items" id="dnd-items"></div>
+                        </div>
+                        <div class="dnd-targets" id="dnd-targets"></div>
+                    </div>
+                    
+                    <!-- Journal Entry Container (Bilagsføring) -->
+                    <div class="journal-container" id="journal-container" style="display: none;">
+                        <div class="balance-display" id="balance-display">
+                            <div class="balance-item">
+                                <div class="balance-label">Sum Debet</div>
+                                <div class="balance-value debit" id="sum-debit">0</div>
+                            </div>
+                            <div class="balance-item">
+                                <div class="balance-label">Sum Kredit</div>
+                                <div class="balance-value credit" id="sum-credit">0</div>
+                            </div>
+                            <div class="balance-item">
+                                <div class="balance-label">Differanse</div>
+                                <div class="balance-value" id="balance-diff">0</div>
+                            </div>
+                        </div>
+                        <div class="journal-grid-wrapper">
+                            <table class="excel-table" id="journal-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;">#</th>
+                                        <th style="width: 100px;">Konto</th>
+                                        <th>Kontonavn</th>
+                                        <th style="width: 120px;">Debet</th>
+                                        <th style="width: 120px;">Kredit</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="journal-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
                     
                     <div class="excel-grid-container" id="excel-grid-container" style="display: none;">
                         <div class="excel-header-row">
@@ -1234,9 +1462,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="js/firebase-config.js"></script>
+    <script src="js/EXCEL-GRID-FINAL.js"></script>
     
     <script>
         // ==================== CONFIGURATION ====================
+        var MODULE_ID = 'corporate_finance';
+        
         var topics = [
             { id: 'npv', name: 'NPV & IRR', icon: '💰' },
             { id: 'bonds', name: 'Obligasjoner', icon: '📜' },
@@ -1251,38 +1482,92 @@
         
         var formulas = {
             npv: [
-                { name: 'NPV', equation: 'NPV = Σ CFₜ / (1+r)ᵗ', description: 'Sum av nåverdier' },
+                { name: 'NPV', equation: 'NPV = Σ CFₜ / (1+r)ᵗ - I₀', description: 'Netto nåverdi' },
                 { name: 'PV Factor', equation: 'PVF = 1 / (1+r)ⁿ', description: 'Diskonteringsfaktor' },
-                { name: 'IRR', equation: 'NPV = 0', description: 'Renten som gir NPV = 0' },
+                { name: 'IRR', equation: 'NPV = 0, løs for r', description: 'Internrente' },
                 { name: 'Payback', equation: 'Tid til CF = I₀', description: 'Tilbakebetalingstid' }
             ],
             bonds: [
                 { name: 'Bond Price', equation: 'P = Σ C/(1+r)ᵗ + FV/(1+r)ⁿ', description: 'PV av kuponger + pålydende' },
-                { name: 'Current Yield', equation: 'CY = C / P', description: 'Årlig kupong / Pris' }
+                { name: 'Current Yield', equation: 'CY = C / P', description: 'Løpende avkastning' },
+                { name: 'YTM', equation: 'Renten som gir P = PV(CF)', description: 'Yield to Maturity' }
             ],
             stocks: [
-                { name: 'DDM', equation: 'P₀ = D₁ / (r - g)', description: 'Gordon Growth Model' },
-                { name: 'Required Return', equation: 'r = D₁/P₀ + g', description: 'Dividend yield + growth' }
+                { name: 'DDM (Gordon)', equation: 'P₀ = D₁ / (r - g)', description: 'Dividend Discount Model' },
+                { name: 'Required Return', equation: 'r = D₁/P₀ + g', description: 'Avkastningskrav fra DDM' },
+                { name: 'Expected Return', equation: 'E(R) = Σ pᵢ × Rᵢ', description: 'Forventet avkastning' }
             ],
             wacc: [
-                { name: 'WACC', equation: 'WACC = wₑRₑ + wᵈRᵈ(1-T)', description: 'Vektet kapitalkostnad' },
-                { name: 'CAPM', equation: 'Rₑ = Rf + β(Rm - Rf)', description: 'Cost of equity' }
+                { name: 'WACC', equation: 'WACC = (E/V)×Rₑ + (D/V)×Rᵈ×(1-T)', description: 'Vektet kapitalkostnad' },
+                { name: 'CAPM', equation: 'Rₑ = Rf + β×(Rm - Rf)', description: 'Cost of Equity' },
+                { name: 'After-tax Rd', equation: 'Rd×(1-T)', description: 'Gjeldskostnad etter skatt' },
+                { name: 'Tax Shield', equation: 'D × T', description: 'Skattefordel av gjeld' }
             ],
             portfolio: [
-                { name: 'Expected Return', equation: 'E(R) = Σ pᵢRᵢ', description: 'Forventet avkastning' },
-                { name: 'Portfolio Beta', equation: 'βₚ = Σ wᵢβᵢ', description: 'Vektet beta' }
+                { name: 'Portfolio Beta', equation: 'βₚ = Σ wᵢ × βᵢ', description: 'Vektet beta' },
+                { name: 'Portfolio Return', equation: 'Rₚ = Σ wᵢ × Rᵢ', description: 'Vektet avkastning' },
+                { name: 'Variance', equation: 'σ² = Σ pᵢ × (Rᵢ - E(R))²', description: 'Varians' },
+                { name: 'Std Dev', equation: 'σ = √σ²', description: 'Standardavvik' }
             ],
             annuity: [
-                { name: 'PV Annuity', equation: 'PV = PMT × [(1-(1+r)⁻ⁿ)/r]', description: 'Nåverdi av annuitet' }
+                { name: 'PV Annuity', equation: 'PV = PMT × [(1-(1+r)⁻ⁿ)/r]', description: 'Nåverdi av annuitet' },
+                { name: 'FV Annuity', equation: 'FV = PMT × [((1+r)ⁿ-1)/r]', description: 'Sluttverdi av annuitet' },
+                { name: 'Annuity Due', equation: 'PV × (1+r)', description: 'Forskuddsannuitet' },
+                { name: 'Perpetuity', equation: 'PV = PMT / r', description: 'Evig annuitet' }
             ],
             forex: [
-                { name: 'Forward Premium', equation: '(F-S)/S × 100', description: 'Premium/discount' }
+                { name: 'Forward Premium', equation: '(F-S)/S × 100', description: 'Terminpremie' },
+                { name: 'Interest Rate Parity', equation: 'F/S = (1+rᵈ)/(1+rᶠ)', description: 'Renteparitet' }
             ],
             options: [
-                { name: 'Call Payoff', equation: 'max(S-K, 0)', description: 'Gevinst ved forfall' },
-                { name: 'Put Payoff', equation: 'max(K-S, 0)', description: 'Gevinst ved forfall' }
-            ]
+                { name: 'Call Payoff', equation: 'max(S-K, 0)', description: 'Kjøpsopsjon ved forfall' },
+                { name: 'Put Payoff', equation: 'max(K-S, 0)', description: 'Salgsopsjon ved forfall' },
+                { name: 'Put-Call Parity', equation: 'C + PV(K) = P + S', description: 'Paritet' }
+            ],
+            mixed: []
         };
+        
+        // Topic ID mapping (database values -> our IDs)
+        var topicMapping = {
+            'npv': 'npv',
+            'irr': 'npv',
+            'tvm': 'npv',
+            'bonds': 'bonds',
+            'bond': 'bonds',
+            'obligasjoner': 'bonds',
+            'stocks': 'stocks',
+            'stock': 'stocks',
+            'aksjer': 'stocks',
+            'dividend': 'stocks',
+            'dividends': 'stocks',
+            'wacc': 'wacc',
+            'capm': 'wacc',
+            'kapitalstruktur': 'wacc',
+            'capital_structure': 'wacc',
+            'portfolio': 'portfolio',
+            'portefølje': 'portfolio',
+            'risiko': 'portfolio',
+            'diversification': 'portfolio',
+            'annuity': 'annuity',
+            'annuiteter': 'annuity',
+            'lån': 'annuity',
+            'loan': 'annuity',
+            'forex': 'forex',
+            'valuta': 'forex',
+            'hedging': 'forex',
+            'options': 'options',
+            'opsjoner': 'options',
+            'option': 'options',
+            'markets': 'npv',
+            'statistics': 'portfolio',
+            'general': 'mixed'
+        };
+        
+        function mapTopic(dbTopic) {
+            if (!dbTopic) return 'mixed';
+            var lower = dbTopic.toLowerCase();
+            return topicMapping[lower] || 'mixed';
+        }
         
         // ==================== STATE ====================
         var gameState = {
@@ -1293,6 +1578,9 @@
             currentIndex: 0,
             currentQuestion: null,
             selectedAnswer: null,
+            selectedAnswers: [], // for multi-select
+            tfAnswer: null,      // for true/false
+            dndState: {},        // for drag & drop
             answeredCorrectly: false,
             hintsUsed: 0,
             score: 0,
@@ -1322,7 +1610,7 @@
             }
             
             loadQuestionCounts();
-            loadFormulasForTopic('npv');
+            loadFormulasForTopic('grunnleggende');
             
             // Load saved progress after a short delay
             setTimeout(loadSavedProgress, 500);
@@ -1374,29 +1662,75 @@
         
         // Topic ID mapping (database values -> our IDs)
         var topicMapping = {
+            // NPV & Time Value
             'npv': 'npv',
             'irr': 'npv',
+            'tvm': 'npv',
+            'time_value': 'npv',
+            'netto_naverdi': 'npv',
+            'payback': 'npv',
+            
+            // Bonds
             'bonds': 'bonds',
             'bond': 'bonds',
             'obligasjoner': 'bonds',
+            'obligasjon': 'bonds',
+            'ytm': 'bonds',
+            
+            // Stocks & Dividends
             'stocks': 'stocks',
             'stock': 'stocks',
             'aksjer': 'stocks',
+            'aksje': 'stocks',
             'dividend': 'stocks',
+            'dividende': 'stocks',
+            'ddm': 'stocks',
+            'gordon': 'stocks',
+            
+            // WACC & Capital Structure
             'wacc': 'wacc',
+            'capm': 'wacc',
             'kapitalstruktur': 'wacc',
+            'capital_structure': 'wacc',
+            'leverage': 'wacc',
+            'gjeldskostnad': 'wacc',
+            'egenkapitalkostnad': 'wacc',
+            
+            // Portfolio & Risk
             'portfolio': 'portfolio',
+            'portefolje': 'portfolio',
             'portefølje': 'portfolio',
+            'beta': 'portfolio',
             'risiko': 'portfolio',
+            'risk': 'portfolio',
+            'diversification': 'portfolio',
+            'diversifisering': 'portfolio',
+            'variance': 'portfolio',
+            'stddev': 'portfolio',
+            
+            // Annuities & Loans
             'annuity': 'annuity',
-            'annuiteter': 'annuity',
+            'annuitet': 'annuity',
+            'loan': 'annuity',
+            'laan': 'annuity',
             'lån': 'annuity',
+            'perpetuity': 'annuity',
+            
+            // Forex & Hedging
             'forex': 'forex',
             'valuta': 'forex',
+            'currency': 'forex',
             'hedging': 'forex',
+            'hedge': 'forex',
+            'forward': 'forex',
+            
+            // Options
             'options': 'options',
+            'option': 'options',
             'opsjoner': 'options',
-            'option': 'options'
+            'opsjon': 'options',
+            'call': 'options',
+            'put': 'options'
         };
         
         function mapTopic(dbTopic) {
@@ -1410,27 +1744,12 @@
             
             var db = firebase.database();
             
-            // Try multiple possible paths - solutions seems to have the data
-            var possiblePaths = [
-                'solutions/corporate_finance',
-                'questions/corporate_finance',
-                'corporateFinance',
-                'corporateFinance/exercises'
-            ];
+            // Use the correct path structure: questions/{moduleId}
+            var questionsPath = 'questions/corporate_finance';
             
-            tryLoadFromPath(db, possiblePaths, 0);
-        }
-        
-        function tryLoadFromPath(db, paths, index) {
-            if (index >= paths.length) {
-                console.error('Could not find questions in any path:', paths);
-                return;
-            }
+            console.log('Loading question counts from:', questionsPath);
             
-            var path = paths[index];
-            console.log('Trying to load questions from:', path);
-            
-            db.ref(path).once('value').then(function(snap) {
+            db.ref(questionsPath).once('value').then(function(snap) {
                 var counts = {};
                 var total = 0;
                 var foundTopics = {};
@@ -1444,28 +1763,9 @@
                     var q = qSnap.val();
                     if (!q || typeof q !== 'object') return;
                     
-                    // For solutions path, we need to check for 'correct' field
-                    // For questions path, check for type/question/title
-                    var isQuestion = q.type || q.question || q.title || q.description || q.correct;
-                    if (!isQuestion) return;
-                    
                     total++;
                     
-                    // Try to get topic from the question ID if not in data
                     var dbTopic = q.topic;
-                    if (!dbTopic) {
-                        // Try to extract from question ID like cf_port_calc_001 -> port -> portfolio
-                        var key = qSnap.key;
-                        if (key.includes('npv') || key.includes('irr')) dbTopic = 'npv';
-                        else if (key.includes('bond')) dbTopic = 'bonds';
-                        else if (key.includes('stock')) dbTopic = 'stocks';
-                        else if (key.includes('wacc')) dbTopic = 'wacc';
-                        else if (key.includes('port')) dbTopic = 'portfolio';
-                        else if (key.includes('annuit') || key.includes('loan')) dbTopic = 'annuity';
-                        else if (key.includes('forex') || key.includes('fx')) dbTopic = 'forex';
-                        else if (key.includes('opt')) dbTopic = 'options';
-                    }
-                    
                     var mappedTopic = mapTopic(dbTopic);
                     
                     foundTopics[dbTopic || 'unknown'] = (foundTopics[dbTopic || 'unknown'] || 0) + 1;
@@ -1475,34 +1775,28 @@
                     }
                 });
                 
-                if (total > 0) {
-                    console.log('SUCCESS! Found questions at:', path);
-                    console.log('Found topics:', foundTopics);
-                    console.log('Mapped counts:', counts);
-                    console.log('Total:', total);
-                    
-                    // Store the working path
-                    gameState.questionsPath = path;
-                    
-                    // Update UI
-                    topics.forEach(function(topic) {
-                        var countEl = document.getElementById('count-' + topic.id);
-                        if (countEl) {
-                            if (topic.id === 'mixed') {
-                                countEl.textContent = total + ' oppgaver';
-                            } else {
-                                countEl.textContent = counts[topic.id] + ' oppgaver';
-                            }
+                console.log('Found', total, 'questions');
+                console.log('Topics:', foundTopics);
+                console.log('Mapped counts:', counts);
+                
+                // Store the working path
+                gameState.questionsPath = questionsPath;
+                
+                // Update UI
+                topics.forEach(function(topic) {
+                    var countEl = document.getElementById('count-' + topic.id);
+                    if (countEl) {
+                        if (topic.id === 'mixed') {
+                            countEl.textContent = total + ' oppgaver';
+                        } else {
+                            countEl.textContent = counts[topic.id] + ' oppgaver';
                         }
-                    });
-                } else {
-                    console.log('No questions found at:', path, '- trying next path');
-                    tryLoadFromPath(db, paths, index + 1);
-                }
+                    }
+                });
             }).catch(function(err) {
-                console.log('Error loading from', path, ':', err.message);
-                tryLoadFromPath(db, paths, index + 1);
+                console.error('Error loading questions:', err);
             });
+        }
         }
         
         // ==================== GAME ====================
@@ -1551,8 +1845,8 @@
                 var db = firebase.database();
                 var questions = [];
                 
-                // Use the path we found, or try solutions first
-                var basePath = gameState.questionsPath || 'solutions/corporate_finance';
+                // Use the path we found, or try questions/corporate_finance first
+                var basePath = gameState.questionsPath || 'questions/corporate_finance';
                 
                 console.log('Loading questions from:', basePath);
                 
@@ -1567,15 +1861,16 @@
                         
                         // Extract topic from ID if not present
                         if (!q.topic) {
-                            var key = qSnap.key;
-                            if (key.includes('npv') || key.includes('irr')) q.topic = 'npv';
-                            else if (key.includes('bond')) q.topic = 'bonds';
-                            else if (key.includes('stock')) q.topic = 'stocks';
-                            else if (key.includes('wacc')) q.topic = 'wacc';
-                            else if (key.includes('port')) q.topic = 'portfolio';
-                            else if (key.includes('annuit') || key.includes('loan')) q.topic = 'annuity';
-                            else if (key.includes('forex') || key.includes('fx')) q.topic = 'forex';
-                            else if (key.includes('opt')) q.topic = 'options';
+                            var key = qSnap.key.toLowerCase();
+                            if (key.includes('npv') || key.includes('irr') || key.includes('tvm')) q.topic = 'npv';
+                            else if (key.includes('bond') || key.includes('oblig')) q.topic = 'bonds';
+                            else if (key.includes('stock') || key.includes('aksje') || key.includes('dividend')) q.topic = 'stocks';
+                            else if (key.includes('wacc') || key.includes('capm') || key.includes('kapital')) q.topic = 'wacc';
+                            else if (key.includes('port') || key.includes('beta') || key.includes('risiko') || key.includes('divers')) q.topic = 'portfolio';
+                            else if (key.includes('annuit') || key.includes('loan') || key.includes('laan')) q.topic = 'annuity';
+                            else if (key.includes('forex') || key.includes('valuta') || key.includes('hedg')) q.topic = 'forex';
+                            else if (key.includes('opt') || key.includes('call') || key.includes('put')) q.topic = 'options';
+                            else q.topic = 'mixed';
                         }
                         
                         // Determine type from ID if not present
@@ -1585,12 +1880,14 @@
                             else if (key.includes('_tf_')) q.type = 'true_false';
                             else if (key.includes('_calc_')) q.type = 'calculation';
                             else if (key.includes('_grid_')) q.type = 'excel_grid';
+                            else if (key.includes('_journal_')) q.type = 'journal_entry';
+                            else if (key.includes('_dnd_')) q.type = 'dnd';
                             else q.type = 'calculation'; // default
                         }
                         
                         // Create title from ID if not present
                         if (!q.title) {
-                            q.title = q.id.replace(/cf_/g, '').replace(/_/g, ' ').replace(/\d+/g, '').trim();
+                            q.title = q.id.replace(/cf_/g, '').replace(/bok260_\d+v\d+_/g, '').replace(/_/g, ' ').replace(/\d+/g, '').trim();
                             q.title = q.title.charAt(0).toUpperCase() + q.title.slice(1);
                         }
                         
@@ -1667,7 +1964,7 @@
         }
         
         function loadFormulasForTopic(topicId) {
-            var list = formulas[topicId] || formulas.npv;
+            var list = formulas[topicId] || formulas.grunnleggende;
             if (topicId === 'mixed') {
                 list = [];
                 Object.keys(formulas).forEach(function(t) {
@@ -1736,18 +2033,36 @@
         }
         
         function renderQuestionContent(q) {
+            // Hide all containers
             document.getElementById('options-container').style.display = 'none';
             document.getElementById('input-fields').style.display = 'none';
             document.getElementById('data-display').style.display = 'none';
             document.getElementById('excel-grid-container').style.display = 'none';
+            document.getElementById('tf-container').style.display = 'none';
+            document.getElementById('dnd-container').style.display = 'none';
+            document.getElementById('journal-container').style.display = 'none';
+            
+            // Reset state
+            gameState.selectedAnswer = null;
+            gameState.selectedAnswers = [];
+            gameState.tfAnswer = null;
+            gameState.dndState = {};
             
             if (q.data) renderDataTable(q.data);
             
-            if (q.type === 'multiple_choice' || q.type === 'mc') {
+            var type = q.type || 'calculation';
+            
+            if (type === 'multiple_choice' || type === 'mc') {
                 renderMultipleChoice(q);
-            } else if (q.type === 'true_false') {
+            } else if (type === 'multi' || type === 'multi_select') {
+                renderMultiSelect(q);
+            } else if (type === 'true_false' || type === 'tf') {
                 renderTrueFalse(q);
-            } else if (q.type === 'excel_grid') {
+            } else if (type === 'dnd' || type === 'drag_drop') {
+                renderDragDrop(q);
+            } else if (type === 'journal_entry' || type === 'journal') {
+                renderJournalEntry(q);
+            } else if (type === 'excel_grid') {
                 renderExcelGrid(q);
             } else {
                 renderCalculation(q);
@@ -1783,11 +2098,179 @@
         }
         
         function renderTrueFalse(q) {
+            document.getElementById('tf-container').style.display = 'flex';
+            // Reset buttons
+            document.querySelectorAll('.tf-btn').forEach(function(btn) {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+            });
+        }
+        
+        function selectTF(value) {
+            if (gameState.answeredCorrectly || gameState.answered[gameState.currentIndex]) return;
+            gameState.tfAnswer = value;
+            document.querySelectorAll('.tf-btn').forEach(function(btn) {
+                var btnVal = btn.dataset.value === 'true';
+                btn.classList.toggle('selected', btnVal === value);
+            });
+        }
+        
+        function renderMultiSelect(q) {
             var container = document.getElementById('options-container');
             container.style.display = 'flex';
-            container.innerHTML = 
-                '<div class="option-item" data-id="true" onclick="selectOption(\'true\')"><div class="option-letter">A</div><div>Sant</div></div>' +
-                '<div class="option-item" data-id="false" onclick="selectOption(\'false\')"><div class="option-letter">B</div><div>Usant</div></div>';
+            var opts = q.options || [];
+            var html = '<p style="color: var(--text-secondary); margin-bottom: var(--space-sm); width: 100%;">Velg alle riktige svar:</p>';
+            opts.forEach(function(o, i) {
+                var id = o.id || i.toString();
+                var text = typeof o === 'string' ? o : o.text;
+                html += '<div class="option-item" data-id="' + id + '" onclick="toggleMultiOption(\'' + id + '\')">' +
+                    '<div class="option-letter"></div>' +
+                    '<div>' + text + '</div></div>';
+            });
+            container.innerHTML = html;
+        }
+        
+        function toggleMultiOption(optId) {
+            if (gameState.answeredCorrectly || gameState.answered[gameState.currentIndex]) return;
+            var idx = gameState.selectedAnswers.indexOf(optId);
+            if (idx > -1) {
+                gameState.selectedAnswers.splice(idx, 1);
+            } else {
+                gameState.selectedAnswers.push(optId);
+            }
+            document.querySelectorAll('.option-item').forEach(function(item) {
+                var isSelected = gameState.selectedAnswers.indexOf(item.dataset.id) > -1;
+                item.classList.toggle('selected', isSelected);
+                item.querySelector('.option-letter').textContent = isSelected ? '✓' : '';
+            });
+        }
+        
+        function renderDragDrop(q) {
+            document.getElementById('dnd-container').style.display = 'flex';
+            var items = q.items || [];
+            var targets = q.targets || [];
+            
+            // Render draggable items
+            var itemsHtml = '';
+            items.forEach(function(item) {
+                itemsHtml += '<div class="dnd-item" draggable="true" data-item-id="' + item.id + '">' + item.text + '</div>';
+            });
+            document.getElementById('dnd-items').innerHTML = itemsHtml;
+            
+            // Render drop targets
+            var targetsHtml = '';
+            targets.forEach(function(target) {
+                targetsHtml += '<div class="dnd-target" data-target-id="' + target.id + '">' +
+                    '<div class="dnd-target-label">' + target.label + '</div>' +
+                    '<div class="dnd-target-items"></div></div>';
+            });
+            document.getElementById('dnd-targets').innerHTML = targetsHtml;
+            
+            // Initialize drag & drop
+            initDragDrop();
+        }
+        
+        function initDragDrop() {
+            var items = document.querySelectorAll('.dnd-item');
+            var targets = document.querySelectorAll('.dnd-target');
+            var source = document.getElementById('dnd-items');
+            
+            items.forEach(function(item) {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', item.dataset.itemId);
+                    item.classList.add('dragging');
+                });
+                item.addEventListener('dragend', function() {
+                    item.classList.remove('dragging');
+                });
+            });
+            
+            targets.forEach(function(target) {
+                target.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    target.classList.add('drag-over');
+                });
+                target.addEventListener('dragleave', function() {
+                    target.classList.remove('drag-over');
+                });
+                target.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    target.classList.remove('drag-over');
+                    if (gameState.answered[gameState.currentIndex]) return;
+                    var itemId = e.dataTransfer.getData('text/plain');
+                    var item = document.querySelector('[data-item-id="' + itemId + '"]');
+                    if (item) {
+                        target.querySelector('.dnd-target-items').appendChild(item);
+                    }
+                });
+            });
+            
+            // Allow drop back to source
+            source.addEventListener('dragover', function(e) { e.preventDefault(); });
+            source.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (gameState.answered[gameState.currentIndex]) return;
+                var itemId = e.dataTransfer.getData('text/plain');
+                var item = document.querySelector('[data-item-id="' + itemId + '"]');
+                if (item) source.appendChild(item);
+            });
+        }
+        
+        function renderJournalEntry(q) {
+            document.getElementById('journal-container').style.display = 'block';
+            var tbody = document.getElementById('journal-tbody');
+            var rows = q.rows || 3;
+            
+            var html = '';
+            for (var i = 0; i < rows; i++) {
+                html += '<tr>' +
+                    '<td class="row-number">' + (i + 1) + '</td>' +
+                    '<td><input type="text" class="excel-cell account-cell" data-row="' + i + '" data-col="account" placeholder="Konto" oninput="updateAccountName(this)" ondrop="dropAccount(event, this)" ondragover="event.preventDefault(); this.classList.add(\'drag-over\')" ondragleave="this.classList.remove(\'drag-over\')"></td>' +
+                    '<td><input type="text" class="excel-cell account-cell readonly" data-row="' + i + '" data-col="name" readonly placeholder="Kontonavn"></td>' +
+                    '<td><input type="text" class="excel-cell" data-row="' + i + '" data-col="debit" placeholder="0" oninput="updateJournalBalance()"></td>' +
+                    '<td><input type="text" class="excel-cell" data-row="' + i + '" data-col="credit" placeholder="0" oninput="updateJournalBalance()"></td>' +
+                    '</tr>';
+            }
+            tbody.innerHTML = html;
+            updateJournalBalance();
+        }
+        
+        function updateAccountName(input) {
+            var row = input.dataset.row;
+            var code = input.value.trim();
+            var nameCell = document.querySelector('[data-row="' + row + '"][data-col="name"]');
+            if (nameCell) {
+                nameCell.value = KONTOPLAN[code] || '';
+            }
+        }
+        
+        function dropAccount(event, cell) {
+            event.preventDefault();
+            cell.classList.remove('drag-over');
+            if (gameState.answered[gameState.currentIndex]) return;
+            try {
+                var data = JSON.parse(event.dataTransfer.getData('application/json'));
+                cell.value = data.code;
+                updateAccountName(cell);
+            } catch (e) {}
+        }
+        
+        function updateJournalBalance() {
+            var totalDebit = 0;
+            var totalCredit = 0;
+            document.querySelectorAll('#journal-tbody [data-col="debit"]').forEach(function(cell) {
+                totalDebit += parseFloat(cell.value) || 0;
+            });
+            document.querySelectorAll('#journal-tbody [data-col="credit"]').forEach(function(cell) {
+                totalCredit += parseFloat(cell.value) || 0;
+            });
+            var diff = totalDebit - totalCredit;
+            
+            document.getElementById('sum-debit').textContent = totalDebit.toLocaleString('nb-NO');
+            document.getElementById('sum-credit').textContent = totalCredit.toLocaleString('nb-NO');
+            
+            var diffEl = document.getElementById('balance-diff');
+            diffEl.textContent = diff.toLocaleString('nb-NO');
+            diffEl.className = 'balance-value ' + (diff === 0 && totalDebit > 0 ? 'balanced' : 'unbalanced');
         }
         
         function renderCalculation(q) {
@@ -1900,15 +2383,33 @@
             console.log('Checking answer for question:', q.id);
             console.log('Question data:', q);
             
-            // The question data from solutions/corporate_finance already contains the solution
-            // It has 'correct', 'explanation', 'hints', 'tolerance' etc.
-            if (q.correct !== undefined || q.answer !== undefined) {
-                console.log('Using embedded solution data');
-                processAnswer(q, q);
+            // Check different possible solution structures:
+            // 1. q.solution.correct (from seed script)
+            // 2. q.correct (flat structure)
+            // 3. q.answer (alternative field name)
+            
+            var solutionData = null;
+            
+            if (q.solution && q.solution.correct !== undefined) {
+                // Seed script format: { solution: { correct: "b", explanation: "..." } }
+                console.log('Using q.solution format');
+                solutionData = q.solution;
+            } else if (q.correct !== undefined) {
+                // Flat format: { correct: "b", explanation: "..." }
+                console.log('Using flat q.correct format');
+                solutionData = q;
+            } else if (q.answer !== undefined) {
+                // Alternative format: { answer: "b" }
+                console.log('Using q.answer format');
+                solutionData = { correct: q.answer, explanation: q.explanation || q.exp };
+            }
+            
+            if (solutionData) {
+                processAnswer(q, solutionData);
                 return;
             }
             
-            // Fallback: try to fetch from solutions path
+            // Fallback: fetch from solutions/corporate_finance path
             var solutionPath = 'solutions/corporate_finance/' + q.id;
             console.log('Fetching solution from:', solutionPath);
             
@@ -1935,8 +2436,18 @@
         
         function processAnswer(q, solution) {
             var correct;
-            if (q.type === 'multiple_choice' || q.type === 'mc' || q.type === 'true_false' || q.type === 'tf') {
+            var type = q.type || 'calculation';
+            
+            if (type === 'multiple_choice' || type === 'mc') {
                 correct = checkMC(solution);
+            } else if (type === 'true_false' || type === 'tf') {
+                correct = checkTF(solution);
+            } else if (type === 'multi' || type === 'multi_select') {
+                correct = checkMultiSelect(solution);
+            } else if (type === 'dnd' || type === 'drag_drop') {
+                correct = checkDnD(solution);
+            } else if (type === 'journal_entry' || type === 'journal') {
+                correct = checkJournalEntry(solution);
             } else {
                 correct = checkCalc(solution);
             }
@@ -1948,6 +2459,135 @@
             
             if (correct) handleCorrect(); else handleIncorrect();
             document.getElementById('btn-check').disabled = false;
+        }
+        
+        function checkTF(solution) {
+            if (gameState.tfAnswer === null) {
+                alert('Velg Sant eller Usant!');
+                return null;
+            }
+            
+            var correctVal = solution.correct;
+            if (typeof correctVal === 'string') {
+                correctVal = correctVal.toLowerCase() === 'true';
+            }
+            
+            var isCorrect = gameState.tfAnswer === correctVal;
+            
+            document.querySelectorAll('.tf-btn').forEach(function(btn) {
+                var btnVal = btn.dataset.value === 'true';
+                if (btnVal === correctVal) {
+                    btn.classList.add('correct');
+                } else if (btnVal === gameState.tfAnswer && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+            
+            return isCorrect;
+        }
+        
+        function checkMultiSelect(solution) {
+            if (gameState.selectedAnswers.length === 0) {
+                alert('Velg minst ett svar!');
+                return null;
+            }
+            
+            var correctAnswers = solution.correct || [];
+            var userSorted = gameState.selectedAnswers.slice().sort();
+            var correctSorted = correctAnswers.slice().sort();
+            
+            var isCorrect = JSON.stringify(userSorted) === JSON.stringify(correctSorted);
+            
+            document.querySelectorAll('.option-item').forEach(function(el) {
+                var optId = el.dataset.id;
+                if (correctAnswers.indexOf(optId) > -1) {
+                    el.classList.add('correct');
+                } else if (gameState.selectedAnswers.indexOf(optId) > -1) {
+                    el.classList.add('incorrect');
+                }
+            });
+            
+            return isCorrect;
+        }
+        
+        function checkDnD(solution) {
+            var correctMapping = solution.correct || {};
+            var allCorrect = true;
+            
+            document.querySelectorAll('.dnd-target').forEach(function(target) {
+                var targetId = target.dataset.targetId;
+                var itemsInTarget = [];
+                target.querySelectorAll('.dnd-item').forEach(function(item) {
+                    itemsInTarget.push(item.dataset.itemId);
+                });
+                
+                var correctItems = correctMapping[targetId] || [];
+                var isTargetCorrect = JSON.stringify(itemsInTarget.sort()) === JSON.stringify(correctItems.slice().sort());
+                
+                if (isTargetCorrect) {
+                    target.classList.add('correct');
+                } else {
+                    target.classList.add('incorrect');
+                    allCorrect = false;
+                }
+            });
+            
+            return allCorrect;
+        }
+        
+        function checkJournalEntry(solution) {
+            var correctEntries = solution.correct || [];
+            var matchedSolutions = [];
+            var allCorrect = true;
+            var hasEntries = false;
+            
+            document.querySelectorAll('#journal-tbody tr').forEach(function(row) {
+                var accountCell = row.querySelector('[data-col="account"]');
+                var debitCell = row.querySelector('[data-col="debit"]');
+                var creditCell = row.querySelector('[data-col="credit"]');
+                
+                if (!accountCell || !debitCell || !creditCell) return;
+                
+                var account = accountCell.value.trim();
+                var debit = parseFloat(debitCell.value) || 0;
+                var credit = parseFloat(creditCell.value) || 0;
+                
+                if (!account && debit === 0 && credit === 0) return;
+                hasEntries = true;
+                
+                var found = false;
+                correctEntries.forEach(function(sol, idx) {
+                    if (matchedSolutions.indexOf(idx) > -1) return;
+                    if (sol.account === account && sol.debit === debit && sol.credit === credit) {
+                        found = true;
+                        matchedSolutions.push(idx);
+                    }
+                });
+                
+                if (found) {
+                    accountCell.classList.add('correct');
+                    debitCell.classList.add('correct');
+                    creditCell.classList.add('correct');
+                } else {
+                    if (account || debit || credit) {
+                        accountCell.classList.add('incorrect');
+                        debitCell.classList.add('incorrect');
+                        creditCell.classList.add('incorrect');
+                        allCorrect = false;
+                    }
+                }
+            });
+            
+            if (matchedSolutions.length !== correctEntries.length) {
+                allCorrect = false;
+            }
+            
+            if (!hasEntries) {
+                alert('Fyll inn bilagsføringen!');
+                return null;
+            }
+            
+            return allCorrect;
         }
         
         function checkMC(solution) {
@@ -2147,6 +2787,23 @@
             document.getElementById('hint-text').textContent = 'Laster...';
             document.getElementById('hint-box').classList.add('visible');
             
+            // Try to get hints from the question object first
+            var hints = q.hints || (q.solution && q.solution.hints) || [];
+            
+            if (hints.length > 0 && gameState.hintsUsed < hints.length) {
+                var hint = hints[gameState.hintsUsed];
+                var hintText = typeof hint === 'string' ? hint : (hint.text || hint);
+                document.getElementById('hint-text').textContent = hintText;
+                document.getElementById('hint-level').textContent = '💡 Hint ' + (gameState.hintsUsed + 1) + ' av ' + hints.length;
+                gameState.hintsUsed++;
+                
+                if (gameState.hintsUsed >= hints.length) {
+                    document.getElementById('btn-hint').disabled = true;
+                }
+                return;
+            }
+            
+            // Fallback to Firebase solutions/
             firebase.database().ref('solutions/corporate_finance/' + q.id + '/hints/' + gameState.hintsUsed).once('value')
                 .then(function(snap) {
                     var hint = snap.val();
@@ -2155,7 +2812,7 @@
                         document.getElementById('btn-hint').disabled = true;
                         return;
                     }
-                    document.getElementById('hint-text').textContent = typeof hint === 'string' ? hint : hint.text;
+                    document.getElementById('hint-text').textContent = typeof hint === 'string' ? hint : (hint.text || hint);
                     gameState.hintsUsed++;
                 });
         }
@@ -2178,11 +2835,24 @@
             document.getElementById('explanation-main').innerHTML = '<em>Laster...</em>';
             document.getElementById('explanation-box').classList.add('visible');
             
+            // Try to get explanation from the question object first
+            var explanation = q.explanation || 
+                              (q.solution && q.solution.explanation) || 
+                              q.exp || 
+                              null;
+            
+            if (explanation) {
+                document.getElementById('explanation-main').innerHTML = explanation.replace(/\n/g, '<br>');
+                return;
+            }
+            
+            // Fallback to Firebase solutions/
             firebase.database().ref('solutions/corporate_finance/' + q.id).once('value')
                 .then(function(snap) {
                     var sol = snap.val();
-                    document.getElementById('explanation-main').innerHTML = sol && sol.explanation 
-                        ? sol.explanation.replace(/\n/g, '<br>') 
+                    var expl = sol && sol.explanation;
+                    document.getElementById('explanation-main').innerHTML = expl 
+                        ? expl.replace(/\n/g, '<br>') 
                         : 'Ingen forklaring tilgjengelig.';
                 });
         }
@@ -2289,7 +2959,7 @@
         
         function saveToLocalStorage(data) {
             try {
-                var key = 'cf_progress_' + data.topic;
+                var key = 'acc_progress_' + data.topic;
                 localStorage.setItem(key, JSON.stringify(data));
                 console.log('Saved to localStorage:', key);
                 
@@ -2356,7 +3026,7 @@
             }
             
             // For Firebase, we don't save individual answers under user_progress
-            // because the rules don't allow arbitrary fields under corporate_finance/$topicId
+            // because the rules don't allow arbitrary fields under accounting/$topicId
             // Instead, we update the topic progress which includes completed count
         }
         
