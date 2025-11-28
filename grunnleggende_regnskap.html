@@ -709,6 +709,180 @@
             color: var(--error);
         }
         
+        /* Account List Panel */
+        .account-search {
+            padding: var(--space-sm);
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            z-index: 5;
+        }
+        
+        .account-search input {
+            width: 100%;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+        
+        .account-search input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .account-list {
+            padding: var(--space-sm);
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .account-group {
+            margin-bottom: var(--space-md);
+        }
+        
+        .account-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85em;
+            color: var(--accent);
+            margin-bottom: var(--space-xs);
+        }
+        
+        .account-group-header:hover {
+            background: var(--bg-card);
+        }
+        
+        .account-group-items {
+            display: none;
+            padding-left: var(--space-sm);
+        }
+        
+        .account-group.expanded .account-group-items {
+            display: block;
+        }
+        
+        .account-group-header .toggle-icon {
+            transition: transform 0.2s;
+        }
+        
+        .account-group.expanded .toggle-icon {
+            transform: rotate(90deg);
+        }
+        
+        .account-item {
+            display: flex;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-xs);
+            cursor: grab;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        
+        .account-item:hover {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .account-item:active {
+            cursor: grabbing;
+        }
+        
+        .account-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        
+        .account-item .account-code {
+            font-family: 'Consolas', monospace;
+            font-weight: 600;
+            color: var(--accent);
+            margin-right: var(--space-sm);
+        }
+        
+        .account-item .account-name {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .excel-cell.drag-over {
+            background: rgba(74, 222, 128, 0.2) !important;
+            border: 2px dashed var(--accent) !important;
+        }
+        
+        .excel-cell.account-dropped {
+            animation: accountDrop 0.3s ease;
+        }
+        
+        @keyframes accountDrop {
+            0% { background: rgba(74, 222, 128, 0.4); }
+            100% { background: transparent; }
+        }
+        
+        /* Glowing effect for accounts button */
+        @keyframes glowPulse {
+            0%, 100% { 
+                box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent), 0 0 15px var(--accent);
+            }
+            50% { 
+                box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 30px var(--accent), 0 0 40px var(--accent);
+            }
+        }
+        
+        .icon-btn.glow-hint {
+            animation: glowPulse 1.5s ease-in-out infinite;
+            border-color: var(--accent) !important;
+            position: relative;
+        }
+        
+        .icon-btn.glow-hint::after {
+            content: 'Bruk kontoene!';
+            position: absolute;
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            font-size: 0.75em;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            animation: tooltipFade 1.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .icon-btn.glow-hint::before {
+            content: '';
+            position: absolute;
+            left: 62px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-right-color: var(--accent);
+            opacity: 0;
+            animation: tooltipFade 1.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes tooltipFade {
+            0%, 40%, 100% { opacity: 0; }
+            50%, 90% { opacity: 1; }
+        }
+
         /* True/False Buttons */
         .tf-container {
             display: flex;
@@ -1331,6 +1505,9 @@
             <button class="icon-btn" id="btn-data" onclick="showSidebarView('data')" title="Data">
                 📊
             </button>
+            <button class="icon-btn" id="btn-accounts" onclick="showSidebarView('accounts')" title="Kontoer">
+                📋
+            </button>
             <div class="icon-menu-divider"></div>
             <button class="icon-btn" onclick="toggleCalculator()" title="Kalkulator">
                 🔢
@@ -1386,6 +1563,16 @@
                         <p style="color: var(--text-secondary); text-align: center; padding: var(--space-lg);">
                             Velg et tema og start en oppgave for å se data.
                         </p>
+                    </div>
+                </div>
+                
+                <!-- Accounts View (for T-konto drag & drop) -->
+                <div class="sidebar-view" id="view-accounts">
+                    <div class="account-search">
+                        <input type="text" id="account-search" placeholder="🔍 Søk konto..." oninput="filterAccounts(this.value)">
+                    </div>
+                    <div class="account-list" id="account-list">
+                        <!-- Accounts will be populated here -->
                     </div>
                 </div>
             </div>
@@ -1782,7 +1969,8 @@
             document.querySelectorAll('.icon-btn').forEach(function(btn) {
                 btn.classList.remove('active');
             });
-            document.getElementById('btn-' + viewId).classList.add('active');
+            var btn = document.getElementById('btn-' + viewId);
+            if (btn) btn.classList.add('active');
             
             // Update sidebar views
             document.querySelectorAll('.sidebar-view').forEach(function(view) {
@@ -1795,12 +1983,237 @@
                 topics: 'Velg tema',
                 difficulty: 'Vanskelighetsgrad',
                 formulas: 'Formler',
-                data: 'Oppgavedata'
+                data: 'Oppgavedata',
+                accounts: 'Kontoer (dra til T-konto)'
             };
-            document.getElementById('sidebar-title').textContent = titles[viewId];
+            document.getElementById('sidebar-title').textContent = titles[viewId] || viewId;
+            
+            // Initialize accounts if showing
+            if (viewId === 'accounts') {
+                renderAccountList();
+                // Remove glow hint when user clicks
+                var accountsBtn = document.getElementById('btn-accounts');
+                if (accountsBtn) {
+                    accountsBtn.classList.remove('glow-hint');
+                }
+            }
             
             // Mobile: show sidebar
             document.getElementById('sidebar-panel').classList.add('mobile-visible');
+        }
+        
+        // ==================== ACCOUNTS (for T-konto drag & drop) ====================
+        var accountGroups = {
+            '1': {
+                name: 'Klasse 1: Eiendeler',
+                accounts: {
+                    '1200': 'Maskiner og anlegg',
+                    '1230': 'Personbiler, varebiler',
+                    '1250': 'Inventar',
+                    '1280': 'Kontormaskiner',
+                    '1300': 'Aksjer i datterselskap',
+                    '1350': 'Andre aksjer',
+                    '1400': 'Varelager',
+                    '1500': 'Kundefordringer',
+                    '1530': 'Opptjent, ikke fakturert',
+                    '1570': 'Andre fordringer',
+                    '1580': 'Avsetning tap',
+                    '1700': 'Forskuddsbetalt',
+                    '1920': 'Bankinnskudd',
+                    '1900': 'Kontanter'
+                }
+            },
+            '2': {
+                name: 'Klasse 2: EK og Gjeld',
+                accounts: {
+                    '2000': 'Aksjekapital',
+                    '2020': 'Overkurs',
+                    '2050': 'Annen egenkapital',
+                    '2080': 'Udekket tap',
+                    '2400': 'Leverandørgjeld',
+                    '2500': 'Betalbar skatt',
+                    '2600': 'Forskuddstrekk',
+                    '2610': 'Skyldig arb.giveravgift',
+                    '2700': 'Utgående MVA',
+                    '2710': 'Inngående MVA',
+                    '2740': 'Skyldig MVA',
+                    '2800': 'Avsatt utbytte',
+                    '2900': 'Annen kortsiktig gjeld',
+                    '2960': 'Påløpte feriepenger'
+                }
+            },
+            '3': {
+                name: 'Klasse 3: Salgsinntekter',
+                accounts: {
+                    '3000': 'Salgsinntekt, avgiftspliktig',
+                    '3100': 'Salgsinntekt, avgiftsfri',
+                    '3200': 'Inntekt av tjenester',
+                    '3400': 'Offentlige tilskudd',
+                    '3600': 'Leieinntekter',
+                    '3900': 'Annen driftsinntekt'
+                }
+            },
+            '4': {
+                name: 'Klasse 4: Varekostnad',
+                accounts: {
+                    '4000': 'Varekostnad',
+                    '4300': 'Innkjøp varer',
+                    '4500': 'Fremmedytelse',
+                    '4900': 'Beholdningsendring'
+                }
+            },
+            '5': {
+                name: 'Klasse 5: Lønn',
+                accounts: {
+                    '5000': 'Lønn til ansatte',
+                    '5020': 'Feriepenger',
+                    '5400': 'Arbeidsgiveravgift',
+                    '5420': 'Innberetningspliktige ytelser',
+                    '5900': 'Annen personalkostnad'
+                }
+            },
+            '6-7': {
+                name: 'Klasse 6-7: Driftskostnader',
+                accounts: {
+                    '6000': 'Avskrivning',
+                    '6100': 'Frakt og transport',
+                    '6300': 'Leie lokaler',
+                    '6340': 'Lys og varme',
+                    '6400': 'Leie maskiner',
+                    '6500': 'Verktøy og inventar',
+                    '6700': 'Regnskap/revisjon',
+                    '6800': 'Kontorrekvisita',
+                    '6900': 'Telefon/internett',
+                    '7000': 'Drivstoff',
+                    '7100': 'Bilkostnader',
+                    '7320': 'Reklamekostnader',
+                    '7500': 'Forsikring',
+                    '7700': 'Annen driftskostnad',
+                    '7830': 'Tap på fordringer'
+                }
+            },
+            '8': {
+                name: 'Klasse 8: Finans og skatt',
+                accounts: {
+                    '8000': 'Finansinntekt',
+                    '8050': 'Renteinntekt',
+                    '8100': 'Annen finansinntekt',
+                    '8150': 'Rentekostnad',
+                    '8170': 'Annen finanskostnad',
+                    '8300': 'Skattekostnad',
+                    '8800': 'Årsresultat',
+                    '8920': 'Avsatt utbytte',
+                    '8960': 'Overføring annen EK'
+                }
+            }
+        };
+        
+        function renderAccountList() {
+            var container = document.getElementById('account-list');
+            var html = '';
+            
+            Object.keys(accountGroups).forEach(function(groupKey) {
+                var group = accountGroups[groupKey];
+                html += '<div class="account-group" id="account-group-' + groupKey + '">';
+                html += '<div class="account-group-header" onclick="toggleAccountGroup(\'' + groupKey + '\')">';
+                html += '<span>' + group.name + '</span>';
+                html += '<span class="toggle-icon">▶</span>';
+                html += '</div>';
+                html += '<div class="account-group-items">';
+                
+                Object.keys(group.accounts).forEach(function(code) {
+                    var name = group.accounts[code];
+                    html += '<div class="account-item" draggable="true" data-account-code="' + code + '" data-account-name="' + name + '">';
+                    html += '<span class="account-code">' + code + '</span>';
+                    html += '<span class="account-name">' + name + '</span>';
+                    html += '</div>';
+                });
+                
+                html += '</div></div>';
+            });
+            
+            container.innerHTML = html;
+            initAccountDragDrop();
+        }
+        
+        function toggleAccountGroup(groupKey) {
+            var group = document.getElementById('account-group-' + groupKey);
+            group.classList.toggle('expanded');
+        }
+        
+        function filterAccounts(query) {
+            query = query.toLowerCase();
+            document.querySelectorAll('.account-item').forEach(function(item) {
+                var code = item.dataset.accountCode;
+                var name = item.dataset.accountName.toLowerCase();
+                if (code.includes(query) || name.includes(query)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Show all groups when searching
+            if (query) {
+                document.querySelectorAll('.account-group').forEach(function(g) {
+                    g.classList.add('expanded');
+                });
+            }
+        }
+        
+        function initAccountDragDrop() {
+            // Make account items draggable
+            document.querySelectorAll('.account-item').forEach(function(item) {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', item.dataset.accountCode);
+                    e.dataTransfer.setData('account-name', item.dataset.accountName);
+                    item.classList.add('dragging');
+                });
+                
+                item.addEventListener('dragend', function() {
+                    item.classList.remove('dragging');
+                });
+            });
+        }
+        
+        function setupExcelGridDragDrop() {
+            // Make excel grid cells accept drops (for row labels that match account format)
+            document.querySelectorAll('#excel-grid-container .row-label').forEach(function(label) {
+                var td = label.closest('td') || label;
+                var row = td.closest('tr');
+                if (!row) return;
+                
+                // Find the input cells in this row
+                var inputs = row.querySelectorAll('.excel-cell:not(.readonly)');
+                inputs.forEach(function(input) {
+                    input.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        input.classList.add('drag-over');
+                    });
+                    
+                    input.addEventListener('dragleave', function() {
+                        input.classList.remove('drag-over');
+                    });
+                    
+                    input.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        input.classList.remove('drag-over');
+                        
+                        // Don't allow drops on answered questions
+                        if (gameState.answered[gameState.currentIndex]) return;
+                        
+                        // For T-konto, we don't insert account code, just highlight to help user
+                        var accountCode = e.dataTransfer.getData('text/plain');
+                        if (accountCode) {
+                            input.classList.add('account-dropped');
+                            input.focus();
+                            setTimeout(function() {
+                                input.classList.remove('account-dropped');
+                            }, 500);
+                        }
+                    });
+                });
+            });
         }
         
         // ==================== TOPICS ====================
@@ -2192,6 +2605,19 @@
                 renderJournalEntry(q);
             } else if (type === 'excel_grid') {
                 renderExcelGrid(q);
+                // Auto-show accounts panel for T-konto questions
+                if (q.grid && q.grid.rows) {
+                    showSidebarView('accounts');
+                    // Add glow hint to accounts button
+                    var accountsBtn = document.getElementById('btn-accounts');
+                    if (accountsBtn) {
+                        accountsBtn.classList.add('glow-hint');
+                        // Remove glow after user clicks or after 10 seconds
+                        setTimeout(function() {
+                            accountsBtn.classList.remove('glow-hint');
+                        }, 10000);
+                    }
+                }
             } else {
                 renderCalculation(q);
             }
@@ -2420,30 +2846,56 @@
             // Check if we have a proper grid structure
             var grid = q.grid || q.excel_grid;
             
+            console.log('=== renderExcelGrid DEBUG ===');
+            console.log('Question ID:', q.id);
+            console.log('Question type:', q.type);
+            console.log('Has q.grid:', !!q.grid);
+            console.log('Has q.excel_grid:', !!q.excel_grid);
+            console.log('grid value:', grid);
+            console.log('grid.rows:', grid ? grid.rows : 'N/A');
+            console.log('grid.rows.length:', grid && grid.rows ? grid.rows.length : 'N/A');
+            
             if (grid && grid.rows && grid.rows.length > 0) {
-                // Use the provided grid structure
-                thead.innerHTML = '<tr><th>Parameter</th>' + (grid.columns || ['Verdi']).map(function(c) { return '<th>' + c + '</th>'; }).join('') + '</tr>';
+                console.log('Using T-konto grid mode');
+                
+                // Update header to show T-konto style
+                var headerRow = document.querySelector('#excel-grid-container .excel-header-row');
+                if (headerRow) {
+                    headerRow.innerHTML = '<span class="excel-title">📊 T-konto</span><span class="excel-hint">Fyll inn beløpene</span>';
+                }
+                
+                // Use the provided grid structure for T-konto
+                var columns = grid.columns || ['Debet', 'Kredit'];
+                thead.innerHTML = '<tr><th style="min-width: 180px;">Konto</th>' + columns.map(function(c) { return '<th style="min-width: 120px;">' + c + '</th>'; }).join('') + '</tr>';
                 
                 var bodyHtml = '';
                 grid.rows.forEach(function(row, ri) {
                     bodyHtml += '<tr><td class="row-label">' + row.label + '</td>';
                     (row.cells || []).forEach(function(cell, ci) {
-                        var isReadonly = cell.readonly;
-                        var val = cell.value !== undefined ? cell.value : '';
+                        var isReadonly = cell.readonly === true;
+                        var val = cell.value !== undefined && cell.value !== '' ? cell.value : '';
+                        var cellId = cell.id || ('cell-' + ri + '-' + ci);
+                        
                         if (isReadonly) {
-                            bodyHtml += '<td><input class="excel-cell readonly" value="' + val + '" readonly></td>';
+                            bodyHtml += '<td><input class="excel-cell readonly" value="' + val + '" readonly tabindex="-1"></td>';
                         } else {
-                            var cellId = cell.id || ('cell-' + ri + '-' + ci);
-                            bodyHtml += '<td><input class="excel-cell" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" placeholder="?"></td>';
+                            bodyHtml += '<td><input class="excel-cell" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" placeholder="?" type="number"></td>';
                         }
                     });
                     bodyHtml += '</tr>';
                 });
                 tbody.innerHTML = bodyHtml;
-            } else {
-                // Auto-generate grid from data and input_fields
-                console.log('Auto-generating Excel grid from data and input_fields');
                 
+                console.log('Grid rendered with', grid.rows.length, 'rows');
+                
+                // Setup drag & drop for account codes
+                setTimeout(function() {
+                    setupExcelGridDragDrop();
+                }, 100);
+            } else {
+                console.log('Using auto-generate mode (no valid grid found)');
+                
+                // Auto-generate grid from data and input_fields
                 thead.innerHTML = '<tr><th>Parameter</th><th>Verdi</th></tr>';
                 
                 var bodyHtml = '';
@@ -2466,13 +2918,13 @@
                 fields.forEach(function(field, idx) {
                     bodyHtml += '<tr>';
                     bodyHtml += '<td class="row-label" style="color: var(--accent);">' + (field.label || field.id) + '</td>';
-                    bodyHtml += '<td><input class="excel-cell" id="input-' + field.id + '" data-id="' + field.id + '" placeholder="Skriv svar..."></td>';
+                    bodyHtml += '<td><input class="excel-cell" id="input-' + field.id + '" data-id="' + field.id + '" placeholder="Skriv svar..." type="number"></td>';
                     bodyHtml += '</tr>';
                 });
                 
                 tbody.innerHTML = bodyHtml;
                 
-                if (fields.length === 0) {
+                if (fields.length === 0 && !q.data) {
                     tbody.innerHTML += '<tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Ingen input-felt definert</td></tr>';
                 }
             }
@@ -2734,21 +3186,55 @@
         
         function checkCalc(solution) {
             var q = gameState.currentQuestion;
-            var fields = q.input_fields || [{ id: 'answer', label: 'Svar' }];
             var ok = true;
             
             // Handle different solution structures
             var correctValues = solution.correct || solution;
-            var tol = solution.tolerance !== undefined ? solution.tolerance : 0.1;
+            var tol = solution.tolerance !== undefined ? solution.tolerance : 1;
             
-            console.log('checkCalc - Fields:', fields);
             console.log('checkCalc - Correct values:', correctValues);
-            console.log('checkCalc - Tolerance:', tol);
             
             // If correctValues is a number, wrap it
             if (typeof correctValues === 'number') {
                 correctValues = { answer: correctValues };
             }
+            
+            // For excel_grid type, get inputs from the grid
+            if (q.type === 'excel_grid' && q.grid && q.grid.rows) {
+                var allInputs = document.querySelectorAll('#excel-grid-container .excel-cell:not(.readonly)');
+                console.log('Excel grid mode - found', allInputs.length, 'input cells');
+                
+                allInputs.forEach(function(inp) {
+                    var cellId = inp.dataset.id;
+                    if (!cellId) return;
+                    
+                    var userStr = inp.value.replace(/\s/g, '').replace(',', '.');
+                    var user = parseFloat(userStr);
+                    
+                    // Find expected value
+                    var expected = correctValues[cellId];
+                    
+                    console.log('Cell:', cellId, 'User:', user, 'Expected:', expected);
+                    
+                    if (expected !== undefined) {
+                        var expectedNum = parseFloat(expected);
+                        if (!isNaN(user) && !isNaN(expectedNum)) {
+                            var diff = Math.abs(user - expectedNum);
+                            var isOk = diff <= tol;
+                            inp.classList.add(isOk ? 'correct' : 'incorrect');
+                            if (!isOk) ok = false;
+                        } else if (isNaN(user) && expectedNum !== 0) {
+                            inp.classList.add('incorrect');
+                            ok = false;
+                        }
+                    }
+                });
+                
+                return ok;
+            }
+            
+            // Standard input_fields handling
+            var fields = q.input_fields || [{ id: 'answer', label: 'Svar' }];
             
             // If correctValues is an array, convert to object
             if (Array.isArray(correctValues)) {
@@ -2765,19 +3251,13 @@
                 Object.keys(correctValues).forEach(function(k) {
                     var v = correctValues[k];
                     if (typeof v === 'number' || typeof v === 'string') {
-                        // Add multiple key variations
                         valueMap[k] = v;
                         valueMap[k.toLowerCase()] = v;
                         valueMap[k.replace(/_/g, '')] = v;
                         valueMap[k.replace(/_/g, '').toLowerCase()] = v;
-                        // Also add camelCase to snake_case conversions
-                        var snakeCase = k.replace(/([A-Z])/g, '_$1').toLowerCase();
-                        valueMap[snakeCase] = v;
                     }
                 });
             }
-            
-            console.log('checkCalc - Value map:', valueMap);
             
             fields.forEach(function(f, idx) {
                 var inp = document.getElementById('input-' + f.id);
@@ -2786,11 +3266,8 @@
                     return;
                 }
                 
-                // Parse user input
                 var userStr = inp.value.replace(/\s/g, '').replace(',', '.');
                 var user = parseFloat(userStr);
-                
-                console.log('Field:', f.id, 'User input:', userStr, 'Parsed:', user);
                 
                 if (isNaN(user)) {
                     inp.classList.add('incorrect');
@@ -2798,46 +3275,27 @@
                     return;
                 }
                 
-                // Find correct value - try multiple approaches
+                // Find correct value
                 var corr = null;
-                
-                // Try exact field id
                 if (valueMap[f.id] !== undefined) corr = valueMap[f.id];
-                // Try lowercase
                 else if (valueMap[f.id.toLowerCase()] !== undefined) corr = valueMap[f.id.toLowerCase()];
-                // Try without underscores/special chars
-                else if (valueMap[f.id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()] !== undefined) {
-                    corr = valueMap[f.id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()];
-                }
-                // Try matching by index if counts match
                 else if (Object.keys(correctValues).length === fields.length) {
                     var keys = Object.keys(correctValues);
                     corr = correctValues[keys[idx]];
                 }
-                // Try first/only value if single field
                 else if (fields.length === 1 && Object.keys(correctValues).length >= 1) {
-                    var firstKey = Object.keys(correctValues)[0];
-                    corr = correctValues[firstKey];
+                    corr = correctValues[Object.keys(correctValues)[0]];
                 }
-                
-                console.log('Looking for match - Field:', f.id, 'Found correct:', corr);
                 
                 if (corr !== null && corr !== undefined) {
                     var corrNum = parseFloat(corr);
                     if (!isNaN(corrNum)) {
-                        // Use tolerance - either absolute or percentage based
                         var tolerance = Math.max(tol, Math.abs(corrNum) * 0.01);
                         var diff = Math.abs(user - corrNum);
                         var isOk = diff <= tolerance;
-                        
-                        console.log('Comparing:', user, 'vs', corrNum, 'Diff:', diff, 'Tolerance:', tolerance, 'Result:', isOk);
-                        
                         inp.classList.add(isOk ? 'correct' : 'incorrect');
                         if (!isOk) ok = false;
                     }
-                } else {
-                    console.log('No matching correct value found for field:', f.id);
-                    // Don't mark as incorrect if we can't find answer - might be data issue
                 }
             });
             
