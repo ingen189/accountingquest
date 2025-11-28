@@ -511,11 +511,8 @@ class ExcelGrid {
     }
     
     showSelectionHint() {
-        const hint = document.createElement('div');
-        hint.id = 'cell-selection-hint';
-        hint.className = 'cell-selection-hint';
-        hint.innerHTML = '🎯 Klikk på celler for å legge dem til formelen<br><small>Skriv +, -, *, / mellom • ESC for å avslutte</small>';
-        document.body.appendChild(hint);
+        // Hint disabled - was blocking the view
+        // Users can still click cells to add them to formulas
     }
     
     hideSelectionHint() {
