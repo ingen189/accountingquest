@@ -377,6 +377,7 @@
                 <div class="sidebar-item" data-page="teachers">👨‍🏫 Lærere</div>
                 
                 <div class="sidebar-section">Innhold</div>
+                <div class="sidebar-item" data-page="modules">🧩 Moduler</div>
                 <div class="sidebar-item" data-page="grunnleggende">📚 Grunnleggende Regnskap</div>
                 <div class="sidebar-item" data-page="corporate-finance">📈 Corporate Finance</div>
                 <div class="sidebar-item" data-page="wiki">📖 Wiki</div>
@@ -403,6 +404,52 @@
                         <div class="stat-card"><div class="stat-value" id="stat-cf">-</div><div class="stat-label">Corporate Finance</div></div>
                         <div class="stat-card"><div class="stat-value" id="stat-bokforing">-</div><div class="stat-label">Bokføring</div></div>
                         <div class="stat-card"><div class="stat-value" id="stat-wiki">-</div><div class="stat-label">Wiki</div></div>
+                    </div>
+                </div>
+                
+                <!-- Modules -->
+                <div id="page-modules" class="page">
+                    <div class="page-header">
+                        <h2 class="page-title">🧩 Moduler</h2>
+                        <button class="btn btn-primary" onclick="loadModules()">🔄 Oppdater</button>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Administrer tilgjengelige læringsmoduler i AccountingQuest</p>
+                    
+                    <div class="stats-grid" id="modules-grid">
+                        <!-- Modules will be loaded here -->
+                    </div>
+                    
+                    <div class="seed-card" style="margin-top: 20px;">
+                        <h3>➕ Legg til ny modul</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Modul-ID</label>
+                                <input type="text" id="new-module-id" placeholder="f.eks. skatterett">
+                            </div>
+                            <div class="form-group">
+                                <label>Navn</label>
+                                <input type="text" id="new-module-name" placeholder="f.eks. Skatterett">
+                            </div>
+                            <div class="form-group">
+                                <label>Ikon</label>
+                                <input type="text" id="new-module-icon" placeholder="f.eks. 💰">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Beskrivelse</label>
+                            <input type="text" id="new-module-desc" placeholder="Kort beskrivelse av modulen">
+                        </div>
+                        <div class="form-group">
+                            <label>Topics (kommaseparert)</label>
+                            <input type="text" id="new-module-topics" placeholder="f.eks. personskatt, selskapsskatt, mva">
+                        </div>
+                        <button class="btn btn-primary" onclick="addModule()">➕ Legg til modul</button>
+                    </div>
+                    
+                    <div class="seed-card" style="margin-top: 20px;">
+                        <h3>🌱 Seed standardmoduler</h3>
+                        <p>Opprett grunnleggende moduler for AccountingQuest</p>
+                        <button class="btn btn-info" onclick="seedModules()">🌱 Seed moduler</button>
                     </div>
                 </div>
                 
@@ -662,11 +709,18 @@
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
                         <button class="btn btn-sm btn-secondary" onclick="setDBPath('users')">users</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('quizQuestions')">quizQuestions</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('solutions/corporate_finance')">CF solutions</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('teachers')">teachers</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('modules')">modules</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('questions')">questions</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('solutions')">solutions</button>
                         <button class="btn btn-sm btn-secondary" onclick="setDBPath('questions/corporate_finance')">CF questions</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('solutions/corporate_finance')">CF solutions</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('quizQuestions')">quizQuestions (legacy)</button>
                         <button class="btn btn-sm btn-secondary" onclick="setDBPath('bokforing')">bokforing</button>
                         <button class="btn btn-sm btn-secondary" onclick="setDBPath('wiki')">wiki</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('games')">games</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('classrooms')">classrooms</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('leaderboards')">leaderboards</button>
                     </div>
                     <pre id="db-output" style="background: #000; padding: 15px; border-radius: 8px; max-height: 500px; overflow: auto; font-size: 0.8em;"></pre>
                 </div>
@@ -1034,9 +1088,9 @@
                 
                 if (page === 'users') loadUsers();
                 else if (page === 'teachers') loadTeachers();
-                else if (page === 'quiz') loadQuiz();
+                else if (page === 'modules') loadModules();
+                else if (page === 'grunnleggende') loadGrunnleggende();
                 else if (page === 'corporate-finance') loadCorporateFinance();
-                else if (page === 'bokforing') loadBokforing();
                 else if (page === 'wiki') loadWiki();
             });
         });
@@ -1653,6 +1707,186 @@
             refreshAll();
         }
         
+        // =========================================
+        // MODULES MANAGEMENT
+        // =========================================
+        async function loadModules() {
+            const grid = document.getElementById('modules-grid');
+            grid.innerHTML = '<div class="loading"><div class="spinner"></div> Laster moduler...</div>';
+            
+            try {
+                const snap = await db.ref('modules').once('value');
+                const modules = snap.val() || {};
+                
+                if (Object.keys(modules).length === 0) {
+                    grid.innerHTML = '<p style="color: var(--text-muted);">Ingen moduler funnet. Klikk "Seed moduler" for å opprette standardmoduler.</p>';
+                    return;
+                }
+                
+                // Also get question counts for each module
+                const qSnap = await db.ref('questions').once('value');
+                const questions = qSnap.val() || {};
+                
+                grid.innerHTML = Object.entries(modules)
+                    .sort((a, b) => (a[1].order || 99) - (b[1].order || 99))
+                    .map(([id, m]) => {
+                        const qCount = questions[id] ? Object.keys(questions[id]).length : 0;
+                        const statusBadge = m.enabled ? 
+                            '<span class="badge badge-green">Aktiv</span>' : 
+                            '<span class="badge badge-gray">Inaktiv</span>';
+                        const premiumBadge = m.premium ? 
+                            '<span class="badge badge-purple">Premium</span>' : '';
+                        
+                        return `
+                            <div class="seed-card">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <h3>${m.icon || '📦'} ${m.name || id}</h3>
+                                    <div>${statusBadge} ${premiumBadge}</div>
+                                </div>
+                                <p style="color: var(--text-secondary); font-size: 0.9em;">${m.description || ''}</p>
+                                <div style="margin: 10px 0;">
+                                    <strong>ID:</strong> <code>${id}</code><br>
+                                    <strong>Spørsmål:</strong> ${qCount}<br>
+                                    <strong>Topics:</strong> ${(m.topics || []).join(', ') || 'Ingen'}
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button class="btn btn-sm btn-${m.enabled ? 'warning' : 'primary'}" onclick="toggleModule('${id}', ${!m.enabled})">
+                                        ${m.enabled ? '⏸️ Deaktiver' : '▶️ Aktiver'}
+                                    </button>
+                                    <button class="btn btn-sm btn-info" onclick="setDBPath('questions/${id}')">📂 Se spørsmål</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteModule('${id}')">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+            } catch (err) {
+                grid.innerHTML = '<p style="color: var(--danger);">Feil ved lasting: ' + err.message + '</p>';
+            }
+        }
+        
+        async function toggleModule(id, enabled) {
+            await db.ref('modules/' + id + '/enabled').set(enabled);
+            showToast(enabled ? 'Modul aktivert!' : 'Modul deaktivert!', 'success');
+            loadModules();
+        }
+        
+        async function deleteModule(id) {
+            if (!confirm('Slett modul "' + id + '"? Dette sletter IKKE spørsmålene.')) return;
+            await db.ref('modules/' + id).remove();
+            showToast('Modul slettet!', 'success');
+            loadModules();
+        }
+        
+        async function addModule() {
+            const id = document.getElementById('new-module-id').value.trim().toLowerCase().replace(/\s+/g, '_');
+            const name = document.getElementById('new-module-name').value.trim();
+            const icon = document.getElementById('new-module-icon').value.trim() || '📦';
+            const desc = document.getElementById('new-module-desc').value.trim();
+            const topics = document.getElementById('new-module-topics').value.split(',').map(t => t.trim()).filter(t => t);
+            
+            if (!id || !name) {
+                showToast('ID og navn er påkrevd!', 'error');
+                return;
+            }
+            
+            await db.ref('modules/' + id).set({
+                name: name,
+                icon: icon,
+                description: desc,
+                topics: topics,
+                enabled: true,
+                order: 99,
+                premium: false,
+                createdAt: Date.now()
+            });
+            
+            showToast('Modul opprettet!', 'success');
+            
+            // Clear form
+            document.getElementById('new-module-id').value = '';
+            document.getElementById('new-module-name').value = '';
+            document.getElementById('new-module-icon').value = '';
+            document.getElementById('new-module-desc').value = '';
+            document.getElementById('new-module-topics').value = '';
+            
+            loadModules();
+        }
+        
+        async function seedModules() {
+            if (!confirm('Opprett standardmoduler for AccountingQuest?')) return;
+            
+            const modules = {
+                grunnleggende_regnskap: {
+                    name: 'Grunnleggende Regnskap',
+                    icon: '📚',
+                    description: 'Bokføring, MVA, skatt, årsoppgjør og regnskapsanalyse',
+                    topics: ['bokforing', 'mva', 'skatt', 'arsoppgjor', 'analyse', 'lovverk'],
+                    enabled: true,
+                    order: 1,
+                    premium: false
+                },
+                corporate_finance: {
+                    name: 'Corporate Finance',
+                    icon: '📈',
+                    description: 'NPV, IRR, WACC, CAPM, obligasjoner, aksjer og opsjoner',
+                    topics: ['npv', 'irr', 'wacc', 'capm', 'bonds', 'stocks', 'options', 'forex', 'portfolio'],
+                    enabled: true,
+                    order: 2,
+                    premium: false
+                },
+                driftsregnskap: {
+                    name: 'Driftsregnskap & Økonomistyring',
+                    icon: '🏭',
+                    description: 'Kalkulasjon, budsjettering, avviksanalyse og ABC',
+                    topics: ['kalkulasjon', 'budsjettering', 'avviksanalyse', 'abc', 'bidrag_selvkost'],
+                    enabled: false,
+                    order: 3,
+                    premium: true
+                },
+                matte_okonomer: {
+                    name: 'Matematikk for Økonomer',
+                    icon: '🔢',
+                    description: 'Derivasjon, integrasjon, optimering og statistikk',
+                    topics: ['derivasjon', 'integrasjon', 'optimering', 'statistikk', 'sannsynlighet'],
+                    enabled: false,
+                    order: 4,
+                    premium: true
+                },
+                skatterett: {
+                    name: 'Skatterett',
+                    icon: '💰',
+                    description: 'Personskatt, selskapsskatt og internasjonal skatt',
+                    topics: ['personskatt', 'selskapsskatt', 'mva_avansert', 'internasjonal'],
+                    enabled: false,
+                    order: 5,
+                    premium: true
+                },
+                revisjon: {
+                    name: 'Revisjon',
+                    icon: '🔍',
+                    description: 'Revisjonsstandarder, kontrollhandlinger og rapportering',
+                    topics: ['revisjonsstandarder', 'kontrollhandlinger', 'rapportering', 'etikk'],
+                    enabled: false,
+                    order: 6,
+                    premium: true
+                },
+                hjernetrim: {
+                    name: 'Hjernetrim',
+                    icon: '🧠',
+                    description: 'Hoderegning og mental matematikk',
+                    topics: ['mental_math', 'hoderegning', 'quick_calc'],
+                    enabled: true,
+                    order: 10,
+                    premium: false
+                }
+            };
+            
+            await db.ref('modules').update(modules);
+            showToast('7 moduler opprettet!', 'success');
+            loadModules();
+        }
+        
         async function seedWiki() {
             const prog = document.getElementById('prog-wiki');
             prog.style.width = '10%';
@@ -1781,7 +2015,7 @@
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    let questions = data.quizQuestions || data;
+                    let questions = data.quizQuestions || data.questions || data;
                     if (Array.isArray(data)) {
                         questions = {};
                         data.forEach((q, i) => questions[q.id || 'q_' + i] = q);
@@ -1789,13 +2023,33 @@
                     
                     pendingJsonData = questions;
                     const count = Object.keys(questions).length;
-                    document.getElementById('json-preview-count').textContent = count + ' spørsmål funnet';
+                    
+                    // Detect module type
+                    const first = Object.values(questions)[0];
+                    const moduleType = first?.module || first?.category || 'quiz';
+                    const moduleLabel = moduleType === 'corporate_finance' ? '📈 Corporate Finance' :
+                                       moduleType === 'grunnleggende_regnskap' ? '📚 Grunnleggende Regnskap' : '❓ Quiz';
+                    
+                    document.getElementById('json-preview-count').innerHTML = `<strong>${count}</strong> spørsmål funnet → <span style="color: var(--accent)">${moduleLabel}</span>`;
                     document.getElementById('json-preview').style.display = 'block';
                     document.getElementById('btn-import-json').disabled = false;
                     
-                    const cats = {};
-                    Object.values(questions).forEach(q => { cats[q.category || 'ukjent'] = (cats[q.category || 'ukjent'] || 0) + 1; });
-                    document.getElementById('json-categories').innerHTML = Object.entries(cats).map(([c, n]) => `<span class="badge badge-blue">${c}: ${n}</span>`).join(' ');
+                    // Count by topic
+                    const topics = {};
+                    const types = {};
+                    const difficulties = {};
+                    Object.values(questions).forEach(q => { 
+                        topics[q.topic || 'ukjent'] = (topics[q.topic || 'ukjent'] || 0) + 1;
+                        types[q.type || 'mc'] = (types[q.type || 'mc'] || 0) + 1;
+                        difficulties[q.difficulty || 'medium'] = (difficulties[q.difficulty || 'medium'] || 0) + 1;
+                    });
+                    
+                    let preview = '<div style="display: flex; gap: 20px; flex-wrap: wrap;">';
+                    preview += '<div><strong>Topics:</strong><br>' + Object.entries(topics).map(([t, n]) => `<span class="badge badge-blue">${t}: ${n}</span>`).join(' ') + '</div>';
+                    preview += '<div><strong>Type:</strong><br>' + Object.entries(types).map(([t, n]) => `<span class="badge badge-green">${t}: ${n}</span>`).join(' ') + '</div>';
+                    preview += '<div><strong>Difficulty:</strong><br>' + Object.entries(difficulties).map(([d, n]) => `<span class="badge badge-purple">${d}: ${n}</span>`).join(' ') + '</div>';
+                    preview += '</div>';
+                    document.getElementById('json-categories').innerHTML = preview;
                     
                     showMsg('import-message', '✅ Fil lastet: ' + file.name, 'success');
                 } catch (err) {
@@ -1813,28 +2067,111 @@
             const prog = document.getElementById('prog-json-import');
             const btn = document.getElementById('btn-import-json');
             btn.disabled = true;
-            prog.style.width = '50%';
+            prog.style.width = '10%';
             
-            // Detect if CF
-            const first = Object.values(pendingJsonData)[0];
-            const isCF = first?.module === 'corporate_finance' || first?.category === 'corporate_finance';
-            
-            if (isCF) {
-                for (const [id, q] of Object.entries(pendingJsonData)) {
-                    await db.ref('questions/corporate_finance/' + id).set(q);
-                    if (q.correct || q.a) {
-                        await db.ref('solutions/corporate_finance/' + id).set({correct: q.correct || q.a, explanation: q.explanation || q.exp || ''});
+            try {
+                // Detect module type
+                const first = Object.values(pendingJsonData)[0];
+                const isCF = first?.module === 'corporate_finance' || first?.category === 'corporate_finance';
+                const isGrunnleggende = first?.module === 'grunnleggende_regnskap' || first?.category === 'grunnleggende_regnskap';
+                
+                let imported = 0;
+                const total = count;
+                
+                if (isCF) {
+                    // Corporate Finance - split into questions and solutions
+                    for (const [key, item] of Object.entries(pendingJsonData)) {
+                        const id = item.id || key;
+                        
+                        // Question data (visible to students)
+                        const questionData = {
+                            id: id,
+                            module: 'corporate_finance',
+                            category: item.category || 'corporate_finance',
+                            topic: item.topic || 'general',
+                            difficulty: item.difficulty || 'medium',
+                            type: item.type || 'mc',
+                            title: item.title || '',
+                            question: item.question || item.q || '',
+                            q: item.q || item.question || '',
+                            options: item.options || null,
+                            data: item.data || null,
+                            scenarioData: item.scenarioData || null,
+                            linkedTo: item.linkedTo || null,
+                            tags: item.tags || [],
+                            source: item.source || '',
+                            wiki: item.wiki || [],
+                            createdAt: Date.now()
+                        };
+                        
+                        // Solution data (hidden until answered)
+                        const solutionData = {
+                            correct: item.correct || item.a || item.answer,
+                            a: item.a || item.answer || item.correct,
+                            answer: item.answer || item.a || item.correct,
+                            tolerance: item.tolerance || 0,
+                            explanation: item.explanation || item.exp || '',
+                            exp: item.exp || item.explanation || '',
+                            hints: item.hints || [],
+                            formula: item.formula || ''
+                        };
+                        
+                        // Write to Firebase
+                        await db.ref('questions/corporate_finance/' + id).set(questionData);
+                        await db.ref('solutions/corporate_finance/' + id).set(solutionData);
+                        
+                        imported++;
+                        prog.style.width = (10 + (imported / total) * 80) + '%';
                     }
+                } else if (isGrunnleggende) {
+                    // Grunnleggende Regnskap
+                    for (const [key, item] of Object.entries(pendingJsonData)) {
+                        const id = item.id || key;
+                        
+                        const questionData = {
+                            id: id,
+                            module: 'grunnleggende_regnskap',
+                            topic: item.topic || item.category || 'general',
+                            type: item.type || 'mc',
+                            difficulty: item.difficulty || 'medium',
+                            question: item.question || item.q || '',
+                            options: item.options || null,
+                            data: item.data || null,
+                            tags: item.tags || [],
+                            createdAt: Date.now()
+                        };
+                        
+                        const solutionData = {
+                            correct: item.correct || item.a || item.answer,
+                            explanation: item.explanation || item.exp || '',
+                            hints: item.hints || []
+                        };
+                        
+                        await db.ref('questions/grunnleggende_regnskap/' + id).set(questionData);
+                        await db.ref('solutions/grunnleggende_regnskap/' + id).set(solutionData);
+                        
+                        imported++;
+                        prog.style.width = (10 + (imported / total) * 80) + '%';
+                    }
+                } else {
+                    // Legacy quiz format - write to quizQuestions
+                    await db.ref('quizQuestions').update(pendingJsonData);
                 }
-            } else {
-                await db.ref('quizQuestions').update(pendingJsonData);
+                
+                prog.style.width = '100%';
+                showMsg('import-message', '✅ ' + count + ' spørsmål importert til ' + (isCF ? 'Corporate Finance' : isGrunnleggende ? 'Grunnleggende Regnskap' : 'Quiz') + '!', 'success');
+                showToast(count + ' spørsmål importert!', 'success');
+                pendingJsonData = null;
+                document.getElementById('json-preview').style.display = 'none';
+                refreshAll();
+                
+            } catch (err) {
+                console.error('Import error:', err);
+                showMsg('import-message', '❌ Feil ved import: ' + err.message, 'error');
+                showToast('Import feilet: ' + err.message, 'error');
             }
             
-            prog.style.width = '100%';
-            showMsg('import-message', '✅ ' + count + ' spørsmål importert!', 'success');
-            pendingJsonData = null;
-            document.getElementById('json-preview').style.display = 'none';
-            refreshAll();
+            btn.disabled = false;
         }
         
         // Export
