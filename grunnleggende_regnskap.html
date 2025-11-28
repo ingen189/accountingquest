@@ -1006,6 +1006,141 @@
             display: block;
         }
         
+        /* Kontoplan Modal */
+        .kontoplan-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .kontoplan-modal.visible {
+            display: flex;
+        }
+        
+        .kontoplan-content {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 800px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .kontoplan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .kontoplan-title {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .kontoplan-close {
+            background: var(--error);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        
+        .kontoplan-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: var(--space-sm);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .kontoplan-tab {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        
+        .kontoplan-tab:hover {
+            background: var(--bg-hover);
+        }
+        
+        .kontoplan-tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .kontoplan-body {
+            padding: var(--space-md);
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .konto-gruppe {
+            margin-bottom: var(--space-md);
+        }
+        
+        .konto-gruppe-title {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+            font-size: 0.95em;
+        }
+        
+        .konto-item {
+            display: flex;
+            padding: 6px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85em;
+        }
+        
+        .konto-item:nth-child(even) {
+            background: var(--bg-primary);
+        }
+        
+        .konto-nummer {
+            color: var(--warning);
+            font-weight: 600;
+            width: 60px;
+            flex-shrink: 0;
+        }
+        
+        .konto-navn {
+            color: var(--text-primary);
+        }
+        
+        @media (max-width: 600px) {
+            .kontoplan-tabs {
+                gap: 2px;
+            }
+            .kontoplan-tab {
+                padding: 6px 8px;
+                font-size: 0.75em;
+            }
+        }
+        
         .calculator {
             background: var(--bg-secondary);
             border: 2px solid var(--border-color);
@@ -1363,6 +1498,7 @@
                         <button class="aq-btn aq-btn-primary" onclick="checkAnswer()" id="btn-check">✓ Sjekk svar</button>
                         <button class="aq-btn aq-btn-warning" onclick="showHint()" id="btn-hint">💡 Hint</button>
                         <button class="aq-btn aq-btn-secondary" onclick="toggleCalculator()">🔢 Kalkulator</button>
+                        <button class="aq-btn aq-btn-secondary" onclick="toggleKontoplan()">📋 Kontoplan</button>
                         <button class="aq-btn aq-btn-info" onclick="toggleExplanation()" id="btn-explanation" style="display: none;">📖 Forklaring</button>
                         <button class="aq-btn aq-btn-accent" onclick="nextQuestion()" id="btn-next" style="display: none;">Neste →</button>
                     </div>
@@ -1457,6 +1593,28 @@
         </div>
     </div>
 
+    <!-- Kontoplan Modal -->
+    <div class="kontoplan-modal" id="kontoplan-modal">
+        <div class="kontoplan-content">
+            <div class="kontoplan-header">
+                <span class="kontoplan-title">📋 Kontoplan (NS 4102)</span>
+                <button class="kontoplan-close" onclick="toggleKontoplan()">×</button>
+            </div>
+            <div class="kontoplan-tabs">
+                <button class="kontoplan-tab active" onclick="showKontoklasse(1)">1 Eiendeler</button>
+                <button class="kontoplan-tab" onclick="showKontoklasse(2)">2 EK & Gjeld</button>
+                <button class="kontoplan-tab" onclick="showKontoklasse(3)">3 Inntekter</button>
+                <button class="kontoplan-tab" onclick="showKontoklasse(4)">4 Varekost</button>
+                <button class="kontoplan-tab" onclick="showKontoklasse(5)">5 Lønn</button>
+                <button class="kontoplan-tab" onclick="showKontoklasse(6)">6-7 Driftskost</button>
+                <button class="kontoplan-tab" onclick="showKontoklasse(8)">8 Finans</button>
+            </div>
+            <div class="kontoplan-body" id="kontoplan-body">
+                <!-- Content loads here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -1468,7 +1626,7 @@
         // ==================== CONFIGURATION ====================
         var topics = [
             { id: 'grunnleggende', name: 'Grunnleggende regnskap', icon: '📖' },
-            { id: 'bokforing', name: 'Regnskapsførsel', icon: '📝' },
+            { id: 'bokforing', name: 'Bokføring', icon: '📝' },
             { id: 'mva', name: 'Merverdiavgift', icon: '💰' },
             { id: 'skatt', name: 'Skatt', icon: '🏛️' },
             { id: 'arsavslutning', name: 'Årsavslutning', icon: '📅' },
@@ -3067,6 +3225,205 @@
                 calcDrag.initialized = true;
             }
         }
+        
+        // Kontoplan data
+        var kontoplanData = {
+            1: {
+                title: 'Kontoklasse 1 – Eiendeler',
+                grupper: [
+                    { title: 'Anleggsmidler', kontoer: [
+                        { nr: '1000', navn: 'Forskning og utvikling' },
+                        { nr: '1070', navn: 'Utsatt skattefordel' },
+                        { nr: '1100', navn: 'Bygninger' },
+                        { nr: '1150', navn: 'Tomter' },
+                        { nr: '1200', navn: 'Maskiner' },
+                        { nr: '1230', navn: 'Biler' },
+                        { nr: '1250', navn: 'Inventar og kontormaskiner' },
+                        { nr: '1300', navn: 'Investeringer i datterselskaper' }
+                    ]},
+                    { title: 'Omløpsmidler', kontoer: [
+                        { nr: '1400', navn: 'Råvarer/materialer' },
+                        { nr: '1420', navn: 'Varer i arbeid' },
+                        { nr: '1440', navn: 'Ferdigvarer' },
+                        { nr: '1460', navn: 'Innkjøpte varer for videresalg' },
+                        { nr: '1500', navn: 'Kundefordringer' },
+                        { nr: '1570', navn: 'Andre kortsiktige fordringer' },
+                        { nr: '1580', navn: 'Avsetning tap på fordringer' },
+                        { nr: '1700', navn: 'Forskuddsbetalt leie' },
+                        { nr: '1720', navn: 'Forskuddsbetalt forsikring' },
+                        { nr: '1810', navn: 'Børsnoterte aksjer' },
+                        { nr: '1900', navn: 'Kontanter' },
+                        { nr: '1920', navn: 'Bankinnskudd' },
+                        { nr: '1950', navn: 'Bankinnskudd skattetrekk' }
+                    ]}
+                ]
+            },
+            2: {
+                title: 'Kontoklasse 2 – Egenkapital og gjeld',
+                grupper: [
+                    { title: 'Egenkapital', kontoer: [
+                        { nr: '2000', navn: 'Aksjekapital' },
+                        { nr: '2020', navn: 'Overkurs' },
+                        { nr: '2030', navn: 'Annen innskutt egenkapital' },
+                        { nr: '2050', navn: 'Annen egenkapital' },
+                        { nr: '2080', navn: 'Udekket tap' }
+                    ]},
+                    { title: 'Langsiktig gjeld', kontoer: [
+                        { nr: '2120', navn: 'Utsatt skatt' },
+                        { nr: '2220', navn: 'Gjeld til kredittinstitusjoner' },
+                        { nr: '2240', navn: 'Pantelån' },
+                        { nr: '2250', navn: 'Gjeld til konsernselskap' }
+                    ]},
+                    { title: 'Kortsiktig gjeld', kontoer: [
+                        { nr: '2400', navn: 'Leverandørgjeld' },
+                        { nr: '2500', navn: 'Betalbar skatt' },
+                        { nr: '2600', navn: 'Forskuddstrekk/Skattetrekk' },
+                        { nr: '2700', navn: 'Utgående merverdiavgift' },
+                        { nr: '2710', navn: 'Inngående merverdiavgift' },
+                        { nr: '2740', navn: 'Oppgjørskonto merverdiavgift' },
+                        { nr: '2770', navn: 'Skyldig arbeidsgiveravgift' },
+                        { nr: '2780', navn: 'Påløpt lønn' },
+                        { nr: '2900', navn: 'Annen kortsiktig gjeld' },
+                        { nr: '2930', navn: 'Skyldig lønn' },
+                        { nr: '2960', navn: 'Påløpte feriepenger' }
+                    ]}
+                ]
+            },
+            3: {
+                title: 'Kontoklasse 3 – Driftsinntekter',
+                grupper: [
+                    { title: 'Salgsinntekter', kontoer: [
+                        { nr: '3000', navn: 'Salgsinntekt varer, avgiftspliktig' },
+                        { nr: '3050', navn: 'Vederlagsinntekt, avgiftspliktig' },
+                        { nr: '3100', navn: 'Salgsinntekt, avgiftsfri' },
+                        { nr: '3510', navn: 'Opptjent garanti-/serviceinntekt' },
+                        { nr: '3600', navn: 'Husleieinntekt' },
+                        { nr: '3800', navn: 'Gevinst avgang anleggsmidler' },
+                        { nr: '3900', navn: 'Andre driftsinntekter' }
+                    ]}
+                ]
+            },
+            4: {
+                title: 'Kontoklasse 4 – Varekostnader',
+                grupper: [
+                    { title: 'Varekjøp og beholdningsendring', kontoer: [
+                        { nr: '4000', navn: 'Innkjøp av råvarer' },
+                        { nr: '4090', navn: 'Beholdningsendring råvarer' },
+                        { nr: '4190', navn: 'Beholdningsendring varer i arbeid' },
+                        { nr: '4290', navn: 'Beholdningsendring ferdigvarer' },
+                        { nr: '4300', navn: 'Innkjøp varer for videresalg' },
+                        { nr: '4360', navn: 'Frakt og toll vedr. varer' },
+                        { nr: '4390', navn: 'Beholdningsendring varer for videresalg' }
+                    ]}
+                ]
+            },
+            5: {
+                title: 'Kontoklasse 5 – Lønnskostnader',
+                grupper: [
+                    { title: 'Lønn og sosiale kostnader', kontoer: [
+                        { nr: '5000', navn: 'Lønn' },
+                        { nr: '5180', navn: 'Feriepenger' },
+                        { nr: '5400', navn: 'Arbeidsgiveravgift' },
+                        { nr: '5410', navn: 'Arbeidsgiveravgift på feriepenger' },
+                        { nr: '5900', navn: 'Andre personalkostnader' }
+                    ]}
+                ]
+            },
+            6: {
+                title: 'Kontoklasse 6 og 7 – Andre driftskostnader',
+                grupper: [
+                    { title: 'Avskrivninger', kontoer: [
+                        { nr: '6000', navn: 'Avskrivning bygninger' },
+                        { nr: '6010', navn: 'Avskrivning andre anleggsmidler' },
+                        { nr: '6050', navn: 'Nedskrivning anleggsmidler' }
+                    ]},
+                    { title: 'Andre driftskostnader', kontoer: [
+                        { nr: '6100', navn: 'Frakt, transport' },
+                        { nr: '6200', navn: 'Leie av lokaler' },
+                        { nr: '6300', navn: 'Leie av maskiner/inventar' },
+                        { nr: '6400', navn: 'Verktøy' },
+                        { nr: '6500', navn: 'Rekvisita' },
+                        { nr: '6700', navn: 'Reparasjon og vedlikehold' },
+                        { nr: '6800', navn: 'Kontorutstyr' },
+                        { nr: '6900', navn: 'Telefon' },
+                        { nr: '7000', navn: 'Reisekostnader' },
+                        { nr: '7100', navn: 'Bilkostnader' },
+                        { nr: '7400', navn: 'Forsikring' },
+                        { nr: '7500', navn: 'Tap på fordringer' },
+                        { nr: '7700', navn: 'Bankkostnader' },
+                        { nr: '7800', navn: 'Tap avgang anleggsmidler' }
+                    ]}
+                ]
+            },
+            8: {
+                title: 'Kontoklasse 8 – Finansposter og skatt',
+                grupper: [
+                    { title: 'Finansinntekter', kontoer: [
+                        { nr: '8050', navn: 'Renteinntekt' },
+                        { nr: '8060', navn: 'Valutagevinst' },
+                        { nr: '8070', navn: 'Annen finansinntekt' },
+                        { nr: '8080', navn: 'Verdiøkning aksjer' }
+                    ]},
+                    { title: 'Finanskostnader', kontoer: [
+                        { nr: '8100', navn: 'Verdireduksjon aksjer' },
+                        { nr: '8150', navn: 'Rentekostnad' },
+                        { nr: '8160', navn: 'Valutatap' },
+                        { nr: '8170', navn: 'Annen finanskostnad' }
+                    ]},
+                    { title: 'Skatt og disponering', kontoer: [
+                        { nr: '8300', navn: 'Betalbar skatt' },
+                        { nr: '8320', navn: 'Endring utsatt skatt' },
+                        { nr: '8800', navn: 'Årsresultat' },
+                        { nr: '8920', navn: 'Avsatt utbytte' },
+                        { nr: '8960', navn: 'Overføring annen egenkapital' }
+                    ]}
+                ]
+            }
+        };
+        
+        function toggleKontoplan() {
+            var modal = document.getElementById('kontoplan-modal');
+            modal.classList.toggle('visible');
+            if (modal.classList.contains('visible')) {
+                showKontoklasse(1);
+            }
+        }
+        
+        function showKontoklasse(nr) {
+            // Update tabs
+            document.querySelectorAll('.kontoplan-tab').forEach(function(tab, i) {
+                tab.classList.toggle('active', i + 1 === nr || (nr === 6 && i === 5));
+            });
+            
+            var data = kontoplanData[nr];
+            if (!data) return;
+            
+            var html = '<h3 style="color: var(--accent); margin-bottom: 12px;">' + data.title + '</h3>';
+            
+            data.grupper.forEach(function(gruppe) {
+                html += '<div class="konto-gruppe">';
+                html += '<div class="konto-gruppe-title">' + gruppe.title + '</div>';
+                gruppe.kontoer.forEach(function(konto) {
+                    html += '<div class="konto-item">';
+                    html += '<span class="konto-nummer">' + konto.nr + '</span>';
+                    html += '<span class="konto-navn">' + konto.navn + '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            });
+            
+            document.getElementById('kontoplan-body').innerHTML = html;
+        }
+        
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var modal = document.getElementById('kontoplan-modal');
+                if (modal.classList.contains('visible')) {
+                    toggleKontoplan();
+                }
+            }
+        });
         
         function calcInput(v) {
             calcState.display = calcState.display === '0' && v !== '.' ? v : calcState.display + v;
