@@ -3,7 +3,7 @@
 .excel-grid-wrapper {
     overflow-x: auto;
     border-radius: 10px;
-    background: #1e1e1e;
+    background: var(--bg-primary, #1e1e1e);
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
@@ -14,17 +14,30 @@
 }
 
 .excel-table th {
-    background: #404040;
-    color: #a0a0a0;
+    background: var(--bg-tertiary, #404040);
+    color: var(--text-secondary, #a0a0a0);
     padding: 12px;
-    border: 1px solid #404040;
+    border: 1px solid var(--border-color, #404040);
     text-align: center;
     font-weight: 600;
 }
 
 .excel-table td {
-    border: 1px solid #404040;
+    border: 1px solid var(--border-color, #404040);
     padding: 0;
+}
+
+.row-number {
+    background: var(--bg-tertiary, #404040);
+    color: var(--text-secondary, #a0a0a0);
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+    min-width: 40px;
+}
+
+.row-number-header {
+    min-width: 40px;
 }
 
 .cell-wrapper {
@@ -37,7 +50,7 @@
     width: 100%;
     background: transparent;
     border: none;
-    color: #eaeaea;
+    color: var(--text-primary, #eaeaea);
     padding: 12px;
     font-size: 0.95em;
     font-family: 'Consolas', 'Monaco', monospace;
@@ -47,7 +60,7 @@
 }
 
 .excel-cell:focus {
-    outline: 2px solid #4ade80;
+    outline: 2px solid var(--accent, #4ade80);
     background: rgba(255,255,255,0.05);
     z-index: 5;
 }
@@ -57,20 +70,33 @@
 }
 
 .excel-cell.readonly {
-    background: #404040;
-    color: #a0a0a0;
+    background: var(--bg-tertiary, #404040);
+    color: var(--text-secondary, #a0a0a0);
     cursor: not-allowed;
+    text-align: left;
 }
 
-/* Fill Handle - Grønn sirkel */
+.excel-cell.correct {
+    background: rgba(34, 197, 94, 0.2) !important;
+    border-color: var(--success, #22c55e) !important;
+    outline: 2px solid var(--success, #22c55e);
+}
+
+.excel-cell.incorrect {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border-color: var(--error, #ef4444) !important;
+    outline: 2px solid var(--error, #ef4444);
+}
+
+/* Fill Handle - Grønn sirkel for drag-copy */
 .fill-handle {
     position: absolute;
     right: 1px;
     bottom: 1px;
     width: 10px;
     height: 10px;
-    background: #4ade80;
-    border: 2px solid #1e1e1e;
+    background: var(--accent, #4ade80);
+    border: 2px solid var(--bg-primary, #1e1e1e);
     border-radius: 50%;
     cursor: crosshair;
     z-index: 25;
@@ -112,12 +138,21 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #2d2d2d;
-    border: 2px solid #4ade80;
+    background: var(--bg-secondary, #2d2d2d);
+    border: 2px solid var(--accent, #4ade80);
     border-radius: 12px;
     padding: 25px;
     z-index: 1000;
     text-align: center;
     box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-    color: #eaeaea;
+    color: var(--text-primary, #eaeaea);
+}
+
+/* Highlight row for answer cells */
+.excel-cell.highlight {
+    font-weight: 600;
+}
+
+.excel-cell.highlight + .excel-cell:not(.readonly) {
+    background: rgba(74, 222, 128, 0.1);
 }
