@@ -2102,6 +2102,11 @@
             } else if (type === 'journal_entry' || type === 'journal') {
                 renderJournalEntry(q);
             } else if (type === 'excel_grid') {
+                document.getElementById('data-display').style.display = 'none'; // ExcelGrid viser data selv
+                renderExcelGrid(q);
+            } else if (type === 'calculation' && q.data && Object.keys(q.data).length > 0) {
+                // Use ExcelGrid for calculations with data
+                document.getElementById('data-display').style.display = 'none'; // ExcelGrid viser data selv
                 renderExcelGrid(q);
             } else {
                 renderCalculation(q);
@@ -2378,7 +2383,7 @@
                     gridRows.push(rowData);
                 });
             } else {
-                // Auto-generate grid from data
+                // Auto-generate grid from data and input_fields
                 headers = ['Parameter', 'Verdi'];
                 
                 // Add data rows (readonly)
@@ -2392,46 +2397,74 @@
                     }
                 });
                 
-                // Add editable answer row(s)
-                var answerLabel = getAnswerLabel(q);
-                gridRows.push([
-                    { value: answerLabel, readonly: true, highlight: true },
-                    { value: '', readonly: false, answer: q.answer }
-                ]);
+                // Get answer fields from input_fields or solution
+                var answerFields = [];
+                if (q.input_fields && q.input_fields.length > 0) {
+                    answerFields = q.input_fields;
+                } else if (q.solution && typeof q.solution === 'object') {
+                    Object.keys(q.solution).forEach(function(key) {
+                        if (key !== 'tolerance' && key !== 'explanation') {
+                            answerFields.push({ id: key, label: formatLabel(key), answer: q.solution[key] });
+                        }
+                    });
+                } else {
+                    answerFields = [{ id: 'answer', label: getAnswerLabel(q), answer: q.answer }];
+                }
+                
+                // Add editable answer rows
+                answerFields.forEach(function(field) {
+                    gridRows.push([
+                        { value: field.label || formatLabel(field.id), readonly: true, highlight: true },
+                        { value: '', readonly: false, answer: field.answer || (q.solution && q.solution[field.id]) }
+                    ]);
+                });
             }
             
-            // Create ExcelGrid instance
-            try {
-                currentExcelGrid = new ExcelGrid('excel-grid-component', {
-                    headers: headers,
-                    showRowNumbers: true,
-                    allowFormulas: true,
-                    allowFillHandle: true,
-                    readonlyColumns: []
-                });
-                
-                currentExcelGrid.loadData(gridRows);
-                
-                // Store answer data for validation
-                currentExcelGrid.answerData = grid ? grid.rows : null;
-                currentExcelGrid.questionAnswer = q.answer;
-                currentExcelGrid.tolerance = q.tolerance || 0.5;
-                
-                // Show formula bar
-                document.getElementById('formula-bar').style.display = 'flex';
-                
-                // Connect formula bar to grid
-                currentExcelGrid.onCellChange(function(row, col, value) {
-                    document.getElementById('cell-ref').textContent = String.fromCharCode(65 + col) + (row + 1);
-                    document.getElementById('formula-input').value = value;
-                });
-                
-                console.log('ExcelGrid created successfully with', gridRows.length, 'rows');
-            } catch (e) {
-                console.error('Error creating ExcelGrid:', e);
-                // Fallback to simple table
-                renderSimpleGrid(q, data, grid);
+            // Check if ExcelGrid class is available
+            if (typeof ExcelGrid !== 'undefined') {
+                try {
+                    console.log('Creating ExcelGrid with', gridRows.length, 'rows');
+                    
+                    currentExcelGrid = new ExcelGrid('excel-grid-component', {
+                        headers: headers,
+                        showRowNumbers: true,
+                        allowFormulas: true,
+                        allowFillHandle: true,
+                        readonlyColumns: []
+                    });
+                    
+                    currentExcelGrid.loadData(gridRows);
+                    
+                    // Store answer data for validation
+                    currentExcelGrid.answerData = grid ? grid.rows : null;
+                    currentExcelGrid.questionAnswer = q.answer;
+                    currentExcelGrid.tolerance = q.tolerance || (q.solution && q.solution.tolerance) || 0.5;
+                    currentExcelGrid.inputFields = q.input_fields;
+                    currentExcelGrid.solution = q.solution;
+                    
+                    // Show formula bar
+                    var formulaBar = document.getElementById('formula-bar');
+                    if (formulaBar) formulaBar.style.display = 'flex';
+                    
+                    // Connect formula bar to grid
+                    currentExcelGrid.onCellChange(function(row, col, value) {
+                        var cellRef = document.getElementById('cell-ref');
+                        var formulaInput = document.getElementById('formula-input');
+                        if (cellRef) cellRef.textContent = String.fromCharCode(65 + col) + (row + 1);
+                        if (formulaInput) formulaInput.value = value;
+                    });
+                    
+                    console.log('ExcelGrid created successfully!');
+                    return;
+                } catch (e) {
+                    console.error('Error creating ExcelGrid:', e);
+                }
+            } else {
+                console.warn('ExcelGrid class not available, using fallback');
             }
+            
+            // Fallback to simple table
+            renderSimpleGrid(q, data, gridRows, headers);
         }
         
         function getAnswerLabel(q) {
@@ -2446,20 +2479,97 @@
             return 'Svar';
         }
         
-        function renderSimpleGrid(q, data, grid) {
+        function renderSimpleGrid(q, data, gridRows, headers) {
             // Fallback simple rendering without ExcelGrid class
             var container = document.getElementById('excel-grid-component');
-            var html = '<table class="excel-table"><thead><tr><th>Parameter</th><th>Verdi</th></tr></thead><tbody>';
             
-            Object.keys(data).forEach(function(key) {
-                html += '<tr><td>' + formatLabel(key) + '</td><td>' + formatNumber(data[key]) + '</td></tr>';
+            var html = '<div class="excel-grid-wrapper"><table class="excel-table">';
+            html += '<thead><tr><th>#</th>';
+            (headers || ['Parameter', 'Verdi']).forEach(function(h) {
+                html += '<th>' + h + '</th>';
+            });
+            html += '</tr></thead><tbody>';
+            
+            gridRows.forEach(function(row, ri) {
+                html += '<tr><td class="row-number">' + (ri + 1) + '</td>';
+                row.forEach(function(cell, ci) {
+                    if (cell.readonly) {
+                        html += '<td><input class="excel-cell readonly" value="' + (cell.value || '') + '" readonly></td>';
+                    } else {
+                        var cellId = 'cell-' + ri + '-' + ci;
+                        html += '<td><div class="cell-wrapper">';
+                        html += '<input class="excel-cell" id="input-' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-answer="' + (cell.answer || '') + '" placeholder="Skriv svar...">';
+                        html += '<div class="fill-handle" title="Dra for å kopiere"></div>';
+                        html += '</div></td>';
+                    }
+                });
+                html += '</tr>';
             });
             
-            html += '<tr><td style="color: var(--accent);">' + getAnswerLabel(q) + '</td>';
-            html += '<td><input class="excel-cell" id="input-answer" placeholder="?"></td></tr>';
-            html += '</tbody></table>';
-            
+            html += '</tbody></table></div>';
             container.innerHTML = html;
+            
+            // Store data for validation
+            currentExcelGrid = {
+                cells: new Map(),
+                gridRows: gridRows,
+                questionAnswer: q.answer,
+                tolerance: q.tolerance || (q.solution && q.solution.tolerance) || 0.5,
+                inputFields: q.input_fields,
+                solution: q.solution
+            };
+            
+            // Populate cells map
+            container.querySelectorAll('.excel-cell:not(.readonly)').forEach(function(cell) {
+                var cellId = cell.dataset.row + '-' + cell.dataset.col;
+                currentExcelGrid.cells.set(cellId, cell);
+            });
+            
+            // Initialize simple drag functionality for fill handle
+            initSimpleFillHandle(container);
+        }
+        
+        function initSimpleFillHandle(container) {
+            var handles = container.querySelectorAll('.fill-handle');
+            handles.forEach(function(handle) {
+                handle.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    var cell = handle.previousElementSibling;
+                    var startRow = parseInt(cell.dataset.row);
+                    var startCol = parseInt(cell.dataset.col);
+                    var startValue = cell.value;
+                    
+                    var onMouseMove = function(e) {
+                        // Highlight cells being dragged over
+                        container.querySelectorAll('.excel-cell').forEach(function(c) {
+                            c.classList.remove('filling');
+                        });
+                        
+                        var targetCell = document.elementFromPoint(e.clientX, e.clientY);
+                        if (targetCell && targetCell.classList.contains('excel-cell') && !targetCell.classList.contains('readonly')) {
+                            targetCell.classList.add('filling');
+                        }
+                    };
+                    
+                    var onMouseUp = function(e) {
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                        
+                        var targetCell = document.elementFromPoint(e.clientX, e.clientY);
+                        if (targetCell && targetCell.classList.contains('excel-cell') && !targetCell.classList.contains('readonly')) {
+                            targetCell.value = startValue;
+                            targetCell.classList.remove('filling');
+                        }
+                        
+                        container.querySelectorAll('.excel-cell').forEach(function(c) {
+                            c.classList.remove('filling');
+                        });
+                    };
+                    
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+            });
         }
         
         function renderVariables(q) {
@@ -2582,10 +2692,24 @@
             var tol = q.tolerance !== undefined ? q.tolerance : (solution.tolerance !== undefined ? solution.tolerance : 0.5);
             
             console.log('Checking excel_grid, tolerance:', tol);
+            console.log('Solution:', solution);
+            console.log('currentExcelGrid:', currentExcelGrid);
             
             // Use currentExcelGrid if available
             if (currentExcelGrid && currentExcelGrid.cells) {
-                console.log('Using ExcelGrid component for validation');
+                console.log('Using ExcelGrid component for validation, cells:', currentExcelGrid.cells.size);
+                
+                // Get solution values (could be in different formats)
+                var solutionValues = solution || q.solution || {};
+                if (typeof solutionValues.correct === 'object') {
+                    solutionValues = solutionValues.correct;
+                }
+                
+                // Get input_fields for mapping
+                var inputFields = currentExcelGrid.inputFields || q.input_fields || [];
+                
+                // Track which answers we've checked
+                var answerIndex = 0;
                 
                 // Get all values from the grid
                 currentExcelGrid.cells.forEach(function(cell, cellId) {
@@ -2597,12 +2721,37 @@
                         var userStr = cell.value.replace(/\s/g, '').replace(',', '.').replace('%', '');
                         var user = parseFloat(userStr);
                         
-                        // Find correct answer from grid data
+                        // Find correct answer
                         var correctVal = null;
-                        if (grid && grid.rows && grid.rows[row] && grid.rows[row].cells && grid.rows[row].cells[col]) {
+                        
+                        // First check if cell has data-answer attribute
+                        if (cell.dataset.answer && cell.dataset.answer !== '') {
+                            correctVal = parseFloat(cell.dataset.answer);
+                        }
+                        // Then check grid structure
+                        else if (grid && grid.rows && grid.rows[row] && grid.rows[row].cells && grid.rows[row].cells[col]) {
                             correctVal = grid.rows[row].cells[col].answer;
-                        } else if (currentExcelGrid.questionAnswer !== undefined) {
-                            // Fallback to question answer for auto-generated grids
+                        }
+                        // Then check solution by input_field id
+                        else if (inputFields.length > answerIndex && inputFields[answerIndex]) {
+                            var fieldId = inputFields[answerIndex].id;
+                            if (solutionValues[fieldId] !== undefined) {
+                                correctVal = solutionValues[fieldId];
+                            }
+                            answerIndex++;
+                        }
+                        // Then check if solution has matching keys
+                        else if (typeof solutionValues === 'object') {
+                            var keys = Object.keys(solutionValues).filter(function(k) {
+                                return k !== 'tolerance' && k !== 'explanation';
+                            });
+                            if (keys.length > answerIndex) {
+                                correctVal = solutionValues[keys[answerIndex]];
+                                answerIndex++;
+                            }
+                        }
+                        // Finally fallback to single answer
+                        else if (currentExcelGrid.questionAnswer !== undefined) {
                             correctVal = currentExcelGrid.questionAnswer;
                         }
                         
@@ -2627,6 +2776,8 @@
                                 cell.classList.add(isOk ? 'correct' : 'incorrect');
                                 if (!isOk) allCorrect = false;
                             }
+                        } else {
+                            console.warn('No correct value found for cell', cellId);
                         }
                     }
                 });
