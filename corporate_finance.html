@@ -709,6 +709,17 @@
             color: var(--error);
         }
         
+        .excel-cell.highlight {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .row-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        
         /* True/False Buttons */
         .tf-container {
             display: flex;
@@ -2261,26 +2272,93 @@
             // Check if we have a proper grid structure
             var grid = q.grid || q.excel_grid;
             
-            if (grid && grid.rows && grid.rows.length > 0) {
-                // Use the provided grid structure
-                thead.innerHTML = '<tr><th>Parameter</th>' + (grid.columns || ['Verdi']).map(function(c) { return '<th>' + c + '</th>'; }).join('') + '</tr>';
+            // Auto-extract data from question text if not provided
+            var data = q.data || {};
+            if (Object.keys(data).length === 0 && !grid) {
+                var qText = q.question || q.description || '';
                 
+                // Parse common patterns from question text
+                var patterns = [
+                    { regex: /Principal\s*[=:]\s*\$?([\d,]+)/i, key: 'Principal' },
+                    { regex: /r\s*[=:]\s*([\d.]+)%/i, key: 'Rente (r)', transform: function(v) { return v + '%'; } },
+                    { regex: /n\s*[=:]\s*(\d+)\s*(år|years?|perioder?)?/i, key: 'Perioder (n)' },
+                    { regex: /Betalt\s*[=:]\s*(\d+)\s*(år|years?)?/i, key: 'Betalt' },
+                    { regex: /PV\s*[=:]\s*\$?([\d,]+)/i, key: 'PV' },
+                    { regex: /FV\s*[=:]\s*\$?([\d,]+)/i, key: 'FV' },
+                    { regex: /PMT\s*[=:]\s*\$?([\d,]+)/i, key: 'PMT' },
+                    { regex: /rate\s*[=:]\s*([\d.]+)%/i, key: 'Rate', transform: function(v) { return v + '%'; } },
+                    { regex: /coupon\s*[=:]\s*([\d.]+)%/i, key: 'Kupong', transform: function(v) { return v + '%'; } },
+                    { regex: /face\s*value\s*[=:]\s*\$?([\d,]+)/i, key: 'Pålydende' },
+                    { regex: /yield\s*[=:]\s*([\d.]+)%/i, key: 'Yield', transform: function(v) { return v + '%'; } }
+                ];
+                
+                patterns.forEach(function(p) {
+                    var match = qText.match(p.regex);
+                    if (match) {
+                        var val = match[1].replace(/,/g, '');
+                        data[p.key] = p.transform ? p.transform(val) : val;
+                    }
+                });
+                
+                if (Object.keys(data).length > 0) {
+                    console.log('Auto-extracted data from question:', data);
+                }
+            }
+            
+            if (grid && grid.rows && grid.rows.length > 0) {
+                // Render grid structure from JSON
+                var columns = grid.columns || ['Beskrivelse', 'Verdi'];
+                
+                // Build header
+                var headerHtml = '<tr>';
+                columns.forEach(function(col) {
+                    headerHtml += '<th>' + col + '</th>';
+                });
+                headerHtml += '</tr>';
+                thead.innerHTML = headerHtml;
+                
+                // Build body
                 var bodyHtml = '';
                 grid.rows.forEach(function(row, ri) {
-                    bodyHtml += '<tr><td class="row-label">' + row.label + '</td>';
-                    (row.cells || []).forEach(function(cell, ci) {
-                        var isReadonly = cell.readonly;
-                        var val = cell.value !== undefined ? cell.value : '';
-                        if (isReadonly) {
-                            bodyHtml += '<td><input class="excel-cell readonly" value="' + val + '" readonly></td>';
-                        } else {
+                    bodyHtml += '<tr>';
+                    
+                    // Handle both formats: row.cells array or row.label + row.cells
+                    var cells = row.cells || [];
+                    
+                    if (row.label && !cells.length) {
+                        // Old format with row.label
+                        bodyHtml += '<td class="row-label">' + row.label + '</td>';
+                    }
+                    
+                    cells.forEach(function(cell, ci) {
+                        var isEditable = cell.editable === true;
+                        var isReadonly = cell.editable === false || (!cell.editable && cell.value !== null);
+                        var val = cell.value !== undefined && cell.value !== null ? cell.value : '';
+                        var cellClass = 'excel-cell';
+                        
+                        if (cell.highlight) {
+                            cellClass += ' highlight';
+                        }
+                        
+                        if (isEditable) {
                             var cellId = cell.id || ('cell-' + ri + '-' + ci);
-                            bodyHtml += '<td><input class="excel-cell" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" placeholder="?"></td>';
+                            bodyHtml += '<td><input class="' + cellClass + '" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-answer="' + (cell.answer || '') + '" placeholder="?"></td>';
+                        } else {
+                            bodyHtml += '<td><input class="' + cellClass + ' readonly" value="' + val + '" readonly></td>';
                         }
                     });
+                    
                     bodyHtml += '</tr>';
                 });
                 tbody.innerHTML = bodyHtml;
+                
+                // Add helper text
+                var editableCells = grid.rows.filter(function(r) {
+                    return r.cells && r.cells.some(function(c) { return c.editable; });
+                });
+                if (editableCells.length > 0) {
+                    tbody.innerHTML += '<tr><td colspan="' + columns.length + '" style="text-align: right; color: var(--text-secondary); font-size: 0.8em; padding-top: 8px;">Fyll inn de tomme cellene</td></tr>';
+                }
             } else {
                 // Auto-generate grid from data and input_fields
                 console.log('Auto-generating Excel grid from data and input_fields');
@@ -2290,9 +2368,9 @@
                 var bodyHtml = '';
                 
                 // First add readonly data rows
-                if (q.data) {
-                    Object.keys(q.data).forEach(function(key) {
-                        var val = q.data[key];
+                if (data && Object.keys(data).length > 0) {
+                    Object.keys(data).forEach(function(key) {
+                        var val = data[key];
                         if (typeof val !== 'object') {
                             bodyHtml += '<tr>';
                             bodyHtml += '<td class="row-label">' + formatLabel(key) + '</td>';
@@ -2304,6 +2382,62 @@
                 
                 // Then add input fields as editable rows
                 var fields = q.input_fields || [];
+                
+                // If no input_fields, auto-generate based on solution or question text
+                if (fields.length === 0) {
+                    var solutionKeys = [];
+                    
+                    // Check solution structure
+                    if (q.solution && q.solution.correct) {
+                        if (typeof q.solution.correct === 'object') {
+                            solutionKeys = Object.keys(q.solution.correct);
+                        } else {
+                            solutionKeys = ['answer'];
+                        }
+                    } else if (q.correct) {
+                        if (typeof q.correct === 'object') {
+                            solutionKeys = Object.keys(q.correct);
+                        } else {
+                            solutionKeys = ['answer'];
+                        }
+                    }
+                    
+                    // If still no fields, parse from question text
+                    if (solutionKeys.length === 0) {
+                        var qText = (q.question || q.description || '').toLowerCase();
+                        
+                        if (qText.includes('gjenstående saldo') || qText.includes('remaining balance') || qText.includes('loan payoff')) {
+                            solutionKeys = ['remaining_balance'];
+                        } else if (qText.includes('npv') || qText.includes('nåverdi')) {
+                            solutionKeys = ['npv'];
+                        } else if (qText.includes('irr') || qText.includes('internrente')) {
+                            solutionKeys = ['irr'];
+                        } else if (qText.includes('pmt') || qText.includes('terminbeløp') || qText.includes('annuitet')) {
+                            solutionKeys = ['pmt'];
+                        } else if (qText.includes('pv') || qText.includes('present value')) {
+                            solutionKeys = ['pv'];
+                        } else if (qText.includes('fv') || qText.includes('future value') || qText.includes('sluttverdi')) {
+                            solutionKeys = ['fv'];
+                        } else if (qText.includes('wacc')) {
+                            solutionKeys = ['wacc'];
+                        } else if (qText.includes('beta')) {
+                            solutionKeys = ['beta'];
+                        } else if (qText.includes('yield') || qText.includes('ytm') || qText.includes('avkastning')) {
+                            solutionKeys = ['yield'];
+                        } else if (qText.includes('pris') || qText.includes('price') || qText.includes('verdi')) {
+                            solutionKeys = ['price'];
+                        } else {
+                            solutionKeys = ['answer'];
+                        }
+                    }
+                    
+                    fields = solutionKeys.map(function(key) {
+                        return { id: key, label: formatLabel(key) };
+                    });
+                    
+                    console.log('Auto-generated input fields:', fields);
+                }
+                
                 fields.forEach(function(field, idx) {
                     bodyHtml += '<tr>';
                     bodyHtml += '<td class="row-label" style="color: var(--accent);">' + (field.label || field.id) + '</td>';
@@ -2313,8 +2447,9 @@
                 
                 tbody.innerHTML = bodyHtml;
                 
-                if (fields.length === 0) {
-                    tbody.innerHTML += '<tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Ingen input-felt definert</td></tr>';
+                // Add helper text
+                if (Object.keys(data).length > 0 && fields.length > 0) {
+                    tbody.innerHTML += '<tr><td colspan="2" style="text-align: right; color: var(--text-secondary); font-size: 0.8em; padding-top: 8px;">Fyll inn de tomme cellene</td></tr>';
                 }
             }
         }
@@ -2417,6 +2552,8 @@
                 correct = checkDnD(solution);
             } else if (type === 'journal_entry' || type === 'journal') {
                 correct = checkJournalEntry(solution);
+            } else if (type === 'excel_grid') {
+                correct = checkExcelGrid(q, solution);
             } else {
                 correct = checkCalc(solution);
             }
@@ -2428,6 +2565,76 @@
             
             if (correct) handleCorrect(); else handleIncorrect();
             document.getElementById('btn-check').disabled = false;
+        }
+        
+        function checkExcelGrid(q, solution) {
+            var grid = q.grid || q.excel_grid;
+            var allCorrect = true;
+            var hasEditableCells = false;
+            var tol = q.tolerance !== undefined ? q.tolerance : (solution.tolerance !== undefined ? solution.tolerance : 0.5);
+            
+            console.log('Checking excel_grid, tolerance:', tol);
+            
+            if (grid && grid.rows) {
+                // Check each editable cell against its answer
+                grid.rows.forEach(function(row, ri) {
+                    (row.cells || []).forEach(function(cell, ci) {
+                        if (cell.editable) {
+                            hasEditableCells = true;
+                            var cellId = cell.id || ('cell-' + ri + '-' + ci);
+                            var inp = document.getElementById('input-' + cellId);
+                            
+                            if (!inp) {
+                                console.log('Cell input not found:', cellId);
+                                return;
+                            }
+                            
+                            var userStr = inp.value.replace(/\s/g, '').replace(',', '.').replace('%', '');
+                            var user = parseFloat(userStr);
+                            var correctVal = cell.answer;
+                            
+                            // Handle percentage format
+                            if (cell.format === 'percent' && typeof correctVal === 'number' && correctVal < 1) {
+                                // If answer is stored as decimal (0.05) but user enters percentage (5)
+                                if (user > 1 && correctVal < 1) {
+                                    user = user / 100;
+                                }
+                            }
+                            
+                            console.log('Cell', cellId, '- User:', user, 'Correct:', correctVal);
+                            
+                            if (isNaN(user)) {
+                                inp.classList.add('incorrect');
+                                allCorrect = false;
+                                return;
+                            }
+                            
+                            if (correctVal !== undefined && correctVal !== null) {
+                                var corrNum = parseFloat(correctVal);
+                                if (!isNaN(corrNum)) {
+                                    // Use tolerance - either absolute or percentage based
+                                    var tolerance = Math.max(tol, Math.abs(corrNum) * 0.02);
+                                    var diff = Math.abs(user - corrNum);
+                                    var isOk = diff <= tolerance;
+                                    
+                                    console.log('Comparing:', user, 'vs', corrNum, 'Diff:', diff, 'Tolerance:', tolerance, 'OK:', isOk);
+                                    
+                                    inp.classList.add(isOk ? 'correct' : 'incorrect');
+                                    if (!isOk) allCorrect = false;
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // If no grid or no editable cells found, fall back to checkCalc
+            if (!hasEditableCells) {
+                console.log('No editable grid cells found, falling back to checkCalc');
+                return checkCalc(solution);
+            }
+            
+            return allCorrect;
         }
         
         function checkTF(solution) {
