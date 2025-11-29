@@ -1802,14 +1802,24 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="js/firebase-config.js"></script>
+    <!-- Scripts - Turso API (migrert fra Firebase) -->
     <script src="js/EXCEL-GRID-FINAL.js"></script>
     
     <script>
+        // ==================== TURSO API CONFIG ====================
+        var API_URL = 'https://api.accountingquest.app';
+        var MODULE_ID = 'grunnleggende'; // Modul-ID for dette spillet
+        
+        async function apiCall(endpoint) {
+            try {
+                var response = await fetch(API_URL + '/api' + endpoint);
+                if (!response.ok) throw new Error('API error: ' + response.status);
+                return await response.json();
+            } catch (err) {
+                console.error('API call failed:', err);
+                return [];
+            }
+        }
         // ==================== CONFIGURATION ====================
         var topics = [
             { id: 'grunnleggende', name: 'Grunnleggende regnskap', icon: '📖' },
@@ -1939,20 +1949,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             renderTopicList();
             
-            // Firebase init
-            var firebaseConfig = {
-                apiKey: "AIzaSyDmLjTJPexLM2PkDHLHhO0KLVozxaEB9JM",
-                authDomain: "accountingquest-multiplayer.firebaseapp.com",
-                databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-                projectId: "accountingquest-multiplayer",
-                storageBucket: "accountingquest-multiplayer.firebasestorage.app",
-                messagingSenderId: "1042365043389",
-                appId: "1:1042365043389:web:a9f933aef3d5c3f6c37edc"
-            };
-            
-            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
+            // Turso API - ingen Firebase init nødvendig
+            console.log('🚀 AccountingQuest - Turso API Mode');
             
             loadQuestionCounts();
             loadFormulasForTopic('grunnleggende');
@@ -2268,17 +2266,19 @@
             return topicMapping[lower] || lower;
         }
         
-        function loadQuestionCounts() {
-            if (typeof firebase === 'undefined') return;
+        async function loadQuestionCounts() {
+            console.log('Loading question counts from Turso API...');
             
-            var db = firebase.database();
-            var questionsPath = 'questions/grunnleggende_regnskap';
-            
-            console.log('Loading question counts from:', questionsPath);
-            
-            db.ref(questionsPath).once('value').then(function(snap) {
+            try {
+                var questions = await apiCall('/questions?module=' + MODULE_ID + '&limit=500');
+                
+                if (!questions || questions.length === 0) {
+                    console.warn('No questions found in Turso');
+                    return;
+                }
+                
                 var counts = {};
-                var total = 0;
+                var total = questions.length;
                 var foundTopics = {};
                 
                 // Initialize counts
@@ -2286,22 +2286,13 @@
                     counts[t.id] = 0;
                 });
                 
-                snap.forEach(function(qSnap) {
-                    var q = qSnap.val();
-                    if (!q || typeof q !== 'object') return;
-                    
-                    // Check for valid question
-                    var isQuestion = q.type || q.question || q.title || q.correct;
-                    if (!isQuestion) return;
-                    
-                    total++;
-                    
-                    // Get topic
+                questions.forEach(function(q) {
+                    // Get topic from question
                     var dbTopic = q.topic;
-                    if (!dbTopic) {
-                        var key = qSnap.key.toLowerCase();
-                        if (key.includes('grunn') || key.includes('generelt')) dbTopic = 'grunnleggende';
-                        else if (key.includes('bokf')) dbTopic = 'bokforing';
+                    if (!dbTopic && q.id) {
+                        var key = q.id.toLowerCase();
+                        if (key.includes('grunn') || key.includes('generelt') || key.includes('teori')) dbTopic = 'grunnleggende';
+                        else if (key.includes('bokf') || key.includes('prak')) dbTopic = 'bokforing';
                         else if (key.includes('mva')) dbTopic = 'mva';
                         else if (key.includes('skatt')) dbTopic = 'skatt';
                         else if (key.includes('aars') || key.includes('avskr')) dbTopic = 'arsavslutning';
@@ -2319,11 +2310,11 @@
                     }
                 });
                 
-                console.log('Found ' + total + ' questions');
+                console.log('Found ' + total + ' questions from Turso');
                 console.log('Topics:', foundTopics);
                 
-                // Store the working path
-                gameState.questionsPath = questionsPath;
+                // Store questions for later use
+                gameState.cachedQuestions = questions;
                 
                 // Update UI
                 topics.forEach(function(topic) {
@@ -2336,13 +2327,13 @@
                         }
                     }
                 });
-            }).catch(function(err) {
+            } catch (err) {
                 console.error('Error loading questions:', err);
-            });
+            }
         }
         
         // ==================== GAME ====================
-        function startGame(topicId) {
+        async function startGame(topicId) {
             gameState.currentTopic = topicId;
             gameState.currentDifficulty = 'all';
             gameState.score = 0;
@@ -2360,102 +2351,84 @@
             document.getElementById('nav-score').textContent = '0';
             document.getElementById('nav-correct').textContent = '0';
             
-            loadQuestions().then(function() {
-                if (gameState.allQuestions.length === 0) {
-                    alert('Ingen spørsmål funnet for dette temaet.');
-                    return;
-                }
-                
-                updateDifficultyCounts();
-                loadFormulasForTopic(topicId);
-                
-                // Show game UI
-                document.getElementById('welcome-screen').style.display = 'none';
-                document.getElementById('game-view').classList.add('visible');
-                document.getElementById('progress-section').classList.add('visible');
-                document.getElementById('question-selector-section').classList.add('visible');
-                
-                renderQuestionSelector();
-                loadQuestion(0);
-            });
+            await loadQuestions();
+            
+            if (gameState.allQuestions.length === 0) {
+                alert('Ingen spørsmål funnet for dette temaet.');
+                return;
+            }
+            
+            updateDifficultyCounts();
+            loadFormulasForTopic(topicId);
+            
+            // Show game UI
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('game-view').classList.add('visible');
+            document.getElementById('progress-section').classList.add('visible');
+            document.getElementById('question-selector-section').classList.add('visible');
+            
+            renderQuestionSelector();
+            loadQuestion(0);
         }
         
-        function loadQuestions() {
-            return new Promise(function(resolve) {
-                if (typeof firebase === 'undefined') { resolve(); return; }
+        async function loadQuestions() {
+            console.log('Loading questions from Turso API...');
+            
+            var questions = [];
+            
+            // Use cached questions from loadQuestionCounts if available
+            var allQuestions = gameState.cachedQuestions || await apiCall('/questions?module=' + MODULE_ID + '&limit=500');
+            
+            if (!allQuestions || allQuestions.length === 0) {
+                console.warn('No questions found');
+                gameState.allQuestions = [];
+                gameState.questions = [];
+                return;
+            }
+            
+            allQuestions.forEach(function(q) {
+                // Extract topic from ID if not present
+                if (!q.topic && q.id) {
+                    var key = q.id.toLowerCase();
+                    if (key.includes('grunn') || key.includes('teori')) q.topic = 'grunnleggende';
+                    else if (key.includes('bokf') || key.includes('prak')) q.topic = 'bokforing';
+                    else if (key.includes('mva')) q.topic = 'mva';
+                    else if (key.includes('skatt')) q.topic = 'skatt';
+                    else if (key.includes('aars') || key.includes('avskr')) q.topic = 'arsavslutning';
+                    else if (key.includes('analyse') || key.includes('nokkel')) q.topic = 'analyse';
+                    else if (key.includes('drift') || key.includes('kalkyl')) q.topic = 'driftsregnskap';
+                    else if (key.includes('lonn') || key.includes('ferie')) q.topic = 'lonn';
+                    else q.topic = 'grunnleggende';
+                }
                 
-                var db = firebase.database();
-                var questions = [];
+                // Map type names
+                if (q.type === 'mc') q.type = 'multiple_choice';
+                else if (q.type === 'tf') q.type = 'true_false';
+                else if (q.type === 'fill_blank') q.type = 'calculation';
                 
-                // Use the path we found, or try questions/grunnleggende_regnskap first
-                var basePath = gameState.questionsPath || 'questions/grunnleggende_regnskap';
+                // Create title from question if not present
+                if (!q.title && q.question) {
+                    q.title = q.question.substring(0, 50) + (q.question.length > 50 ? '...' : '');
+                }
                 
-                console.log('Loading questions from:', basePath);
+                // Map topic for filtering
+                var mappedTopic = mapTopic(q.topic);
                 
-                db.ref(basePath).once('value').then(function(snap) {
-                    snap.forEach(function(qSnap) {
-                        var q = qSnap.val();
-                        
-                        // Skip non-question entries
-                        if (!q || typeof q !== 'object') return;
-                        
-                        q.id = qSnap.key;
-                        
-                        // Extract topic from ID if not present
-                        if (!q.topic) {
-                            var key = qSnap.key;
-                            if (key.includes('grunn')) q.topic = 'grunnleggende';
-                            else if (key.includes('bokf')) q.topic = 'bokforing';
-                            else if (key.includes('mva')) q.topic = 'mva';
-                            else if (key.includes('skatt')) q.topic = 'skatt';
-                            else if (key.includes('aars') || key.includes('avskr')) q.topic = 'arsavslutning';
-                            else if (key.includes('analyse') || key.includes('nokkel')) q.topic = 'analyse';
-                            else if (key.includes('drift') || key.includes('kalkyl')) q.topic = 'driftsregnskap';
-                            else if (key.includes('lonn') || key.includes('ferie')) q.topic = 'lonn';
-                        }
-                        
-                        // Determine type from ID if not present
-                        if (!q.type) {
-                            var key = qSnap.key;
-                            if (key.includes('_mc_')) q.type = 'multiple_choice';
-                            else if (key.includes('_tf_')) q.type = 'true_false';
-                            else if (key.includes('_calc_')) q.type = 'calculation';
-                            else if (key.includes('_grid_')) q.type = 'excel_grid';
-                            else if (key.includes('_journal_')) q.type = 'journal_entry';
-                            else if (key.includes('_dnd_')) q.type = 'dnd';
-                            else q.type = 'calculation'; // default
-                        }
-                        
-                        // Create title from ID if not present
-                        if (!q.title) {
-                            q.title = q.id.replace(/acc_/g, '').replace(/_/g, ' ').replace(/\d+/g, '').trim();
-                            q.title = q.title.charAt(0).toUpperCase() + q.title.slice(1);
-                        }
-                        
-                        // Map topic
-                        var mappedTopic = mapTopic(q.topic);
-                        
-                        // Filter by topic if not mixed
-                        if (gameState.currentTopic !== 'mixed') {
-                            if (mappedTopic !== gameState.currentTopic) return;
-                        }
-                        
-                        questions.push(q);
-                    });
-                    
-                    console.log('Loaded ' + questions.length + ' questions for topic: ' + gameState.currentTopic);
-                    if (questions.length > 0) {
-                        console.log('Sample question:', questions[0]);
-                    }
-                    
-                    gameState.allQuestions = questions;
-                    gameState.questions = shuffleArray(questions).slice(0, 10);
-                    resolve();
-                }).catch(function(err) {
-                    console.error('Error loading questions:', err);
-                    resolve();
-                });
+                // Filter by topic if not mixed
+                if (gameState.currentTopic !== 'mixed') {
+                    if (mappedTopic !== gameState.currentTopic) return;
+                }
+                
+                questions.push(q);
             });
+            
+            console.log('Loaded ' + questions.length + ' questions for topic: ' + gameState.currentTopic);
+            if (questions.length > 0) {
+                console.log('Sample question:', questions[0]);
+            }
+            
+            gameState.allQuestions = questions;
+            gameState.questions = shuffleArray(questions).slice(0, 10);
         }
         
         function updateDifficultyCounts() {
@@ -2641,9 +2614,10 @@
             var opts = q.options || [];
             var html = '';
             opts.forEach(function(o, i) {
-                var id = o.id || i.toString();
-                var text = typeof o === 'string' ? o : o.text;
-                html += '<div class="option-item" data-id="' + id + '" onclick="selectOption(\'' + id + '\')">';
+                // Handle both Turso format (option_text) and old format (text/string)
+                var id = o.id || String(i);
+                var text = o.option_text || o.text || (typeof o === 'string' ? o : '');
+                html += '<div class="option-item" data-id="' + id + '" data-index="' + i + '" onclick="selectOption(\'' + id + '\')">';
                 html += '<div class="option-letter">' + String.fromCharCode(65 + i) + '</div>';
                 html += '<div>' + text + '</div>';
                 html += '</div>';
@@ -2963,37 +2937,25 @@
             console.log('Checking answer for question:', q.id);
             console.log('Question data:', q);
             
-            // The question data from questions/grunnleggende_regnskap already contains the solution
-            // It has 'correct', 'explanation', 'hints', 'tolerance' etc.
+            // Turso API includes solution data in the question object
+            // MC options have is_correct, other types have correct/answer field
+            if (q.options && q.options.length > 0) {
+                // MC type - options have is_correct flag
+                console.log('Using MC options with is_correct flag');
+                processAnswer(q, q);
+                return;
+            }
+            
             if (q.correct !== undefined || q.answer !== undefined) {
                 console.log('Using embedded solution data');
                 processAnswer(q, q);
                 return;
             }
             
-            // Fallback: try to fetch from solutions path
-            var solutionPath = 'solutions/grunnleggende_regnskap/' + q.id;
-            console.log('Fetching solution from:', solutionPath);
-            
-            firebase.database().ref(solutionPath).once('value')
-                .then(function(snap) {
-                    var solution = snap.val();
-                    console.log('Solution found:', solution);
-                    
-                    if (!solution) {
-                        console.error('No solution found for:', q.id);
-                        alert('Ingen fasit funnet for: ' + q.id);
-                        document.getElementById('btn-check').disabled = false;
-                        return;
-                    }
-                    
-                    processAnswer(q, solution);
-                })
-                .catch(function(err) {
-                    console.error('Error fetching solution:', err);
-                    alert('Feil ved henting av fasit: ' + err.message);
-                    document.getElementById('btn-check').disabled = false;
-                });
+            // No solution found
+            console.error('No solution found for:', q.id);
+            alert('Ingen fasit funnet for dette spørsmålet. Kontakt administrator.');
+            document.getElementById('btn-check').disabled = false;
         }
         
         function processAnswer(q, solution) {
@@ -3160,28 +3122,48 @@
                 return null; 
             }
             
-            // Get correct answer - handle different formats
-            var correctId = solution.correct || solution.answer;
-            if (typeof correctId !== 'string') {
-                correctId = String(correctId);
+            var q = gameState.currentQuestion;
+            var opts = q.options || [];
+            var userAnswer = gameState.selectedAnswer;
+            var isCorrect = false;
+            var correctId = null;
+            
+            // Find correct answer from options (Turso format with is_correct)
+            opts.forEach(function(o, i) {
+                var optId = o.id || String(i);
+                if (o.is_correct === 1 || o.is_correct === '1' || o.is_correct === true) {
+                    correctId = optId;
+                    if (userAnswer === optId) {
+                        isCorrect = true;
+                    }
+                }
+            });
+            
+            // Fallback to old format (solution.correct or solution.answer)
+            if (correctId === null) {
+                correctId = solution.correct || solution.answer;
+                if (typeof correctId === 'number') {
+                    correctId = String(correctId);
+                }
+                if (correctId !== null && correctId !== undefined) {
+                    correctId = String(correctId).toLowerCase().trim();
+                    isCorrect = userAnswer.toLowerCase().trim() === correctId;
+                }
             }
-            correctId = correctId.toLowerCase().trim();
             
-            var userAnswer = gameState.selectedAnswer.toLowerCase().trim();
+            console.log('MC Check - User:', userAnswer, 'Correct:', correctId, 'Result:', isCorrect);
             
-            console.log('MC Check - User:', userAnswer, 'Correct:', correctId);
-            
-            // Mark options
+            // Mark options visually
             document.querySelectorAll('.option-item').forEach(function(el) {
-                var optId = el.dataset.id.toLowerCase().trim();
-                if (optId === correctId) {
+                var optId = el.dataset.id;
+                if (optId === correctId || (opts[parseInt(optId)] && (opts[parseInt(optId)].is_correct === 1 || opts[parseInt(optId)].is_correct === '1'))) {
                     el.classList.add('correct');
-                } else if (optId === userAnswer && userAnswer !== correctId) {
+                } else if (optId === userAnswer && !isCorrect) {
                     el.classList.add('incorrect');
                 }
             });
             
-            return userAnswer === correctId;
+            return isCorrect;
         }
         
         function checkCalc(solution) {
@@ -3357,17 +3339,21 @@
             document.getElementById('hint-text').textContent = 'Laster...';
             document.getElementById('hint-box').classList.add('visible');
             
-            firebase.database().ref('solutions/grunnleggende_regnskap/' + q.id + '/hints/' + gameState.hintsUsed).once('value')
-                .then(function(snap) {
-                    var hint = snap.val();
-                    if (!hint) {
-                        document.getElementById('hint-text').textContent = 'Ingen flere hints.';
-                        document.getElementById('btn-hint').disabled = true;
-                        return;
-                    }
-                    document.getElementById('hint-text').textContent = typeof hint === 'string' ? hint : hint.text;
-                    gameState.hintsUsed++;
-                });
+            // Turso API returns hints as JSON array in question.hints
+            var hints = q.hints || [];
+            if (typeof hints === 'string') {
+                try { hints = JSON.parse(hints); } catch(e) { hints = [hints]; }
+            }
+            
+            if (gameState.hintsUsed >= hints.length) {
+                document.getElementById('hint-text').textContent = 'Ingen flere hints.';
+                document.getElementById('btn-hint').disabled = true;
+                return;
+            }
+            
+            var hint = hints[gameState.hintsUsed];
+            document.getElementById('hint-text').textContent = typeof hint === 'string' ? hint : (hint.text || hint);
+            gameState.hintsUsed++;
         }
         
         function closeHint() {
@@ -3385,16 +3371,11 @@
         
         function showExplanation() {
             var q = gameState.currentQuestion;
-            document.getElementById('explanation-main').innerHTML = '<em>Laster...</em>';
-            document.getElementById('explanation-box').classList.add('visible');
             
-            firebase.database().ref('solutions/grunnleggende_regnskap/' + q.id).once('value')
-                .then(function(snap) {
-                    var sol = snap.val();
-                    document.getElementById('explanation-main').innerHTML = sol && sol.explanation 
-                        ? sol.explanation.replace(/\n/g, '<br>') 
-                        : 'Ingen forklaring tilgjengelig.';
-                });
+            // Turso API returns explanation directly in question object
+            var explanation = q.explanation || 'Ingen forklaring tilgjengelig.';
+            document.getElementById('explanation-main').innerHTML = explanation.replace(/\n/g, '<br>');
+            document.getElementById('explanation-box').classList.add('visible');
         }
         
         function closeExplanation() {
@@ -3417,27 +3398,11 @@
         function showResults() {
             var pct = Math.round((gameState.correctCount / gameState.questions.length) * 100);
             
-            // Save final progress
+            // Save final progress to localStorage
             saveProgress();
             
-            // Save to Firebase if logged in (with correct structure)
-            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                var user = firebase.auth().currentUser;
-                var db = firebase.database();
-                
-                // Update user stats - match the rules structure
-                db.ref('user_progress/' + user.uid + '/grunnleggende_regnskap/' + gameState.currentTopic).update({
-                    score: gameState.score,
-                    correct: gameState.correctCount,
-                    total: gameState.questions.length,
-                    completed: true,
-                    lastAttempt: Date.now()
-                }).then(function() {
-                    console.log('Final results saved to Firebase');
-                }).catch(function(err) {
-                    console.error('Failed to save final results:', err);
-                });
-            }
+            // TODO: Turso API progress saving kan legges til senere via /api/progress endpoint
+            console.log('Results saved locally. Score:', gameState.score, 'Correct:', gameState.correctCount);
             
             document.getElementById('result-correct').textContent = gameState.correctCount;
             document.getElementById('result-total').textContent = gameState.questions.length;
@@ -3486,15 +3451,8 @@
             
             console.log('Progress data:', progressData);
             
-            // Save to localStorage always (as backup)
+            // Save to localStorage (Turso API progress kan legges til senere)
             saveToLocalStorage(progressData);
-            
-            // Save to Firebase if logged in
-            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                saveToFirebase(progressData);
-            } else {
-                console.log('Not logged in - saving to localStorage only');
-            }
         }
         
         function saveToLocalStorage(data) {
@@ -3514,32 +3472,6 @@
             } catch (e) {
                 console.error('LocalStorage save failed:', e);
             }
-        }
-        
-        function saveToFirebase(data) {
-            var user = firebase.auth().currentUser;
-            if (!user) {
-                console.log('No user logged in for Firebase save');
-                return;
-            }
-            
-            console.log('Saving to Firebase for user:', user.uid);
-            
-            var db = firebase.database();
-            var path = 'user_progress/' + user.uid + '/grunnleggende_regnskap/' + data.topic;
-            
-            // Match the database rules structure
-            db.ref(path).update({
-                score: data.score,
-                correct: data.correctCount,
-                total: data.totalQuestions,
-                completed: data.answeredQuestions.length > 0,
-                lastAttempt: Date.now() // Use regular timestamp, not ServerValue
-            }).then(function() {
-                console.log('Progress saved to Firebase at:', path);
-            }).catch(function(err) {
-                console.error('Firebase save failed:', err);
-            });
         }
         
         function saveQuestionResult(questionId, isCorrect, userAnswer) {
@@ -3565,32 +3497,16 @@
                 console.error('Answer save failed:', e);
             }
             
-            // For Firebase, we don't save individual answers under user_progress
-            // because the rules don't allow arbitrary fields under grunnleggende_regnskap/$topicId
-            // Instead, we update the topic progress which includes completed count
+            // For now, we don't save individual answers to Turso API
+            // because the main progress is tracked separately
         }
         
         function loadSavedProgress() {
-            // Try to load from Firebase first, then localStorage
-            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-                var user = firebase.auth().currentUser;
-                var db = firebase.database();
-                
-                db.ref('user_progress/' + user.uid + '/grunnleggende_regnskap').once('value')
-                    .then(function(snap) {
-                        var data = snap.val();
-                        if (data) {
-                            console.log('Loaded progress from Firebase:', data);
-                            updateProgressDisplay(data);
-                        }
-                    });
-            } else {
-                // Load from localStorage
-                var stats = JSON.parse(localStorage.getItem('cf_stats') || '{}');
-                if (Object.keys(stats).length > 0) {
-                    console.log('Loaded progress from localStorage:', stats);
-                    updateProgressDisplay(stats);
-                }
+            // Load from localStorage
+            var stats = JSON.parse(localStorage.getItem('cf_stats') || '{}');
+            if (Object.keys(stats).length > 0) {
+                console.log('Loaded progress from localStorage:', stats);
+                updateProgressDisplay(stats);
             }
         }
         
