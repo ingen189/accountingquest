@@ -3855,6 +3855,37 @@
             
             console.log('Checking answer for question:', q.id);
             console.log('Question data:', q);
+            console.log('q.grid:', q.grid);
+            console.log('q.solution:', q.solution);
+            console.log('q.correct:', q.correct);
+            console.log('q.answer:', q.answer);
+            
+            // For excel_grid, solution might be in grid cells or separate solution field
+            if (q.type === 'excel_grid') {
+                // Check if grid cells have answer/correct values
+                var hasGridAnswers = false;
+                if (q.grid && q.grid.rows) {
+                    q.grid.rows.forEach(function(row) {
+                        (row.cells || []).forEach(function(cell) {
+                            if (cell.answer !== undefined || cell.correct !== undefined) {
+                                hasGridAnswers = true;
+                            }
+                        });
+                    });
+                }
+                console.log('Grid has embedded answers:', hasGridAnswers);
+                
+                // Also check for solution array
+                if (q.solution || q.correct || hasGridAnswers) {
+                    processAnswer(q, q);
+                    return;
+                }
+                
+                // If no solution data, still try to check (balance-only mode)
+                console.log('No explicit solution - using balance-only check');
+                processAnswer(q, q);
+                return;
+            }
             
             // Turso API includes solution data in the question object
             // MC options have is_correct, other types have correct/answer field
