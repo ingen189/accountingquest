@@ -2581,15 +2581,25 @@
             var allCells = document.querySelectorAll('#excel-tbody .excel-cell:not(.readonly)');
             
             allCells.forEach(function(cell) {
-                cell.addEventListener('click', function(e) {
+                // Click handler - add cell reference when in formula mode
+                cell.addEventListener('mousedown', function(e) {
+                    // If we're in formula mode and clicking a DIFFERENT cell
                     if (gridState.selectingCell && gridState.currentCell && cell !== gridState.currentCell) {
                         e.preventDefault();
-                        // Insert cell reference into current formula
+                        e.stopPropagation();
+                        
+                        // Get reference for clicked cell
                         var cellRef = getCellReference(cell);
-                        var cursorPos = gridState.currentCell.selectionStart || gridState.currentCell.value.length;
-                        var currentValue = gridState.currentCell.value;
-                        gridState.currentCell.value = currentValue.slice(0, cursorPos) + cellRef + currentValue.slice(cursorPos);
+                        
+                        // Add to formula
+                        gridState.currentCell.value += cellRef;
+                        
+                        // Keep focus on formula cell
                         gridState.currentCell.focus();
+                        
+                        // Put cursor at end
+                        var len = gridState.currentCell.value.length;
+                        gridState.currentCell.setSelectionRange(len, len);
                         
                         // Visual feedback
                         cell.classList.add('selected-for-formula');
@@ -2601,30 +2611,39 @@
                 
                 // Detect when user types = to start selection mode
                 cell.addEventListener('input', function() {
-                    if (cell.value === '=') {
-                        gridState.selectingCell = true;
-                        gridState.currentCell = cell;
-                        // Add visual indicator to other cells
-                        document.querySelectorAll('#excel-tbody .excel-cell:not(.readonly)').forEach(function(c) {
-                            if (c !== cell) {
-                                c.classList.add('selecting-mode');
-                            }
-                        });
-                    } else if (!cell.value.startsWith('=')) {
-                        endCellSelection();
+                    var val = cell.value;
+                    
+                    // Start formula mode when typing =
+                    if (val.startsWith('=')) {
+                        if (!gridState.selectingCell) {
+                            gridState.selectingCell = true;
+                            gridState.currentCell = cell;
+                            console.log('Formula mode started');
+                            
+                            // Add visual indicator to other cells
+                            document.querySelectorAll('#excel-tbody .excel-cell:not(.readonly)').forEach(function(c) {
+                                if (c !== cell) {
+                                    c.classList.add('selecting-mode');
+                                }
+                            });
+                        }
+                    } else {
+                        // Not a formula anymore
+                        if (gridState.selectingCell) {
+                            endCellSelection();
+                        }
                     }
                 });
                 
-                // End selection on blur or Enter
-                cell.addEventListener('blur', function() {
-                    setTimeout(function() {
-                        endCellSelection();
-                    }, 100);
-                });
+                // DON'T end selection on blur - we need to click other cells!
+                // Only end on Enter or Escape
             });
         }
         
         function endCellSelection() {
+            if (gridState.selectingCell) {
+                console.log('Formula mode ended');
+            }
             gridState.selectingCell = false;
             gridState.currentCell = null;
             document.querySelectorAll('.selecting-mode').forEach(function(c) {
