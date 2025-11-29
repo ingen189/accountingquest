@@ -2953,6 +2953,9 @@
                 return 0;
             }
             
+            // Remove $ signs (used for absolute references, but we just need the cell ref)
+            formula = formula.replace(/\$/g, '');
+            
             // If formula is just a number, return it
             var cleanFormula = formula.replace(/\s/g, '').replace(',', '.');
             if (/^-?\d+\.?\d*$/.test(cleanFormula)) {
@@ -3721,24 +3724,28 @@
                     headerRow.innerHTML = '<span class="excel-title">📊 T-konto</span><span class="excel-hint">Fyll inn beløpene</span>';
                 }
                 
-                // Use the provided grid structure for T-konto
-                // Columns should be ['Konto', 'Debet', 'Kredit'] or similar
-                var columns = grid.columns || ['Konto', 'Debet', 'Kredit'];
-                
-                // Header: tom kolonne for row-labels + data-kolonner
-                var headerHtml = '<tr><th style="min-width: 100px;"></th>';
-                columns.forEach(function(c) {
-                    headerHtml += '<th style="min-width: 120px;">' + c + '</th>';
+                // Filter out any "Sum" rows from the data (we add our own)
+                var dataRows = grid.rows.filter(function(row) {
+                    return !row.label || row.label.toLowerCase() !== 'sum';
                 });
+                
+                // Use simple column letters A, B, C
+                var numCols = (dataRows[0] && dataRows[0].cells) ? dataRows[0].cells.length : 3;
+                
+                // Header: row number column + A, B, C...
+                var headerHtml = '<tr><th style="width: 40px;">#</th>';
+                for (var hi = 0; hi < numCols; hi++) {
+                    headerHtml += '<th style="min-width: 100px;">' + String.fromCharCode(65 + hi) + '</th>';
+                }
                 headerHtml += '</tr>';
                 thead.innerHTML = headerHtml;
                 
                 var bodyHtml = '';
-                grid.rows.forEach(function(row, ri) {
+                dataRows.forEach(function(row, ri) {
                     bodyHtml += '<tr>';
                     
-                    // Row label in first column
-                    bodyHtml += '<td class="row-label">' + (row.label || '') + '</td>';
+                    // Row number (1, 2, 3...)
+                    bodyHtml += '<td class="row-label" style="text-align: center; color: var(--text-secondary); font-size: 0.85em;">' + (ri + 1) + '</td>';
                     
                     // Cells for data columns
                     (row.cells || []).forEach(function(cell, ci) {
@@ -3751,10 +3758,10 @@
                             bodyHtml += '<td><input class="excel-cell readonly" value="' + val + '" readonly tabindex="-1"></td>';
                         } else if (cellType === 'account') {
                             // Account field - droppable with fill handle
-                            bodyHtml += '<td><div class="cell-wrapper"><input class="excel-cell account-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="account" placeholder="Dra konto hit" type="text"><div class="fill-handle"></div></div></td>';
+                            bodyHtml += '<td><div class="cell-wrapper"><input class="excel-cell account-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="account" placeholder="Konto" type="text"><div class="fill-handle"></div></div></td>';
                         } else {
                             // Number field with fill handle
-                            bodyHtml += '<td><div class="cell-wrapper"><input class="excel-cell number-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="number" placeholder="?" inputmode="numeric" pattern="[0-9]*"><div class="fill-handle"></div></div></td>';
+                            bodyHtml += '<td><div class="cell-wrapper"><input class="excel-cell number-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="number" placeholder="" inputmode="numeric" pattern="[0-9]*"><div class="fill-handle"></div></div></td>';
                         }
                     });
                     bodyHtml += '</tr>';
@@ -3762,7 +3769,7 @@
                 
                 // Add Sum row
                 bodyHtml += '<tr class="sum-row">';
-                bodyHtml += '<td class="row-label" style="font-weight: bold; color: var(--accent);">Sum</td>';
+                bodyHtml += '<td class="row-label" style="text-align: center; font-weight: bold; color: var(--accent);">Σ</td>';
                 bodyHtml += '<td></td>'; // Empty for account column
                 bodyHtml += '<td><input class="excel-cell readonly sum-debet" value="0" readonly style="font-weight: bold; text-align: right;"></td>';
                 bodyHtml += '<td><input class="excel-cell readonly sum-kredit" value="0" readonly style="font-weight: bold; text-align: right;"></td>';
@@ -4044,19 +4051,35 @@
             var totalKredit = 0;
             var hasInput = false;
             
-            // Get all editable cells
-            document.querySelectorAll('#excel-tbody tr:not(.sum-row)').forEach(function(row, ri) {
-                var accountCell = row.querySelector('[data-type="account"]');
-                var debetCell = row.querySelector('[data-col="1"]');
-                var kreditCell = row.querySelector('[data-col="2"]');
+            // Get all data rows (not sum row)
+            var tbody = document.getElementById('excel-tbody');
+            var rows = tbody.querySelectorAll('tr:not(.sum-row)');
+            
+            rows.forEach(function(row, ri) {
+                var cells = row.querySelectorAll('td');
+                // cells[0] = row number, cells[1] = account, cells[2] = debet, cells[3] = kredit
                 
-                var account = accountCell ? accountCell.value.trim() : '';
-                var debet = debetCell ? parseFloat(debetCell.value.replace(/\s/g, '').replace(',', '.')) || 0 : 0;
-                var kredit = kreditCell ? parseFloat(kreditCell.value.replace(/\s/g, '').replace(',', '.')) || 0 : 0;
+                var accountInput = cells[1] ? cells[1].querySelector('.excel-cell') : null;
+                var debetInput = cells[2] ? cells[2].querySelector('.excel-cell') : null;
+                var kreditInput = cells[3] ? cells[3].querySelector('.excel-cell') : null;
+                
+                var account = accountInput ? accountInput.value.trim() : '';
+                var debet = debetInput ? parseFloat(debetInput.value.replace(/\s/g, '').replace(',', '.')) || 0 : 0;
+                var kredit = kreditInput ? parseFloat(kreditInput.value.replace(/\s/g, '').replace(',', '.')) || 0 : 0;
+                
+                console.log('Row', ri, '- Account:', account, 'Debet:', debet, 'Kredit:', kredit);
                 
                 if (account || debet || kredit) {
                     hasInput = true;
-                    userEntries.push({ account: account, debet: debet, kredit: kredit, row: ri });
+                    userEntries.push({ 
+                        account: account, 
+                        debet: debet, 
+                        kredit: kredit, 
+                        row: ri,
+                        accountEl: accountInput,
+                        debetEl: debetInput,
+                        kreditEl: kreditInput
+                    });
                     totalDebet += debet;
                     totalKredit += kredit;
                 }
@@ -4080,6 +4103,8 @@
             var solution = q.correct || q.solution;
             
             if (solution && Array.isArray(solution)) {
+                console.log('Checking against solution array:', solution);
+                
                 // Validate each required entry exists
                 var allCorrect = true;
                 var matchedSolutions = [];
@@ -4089,10 +4114,17 @@
                     solution.forEach(function(sol, idx) {
                         if (matchedSolutions.indexOf(idx) > -1) return;
                         
-                        // Match account and amounts
-                        var accountMatch = String(entry.account) === String(sol.account || sol.konto);
-                        var debetMatch = Math.abs(entry.debet - (sol.debet || sol.debit || 0)) < 0.01;
-                        var kreditMatch = Math.abs(entry.kredit - (sol.kredit || sol.credit || 0)) < 0.01;
+                        // Match account and amounts (flexible field names)
+                        var solAccount = String(sol.account || sol.konto || sol.Account || '');
+                        var solDebet = parseFloat(sol.debet || sol.debit || sol.Debet || sol.Debit || 0) || 0;
+                        var solKredit = parseFloat(sol.kredit || sol.credit || sol.Kredit || sol.Credit || 0) || 0;
+                        
+                        var accountMatch = entry.account === solAccount;
+                        var debetMatch = Math.abs(entry.debet - solDebet) < 0.01;
+                        var kreditMatch = Math.abs(entry.kredit - solKredit) < 0.01;
+                        
+                        console.log('Comparing entry', entry.account, 'with sol', solAccount, 
+                                    '- account:', accountMatch, 'debet:', debetMatch, 'kredit:', kreditMatch);
                         
                         if (accountMatch && debetMatch && kreditMatch) {
                             found = true;
@@ -4100,24 +4132,22 @@
                         }
                     });
                     
-                    // Mark row visually
-                    var rowEl = document.querySelector('#excel-tbody tr:nth-child(' + (entry.row + 1) + ')');
-                    if (rowEl) {
-                        rowEl.querySelectorAll('.excel-cell:not(.readonly)').forEach(function(cell) {
-                            if (found) {
-                                cell.classList.remove('incorrect');
-                                cell.classList.add('correct');
-                            } else {
-                                cell.classList.remove('correct');
-                                cell.classList.add('incorrect');
-                                allCorrect = false;
-                            }
-                        });
+                    // Mark cells visually
+                    if (found) {
+                        if (entry.accountEl) { entry.accountEl.classList.remove('incorrect'); entry.accountEl.classList.add('correct'); }
+                        if (entry.debetEl) { entry.debetEl.classList.remove('incorrect'); entry.debetEl.classList.add('correct'); }
+                        if (entry.kreditEl) { entry.kreditEl.classList.remove('incorrect'); entry.kreditEl.classList.add('correct'); }
+                    } else {
+                        if (entry.accountEl) { entry.accountEl.classList.remove('correct'); entry.accountEl.classList.add('incorrect'); }
+                        if (entry.debetEl) { entry.debetEl.classList.remove('correct'); entry.debetEl.classList.add('incorrect'); }
+                        if (entry.kreditEl) { entry.kreditEl.classList.remove('correct'); entry.kreditEl.classList.add('incorrect'); }
+                        allCorrect = false;
                     }
                 });
                 
                 // Check if all required solutions were matched
                 if (matchedSolutions.length < solution.length) {
+                    console.log('Not all solutions matched:', matchedSolutions.length, 'of', solution.length);
                     allCorrect = false;
                 }
                 
@@ -4126,16 +4156,28 @@
             
             // If we have answer data in grid cells
             if (grid && grid.rows) {
+                console.log('Checking against grid.rows answers');
                 var allCorrect = true;
                 var hasAnswers = false;
                 
-                grid.rows.forEach(function(row, ri) {
+                // Filter out sum rows like we do in rendering
+                var dataRows = grid.rows.filter(function(row) {
+                    return !row.label || row.label.toLowerCase() !== 'sum';
+                });
+                
+                dataRows.forEach(function(row, ri) {
+                    var rowEl = rows[ri];
+                    if (!rowEl) return;
+                    
+                    var cells = rowEl.querySelectorAll('td');
+                    
                     (row.cells || []).forEach(function(cell, ci) {
                         var correctValue = cell.answer !== undefined ? cell.answer : cell.correct;
                         if (correctValue === undefined) return;
                         
                         hasAnswers = true;
-                        var inputEl = document.querySelector('[data-row="' + ri + '"][data-col="' + ci + '"]');
+                        // ci+1 because cells[0] is row number
+                        var inputEl = cells[ci + 1] ? cells[ci + 1].querySelector('.excel-cell') : null;
                         if (!inputEl) return;
                         
                         var userValue = inputEl.value.trim();
@@ -4149,6 +4191,8 @@
                             var correctNum = parseFloat(correctValue) || 0;
                             isCorrect = Math.abs(userNum - correctNum) < 0.01;
                         }
+                        
+                        console.log('Cell', ri, ci, '- User:', userValue, 'Correct:', correctValue, 'Match:', isCorrect);
                         
                         if (isCorrect) {
                             inputEl.classList.remove('incorrect');
