@@ -709,6 +709,105 @@
             color: var(--error);
         }
         
+        /* Cell Wrapper for fill handle */
+        .cell-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 38px;
+            display: block;
+        }
+        
+        /* Fill Handle - grønn dra-prikk */
+        .fill-handle {
+            position: absolute;
+            right: 2px;
+            bottom: 2px;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border: 2px solid var(--bg-secondary);
+            border-radius: 2px;
+            cursor: crosshair;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.15s, transform 0.15s;
+        }
+        
+        .cell-wrapper:hover .fill-handle,
+        .excel-cell:focus ~ .fill-handle {
+            opacity: 1;
+        }
+        
+        .fill-handle:hover {
+            transform: scale(1.3);
+            background: #5ef090;
+            box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+        }
+        
+        /* Fill source and filling states */
+        .excel-cell.fill-source {
+            outline: 2px solid var(--accent) !important;
+            background: rgba(74, 222, 128, 0.15) !important;
+        }
+        
+        .excel-cell.filling {
+            background: rgba(74, 222, 128, 0.25) !important;
+            outline: 1px dashed var(--accent);
+        }
+        
+        /* Drag over state */
+        .excel-cell.drag-over {
+            outline: 2px dashed var(--accent) !important;
+            background: rgba(74, 222, 128, 0.15) !important;
+        }
+        
+        .excel-cell.correct-dropped {
+            animation: dropPulse 0.5s ease;
+        }
+        
+        @keyframes dropPulse {
+            0% { background: rgba(74, 222, 128, 0.4); }
+            100% { background: transparent; }
+        }
+        
+        /* Formula selection mode */
+        .excel-cell.selecting-mode {
+            cursor: cell;
+        }
+        
+        .excel-cell.selecting-mode:hover {
+            background: rgba(59, 130, 246, 0.15) !important;
+            outline: 2px solid #3b82f6;
+        }
+        
+        .excel-cell.selected-for-formula {
+            outline: 3px solid #3b82f6 !important;
+            background: rgba(59, 130, 246, 0.2) !important;
+            animation: cellPulse 0.3s ease;
+        }
+        
+        @keyframes cellPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
+        }
+        
+        /* Sum row */
+        .sum-row td {
+            background: var(--bg-tertiary) !important;
+            border-top: 2px solid var(--accent);
+        }
+        
+        /* Remove number spinners */
+        .excel-cell::-webkit-outer-spin-button,
+        .excel-cell::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .excel-cell[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
         /* Account List Panel */
         .account-search {
             padding: var(--space-sm);
@@ -2260,6 +2359,215 @@
                     gridState.currentCell = input;
                 });
             });
+            
+            // Setup fill handles
+            setupFillHandles();
+        }
+        
+        // Fill handle state
+        var fillState = {
+            active: false,
+            startCell: null,
+            startRow: -1,
+            startCol: -1
+        };
+        
+        function setupFillHandles() {
+            var handles = document.querySelectorAll('.fill-handle');
+            console.log('Setting up', handles.length, 'fill handles');
+            
+            handles.forEach(function(handle) {
+                handle.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    var cell = handle.parentElement.querySelector('.excel-cell');
+                    if (!cell) return;
+                    
+                    fillState.active = true;
+                    fillState.startCell = cell;
+                    fillState.startRow = parseInt(cell.dataset.row);
+                    fillState.startCol = parseInt(cell.dataset.col);
+                    
+                    cell.classList.add('fill-source');
+                    
+                    document.addEventListener('mousemove', handleFillDrag);
+                    document.addEventListener('mouseup', handleFillEnd);
+                });
+                
+                // Touch support
+                handle.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    var cell = handle.parentElement.querySelector('.excel-cell');
+                    if (!cell) return;
+                    
+                    fillState.active = true;
+                    fillState.startCell = cell;
+                    fillState.startRow = parseInt(cell.dataset.row);
+                    fillState.startCol = parseInt(cell.dataset.col);
+                    
+                    cell.classList.add('fill-source');
+                    
+                    document.addEventListener('touchmove', handleFillDragTouch, { passive: false });
+                    document.addEventListener('touchend', handleFillEnd);
+                }, { passive: false });
+            });
+        }
+        
+        function handleFillDrag(e) {
+            if (!fillState.active) return;
+            
+            var target = document.elementFromPoint(e.clientX, e.clientY);
+            if (target && target.classList.contains('excel-cell') && !target.classList.contains('readonly')) {
+                highlightFillRange(target);
+            }
+        }
+        
+        function handleFillDragTouch(e) {
+            if (!fillState.active) return;
+            e.preventDefault();
+            
+            var touch = e.touches[0];
+            var target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target && target.classList.contains('excel-cell') && !target.classList.contains('readonly')) {
+                highlightFillRange(target);
+            }
+        }
+        
+        function highlightFillRange(targetCell) {
+            // Clear previous highlights
+            document.querySelectorAll('.filling').forEach(function(c) {
+                c.classList.remove('filling');
+            });
+            
+            var targetRow = parseInt(targetCell.dataset.row);
+            var targetCol = parseInt(targetCell.dataset.col);
+            
+            // Highlight cells in range (vertical only for simplicity)
+            if (targetCol === fillState.startCol && targetRow !== fillState.startRow) {
+                var minRow = Math.min(fillState.startRow, targetRow);
+                var maxRow = Math.max(fillState.startRow, targetRow);
+                
+                for (var r = minRow; r <= maxRow; r++) {
+                    if (r === fillState.startRow) continue;
+                    var cell = document.querySelector('[data-row="' + r + '"][data-col="' + fillState.startCol + '"]');
+                    if (cell && !cell.classList.contains('readonly')) {
+                        cell.classList.add('filling');
+                    }
+                }
+            }
+            // Horizontal
+            else if (targetRow === fillState.startRow && targetCol !== fillState.startCol) {
+                var minCol = Math.min(fillState.startCol, targetCol);
+                var maxCol = Math.max(fillState.startCol, targetCol);
+                
+                for (var c = minCol; c <= maxCol; c++) {
+                    if (c === fillState.startCol) continue;
+                    var cell = document.querySelector('[data-row="' + fillState.startRow + '"][data-col="' + c + '"]');
+                    if (cell && !cell.classList.contains('readonly')) {
+                        cell.classList.add('filling');
+                    }
+                }
+            }
+        }
+        
+        function handleFillEnd(e) {
+            if (!fillState.active) return;
+            
+            // Get final target
+            var clientX, clientY;
+            if (e.type === 'touchend' && e.changedTouches && e.changedTouches.length > 0) {
+                clientX = e.changedTouches[0].clientX;
+                clientY = e.changedTouches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            var target = document.elementFromPoint(clientX, clientY);
+            if (target && target.classList.contains('excel-cell')) {
+                executeFill(target);
+            }
+            
+            // Cleanup
+            fillState.startCell.classList.remove('fill-source');
+            document.querySelectorAll('.filling').forEach(function(c) {
+                c.classList.remove('filling');
+            });
+            
+            fillState.active = false;
+            fillState.startCell = null;
+            
+            document.removeEventListener('mousemove', handleFillDrag);
+            document.removeEventListener('mouseup', handleFillEnd);
+            document.removeEventListener('touchmove', handleFillDragTouch);
+            document.removeEventListener('touchend', handleFillEnd);
+            
+            updateGridBalance();
+        }
+        
+        function executeFill(endCell) {
+            var endRow = parseInt(endCell.dataset.row);
+            var endCol = parseInt(endCell.dataset.col);
+            var startVal = fillState.startCell.value;
+            var startFormula = fillState.startCell.dataset.formula || startVal;
+            
+            // Vertical fill
+            if (endCol === fillState.startCol && endRow !== fillState.startRow) {
+                var dir = endRow > fillState.startRow ? 1 : -1;
+                for (var r = fillState.startRow + dir; dir > 0 ? r <= endRow : r >= endRow; r += dir) {
+                    var cell = document.querySelector('[data-row="' + r + '"][data-col="' + fillState.startCol + '"]');
+                    if (cell && !cell.classList.contains('readonly')) {
+                        fillCell(cell, startFormula, startVal, r - fillState.startRow, 0);
+                    }
+                }
+            }
+            // Horizontal fill
+            else if (endRow === fillState.startRow && endCol !== fillState.startCol) {
+                var dir = endCol > fillState.startCol ? 1 : -1;
+                for (var c = fillState.startCol + dir; dir > 0 ? c <= endCol : c >= endCol; c += dir) {
+                    var cell = document.querySelector('[data-row="' + fillState.startRow + '"][data-col="' + c + '"]');
+                    if (cell && !cell.classList.contains('readonly')) {
+                        fillCell(cell, startFormula, startVal, 0, c - fillState.startCol);
+                    }
+                }
+            }
+        }
+        
+        function fillCell(cell, formula, value, rowOffset, colOffset) {
+            if (formula && formula.startsWith('=')) {
+                // Adjust formula references
+                var adjusted = adjustFormula(formula.substring(1), rowOffset, colOffset);
+                cell.value = '=' + adjusted;
+                cell.dataset.formula = '=' + adjusted;
+                evaluateCellFormula(cell);
+            } else {
+                // Check if it's a number sequence
+                var num = parseFloat(value.replace(/\s/g, '').replace(',', '.'));
+                if (!isNaN(num)) {
+                    cell.value = formatNumber(num + rowOffset + colOffset);
+                } else {
+                    cell.value = value;
+                }
+            }
+        }
+        
+        function adjustFormula(formula, rowOffset, colOffset) {
+            return formula.replace(/(\$?)([A-Z])(\$?)(\d+)/gi, function(match, colLock, col, rowLock, row) {
+                var newCol = col;
+                var newRow = parseInt(row);
+                
+                if (!colLock && colOffset) {
+                    newCol = String.fromCharCode(col.charCodeAt(0) + colOffset);
+                }
+                if (!rowLock && rowOffset) {
+                    newRow = parseInt(row) + rowOffset;
+                }
+                
+                return (colLock || '') + newCol + (rowLock || '') + newRow;
+            });
         }
         
         // Grid state for cell selection
@@ -2370,14 +2678,26 @@
                 return;
             }
             
-            // Normal navigation
+            // Escape - end selection mode
+            if (key === 'Escape') {
+                endCellSelection();
+                return;
+            }
+            
+            // Normal navigation keys
             if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(key)) {
                 return;
             }
             
-            // Don't navigate if editing (has content and not just arrow key)
-            if (cell.value && !['Tab', 'Enter'].includes(key)) {
-                return;
+            // For arrow keys, check cursor position - only navigate if at edge of text
+            var cursorPos = cell.selectionStart || 0;
+            var textLen = cell.value.length;
+            
+            if (key === 'ArrowLeft' && cursorPos > 0 && textLen > 0) {
+                return; // Let cursor move within text
+            }
+            if (key === 'ArrowRight' && cursorPos < textLen && textLen > 0) {
+                return; // Let cursor move within text
             }
             
             e.preventDefault();
@@ -2455,10 +2775,20 @@
         // Simple formula evaluation
         function evaluateCellFormula(cell) {
             var value = cell.value.trim();
-            if (!value.startsWith('=')) return;
+            if (!value.startsWith('=')) {
+                // Not a formula - just update balance
+                updateGridBalance();
+                return;
+            }
             
             var formula = value.substring(1).toUpperCase();
             cell.dataset.formula = value;
+            
+            // Check for incomplete formulas (ends with operator)
+            if (/[\+\-\*\/\(]$/.test(formula.trim())) {
+                cell.title = 'Ufullstendig formel - legg til tall eller celle';
+                return;
+            }
             
             try {
                 var result = calculateFormula(formula);
@@ -2466,10 +2796,10 @@
                 if (!isNaN(result) && isFinite(result)) {
                     cell.value = formatNumber(result);
                     cell.dataset.result = result;
-                    cell.title = 'Formel: ' + value + '\nResultat: ' + result;
+                    cell.title = 'Formel: ' + value + '\nResultat: ' + formatNumber(result);
                 } else {
                     cell.value = '#FEIL';
-                    cell.title = 'Ugyldig formel';
+                    cell.title = 'Ugyldig formel - sjekk syntaks';
                 }
             } catch (e) {
                 console.error('Formula error:', e);
@@ -2482,6 +2812,12 @@
         
         // Calculate formula
         function calculateFormula(formula) {
+            // If formula is just a number, return it
+            var cleanFormula = formula.trim().replace(/\s/g, '').replace(',', '.');
+            if (/^-?\d+\.?\d*$/.test(cleanFormula)) {
+                return parseFloat(cleanFormula);
+            }
+            
             // Handle SUM(range)
             formula = formula.replace(/SUM\(([A-Z]\d+):([A-Z]\d+)\)/gi, function(match, start, end) {
                 var cells = expandRange(start, end);
@@ -2491,11 +2827,40 @@
                 return sum;
             });
             
+            // Handle AVERAGE(range)
+            formula = formula.replace(/AVERAGE\(([A-Z]\d+):([A-Z]\d+)\)/gi, function(match, start, end) {
+                var cells = expandRange(start, end);
+                if (cells.length === 0) return 0;
+                var sum = cells.reduce(function(acc, ref) {
+                    return acc + getCellValueByRef(ref);
+                }, 0);
+                return sum / cells.length;
+            });
+            
+            // Handle MIN(range)
+            formula = formula.replace(/MIN\(([A-Z]\d+):([A-Z]\d+)\)/gi, function(match, start, end) {
+                var cells = expandRange(start, end);
+                if (cells.length === 0) return 0;
+                var values = cells.map(function(ref) { return getCellValueByRef(ref); });
+                return Math.min.apply(null, values);
+            });
+            
+            // Handle MAX(range)
+            formula = formula.replace(/MAX\(([A-Z]\d+):([A-Z]\d+)\)/gi, function(match, start, end) {
+                var cells = expandRange(start, end);
+                if (cells.length === 0) return 0;
+                var values = cells.map(function(ref) { return getCellValueByRef(ref); });
+                return Math.max.apply(null, values);
+            });
+            
             // Handle simple cell references (A1, B2, etc)
             formula = formula.replace(/([A-Z])(\d+)/gi, function(match, col, row) {
                 var value = getCellValueByRef(col + row);
                 return '(' + value + ')';
             });
+            
+            // Clean up for eval
+            formula = formula.replace(/×/g, '*').replace(/÷/g, '/');
             
             // Evaluate
             return eval(formula);
@@ -3222,10 +3587,10 @@
                             bodyHtml += '<td><input class="excel-cell readonly" value="' + val + '" readonly tabindex="-1"></td>';
                         } else if (cellType === 'account') {
                             // Account field - droppable with fill handle
-                            bodyHtml += '<td class="cell-wrapper"><input class="excel-cell account-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="account" placeholder="Dra konto hit" type="text"><div class="fill-handle"></div></td>';
+                            bodyHtml += '<td><div class="cell-wrapper"><input class="excel-cell account-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="account" placeholder="Dra konto hit" type="text"><div class="fill-handle"></div></div></td>';
                         } else {
                             // Number field with fill handle
-                            bodyHtml += '<td class="cell-wrapper"><input class="excel-cell number-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="number" placeholder="?" inputmode="numeric" pattern="[0-9]*"><div class="fill-handle"></div></td>';
+                            bodyHtml += '<td><div class="cell-wrapper"><input class="excel-cell number-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="number" placeholder="?" inputmode="numeric" pattern="[0-9]*"><div class="fill-handle"></div></div></td>';
                         }
                     });
                     bodyHtml += '</tr>';
