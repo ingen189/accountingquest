@@ -2642,82 +2642,61 @@
         function handleCellNavigation(e, cell) {
             var key = e.key;
             
-            // If in selection mode and press Enter, evaluate and exit
-            if (key === 'Enter' && gridState.selectingCell) {
+            // Escape - end selection mode and clear formula
+            if (key === 'Escape') {
+                if (gridState.selectingCell) {
+                    endCellSelection();
+                }
+                return;
+            }
+            
+            // Enter - evaluate formula if present, then move down
+            if (key === 'Enter') {
                 e.preventDefault();
-                evaluateCellFormula(cell);
+                if (cell.value.trim().startsWith('=')) {
+                    evaluateCellFormula(cell);
+                }
                 endCellSelection();
-                // Move to next row
                 navigateToCell(cell, 0, 1);
                 return;
             }
             
-            // Arrow keys in selection mode add cell references
-            if (gridState.selectingCell && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+            // Tab - move to next cell
+            if (key === 'Tab') {
                 e.preventDefault();
-                var row = parseInt(cell.dataset.row);
-                var col = parseInt(cell.dataset.col);
-                var targetRow = row, targetCol = col;
-                
-                switch(key) {
-                    case 'ArrowUp': targetRow--; break;
-                    case 'ArrowDown': targetRow++; break;
-                    case 'ArrowLeft': targetCol--; break;
-                    case 'ArrowRight': targetCol++; break;
+                if (cell.value.trim().startsWith('=')) {
+                    evaluateCellFormula(cell);
                 }
-                
-                var targetCell = document.querySelector('[data-row="' + targetRow + '"][data-col="' + targetCol + '"]');
-                if (targetCell && !targetCell.classList.contains('readonly')) {
-                    var cellRef = getCellReference(targetCell);
-                    cell.value += cellRef;
-                    targetCell.classList.add('selected-for-formula');
-                    setTimeout(function() {
-                        targetCell.classList.remove('selected-for-formula');
-                    }, 300);
-                }
-                return;
-            }
-            
-            // Escape - end selection mode
-            if (key === 'Escape') {
                 endCellSelection();
+                navigateToCell(cell, e.shiftKey ? -1 : 1, 0);
                 return;
             }
             
-            // Normal navigation keys
-            if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(key)) {
+            // Arrow keys - normal navigation (don't auto-add references)
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+                // Check cursor position - only navigate if at edge of text
+                var cursorPos = cell.selectionStart || 0;
+                var textLen = cell.value.length;
+                
+                if (key === 'ArrowLeft' && cursorPos > 0) {
+                    return; // Let cursor move within text
+                }
+                if (key === 'ArrowRight' && cursorPos < textLen) {
+                    return; // Let cursor move within text
+                }
+                
+                // Navigate to adjacent cell
+                e.preventDefault();
+                var dRow = 0, dCol = 0;
+                switch(key) {
+                    case 'ArrowUp': dRow = -1; break;
+                    case 'ArrowDown': dRow = 1; break;
+                    case 'ArrowLeft': dCol = -1; break;
+                    case 'ArrowRight': dCol = 1; break;
+                }
+                navigateToCell(cell, dCol, dRow);
                 return;
             }
-            
-            // For arrow keys, check cursor position - only navigate if at edge of text
-            var cursorPos = cell.selectionStart || 0;
-            var textLen = cell.value.length;
-            
-            if (key === 'ArrowLeft' && cursorPos > 0 && textLen > 0) {
-                return; // Let cursor move within text
-            }
-            if (key === 'ArrowRight' && cursorPos < textLen && textLen > 0) {
-                return; // Let cursor move within text
-            }
-            
-            e.preventDefault();
-            
-            // Evaluate formula on Enter
-            if (key === 'Enter' && cell.value.trim().startsWith('=')) {
-                evaluateCellFormula(cell);
-            }
-            
-            var dRow = 0, dCol = 0;
-            switch(key) {
-                case 'ArrowUp': dRow = -1; break;
-                case 'ArrowDown': 
-                case 'Enter': dRow = 1; break;
-                case 'ArrowLeft': dCol = -1; break;
-                case 'ArrowRight':
-                case 'Tab': dCol = 1; break;
-            }
-            
-            navigateToCell(cell, dCol, dRow);
         }
         
         function navigateToCell(fromCell, dCol, dRow) {
@@ -2775,25 +2754,35 @@
         // Simple formula evaluation
         function evaluateCellFormula(cell) {
             var value = cell.value.trim();
+            
+            // Not a formula - just update balance
             if (!value.startsWith('=')) {
-                // Not a formula - just update balance
                 updateGridBalance();
                 return;
             }
             
-            var formula = value.substring(1).toUpperCase();
+            var formula = value.substring(1).trim();
+            
+            // Empty formula (just "=")
+            if (!formula) {
+                cell.value = '';
+                delete cell.dataset.formula;
+                updateGridBalance();
+                return;
+            }
+            
             cell.dataset.formula = value;
             
-            // Check for incomplete formulas (ends with operator)
-            if (/[\+\-\*\/\(]$/.test(formula.trim())) {
+            // Check for incomplete formulas (ends with operator or is just "=")
+            if (/[\+\-\*\/\(]$/.test(formula)) {
                 cell.title = 'Ufullstendig formel - legg til tall eller celle';
                 return;
             }
             
             try {
-                var result = calculateFormula(formula);
+                var result = calculateFormula(formula.toUpperCase());
                 
-                if (!isNaN(result) && isFinite(result)) {
+                if (result !== null && !isNaN(result) && isFinite(result)) {
                     cell.value = formatNumber(result);
                     cell.dataset.result = result;
                     cell.title = 'Formel: ' + value + '\nResultat: ' + formatNumber(result);
@@ -2802,7 +2791,7 @@
                     cell.title = 'Ugyldig formel - sjekk syntaks';
                 }
             } catch (e) {
-                console.error('Formula error:', e);
+                console.error('Formula error:', e, 'Formula:', formula);
                 cell.value = '#FEIL';
                 cell.title = 'Feil i formel: ' + e.message;
             }
@@ -2812,10 +2801,23 @@
         
         // Calculate formula
         function calculateFormula(formula) {
+            // Trim and clean
+            formula = formula.trim();
+            
+            // If formula is empty, return 0
+            if (!formula) {
+                return 0;
+            }
+            
             // If formula is just a number, return it
-            var cleanFormula = formula.trim().replace(/\s/g, '').replace(',', '.');
+            var cleanFormula = formula.replace(/\s/g, '').replace(',', '.');
             if (/^-?\d+\.?\d*$/.test(cleanFormula)) {
                 return parseFloat(cleanFormula);
+            }
+            
+            // If formula is just a single cell reference like "B1", get that cell's value
+            if (/^[A-Z]\d+$/i.test(formula)) {
+                return getCellValueByRef(formula);
             }
             
             // Handle SUM(range)
@@ -2824,36 +2826,36 @@
                 var sum = cells.reduce(function(acc, ref) {
                     return acc + getCellValueByRef(ref);
                 }, 0);
-                return sum;
+                return '(' + sum + ')';
             });
             
             // Handle AVERAGE(range)
             formula = formula.replace(/AVERAGE\(([A-Z]\d+):([A-Z]\d+)\)/gi, function(match, start, end) {
                 var cells = expandRange(start, end);
-                if (cells.length === 0) return 0;
+                if (cells.length === 0) return '(0)';
                 var sum = cells.reduce(function(acc, ref) {
                     return acc + getCellValueByRef(ref);
                 }, 0);
-                return sum / cells.length;
+                return '(' + (sum / cells.length) + ')';
             });
             
             // Handle MIN(range)
             formula = formula.replace(/MIN\(([A-Z]\d+):([A-Z]\d+)\)/gi, function(match, start, end) {
                 var cells = expandRange(start, end);
-                if (cells.length === 0) return 0;
+                if (cells.length === 0) return '(0)';
                 var values = cells.map(function(ref) { return getCellValueByRef(ref); });
-                return Math.min.apply(null, values);
+                return '(' + Math.min.apply(null, values) + ')';
             });
             
             // Handle MAX(range)
             formula = formula.replace(/MAX\(([A-Z]\d+):([A-Z]\d+)\)/gi, function(match, start, end) {
                 var cells = expandRange(start, end);
-                if (cells.length === 0) return 0;
+                if (cells.length === 0) return '(0)';
                 var values = cells.map(function(ref) { return getCellValueByRef(ref); });
-                return Math.max.apply(null, values);
+                return '(' + Math.max.apply(null, values) + ')';
             });
             
-            // Handle simple cell references (A1, B2, etc)
+            // Handle simple cell references (A1, B2, etc) - replace with their values
             formula = formula.replace(/([A-Z])(\d+)/gi, function(match, col, row) {
                 var value = getCellValueByRef(col + row);
                 return '(' + value + ')';
@@ -2861,6 +2863,12 @@
             
             // Clean up for eval
             formula = formula.replace(/×/g, '*').replace(/÷/g, '/');
+            
+            // Safety check - only allow numbers, operators, parentheses
+            if (!/^[\d\s\+\-\*\/\(\)\.,]+$/.test(formula)) {
+                console.error('Invalid formula characters:', formula);
+                return NaN;
+            }
             
             // Evaluate
             return eval(formula);
