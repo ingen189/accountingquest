@@ -2178,43 +2178,216 @@
         }
         
         function setupExcelGridDragDrop() {
-            // Make excel grid cells accept drops (for row labels that match account format)
-            document.querySelectorAll('#excel-grid-container .row-label').forEach(function(label) {
-                var td = label.closest('td') || label;
-                var row = td.closest('tr');
-                if (!row) return;
+            console.log('Setting up Excel Grid Drag & Drop...');
+            
+            // Find all account-input cells (type="account")
+            var accountCells = document.querySelectorAll('.excel-cell.account-input, .excel-cell[data-type="account"]');
+            console.log('Found', accountCells.length, 'account input cells');
+            
+            accountCells.forEach(function(input) {
+                // Allow dropping
+                input.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                    input.classList.add('drag-over');
+                });
                 
-                // Find the input cells in this row
-                var inputs = row.querySelectorAll('.excel-cell:not(.readonly)');
-                inputs.forEach(function(input) {
-                    input.addEventListener('dragover', function(e) {
-                        e.preventDefault();
-                        input.classList.add('drag-over');
-                    });
+                input.addEventListener('dragleave', function() {
+                    input.classList.remove('drag-over');
+                });
+                
+                input.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    input.classList.remove('drag-over');
                     
-                    input.addEventListener('dragleave', function() {
-                        input.classList.remove('drag-over');
-                    });
+                    // Don't allow drops on answered questions
+                    if (gameState.answered && gameState.answered[gameState.currentIndex]) return;
                     
-                    input.addEventListener('drop', function(e) {
-                        e.preventDefault();
-                        input.classList.remove('drag-over');
+                    // Get the account code from drag data
+                    var accountCode = e.dataTransfer.getData('text/plain');
+                    console.log('Dropped account code:', accountCode);
+                    
+                    if (accountCode) {
+                        // Set the value in the cell
+                        input.value = accountCode;
+                        input.classList.add('correct-dropped');
                         
-                        // Don't allow drops on answered questions
-                        if (gameState.answered[gameState.currentIndex]) return;
+                        // Visual feedback
+                        setTimeout(function() {
+                            input.classList.remove('correct-dropped');
+                        }, 500);
                         
-                        // For T-konto, we don't insert account code, just highlight to help user
-                        var accountCode = e.dataTransfer.getData('text/plain');
-                        if (accountCode) {
-                            input.classList.add('account-dropped');
-                            input.focus();
-                            setTimeout(function() {
-                                input.classList.remove('account-dropped');
-                            }, 500);
-                        }
-                    });
+                        // Trigger change event for formula recalculation
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
                 });
             });
+            
+            // Also setup for number cells (all non-account editable cells)
+            var numberCells = document.querySelectorAll('.excel-cell.number-input, .excel-cell[data-type="number"]');
+            console.log('Found', numberCells.length, 'number input cells');
+            
+            numberCells.forEach(function(input) {
+                // Add keyboard navigation
+                input.addEventListener('keydown', function(e) {
+                    handleCellNavigation(e, input);
+                });
+                
+                // Formula evaluation on blur
+                input.addEventListener('blur', function() {
+                    if (input.value.trim().startsWith('=')) {
+                        evaluateCellFormula(input);
+                    }
+                });
+                
+                // Show formula on focus
+                input.addEventListener('focus', function() {
+                    if (input.dataset.formula) {
+                        input.value = input.dataset.formula;
+                    }
+                });
+            });
+            
+            // Setup account cells for keyboard navigation too
+            accountCells.forEach(function(input) {
+                input.addEventListener('keydown', function(e) {
+                    handleCellNavigation(e, input);
+                });
+            });
+        }
+        
+        // Cell navigation with arrow keys
+        function handleCellNavigation(e, cell) {
+            var key = e.key;
+            
+            if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(key)) {
+                return;
+            }
+            
+            e.preventDefault();
+            
+            // If Enter and has formula, evaluate it
+            if (key === 'Enter' && cell.value.trim().startsWith('=')) {
+                evaluateCellFormula(cell);
+            }
+            
+            var row = parseInt(cell.dataset.row);
+            var col = parseInt(cell.dataset.col);
+            var targetRow = row;
+            var targetCol = col;
+            
+            switch(key) {
+                case 'ArrowUp':
+                    targetRow = row - 1;
+                    break;
+                case 'ArrowDown':
+                case 'Enter':
+                    targetRow = row + 1;
+                    break;
+                case 'ArrowLeft':
+                    targetCol = col - 1;
+                    break;
+                case 'ArrowRight':
+                case 'Tab':
+                    targetCol = col + 1;
+                    break;
+            }
+            
+            // Find target cell
+            var targetCell = document.querySelector('[data-row="' + targetRow + '"][data-col="' + targetCol + '"]');
+            if (targetCell && !targetCell.classList.contains('readonly')) {
+                targetCell.focus();
+            }
+        }
+        
+        // Simple formula evaluation
+        function evaluateCellFormula(cell) {
+            var value = cell.value.trim();
+            if (!value.startsWith('=')) return;
+            
+            var formula = value.substring(1).toUpperCase();
+            cell.dataset.formula = value;
+            
+            try {
+                var result = calculateFormula(formula);
+                
+                if (!isNaN(result) && isFinite(result)) {
+                    cell.value = formatNumber(result);
+                    cell.dataset.result = result;
+                    cell.title = 'Formel: ' + value + '\nResultat: ' + result;
+                } else {
+                    cell.value = '#FEIL';
+                    cell.title = 'Ugyldig formel';
+                }
+            } catch (e) {
+                console.error('Formula error:', e);
+                cell.value = '#FEIL';
+                cell.title = 'Feil i formel: ' + e.message;
+            }
+        }
+        
+        // Calculate formula
+        function calculateFormula(formula) {
+            // Handle SUM(range)
+            formula = formula.replace(/SUM\(([A-Z]\d+):([A-Z]\d+)\)/gi, function(match, start, end) {
+                var cells = expandRange(start, end);
+                var sum = cells.reduce(function(acc, ref) {
+                    return acc + getCellValueByRef(ref);
+                }, 0);
+                return sum;
+            });
+            
+            // Handle simple cell references (A1, B2, etc)
+            formula = formula.replace(/([A-Z])(\d+)/gi, function(match, col, row) {
+                var value = getCellValueByRef(col + row);
+                return '(' + value + ')';
+            });
+            
+            // Evaluate
+            return eval(formula);
+        }
+        
+        // Expand range like A1:A3 to [A1, A2, A3]
+        function expandRange(start, end) {
+            var startCol = start.charAt(0).toUpperCase();
+            var startRow = parseInt(start.substring(1));
+            var endCol = end.charAt(0).toUpperCase();
+            var endRow = parseInt(end.substring(1));
+            
+            var cells = [];
+            
+            // Vertical range (same column)
+            if (startCol === endCol) {
+                for (var r = startRow; r <= endRow; r++) {
+                    cells.push(startCol + r);
+                }
+            }
+            // Horizontal range (same row)
+            else if (startRow === endRow) {
+                for (var c = startCol.charCodeAt(0); c <= endCol.charCodeAt(0); c++) {
+                    cells.push(String.fromCharCode(c) + startRow);
+                }
+            }
+            
+            return cells;
+        }
+        
+        // Get cell value by reference like "A1"
+        function getCellValueByRef(ref) {
+            var col = ref.charAt(0).toUpperCase().charCodeAt(0) - 65; // A=0, B=1
+            var row = parseInt(ref.substring(1)) - 1; // 1-indexed to 0-indexed
+            
+            var cell = document.querySelector('[data-row="' + row + '"][data-col="' + col + '"]');
+            if (!cell) return 0;
+            
+            // Use stored result if available
+            if (cell.dataset.result !== undefined) {
+                return parseFloat(cell.dataset.result);
+            }
+            
+            // Parse value
+            var val = cell.value.replace(/\s/g, '').replace(/,/g, '');
+            return parseFloat(val) || 0;
         }
         
         // ==================== TOPICS ====================
@@ -2869,8 +3042,8 @@
                 // Columns should be ['Konto', 'Debet', 'Kredit'] or similar
                 var columns = grid.columns || ['Konto', 'Debet', 'Kredit'];
                 
-                // Don't add extra "Konto" column if it's already in columns
-                var headerHtml = '<tr>';
+                // Header: tom kolonne for row-labels + data-kolonner
+                var headerHtml = '<tr><th style="min-width: 100px;"></th>';
                 columns.forEach(function(c) {
                     headerHtml += '<th style="min-width: 120px;">' + c + '</th>';
                 });
@@ -2884,7 +3057,7 @@
                     // Row label in first column
                     bodyHtml += '<td class="row-label">' + (row.label || '') + '</td>';
                     
-                    // Cells for remaining columns
+                    // Cells for data columns
                     (row.cells || []).forEach(function(cell, ci) {
                         var isEditable = cell.editable !== false && cell.readonly !== true;
                         var val = cell.value !== undefined && cell.value !== null && cell.value !== '' ? cell.value : '';
