@@ -2626,87 +2626,125 @@
         
         function endCellSelection() {
             gridState.selectingCell = false;
+            gridState.currentCell = null;
             document.querySelectorAll('.selecting-mode').forEach(function(c) {
                 c.classList.remove('selecting-mode');
             });
         }
         
         function getCellReference(cell) {
-            var row = parseInt(cell.dataset.row) + 1; // 1-indexed
-            var col = parseInt(cell.dataset.col);
-            var colLetter = String.fromCharCode(65 + col); // A, B, C...
-            return colLetter + row;
+            // Get position from DOM structure
+            var td = cell.closest('td');
+            var tr = td.parentElement;
+            
+            // Column: skip row-label column (index 0), so actual data starts at 1
+            var colIndex = Array.from(tr.children).indexOf(td) - 1; // -1 for row-label
+            var rowIndex = Array.from(tr.parentElement.children).indexOf(tr);
+            
+            // Convert to Excel-style reference (A1, B2, etc)
+            var colLetter = String.fromCharCode(65 + colIndex); // A, B, C...
+            return colLetter + (rowIndex + 1); // 1-indexed rows
         }
         
         // Cell navigation with arrow keys
         function handleCellNavigation(e, cell) {
             var key = e.key;
             
-            // Escape - end selection mode and clear formula
-            if (key === 'Escape') {
-                if (gridState.selectingCell) {
-                    endCellSelection();
-                }
+            // Only handle specific keys
+            if (!['Enter', 'Tab', 'Escape', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
                 return;
             }
             
-            // Enter - evaluate formula if present, then move down
+            // Escape - clear selection mode
+            if (key === 'Escape') {
+                endCellSelection();
+                return;
+            }
+            
+            // Enter - evaluate formula and move down
             if (key === 'Enter') {
                 e.preventDefault();
                 if (cell.value.trim().startsWith('=')) {
                     evaluateCellFormula(cell);
                 }
                 endCellSelection();
-                navigateToCell(cell, 0, 1);
+                moveTo(cell, 'down');
                 return;
             }
             
-            // Tab - move to next cell
+            // Tab - move right (or left with shift)
             if (key === 'Tab') {
                 e.preventDefault();
                 if (cell.value.trim().startsWith('=')) {
                     evaluateCellFormula(cell);
                 }
                 endCellSelection();
-                navigateToCell(cell, e.shiftKey ? -1 : 1, 0);
+                moveTo(cell, e.shiftKey ? 'left' : 'right');
                 return;
             }
             
-            // Arrow keys - normal navigation (don't auto-add references)
-            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
-                // Check cursor position - only navigate if at edge of text
-                var cursorPos = cell.selectionStart || 0;
-                var textLen = cell.value.length;
-                
-                if (key === 'ArrowLeft' && cursorPos > 0) {
-                    return; // Let cursor move within text
-                }
-                if (key === 'ArrowRight' && cursorPos < textLen) {
-                    return; // Let cursor move within text
-                }
-                
-                // Navigate to adjacent cell
-                e.preventDefault();
-                var dRow = 0, dCol = 0;
-                switch(key) {
-                    case 'ArrowUp': dRow = -1; break;
-                    case 'ArrowDown': dRow = 1; break;
-                    case 'ArrowLeft': dCol = -1; break;
-                    case 'ArrowRight': dCol = 1; break;
-                }
-                navigateToCell(cell, dCol, dRow);
-                return;
+            // Arrow keys
+            // If there's text and cursor is not at edge, let default behavior happen
+            var cursorPos = cell.selectionStart;
+            var textLen = cell.value.length;
+            
+            if (key === 'ArrowLeft' && cursorPos > 0) return;
+            if (key === 'ArrowRight' && cursorPos < textLen) return;
+            
+            e.preventDefault();
+            
+            switch(key) {
+                case 'ArrowUp': moveTo(cell, 'up'); break;
+                case 'ArrowDown': moveTo(cell, 'down'); break;
+                case 'ArrowLeft': moveTo(cell, 'left'); break;
+                case 'ArrowRight': moveTo(cell, 'right'); break;
             }
         }
         
-        function navigateToCell(fromCell, dCol, dRow) {
-            var row = parseInt(fromCell.dataset.row) + dRow;
-            var col = parseInt(fromCell.dataset.col) + dCol;
+        function moveTo(fromCell, direction) {
+            // Get current position from DOM structure
+            var td = fromCell.closest('td');
+            var tr = td.parentElement;
+            var tbody = tr.parentElement;
             
-            var targetCell = document.querySelector('[data-row="' + row + '"][data-col="' + col + '"]');
-            if (targetCell && !targetCell.classList.contains('readonly')) {
-                targetCell.focus();
+            var cellIndex = Array.from(tr.children).indexOf(td);
+            var rowIndex = Array.from(tbody.children).indexOf(tr);
+            
+            var targetTd = null;
+            
+            switch(direction) {
+                case 'up':
+                    var prevRow = tbody.children[rowIndex - 1];
+                    if (prevRow) targetTd = prevRow.children[cellIndex];
+                    break;
+                case 'down':
+                    var nextRow = tbody.children[rowIndex + 1];
+                    if (nextRow && !nextRow.classList.contains('sum-row')) {
+                        targetTd = nextRow.children[cellIndex];
+                    }
+                    break;
+                case 'left':
+                    targetTd = tr.children[cellIndex - 1];
+                    break;
+                case 'right':
+                    targetTd = tr.children[cellIndex + 1];
+                    break;
             }
+            
+            if (targetTd) {
+                var targetInput = targetTd.querySelector('.excel-cell:not(.readonly)');
+                if (targetInput) {
+                    targetInput.focus();
+                }
+            }
+        }
+        
+        // Keep old function name for compatibility
+        function navigateToCell(fromCell, dCol, dRow) {
+            if (dRow < 0) moveTo(fromCell, 'up');
+            else if (dRow > 0) moveTo(fromCell, 'down');
+            else if (dCol < 0) moveTo(fromCell, 'left');
+            else if (dCol > 0) moveTo(fromCell, 'right');
         }
         
         // Update balance display
@@ -2714,16 +2752,34 @@
             var totalDebet = 0;
             var totalKredit = 0;
             
-            // Get all number cells and sum debet/kredit
-            document.querySelectorAll('#excel-tbody .excel-cell[data-type="number"]').forEach(function(cell) {
-                var col = parseInt(cell.dataset.col);
-                var val = parseFloat(cell.value.replace(/\s/g, '').replace(/,/g, '')) || 0;
+            // Get all rows except sum row
+            var tbody = document.getElementById('excel-tbody');
+            if (!tbody) return;
+            
+            Array.from(tbody.children).forEach(function(tr) {
+                if (tr.classList.contains('sum-row')) return;
                 
-                // Column 1 = Debet, Column 2 = Kredit (0-indexed, col 0 is account)
-                if (col === 1) {
-                    totalDebet += val;
-                } else if (col === 2) {
-                    totalKredit += val;
+                // Get cells - skip first (row label), then account, debet, kredit
+                var cells = tr.querySelectorAll('td');
+                
+                // Debet is column index 2 (after row-label and account)
+                var debetTd = cells[2];
+                if (debetTd) {
+                    var debetInput = debetTd.querySelector('.excel-cell');
+                    if (debetInput && debetInput.value) {
+                        var val = parseFloat(debetInput.value.replace(/\s/g, '').replace(/,/g, '.')) || 0;
+                        totalDebet += val;
+                    }
+                }
+                
+                // Kredit is column index 3
+                var kreditTd = cells[3];
+                if (kreditTd) {
+                    var kreditInput = kreditTd.querySelector('.excel-cell');
+                    if (kreditInput && kreditInput.value) {
+                        var val = parseFloat(kreditInput.value.replace(/\s/g, '').replace(/,/g, '.')) || 0;
+                        totalKredit += val;
+                    }
                 }
             });
             
@@ -2901,10 +2957,22 @@
         
         // Get cell value by reference like "A1"
         function getCellValueByRef(ref) {
-            var col = ref.charAt(0).toUpperCase().charCodeAt(0) - 65; // A=0, B=1
-            var row = parseInt(ref.substring(1)) - 1; // 1-indexed to 0-indexed
+            var colLetter = ref.charAt(0).toUpperCase();
+            var colIndex = colLetter.charCodeAt(0) - 65; // A=0, B=1
+            var rowIndex = parseInt(ref.substring(1)) - 1; // 1-indexed to 0-indexed
             
-            var cell = document.querySelector('[data-row="' + row + '"][data-col="' + col + '"]');
+            // Find cell using DOM structure
+            var tbody = document.getElementById('excel-tbody');
+            if (!tbody) return 0;
+            
+            var tr = tbody.children[rowIndex];
+            if (!tr || tr.classList.contains('sum-row')) return 0;
+            
+            // Column index +1 because first td is row-label
+            var td = tr.children[colIndex + 1];
+            if (!td) return 0;
+            
+            var cell = td.querySelector('.excel-cell');
             if (!cell) return 0;
             
             // Use stored result if available
@@ -2913,7 +2981,7 @@
             }
             
             // Parse value
-            var val = cell.value.replace(/\s/g, '').replace(/,/g, '');
+            var val = cell.value.replace(/\s/g, '').replace(',', '.');
             return parseFloat(val) || 0;
         }
         
