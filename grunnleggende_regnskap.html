@@ -1808,13 +1808,16 @@
     <script>
         // ==================== TURSO API CONFIG ====================
         var API_URL = 'https://api.accountingquest.app';
-        var MODULE_ID = 'grunnleggende'; // Modul-ID for dette spillet
+        var MODULE_ID = 1; // Numerisk ID fra modules-tabellen
         
         async function apiCall(endpoint) {
             try {
+                console.log('API Call:', API_URL + '/api' + endpoint);
                 var response = await fetch(API_URL + '/api' + endpoint);
                 if (!response.ok) throw new Error('API error: ' + response.status);
-                return await response.json();
+                var data = await response.json();
+                console.log('API Response:', data.length || data, 'items');
+                return data;
             } catch (err) {
                 console.error('API call failed:', err);
                 return [];
@@ -2270,10 +2273,21 @@
             console.log('Loading question counts from Turso API...');
             
             try {
+                // Prøv først med module filter, deretter uten
                 var questions = await apiCall('/questions?module=' + MODULE_ID + '&limit=500');
                 
                 if (!questions || questions.length === 0) {
+                    console.log('No questions with module filter, trying all questions...');
+                    questions = await apiCall('/questions?limit=500');
+                }
+                
+                if (!questions || questions.length === 0) {
                     console.warn('No questions found in Turso');
+                    // Oppdater UI til å vise 0
+                    topics.forEach(function(topic) {
+                        var countEl = document.getElementById('count-' + topic.id);
+                        if (countEl) countEl.textContent = '0 oppgaver';
+                    });
                     return;
                 }
                 
@@ -2329,6 +2343,11 @@
                 });
             } catch (err) {
                 console.error('Error loading questions:', err);
+                // Oppdater UI til å vise feil
+                topics.forEach(function(topic) {
+                    var countEl = document.getElementById('count-' + topic.id);
+                    if (countEl) countEl.textContent = 'Feil';
+                });
             }
         }
         
