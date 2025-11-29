@@ -1,54 +1,69 @@
-/* ExcelGrid Styles - Standalone CSS */
-/* AccountingQuest T-konto og Excel-lignende grid */
+/**
+ * ExcelGrid CSS - Komplett styling for Excel-lignende rutenett
+ * AccountingQuest - Gjenbrukbar komponent
+ * @version 2.0.0
+ */
 
+/* ==================== WRAPPER ==================== */
 .excel-grid-wrapper {
     overflow-x: auto;
-    border-radius: 10px;
+    border-radius: var(--radius-md, 10px);
     background: var(--bg-primary, #1e1e1e);
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    border: 1px solid var(--border-color, #404040);
 }
 
+/* ==================== TABLE ==================== */
 .excel-table {
     width: 100%;
     border-collapse: collapse;
-    font-family: 'Consolas', 'Monaco', monospace;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.95em;
 }
 
 .excel-table th {
     background: var(--bg-tertiary, #404040);
     color: var(--text-secondary, #a0a0a0);
-    padding: 12px;
+    padding: 10px 12px;
     border: 1px solid var(--border-color, #404040);
     text-align: center;
     font-weight: 600;
+    font-size: 0.9em;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    user-select: none;
 }
 
 .excel-table td {
     border: 1px solid var(--border-color, #404040);
     padding: 0;
+    background: var(--bg-primary, #1e1e1e);
 }
 
-.row-number {
-    background: var(--bg-tertiary, #404040);
+/* ==================== ROW NUMBERS & LABELS ==================== */
+.row-number,
+.row-number-header {
+    background: var(--bg-tertiary, #404040) !important;
     color: var(--text-secondary, #a0a0a0);
-    padding: 12px;
+    padding: 10px 8px;
     text-align: center;
     font-weight: 600;
     min-width: 40px;
+    max-width: 50px;
+    user-select: none;
 }
 
-.row-number-header {
-    min-width: 40px;
-}
-
-.row-label {
-    background: var(--bg-secondary, #2d2d2d);
+.row-label,
+.row-label-header {
+    background: var(--bg-secondary, #2d2d2d) !important;
     color: var(--text-primary, #eaeaea);
-    padding: 12px;
+    padding: 10px 12px;
     text-align: left;
     font-weight: 500;
-    min-width: 150px;
+    min-width: 120px;
     white-space: nowrap;
+    user-select: none;
 }
 
 .row-label.highlight {
@@ -56,187 +71,169 @@
     font-weight: 600;
 }
 
+/* ==================== CELL WRAPPER ==================== */
 .cell-wrapper {
     position: relative;
     width: 100%;
     height: 100%;
+    min-height: 40px;
 }
 
-/* ============================================
-   EXCEL CELL - Hovedstyling
-   ============================================ */
+.cell-td {
+    min-width: 100px;
+}
+
+/* ==================== EXCEL CELL ==================== */
 .excel-cell {
     width: 100%;
+    height: 100%;
+    min-height: 40px;
     background: transparent;
     border: none;
     color: var(--text-primary, #eaeaea);
-    padding: 12px;
+    padding: 10px 12px;
     font-size: 0.95em;
-    font-family: 'Consolas', 'Monaco', monospace;
+    font-family: inherit;
     text-align: right;
     outline: none;
-    transition: background 0.2s, outline 0.2s;
+    transition: background 0.15s, box-shadow 0.15s;
     box-sizing: border-box;
 }
 
-/* ============================================
-   FJERN NUMBER SPINNERS - Viktig!
-   ============================================ */
+/* Remove number spinners */
 .excel-cell::-webkit-outer-spin-button,
 .excel-cell::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
-
 .excel-cell[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
 }
 
-/* Number input - høyrejustert */
-.excel-cell.number-input {
+/* Cell types */
+.excel-cell.account-cell,
+.excel-cell.text-cell {
+    text-align: left;
+}
+
+.excel-cell.number-cell {
     text-align: right;
 }
 
-/* Account input - venstrejustert */
-.excel-cell.account-input {
-    text-align: left;
-    font-family: inherit;
-}
+/* ==================== CELL STATES ==================== */
 
-/* ============================================
-   FOKUS OG HOVER
-   ============================================ */
+/* Focus */
 .excel-cell:focus {
     outline: 2px solid var(--accent, #4ade80);
-    background: rgba(255,255,255,0.05);
+    outline-offset: -2px;
+    background: rgba(74, 222, 128, 0.08);
     z-index: 5;
 }
 
-.excel-cell:hover:not(.readonly) {
-    background: rgba(255,255,255,0.03);
-}
-
-.excel-cell.readonly {
-    background: var(--bg-tertiary, #404040);
-    color: var(--text-secondary, #a0a0a0);
-    cursor: not-allowed;
-    text-align: left;
-}
-
-/* ============================================
-   RIKTIG/FEIL MARKERING
-   ============================================ */
-.excel-cell.correct {
-    background: rgba(34, 197, 94, 0.2) !important;
-    border-color: var(--success, #22c55e) !important;
-    outline: 2px solid var(--success, #22c55e);
-}
-
-.excel-cell.incorrect {
-    background: rgba(239, 68, 68, 0.2) !important;
-    border-color: var(--error, #ef4444) !important;
-    outline: 2px solid var(--error, #ef4444);
-}
-
-/* ============================================
-   DRAG & DROP - Kontoplan til T-konto
-   ============================================ */
-.excel-cell.drop-target {
-    outline: 2px dashed var(--accent, #4ade80);
+/* Selected */
+.excel-cell.selected {
     background: rgba(74, 222, 128, 0.1);
 }
 
+/* Hover */
+.excel-cell:hover:not(.readonly):not(:focus) {
+    background: rgba(255,255,255,0.03);
+}
+
+/* Readonly */
+.excel-cell.readonly {
+    background: var(--bg-tertiary, #333) !important;
+    color: var(--text-secondary, #a0a0a0);
+    cursor: default;
+    text-align: left;
+}
+
+/* Correct answer */
+.excel-cell.correct {
+    background: rgba(34, 197, 94, 0.2) !important;
+    outline: 2px solid var(--success, #22c55e) !important;
+    outline-offset: -2px;
+}
+
+/* Incorrect answer */
+.excel-cell.incorrect {
+    background: rgba(239, 68, 68, 0.2) !important;
+    outline: 2px solid var(--error, #ef4444) !important;
+    outline-offset: -2px;
+}
+
+/* ==================== DRAG & DROP ==================== */
 .excel-cell.drag-over {
-    outline: 3px solid var(--accent, #4ade80);
-    background: rgba(74, 222, 128, 0.25) !important;
-    transform: scale(1.02);
+    outline: 2px dashed var(--accent, #4ade80) !important;
+    background: rgba(74, 222, 128, 0.15) !important;
 }
 
-.excel-cell.account-input::placeholder {
-    color: var(--text-muted, #6b7280);
-    font-style: italic;
+.excel-cell.drop-success {
+    animation: dropPulse 0.5s ease;
 }
 
-/* Draggable kontonummer i sidepanel */
-.account-item {
-    cursor: grab;
-    padding: 8px 12px;
-    margin: 4px 0;
-    background: var(--bg-tertiary, #2d333b);
-    border-radius: 6px;
-    border: 1px solid var(--border-color, #404040);
-    transition: all 0.2s;
-    user-select: none;
+@keyframes dropPulse {
+    0% { background: rgba(74, 222, 128, 0.4); }
+    100% { background: transparent; }
 }
 
-.account-item:hover {
-    background: var(--bg-secondary, #1a1f26);
-    border-color: var(--accent, #4ade80);
-    transform: translateX(5px);
-}
-
-.account-item:active,
-.account-item.dragging {
-    cursor: grabbing;
-    opacity: 0.8;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-
-.account-item .account-number {
-    font-weight: 600;
-    color: var(--accent, #4ade80);
-    margin-right: 8px;
-}
-
-.account-item .account-name {
-    color: var(--text-secondary, #9ca3af);
-}
-
-/* ============================================
-   FILL HANDLE - Grønn sirkel for drag-copy
-   ============================================ */
+/* ==================== FILL HANDLE ==================== */
 .fill-handle {
     position: absolute;
-    right: 1px;
-    bottom: 1px;
-    width: 10px;
-    height: 10px;
+    right: 0;
+    bottom: 0;
+    width: 12px;
+    height: 12px;
     background: var(--accent, #4ade80);
     border: 2px solid var(--bg-primary, #1e1e1e);
-    border-radius: 50%;
+    border-radius: 2px;
     cursor: crosshair;
-    z-index: 25;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(74, 222, 128, 0.3);
-    transition: all 0.2s ease;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.15s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.cell-wrapper:hover .fill-handle,
+.excel-cell:focus ~ .fill-handle,
+.excel-cell.selected ~ .fill-handle {
+    opacity: 1;
 }
 
 .fill-handle:hover {
-    width: 14px;
-    height: 14px;
-    right: -1px;
-    bottom: -1px;
-    background: #5ef77c;
-    box-shadow: 0 3px 8px rgba(74, 222, 128, 0.8), 0 0 0 2px rgba(74, 222, 128, 0.5);
+    transform: scale(1.3);
+    background: #5ef090;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
 }
 
+/* Fill source cell */
+.excel-cell.fill-source {
+    outline: 2px solid var(--accent, #4ade80) !important;
+    background: rgba(74, 222, 128, 0.15) !important;
+}
+
+/* Cells being filled */
 .excel-cell.filling {
     background: rgba(74, 222, 128, 0.25) !important;
+    outline: 1px dashed var(--accent, #4ade80);
 }
 
-/* ============================================
-   FORMEL-MODUS
-   ============================================ */
+/* ==================== FORMULA MODE ==================== */
 .excel-cell.selecting-mode {
-    cursor: crosshair;
-    background: rgba(59, 130, 246, 0.1);
+    cursor: cell;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.excel-cell.selecting-mode:hover {
+    background: rgba(59, 130, 246, 0.15) !important;
+    outline: 2px solid #3b82f6;
 }
 
 .excel-cell.selected-for-formula {
     outline: 3px solid #3b82f6 !important;
     background: rgba(59, 130, 246, 0.2) !important;
-    animation: cellPulse 0.5s;
+    animation: cellPulse 0.4s ease;
 }
 
 @keyframes cellPulse {
@@ -244,61 +241,179 @@
     50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
 }
 
+/* Selection hint popup */
 .cell-selection-hint {
     position: fixed;
-    top: 50%;
+    top: 20px;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     background: var(--bg-secondary, #2d2d2d);
     border: 2px solid var(--accent, #4ade80);
     border-radius: 12px;
-    padding: 25px;
+    padding: 15px 25px;
     z-index: 1000;
-    text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     color: var(--text-primary, #eaeaea);
+    animation: slideDown 0.3s ease;
 }
 
-/* ============================================
-   HIGHLIGHT FOR SVAR-CELLER
-   ============================================ */
-.excel-cell.highlight {
-    font-weight: 600;
+@keyframes slideDown {
+    from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
 
-.excel-cell.highlight + .excel-cell:not(.readonly) {
-    background: rgba(74, 222, 128, 0.1);
+.cell-selection-hint .hint-icon {
+    font-size: 1.5em;
 }
 
-/* ============================================
-   SUM-RAD STYLING
-   ============================================ */
-.excel-table tr:last-child .row-label {
-    font-weight: 700;
+.cell-selection-hint .hint-text {
+    line-height: 1.5;
+}
+
+.cell-selection-hint .hint-text strong {
     color: var(--accent, #4ade80);
 }
 
-.excel-table tr:last-child .excel-cell.readonly {
-    font-weight: 700;
-    background: var(--bg-secondary, #2d2d2d);
+.cell-selection-hint .hint-text small {
+    color: var(--text-secondary, #a0a0a0);
 }
 
-/* ============================================
-   RESPONSIV
-   ============================================ */
+/* ==================== SUM ROW ==================== */
+.sum-row {
+    background: var(--bg-secondary, #2a2a2a) !important;
+}
+
+.sum-row td {
+    background: var(--bg-secondary, #2a2a2a) !important;
+    border-top: 2px solid var(--accent, #4ade80);
+}
+
+.sum-row .row-number,
+.sum-row .sum-symbol {
+    background: var(--bg-tertiary, #404040) !important;
+    color: var(--accent, #4ade80);
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.sum-row .row-label,
+.sum-row .sum-label {
+    color: var(--accent, #4ade80);
+    font-weight: 700;
+}
+
+.sum-row .sum-cell {
+    font-weight: 700;
+    color: var(--text-primary, #eaeaea);
+    text-align: right;
+}
+
+/* ==================== PLACEHOLDER ==================== */
+.excel-cell::placeholder {
+    color: var(--text-muted, #6b7280);
+    font-style: italic;
+    opacity: 0.6;
+}
+
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
     .excel-cell {
+        padding: 8px 10px;
+        font-size: 0.9em;
+        min-height: 36px;
+    }
+    
+    .row-label {
+        min-width: 80px;
         padding: 8px;
         font-size: 0.85em;
     }
     
-    .row-label {
-        min-width: 100px;
-        padding: 8px;
+    .cell-td {
+        min-width: 80px;
     }
     
-    .account-item {
-        padding: 6px 10px;
+    .fill-handle {
+        width: 16px;
+        height: 16px;
+        opacity: 1;
+    }
+    
+    .cell-selection-hint {
+        top: auto;
+        bottom: 20px;
+        padding: 12px 20px;
         font-size: 0.9em;
+    }
+}
+
+/* ==================== DARK/LIGHT MODE ==================== */
+body.light-mode .excel-grid-wrapper {
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+body.light-mode .excel-table th {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #e5e7eb;
+}
+
+body.light-mode .excel-table td {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+body.light-mode .excel-cell {
+    color: #1f2937;
+}
+
+body.light-mode .excel-cell.readonly {
+    background: #f9fafb !important;
+    color: #6b7280;
+}
+
+body.light-mode .row-number,
+body.light-mode .row-label {
+    background: #f3f4f6 !important;
+    color: #374151;
+}
+
+body.light-mode .cell-selection-hint {
+    background: #ffffff;
+    color: #1f2937;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+}
+
+body.light-mode .fill-handle {
+    border-color: #ffffff;
+}
+
+/* ==================== PRINT ==================== */
+@media print {
+    .excel-grid-wrapper {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .fill-handle,
+    .cell-selection-hint {
+        display: none !important;
+    }
+    
+    .excel-cell {
+        color: #000 !important;
+        background: #fff !important;
+    }
+    
+    .excel-cell.correct {
+        background: #d1fae5 !important;
+    }
+    
+    .excel-cell.incorrect {
+        background: #fee2e2 !important;
     }
 }

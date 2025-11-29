@@ -2217,20 +2217,31 @@
                             input.classList.remove('correct-dropped');
                         }, 500);
                         
-                        // Trigger change event for formula recalculation
+                        // Trigger change event for balance update
                         input.dispatchEvent(new Event('input', { bubbles: true }));
+                        updateGridBalance();
                     }
+                });
+                
+                // Keyboard navigation
+                input.addEventListener('keydown', function(e) {
+                    handleCellNavigation(e, input);
                 });
             });
             
-            // Also setup for number cells (all non-account editable cells)
+            // Setup for number cells
             var numberCells = document.querySelectorAll('.excel-cell.number-input, .excel-cell[data-type="number"]');
             console.log('Found', numberCells.length, 'number input cells');
             
             numberCells.forEach(function(input) {
-                // Add keyboard navigation
+                // Keyboard navigation
                 input.addEventListener('keydown', function(e) {
                     handleCellNavigation(e, input);
+                });
+                
+                // Update balance on input
+                input.addEventListener('input', function() {
+                    updateGridBalance();
                 });
                 
                 // Formula evaluation on blur
@@ -2245,58 +2256,199 @@
                     if (input.dataset.formula) {
                         input.value = input.dataset.formula;
                     }
+                    // Start cell selection mode if typing =
+                    gridState.currentCell = input;
                 });
             });
+        }
+        
+        // Grid state for cell selection
+        var gridState = {
+            selectingCell: false,
+            currentCell: null
+        };
+        
+        function setupExcelGridFormulas() {
+            // Setup click handlers for cell reference selection
+            var allCells = document.querySelectorAll('#excel-tbody .excel-cell:not(.readonly)');
             
-            // Setup account cells for keyboard navigation too
-            accountCells.forEach(function(input) {
-                input.addEventListener('keydown', function(e) {
-                    handleCellNavigation(e, input);
+            allCells.forEach(function(cell) {
+                cell.addEventListener('click', function(e) {
+                    if (gridState.selectingCell && gridState.currentCell && cell !== gridState.currentCell) {
+                        e.preventDefault();
+                        // Insert cell reference into current formula
+                        var cellRef = getCellReference(cell);
+                        var cursorPos = gridState.currentCell.selectionStart || gridState.currentCell.value.length;
+                        var currentValue = gridState.currentCell.value;
+                        gridState.currentCell.value = currentValue.slice(0, cursorPos) + cellRef + currentValue.slice(cursorPos);
+                        gridState.currentCell.focus();
+                        
+                        // Visual feedback
+                        cell.classList.add('selected-for-formula');
+                        setTimeout(function() {
+                            cell.classList.remove('selected-for-formula');
+                        }, 300);
+                    }
+                });
+                
+                // Detect when user types = to start selection mode
+                cell.addEventListener('input', function() {
+                    if (cell.value === '=') {
+                        gridState.selectingCell = true;
+                        gridState.currentCell = cell;
+                        // Add visual indicator to other cells
+                        document.querySelectorAll('#excel-tbody .excel-cell:not(.readonly)').forEach(function(c) {
+                            if (c !== cell) {
+                                c.classList.add('selecting-mode');
+                            }
+                        });
+                    } else if (!cell.value.startsWith('=')) {
+                        endCellSelection();
+                    }
+                });
+                
+                // End selection on blur or Enter
+                cell.addEventListener('blur', function() {
+                    setTimeout(function() {
+                        endCellSelection();
+                    }, 100);
                 });
             });
+        }
+        
+        function endCellSelection() {
+            gridState.selectingCell = false;
+            document.querySelectorAll('.selecting-mode').forEach(function(c) {
+                c.classList.remove('selecting-mode');
+            });
+        }
+        
+        function getCellReference(cell) {
+            var row = parseInt(cell.dataset.row) + 1; // 1-indexed
+            var col = parseInt(cell.dataset.col);
+            var colLetter = String.fromCharCode(65 + col); // A, B, C...
+            return colLetter + row;
         }
         
         // Cell navigation with arrow keys
         function handleCellNavigation(e, cell) {
             var key = e.key;
             
+            // If in selection mode and press Enter, evaluate and exit
+            if (key === 'Enter' && gridState.selectingCell) {
+                e.preventDefault();
+                evaluateCellFormula(cell);
+                endCellSelection();
+                // Move to next row
+                navigateToCell(cell, 0, 1);
+                return;
+            }
+            
+            // Arrow keys in selection mode add cell references
+            if (gridState.selectingCell && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+                e.preventDefault();
+                var row = parseInt(cell.dataset.row);
+                var col = parseInt(cell.dataset.col);
+                var targetRow = row, targetCol = col;
+                
+                switch(key) {
+                    case 'ArrowUp': targetRow--; break;
+                    case 'ArrowDown': targetRow++; break;
+                    case 'ArrowLeft': targetCol--; break;
+                    case 'ArrowRight': targetCol++; break;
+                }
+                
+                var targetCell = document.querySelector('[data-row="' + targetRow + '"][data-col="' + targetCol + '"]');
+                if (targetCell && !targetCell.classList.contains('readonly')) {
+                    var cellRef = getCellReference(targetCell);
+                    cell.value += cellRef;
+                    targetCell.classList.add('selected-for-formula');
+                    setTimeout(function() {
+                        targetCell.classList.remove('selected-for-formula');
+                    }, 300);
+                }
+                return;
+            }
+            
+            // Normal navigation
             if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(key)) {
+                return;
+            }
+            
+            // Don't navigate if editing (has content and not just arrow key)
+            if (cell.value && !['Tab', 'Enter'].includes(key)) {
                 return;
             }
             
             e.preventDefault();
             
-            // If Enter and has formula, evaluate it
+            // Evaluate formula on Enter
             if (key === 'Enter' && cell.value.trim().startsWith('=')) {
                 evaluateCellFormula(cell);
             }
             
-            var row = parseInt(cell.dataset.row);
-            var col = parseInt(cell.dataset.col);
-            var targetRow = row;
-            var targetCol = col;
-            
+            var dRow = 0, dCol = 0;
             switch(key) {
-                case 'ArrowUp':
-                    targetRow = row - 1;
-                    break;
-                case 'ArrowDown':
-                case 'Enter':
-                    targetRow = row + 1;
-                    break;
-                case 'ArrowLeft':
-                    targetCol = col - 1;
-                    break;
+                case 'ArrowUp': dRow = -1; break;
+                case 'ArrowDown': 
+                case 'Enter': dRow = 1; break;
+                case 'ArrowLeft': dCol = -1; break;
                 case 'ArrowRight':
-                case 'Tab':
-                    targetCol = col + 1;
-                    break;
+                case 'Tab': dCol = 1; break;
             }
             
-            // Find target cell
-            var targetCell = document.querySelector('[data-row="' + targetRow + '"][data-col="' + targetCol + '"]');
+            navigateToCell(cell, dCol, dRow);
+        }
+        
+        function navigateToCell(fromCell, dCol, dRow) {
+            var row = parseInt(fromCell.dataset.row) + dRow;
+            var col = parseInt(fromCell.dataset.col) + dCol;
+            
+            var targetCell = document.querySelector('[data-row="' + row + '"][data-col="' + col + '"]');
             if (targetCell && !targetCell.classList.contains('readonly')) {
                 targetCell.focus();
+            }
+        }
+        
+        // Update balance display
+        function updateGridBalance() {
+            var totalDebet = 0;
+            var totalKredit = 0;
+            
+            // Get all number cells and sum debet/kredit
+            document.querySelectorAll('#excel-tbody .excel-cell[data-type="number"]').forEach(function(cell) {
+                var col = parseInt(cell.dataset.col);
+                var val = parseFloat(cell.value.replace(/\s/g, '').replace(/,/g, '')) || 0;
+                
+                // Column 1 = Debet, Column 2 = Kredit (0-indexed, col 0 is account)
+                if (col === 1) {
+                    totalDebet += val;
+                } else if (col === 2) {
+                    totalKredit += val;
+                }
+            });
+            
+            // Update sum row
+            var sumDebet = document.querySelector('.sum-debet');
+            var sumKredit = document.querySelector('.sum-kredit');
+            
+            if (sumDebet) sumDebet.value = formatNumber(totalDebet);
+            if (sumKredit) sumKredit.value = formatNumber(totalKredit);
+            
+            // Visual indicator for balance
+            var isBalanced = Math.abs(totalDebet - totalKredit) < 0.01;
+            
+            if (sumDebet && sumKredit) {
+                if (isBalanced && totalDebet > 0) {
+                    sumDebet.style.color = 'var(--success)';
+                    sumKredit.style.color = 'var(--success)';
+                } else if (totalDebet > 0 || totalKredit > 0) {
+                    sumDebet.style.color = 'var(--error)';
+                    sumKredit.style.color = 'var(--error)';
+                } else {
+                    sumDebet.style.color = 'var(--text-secondary)';
+                    sumKredit.style.color = 'var(--text-secondary)';
+                }
             }
         }
         
@@ -2324,6 +2476,8 @@
                 cell.value = '#FEIL';
                 cell.title = 'Feil i formel: ' + e.message;
             }
+            
+            updateGridBalance();
         }
         
         // Calculate formula
@@ -3067,22 +3221,33 @@
                         if (!isEditable) {
                             bodyHtml += '<td><input class="excel-cell readonly" value="' + val + '" readonly tabindex="-1"></td>';
                         } else if (cellType === 'account') {
-                            // Account field - droppable
-                            bodyHtml += '<td><input class="excel-cell account-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="account" placeholder="Dra konto hit" type="text"></td>';
+                            // Account field - droppable with fill handle
+                            bodyHtml += '<td class="cell-wrapper"><input class="excel-cell account-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="account" placeholder="Dra konto hit" type="text"><div class="fill-handle"></div></td>';
                         } else {
-                            // Number field - no spinners
-                            bodyHtml += '<td><input class="excel-cell number-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="number" placeholder="?" inputmode="numeric" pattern="[0-9]*"></td>';
+                            // Number field with fill handle
+                            bodyHtml += '<td class="cell-wrapper"><input class="excel-cell number-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="number" placeholder="?" inputmode="numeric" pattern="[0-9]*"><div class="fill-handle"></div></td>';
                         }
                     });
                     bodyHtml += '</tr>';
                 });
+                
+                // Add Sum row
+                bodyHtml += '<tr class="sum-row">';
+                bodyHtml += '<td class="row-label" style="font-weight: bold; color: var(--accent);">Sum</td>';
+                bodyHtml += '<td></td>'; // Empty for account column
+                bodyHtml += '<td><input class="excel-cell readonly sum-debet" value="0" readonly style="font-weight: bold; text-align: right;"></td>';
+                bodyHtml += '<td><input class="excel-cell readonly sum-kredit" value="0" readonly style="font-weight: bold; text-align: right;"></td>';
+                bodyHtml += '</tr>';
+                
                 tbody.innerHTML = bodyHtml;
                 
-                console.log('Grid rendered with', grid.rows.length, 'rows');
+                console.log('Grid rendered with', grid.rows.length, 'rows + sum row');
                 
-                // Setup drag & drop for account codes
+                // Setup drag & drop and other interactions
                 setTimeout(function() {
                     setupExcelGridDragDrop();
+                    setupExcelGridFormulas();
+                    updateGridBalance();
                 }, 100);
             } else {
                 console.log('Using auto-generate mode (no valid grid found)');
@@ -3337,85 +3502,150 @@
         }
         
         function checkExcelGrid(q) {
-            // For T-konto bokføring: sjekk om brukeren har fylt inn riktige kontoer og beløp
+            // For T-konto bokføring: sjekk balanse og posteringer
             var grid = q.grid;
-            if (!grid || !grid.rows) {
-                console.error('No grid data for excel_grid question');
-                alert('Ingen rutenett-data funnet for dette spørsmålet.');
-                return null;
-            }
+            console.log('checkExcelGrid called with question:', q.id);
+            console.log('Grid:', grid);
+            console.log('q.correct:', q.correct);
+            console.log('q.solution:', q.solution);
             
-            var allCorrect = true;
+            // Collect user's entries
+            var userEntries = [];
+            var totalDebet = 0;
+            var totalKredit = 0;
             var hasInput = false;
-            var results = [];
             
-            // Gå gjennom alle celler og sjekk mot fasit
-            grid.rows.forEach(function(row, ri) {
-                (row.cells || []).forEach(function(cell, ci) {
-                    var isEditable = cell.editable !== false && cell.readonly !== true;
-                    if (!isEditable) return;
-                    
-                    var inputEl = document.getElementById('input-cell-' + ri + '-' + ci);
-                    if (!inputEl) {
-                        inputEl = document.querySelector('[data-row="' + ri + '"][data-col="' + ci + '"]');
-                    }
-                    
-                    if (!inputEl) {
-                        console.warn('Could not find input for cell', ri, ci);
-                        return;
-                    }
-                    
-                    var userValue = inputEl.value.trim();
-                    if (userValue) hasInput = true;
-                    
-                    // Hent fasit fra celle
-                    var correctValue = cell.answer !== undefined ? cell.answer : cell.correct;
-                    
-                    if (correctValue === undefined) {
-                        // Ingen fasit for denne cellen - hopp over
-                        return;
-                    }
-                    
-                    // Sammenlign verdier
-                    var isCorrect = false;
-                    var cellType = cell.type || inputEl.dataset.type || 'number';
-                    
-                    if (cellType === 'account') {
-                        // Kontonummer - eksakt match (kan ha leading zeros)
-                        isCorrect = userValue === String(correctValue);
-                    } else {
-                        // Tall - numerisk sammenligning med toleranse
-                        var userNum = parseFloat(userValue.replace(/\s/g, '').replace(',', '.'));
-                        var correctNum = parseFloat(correctValue);
-                        var tolerance = cell.tolerance || 0.01;
-                        
-                        if (!isNaN(userNum) && !isNaN(correctNum)) {
-                            isCorrect = Math.abs(userNum - correctNum) <= Math.abs(correctNum * tolerance);
-                        }
-                    }
-                    
-                    results.push({ ri, ci, userValue, correctValue, isCorrect });
-                    
-                    // Marker celle visuelt
-                    if (isCorrect) {
-                        inputEl.classList.remove('incorrect');
-                        inputEl.classList.add('correct');
-                    } else {
-                        inputEl.classList.remove('correct');
-                        inputEl.classList.add('incorrect');
-                        allCorrect = false;
-                    }
-                });
+            // Get all editable cells
+            document.querySelectorAll('#excel-tbody tr:not(.sum-row)').forEach(function(row, ri) {
+                var accountCell = row.querySelector('[data-type="account"]');
+                var debetCell = row.querySelector('[data-col="1"]');
+                var kreditCell = row.querySelector('[data-col="2"]');
+                
+                var account = accountCell ? accountCell.value.trim() : '';
+                var debet = debetCell ? parseFloat(debetCell.value.replace(/\s/g, '').replace(',', '.')) || 0 : 0;
+                var kredit = kreditCell ? parseFloat(kreditCell.value.replace(/\s/g, '').replace(',', '.')) || 0 : 0;
+                
+                if (account || debet || kredit) {
+                    hasInput = true;
+                    userEntries.push({ account: account, debet: debet, kredit: kredit, row: ri });
+                    totalDebet += debet;
+                    totalKredit += kredit;
+                }
             });
             
-            console.log('Excel grid check results:', results);
+            console.log('User entries:', userEntries);
+            console.log('Total debet:', totalDebet, 'Total kredit:', totalKredit);
             
             if (!hasInput) {
-                alert('Fyll inn svarene i rutenettet!');
+                alert('Fyll inn posteringene i T-kontoen!');
                 return null;
             }
             
-            return allCorrect;
+            // Check balance first
+            if (Math.abs(totalDebet - totalKredit) > 0.01) {
+                alert('Posteringen balanserer ikke! Debet (' + formatNumber(totalDebet) + ') må være lik Kredit (' + formatNumber(totalKredit) + ')');
+                return false;
+            }
+            
+            // If we have a solution/correct array, validate against it
+            var solution = q.correct || q.solution;
+            
+            if (solution && Array.isArray(solution)) {
+                // Validate each required entry exists
+                var allCorrect = true;
+                var matchedSolutions = [];
+                
+                userEntries.forEach(function(entry) {
+                    var found = false;
+                    solution.forEach(function(sol, idx) {
+                        if (matchedSolutions.indexOf(idx) > -1) return;
+                        
+                        // Match account and amounts
+                        var accountMatch = String(entry.account) === String(sol.account || sol.konto);
+                        var debetMatch = Math.abs(entry.debet - (sol.debet || sol.debit || 0)) < 0.01;
+                        var kreditMatch = Math.abs(entry.kredit - (sol.kredit || sol.credit || 0)) < 0.01;
+                        
+                        if (accountMatch && debetMatch && kreditMatch) {
+                            found = true;
+                            matchedSolutions.push(idx);
+                        }
+                    });
+                    
+                    // Mark row visually
+                    var rowEl = document.querySelector('#excel-tbody tr:nth-child(' + (entry.row + 1) + ')');
+                    if (rowEl) {
+                        rowEl.querySelectorAll('.excel-cell:not(.readonly)').forEach(function(cell) {
+                            if (found) {
+                                cell.classList.remove('incorrect');
+                                cell.classList.add('correct');
+                            } else {
+                                cell.classList.remove('correct');
+                                cell.classList.add('incorrect');
+                                allCorrect = false;
+                            }
+                        });
+                    }
+                });
+                
+                // Check if all required solutions were matched
+                if (matchedSolutions.length < solution.length) {
+                    allCorrect = false;
+                }
+                
+                return allCorrect;
+            }
+            
+            // If we have answer data in grid cells
+            if (grid && grid.rows) {
+                var allCorrect = true;
+                var hasAnswers = false;
+                
+                grid.rows.forEach(function(row, ri) {
+                    (row.cells || []).forEach(function(cell, ci) {
+                        var correctValue = cell.answer !== undefined ? cell.answer : cell.correct;
+                        if (correctValue === undefined) return;
+                        
+                        hasAnswers = true;
+                        var inputEl = document.querySelector('[data-row="' + ri + '"][data-col="' + ci + '"]');
+                        if (!inputEl) return;
+                        
+                        var userValue = inputEl.value.trim();
+                        var isCorrect = false;
+                        var cellType = cell.type || 'number';
+                        
+                        if (cellType === 'account') {
+                            isCorrect = userValue === String(correctValue);
+                        } else {
+                            var userNum = parseFloat(userValue.replace(/\s/g, '').replace(',', '.')) || 0;
+                            var correctNum = parseFloat(correctValue) || 0;
+                            isCorrect = Math.abs(userNum - correctNum) < 0.01;
+                        }
+                        
+                        if (isCorrect) {
+                            inputEl.classList.remove('incorrect');
+                            inputEl.classList.add('correct');
+                        } else {
+                            inputEl.classList.remove('correct');
+                            inputEl.classList.add('incorrect');
+                            allCorrect = false;
+                        }
+                    });
+                });
+                
+                if (hasAnswers) {
+                    return allCorrect;
+                }
+            }
+            
+            // No solution data - just check balance and mark all as correct if balanced
+            console.log('No solution data found - checking balance only');
+            document.querySelectorAll('#excel-tbody tr:not(.sum-row) .excel-cell:not(.readonly)').forEach(function(cell) {
+                if (cell.value.trim()) {
+                    cell.classList.add('correct');
+                }
+            });
+            
+            return true; // Balanced = correct when no solution
         }
         
         function checkMC(solution) {
