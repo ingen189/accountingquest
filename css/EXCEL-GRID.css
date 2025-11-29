@@ -1,4 +1,5 @@
 /* ExcelGrid Styles - Standalone CSS */
+/* AccountingQuest T-konto og Excel-lignende grid */
 
 .excel-grid-wrapper {
     overflow-x: auto;
@@ -61,6 +62,9 @@
     height: 100%;
 }
 
+/* ============================================
+   EXCEL CELL - Hovedstyling
+   ============================================ */
 .excel-cell {
     width: 100%;
     background: transparent;
@@ -71,16 +75,45 @@
     font-family: 'Consolas', 'Monaco', monospace;
     text-align: right;
     outline: none;
-    transition: background 0.2s;
+    transition: background 0.2s, outline 0.2s;
+    box-sizing: border-box;
 }
 
+/* ============================================
+   FJERN NUMBER SPINNERS - Viktig!
+   ============================================ */
+.excel-cell::-webkit-outer-spin-button,
+.excel-cell::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.excel-cell[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* Number input - høyrejustert */
+.excel-cell.number-input {
+    text-align: right;
+}
+
+/* Account input - venstrejustert */
+.excel-cell.account-input {
+    text-align: left;
+    font-family: inherit;
+}
+
+/* ============================================
+   FOKUS OG HOVER
+   ============================================ */
 .excel-cell:focus {
     outline: 2px solid var(--accent, #4ade80);
     background: rgba(255,255,255,0.05);
     z-index: 5;
 }
 
-.excel-cell:hover {
+.excel-cell:hover:not(.readonly) {
     background: rgba(255,255,255,0.03);
 }
 
@@ -91,6 +124,9 @@
     text-align: left;
 }
 
+/* ============================================
+   RIKTIG/FEIL MARKERING
+   ============================================ */
 .excel-cell.correct {
     background: rgba(34, 197, 94, 0.2) !important;
     border-color: var(--success, #22c55e) !important;
@@ -103,7 +139,64 @@
     outline: 2px solid var(--error, #ef4444);
 }
 
-/* Fill Handle - Grønn sirkel for drag-copy */
+/* ============================================
+   DRAG & DROP - Kontoplan til T-konto
+   ============================================ */
+.excel-cell.drop-target {
+    outline: 2px dashed var(--accent, #4ade80);
+    background: rgba(74, 222, 128, 0.1);
+}
+
+.excel-cell.drag-over {
+    outline: 3px solid var(--accent, #4ade80);
+    background: rgba(74, 222, 128, 0.25) !important;
+    transform: scale(1.02);
+}
+
+.excel-cell.account-input::placeholder {
+    color: var(--text-muted, #6b7280);
+    font-style: italic;
+}
+
+/* Draggable kontonummer i sidepanel */
+.account-item {
+    cursor: grab;
+    padding: 8px 12px;
+    margin: 4px 0;
+    background: var(--bg-tertiary, #2d333b);
+    border-radius: 6px;
+    border: 1px solid var(--border-color, #404040);
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.account-item:hover {
+    background: var(--bg-secondary, #1a1f26);
+    border-color: var(--accent, #4ade80);
+    transform: translateX(5px);
+}
+
+.account-item:active,
+.account-item.dragging {
+    cursor: grabbing;
+    opacity: 0.8;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.account-item .account-number {
+    font-weight: 600;
+    color: var(--accent, #4ade80);
+    margin-right: 8px;
+}
+
+.account-item .account-name {
+    color: var(--text-secondary, #9ca3af);
+}
+
+/* ============================================
+   FILL HANDLE - Grønn sirkel for drag-copy
+   ============================================ */
 .fill-handle {
     position: absolute;
     right: 1px;
@@ -132,6 +225,9 @@
     background: rgba(74, 222, 128, 0.25) !important;
 }
 
+/* ============================================
+   FORMEL-MODUS
+   ============================================ */
 .excel-cell.selecting-mode {
     cursor: crosshair;
     background: rgba(59, 130, 246, 0.1);
@@ -163,11 +259,46 @@
     color: var(--text-primary, #eaeaea);
 }
 
-/* Highlight row for answer cells */
+/* ============================================
+   HIGHLIGHT FOR SVAR-CELLER
+   ============================================ */
 .excel-cell.highlight {
     font-weight: 600;
 }
 
 .excel-cell.highlight + .excel-cell:not(.readonly) {
     background: rgba(74, 222, 128, 0.1);
+}
+
+/* ============================================
+   SUM-RAD STYLING
+   ============================================ */
+.excel-table tr:last-child .row-label {
+    font-weight: 700;
+    color: var(--accent, #4ade80);
+}
+
+.excel-table tr:last-child .excel-cell.readonly {
+    font-weight: 700;
+    background: var(--bg-secondary, #2d2d2d);
+}
+
+/* ============================================
+   RESPONSIV
+   ============================================ */
+@media (max-width: 768px) {
+    .excel-cell {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+    
+    .row-label {
+        min-width: 100px;
+        padding: 8px;
+    }
+    
+    .account-item {
+        padding: 6px 10px;
+        font-size: 0.9em;
+    }
 }

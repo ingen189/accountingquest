@@ -2866,21 +2866,39 @@
                 }
                 
                 // Use the provided grid structure for T-konto
-                var columns = grid.columns || ['Debet', 'Kredit'];
-                thead.innerHTML = '<tr><th style="min-width: 180px;">Konto</th>' + columns.map(function(c) { return '<th style="min-width: 120px;">' + c + '</th>'; }).join('') + '</tr>';
+                // Columns should be ['Konto', 'Debet', 'Kredit'] or similar
+                var columns = grid.columns || ['Konto', 'Debet', 'Kredit'];
+                
+                // Don't add extra "Konto" column if it's already in columns
+                var headerHtml = '<tr>';
+                columns.forEach(function(c) {
+                    headerHtml += '<th style="min-width: 120px;">' + c + '</th>';
+                });
+                headerHtml += '</tr>';
+                thead.innerHTML = headerHtml;
                 
                 var bodyHtml = '';
                 grid.rows.forEach(function(row, ri) {
-                    bodyHtml += '<tr><td class="row-label">' + row.label + '</td>';
+                    bodyHtml += '<tr>';
+                    
+                    // Row label in first column
+                    bodyHtml += '<td class="row-label">' + (row.label || '') + '</td>';
+                    
+                    // Cells for remaining columns
                     (row.cells || []).forEach(function(cell, ci) {
-                        var isReadonly = cell.readonly === true;
-                        var val = cell.value !== undefined && cell.value !== '' ? cell.value : '';
-                        var cellId = cell.id || ('cell-' + ri + '-' + ci);
+                        var isEditable = cell.editable !== false && cell.readonly !== true;
+                        var val = cell.value !== undefined && cell.value !== null && cell.value !== '' ? cell.value : '';
+                        var cellId = 'cell-' + ri + '-' + ci;
+                        var cellType = cell.type || 'text';
                         
-                        if (isReadonly) {
+                        if (!isEditable) {
                             bodyHtml += '<td><input class="excel-cell readonly" value="' + val + '" readonly tabindex="-1"></td>';
+                        } else if (cellType === 'account') {
+                            // Account field - droppable
+                            bodyHtml += '<td><input class="excel-cell account-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="account" placeholder="Dra konto hit" type="text"></td>';
                         } else {
-                            bodyHtml += '<td><input class="excel-cell" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" placeholder="?" type="number"></td>';
+                            // Number field - no spinners
+                            bodyHtml += '<td><input class="excel-cell number-input" id="input-' + cellId + '" data-id="' + cellId + '" data-row="' + ri + '" data-col="' + ci + '" data-type="number" placeholder="?" inputmode="numeric" pattern="[0-9]*"></td>';
                         }
                     });
                     bodyHtml += '</tr>';
@@ -2999,6 +3017,8 @@
                 correct = checkDnD(solution);
             } else if (type === 'journal_entry' || type === 'journal') {
                 correct = checkJournalEntry(solution);
+            } else if (type === 'excel_grid') {
+                correct = checkExcelGrid(q);
             } else {
                 correct = checkCalc(solution);
             }
@@ -3137,6 +3157,88 @@
             
             if (!hasEntries) {
                 alert('Fyll inn bilagsføringen!');
+                return null;
+            }
+            
+            return allCorrect;
+        }
+        
+        function checkExcelGrid(q) {
+            // For T-konto bokføring: sjekk om brukeren har fylt inn riktige kontoer og beløp
+            var grid = q.grid;
+            if (!grid || !grid.rows) {
+                console.error('No grid data for excel_grid question');
+                alert('Ingen rutenett-data funnet for dette spørsmålet.');
+                return null;
+            }
+            
+            var allCorrect = true;
+            var hasInput = false;
+            var results = [];
+            
+            // Gå gjennom alle celler og sjekk mot fasit
+            grid.rows.forEach(function(row, ri) {
+                (row.cells || []).forEach(function(cell, ci) {
+                    var isEditable = cell.editable !== false && cell.readonly !== true;
+                    if (!isEditable) return;
+                    
+                    var inputEl = document.getElementById('input-cell-' + ri + '-' + ci);
+                    if (!inputEl) {
+                        inputEl = document.querySelector('[data-row="' + ri + '"][data-col="' + ci + '"]');
+                    }
+                    
+                    if (!inputEl) {
+                        console.warn('Could not find input for cell', ri, ci);
+                        return;
+                    }
+                    
+                    var userValue = inputEl.value.trim();
+                    if (userValue) hasInput = true;
+                    
+                    // Hent fasit fra celle
+                    var correctValue = cell.answer !== undefined ? cell.answer : cell.correct;
+                    
+                    if (correctValue === undefined) {
+                        // Ingen fasit for denne cellen - hopp over
+                        return;
+                    }
+                    
+                    // Sammenlign verdier
+                    var isCorrect = false;
+                    var cellType = cell.type || inputEl.dataset.type || 'number';
+                    
+                    if (cellType === 'account') {
+                        // Kontonummer - eksakt match (kan ha leading zeros)
+                        isCorrect = userValue === String(correctValue);
+                    } else {
+                        // Tall - numerisk sammenligning med toleranse
+                        var userNum = parseFloat(userValue.replace(/\s/g, '').replace(',', '.'));
+                        var correctNum = parseFloat(correctValue);
+                        var tolerance = cell.tolerance || 0.01;
+                        
+                        if (!isNaN(userNum) && !isNaN(correctNum)) {
+                            isCorrect = Math.abs(userNum - correctNum) <= Math.abs(correctNum * tolerance);
+                        }
+                    }
+                    
+                    results.push({ ri, ci, userValue, correctValue, isCorrect });
+                    
+                    // Marker celle visuelt
+                    if (isCorrect) {
+                        inputEl.classList.remove('incorrect');
+                        inputEl.classList.add('correct');
+                    } else {
+                        inputEl.classList.remove('correct');
+                        inputEl.classList.add('incorrect');
+                        allCorrect = false;
+                    }
+                });
+            });
+            
+            console.log('Excel grid check results:', results);
+            
+            if (!hasInput) {
+                alert('Fyll inn svarene i rutenettet!');
                 return null;
             }
             
