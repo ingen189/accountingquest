@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - AccountingQuest</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -48,7 +45,22 @@
         }
         .header h1 { color: var(--accent); font-size: 1.4em; }
         .header-actions { display: flex; gap: 12px; align-items: center; }
-        .user-info { color: var(--text-secondary); font-size: 0.85em; }
+        .api-status { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+        .status-dot { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background: var(--danger);
+        }
+        .status-dot.connected { background: var(--accent); }
         
         .btn { 
             padding: 8px 16px; 
@@ -100,21 +112,23 @@
         }
         .sidebar-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
         .sidebar-item.active { 
-            background: rgba(74, 222, 128, 0.1); 
-            color: var(--accent); 
+            background: var(--bg-tertiary); 
             border-left-color: var(--accent); 
+            color: var(--accent);
         }
         .sidebar-item .count {
             margin-left: auto;
-            background: var(--bg-tertiary);
+            background: var(--bg-primary);
             padding: 2px 8px;
             border-radius: 10px;
-            font-size: 0.8em;
+            font-size: 0.75em;
         }
         
         .main { flex: 1; padding: 25px; overflow-y: auto; }
+        
         .page { display: none; }
         .page.active { display: block; }
+        
         .page-header { 
             display: flex; 
             justify-content: space-between; 
@@ -127,2108 +141,1256 @@
         
         .stats-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
             gap: 15px; 
-            margin-bottom: 25px; 
+            margin-bottom: 25px;
         }
         .stat-card { 
             background: var(--bg-secondary); 
-            border: 1px solid var(--border); 
             border-radius: var(--radius); 
             padding: 20px; 
-            text-align: center; 
-        }
-        .stat-value { font-size: 2em; font-weight: bold; color: var(--accent); }
-        .stat-label { color: var(--text-secondary); font-size: 0.8em; margin-top: 5px; }
-        
-        .table-container { 
-            background: var(--bg-secondary);
+            text-align: center;
             border: 1px solid var(--border);
+        }
+        .stat-value { font-size: 2em; font-weight: 700; color: var(--accent); }
+        .stat-label { color: var(--text-secondary); font-size: 0.85em; margin-top: 5px; }
+        
+        .card {
+            background: var(--bg-secondary);
             border-radius: var(--radius);
-            overflow: hidden;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
         }
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
+        .card h3 { color: var(--accent); margin-bottom: 15px; }
+        
+        .table-container { overflow-x: auto; }
+        .data-table { 
+            width: 100%; 
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        .data-table th, .data-table td { 
+            padding: 12px 15px; 
+            text-align: left; 
             border-bottom: 1px solid var(--border);
-            flex-wrap: wrap;
-            gap: 10px;
         }
-        .search-input {
-            padding: 8px 12px;
+        .data-table th { 
+            background: var(--bg-tertiary); 
+            color: var(--accent);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        .data-table tr:hover { background: var(--bg-tertiary); }
+        
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        .badge-green { background: rgba(74, 222, 128, 0.2); color: var(--accent); }
+        .badge-yellow { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge-red { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .badge-blue { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+        .badge-purple { background: rgba(139, 92, 246, 0.2); color: var(--purple); }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 0.9em; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        
+        .search-box {
+            padding: 10px 15px;
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
             border-radius: 6px;
             color: var(--text-primary);
             width: 250px;
-            font-size: 0.9em;
         }
-        .search-input:focus { outline: none; border-color: var(--accent); }
+        .search-box:focus { outline: none; border-color: var(--accent); }
         
-        .data-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
-        .data-table th, .data-table td { 
-            padding: 12px 15px; 
-            text-align: left; 
-            border-bottom: 1px solid var(--border); 
-        }
-        .data-table th { 
-            background: var(--bg-tertiary); 
-            font-weight: 600; 
-            color: var(--accent);
-            font-size: 0.75em;
-            text-transform: uppercase;
-            position: sticky;
-            top: 0;
-        }
-        .data-table tr:hover { background: rgba(74, 222, 128, 0.05); }
-        .data-table-scroll { max-height: 60vh; overflow-y: auto; }
-        
-        .badge { 
-            display: inline-block; 
-            padding: 3px 10px; 
-            border-radius: 12px; 
-            font-size: 0.75em; 
-            font-weight: 600; 
-        }
-        .badge-green { background: rgba(74, 222, 128, 0.2); color: var(--accent); }
-        .badge-blue { background: rgba(59, 130, 246, 0.2); color: var(--info); }
-        .badge-orange { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .badge-red { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .badge-purple { background: rgba(139, 92, 246, 0.2); color: var(--purple); }
-        .badge-gray { background: var(--bg-tertiary); color: var(--text-secondary); }
-        
-        .role-admin { background: #ef4444; color: white; }
-        .role-teacher_pro { background: #8b5cf6; color: white; }
-        .role-teacher { background: #a78bfa; color: white; }
-        .role-pro { background: #f59e0b; color: white; }
-        .role-student { background: #34d399; color: #1f2937; }
-        .role-free { background: var(--bg-tertiary); color: var(--text-secondary); }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 6px; color: var(--text-secondary); font-size: 0.85em; }
-        .form-group input, .form-group textarea, .form-group select { 
-            width: 100%; 
-            padding: 10px 12px; 
-            background: var(--bg-tertiary); 
-            border: 1px solid var(--border); 
-            border-radius: 6px; 
-            color: var(--text-primary); 
-            font-size: 0.9em; 
-        }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { 
-            outline: none; 
-            border-color: var(--accent); 
-        }
-        .form-group textarea { min-height: 100px; resize: vertical; font-family: inherit; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        .modal { 
-            display: none; 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0, 0, 0, 0.85); 
-            z-index: 1000; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 20px; 
-        }
-        .modal.show { display: flex; }
-        .modal-content { 
-            background: var(--bg-secondary); 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            padding: 25px; 
-            max-width: 600px; 
-            width: 100%; 
-            max-height: 90vh; 
-            overflow-y: auto; 
-        }
-        .modal-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 20px; 
-            padding-bottom: 15px; 
-            border-bottom: 1px solid var(--border); 
-        }
-        .modal-header h2 { color: var(--accent); font-size: 1.2em; }
-        .modal-close { 
-            background: none; 
-            border: none; 
-            color: var(--text-secondary); 
-            font-size: 1.5em; 
-            cursor: pointer; 
-        }
-        .modal-footer { 
-            display: flex; 
-            gap: 10px; 
-            justify-content: flex-end; 
-            margin-top: 20px; 
-            padding-top: 15px; 
-            border-top: 1px solid var(--border); 
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
         }
         
-        .seed-card { 
-            background: var(--bg-secondary); 
-            border: 1px solid var(--border); 
-            border-radius: var(--radius); 
-            padding: 20px; 
-        }
-        .seed-card h3 { color: var(--text-primary); margin-bottom: 10px; }
-        .seed-card p { color: var(--text-secondary); font-size: 0.85em; margin-bottom: 15px; }
-        
-        .progress-bar { height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; margin-top: 10px; }
-        .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
-        
-        .role-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .role-option { 
-            padding: 12px; 
-            background: var(--bg-tertiary); 
-            border: 2px solid transparent; 
-            border-radius: 8px; 
-            cursor: pointer;
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 40px;
             text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
         }
-        .role-option:hover { border-color: var(--border); }
-        .role-option.selected { border-color: var(--accent); background: rgba(74, 222, 128, 0.1); }
-        
-        .message { padding: 12px 18px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9em; }
-        .message.success { background: rgba(74, 222, 128, 0.15); border: 1px solid var(--accent); color: var(--accent); }
-        .message.error { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: var(--danger); }
-        .message.info { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--info); color: var(--info); }
-        
-        .danger-zone { 
-            background: rgba(239, 68, 68, 0.1); 
-            border: 2px solid var(--danger); 
-            border-radius: var(--radius); 
-            padding: 20px; 
-            margin-top: 25px; 
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.05);
         }
-        .danger-zone h3 { color: var(--danger); margin-bottom: 10px; }
         
-        .loading { display: flex; align-items: center; justify-content: center; height: 150px; color: var(--text-secondary); }
-        .spinner { 
-            width: 30px; height: 30px; 
-            border: 3px solid var(--bg-tertiary); 
-            border-top-color: var(--accent); 
-            border-radius: 50%; 
-            animation: spin 0.8s linear infinite; 
-            margin-right: 12px; 
+        /* Log */
+        .log {
+            background: #000;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.85em;
+            max-height: 300px;
+            overflow-y: auto;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .log-success { color: var(--accent); }
+        .log-error { color: var(--danger); }
+        .log-info { color: var(--info); }
         
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal.show { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        .modal.show .modal-content { transform: scale(1); }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h3 { color: var(--accent); }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        /* Toast */
         .toast {
-            position: fixed; bottom: 20px; right: 20px;
-            padding: 12px 20px; border-radius: 8px; font-size: 0.9em; z-index: 2000;
-            transform: translateY(100px); opacity: 0; transition: all 0.3s;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 15px 20px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 3000;
         }
         .toast.show { transform: translateY(0); opacity: 1; }
-        .toast.success { background: var(--accent); color: #1a1a1a; }
-        .toast.error { background: var(--danger); color: white; }
-        .toast.info { background: var(--info); color: white; }
+        .toast.success { border-color: var(--accent); }
+        .toast.error { border-color: var(--danger); }
+        .toast.info { border-color: var(--info); }
         
-        .access-denied { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            height: 100vh; text-align: center; 
+        /* Progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
         }
-        .access-denied h1 { font-size: 4em; margin-bottom: 20px; }
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+        }
         
         @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .sidebar { width: 100%; display: flex; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); }
+            .sidebar { width: 60px; }
             .sidebar-section { display: none; }
-            .sidebar-item { white-space: nowrap; padding: 10px 15px; border-left: none; }
-            .form-row { grid-template-columns: 1fr; }
+            .sidebar-item { justify-content: center; padding: 15px; }
+            .sidebar-item span:not(.count) { display: none; }
+            .sidebar-item .count { display: none; }
         }
     </style>
 </head>
 <body>
-    <div id="loading-screen" class="access-denied">
-        <div class="spinner" style="width: 50px; height: 50px; margin: 0 auto 20px;"></div>
-        <p>Sjekker tilgang...</p>
+    <div class="header">
+        <h1>🔧 AccountingQuest Admin</h1>
+        <div class="header-actions">
+            <span class="api-status">
+                <span class="status-dot" id="apiStatus"></span>
+                <span id="apiStatusText">Kobler til...</span>
+            </span>
+            <a href="index.html" class="btn btn-secondary">← Tilbake</a>
+        </div>
     </div>
     
-    <div id="access-denied" class="access-denied" style="display: none;">
-        <h1>🔒</h1>
-        <h2>Ingen tilgang</h2>
-        <p style="color: var(--text-secondary); margin: 20px 0;">Du må være admin for å få tilgang.</p>
-        <a href="index.html" class="btn btn-primary">← Tilbake til forsiden</a>
-    </div>
-    
-    <div id="app" style="display: none;">
-        <header class="header">
-            <h1>🔧 Admin Dashboard</h1>
-            <div class="header-actions">
-                <span class="user-info" id="user-info"></span>
-                <a href="index.html" class="btn btn-secondary">← Tilbake</a>
-                <button class="btn btn-danger" onclick="logout()">Logg ut</button>
-            </div>
-        </header>
-        
-        <div class="container">
-            <nav class="sidebar">
-                <div class="sidebar-section">Oversikt</div>
-                <div class="sidebar-item active" data-page="dashboard">📊 Dashboard</div>
-                
-                <div class="sidebar-section">Brukere</div>
-                <div class="sidebar-item" data-page="users">👥 Brukere</div>
-                <div class="sidebar-item" data-page="teachers">👨‍🏫 Lærere</div>
-                
-                <div class="sidebar-section">Innhold</div>
-                <div class="sidebar-item" data-page="modules">🧩 Moduler</div>
-                <div class="sidebar-item" data-page="grunnleggende">📚 Grunnleggende Regnskap</div>
-                <div class="sidebar-item" data-page="corporate-finance">📈 Corporate Finance</div>
-                <div class="sidebar-item" data-page="wiki">📖 Wiki</div>
-                
-                <div class="sidebar-section">Verktøy</div>
-                <div class="sidebar-item" data-page="seeder">🌱 Seed Data</div>
-                <div class="sidebar-item" data-page="import">📥 Import</div>
-                <div class="sidebar-item" data-page="export">📤 Eksport</div>
-                <div class="sidebar-item" data-page="database">🗄️ Database</div>
-            </nav>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-section">Oversikt</div>
+            <div class="sidebar-item active" data-page="dashboard">📊 Dashboard</div>
             
-            <main class="main">
-                <!-- Dashboard -->
-                <div id="page-dashboard" class="page active">
-                    <div class="page-header">
-                        <h2 class="page-title">📊 Dashboard</h2>
-                        <button class="btn btn-primary" onclick="refreshAll()">🔄 Oppdater</button>
+            <div class="sidebar-section">Innhold</div>
+            <div class="sidebar-item" data-page="questions">❓ Spørsmål <span class="count" id="countQuestions">-</span></div>
+            <div class="sidebar-item" data-page="modules">📚 Moduler <span class="count" id="countModules">-</span></div>
+            
+            <div class="sidebar-section">Import/Export</div>
+            <div class="sidebar-item" data-page="import">📥 Import</div>
+            <div class="sidebar-item" data-page="export">📤 Export</div>
+            
+            <div class="sidebar-section">System</div>
+            <div class="sidebar-item" data-page="settings">⚙️ Innstillinger</div>
+        </nav>
+        
+        <main class="main">
+            <!-- Dashboard -->
+            <div id="page-dashboard" class="page active">
+                <div class="page-header">
+                    <h2 class="page-title">📊 Dashboard</h2>
+                    <button class="btn btn-primary" onclick="refreshAll()">🔄 Oppdater</button>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statQuestions">-</div>
+                        <div class="stat-label">Spørsmål</div>
                     </div>
-                    <div id="dashboard-message"></div>
-                    <div class="stats-grid">
-                        <div class="stat-card"><div class="stat-value" id="stat-users">-</div><div class="stat-label">Brukere</div></div>
-                        <div class="stat-card"><div class="stat-value" id="stat-teachers">-</div><div class="stat-label">Lærere</div></div>
-                        <div class="stat-card"><div class="stat-value" id="stat-quiz">-</div><div class="stat-label">Quiz</div></div>
-                        <div class="stat-card"><div class="stat-value" id="stat-cf">-</div><div class="stat-label">Corporate Finance</div></div>
-                        <div class="stat-card"><div class="stat-value" id="stat-bokforing">-</div><div class="stat-label">Bokføring</div></div>
-                        <div class="stat-card"><div class="stat-value" id="stat-wiki">-</div><div class="stat-label">Wiki</div></div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statModules">-</div>
+                        <div class="stat-label">Moduler</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statMc">-</div>
+                        <div class="stat-label">Flervalg</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statGrid">-</div>
+                        <div class="stat-label">Excel Grid</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statCalc">-</div>
+                        <div class="stat-label">Beregning</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statDnd">-</div>
+                        <div class="stat-label">Drag & Drop</div>
                     </div>
                 </div>
                 
-                <!-- Modules -->
-                <div id="page-modules" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">🧩 Moduler</h2>
-                        <button class="btn btn-primary" onclick="loadModules()">🔄 Oppdater</button>
-                    </div>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Administrer tilgjengelige læringsmoduler i AccountingQuest</p>
+                <div class="card">
+                    <h3>🔌 API Status</h3>
+                    <div id="apiInfo">Laster...</div>
+                </div>
+                
+                <div class="card">
+                    <h3>📈 Spørsmål per modul</h3>
+                    <div id="moduleStats">Laster...</div>
+                </div>
+            </div>
+            
+            <!-- Questions -->
+            <div id="page-questions" class="page">
+                <div class="page-header">
+                    <h2 class="page-title">❓ Spørsmål</h2>
+                    <button class="btn btn-primary" onclick="showAddQuestionModal()">➕ Nytt spørsmål</button>
+                </div>
+                
+                <div class="filter-bar">
+                    <input type="text" class="search-box" id="searchQuestions" placeholder="🔍 Søk..." oninput="filterQuestions()">
+                    <select id="filterModule" onchange="loadQuestions()">
+                        <option value="">Alle moduler</option>
+                    </select>
+                    <select id="filterType" onchange="loadQuestions()">
+                        <option value="">Alle typer</option>
+                        <option value="mc">Flervalg</option>
+                        <option value="excel_grid">Excel Grid</option>
+                        <option value="calculation">Beregning</option>
+                        <option value="drag_drop">Drag & Drop</option>
+                        <option value="tf">Sant/Usant</option>
+                    </select>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Modul</th>
+                                <th>Spørsmål</th>
+                                <th>Vanskelighet</th>
+                                <th>Handlinger</th>
+                            </tr>
+                        </thead>
+                        <tbody id="questionsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Modules -->
+            <div id="page-modules" class="page">
+                <div class="page-header">
+                    <h2 class="page-title">📚 Moduler</h2>
+                    <button class="btn btn-primary" onclick="showAddModuleModal()">➕ Ny modul</button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Navn</th>
+                                <th>Beskrivelse</th>
+                                <th>Kategori</th>
+                                <th>Spørsmål</th>
+                                <th>Handlinger</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modulesTable"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Import -->
+            <div id="page-import" class="page">
+                <div class="page-header">
+                    <h2 class="page-title">📥 Import Spørsmål</h2>
+                </div>
+                
+                <div class="card">
+                    <h3>Last opp JSON-fil</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Last opp en JSON-fil med spørsmål. Filen må være i riktig format.</p>
                     
-                    <div class="stats-grid" id="modules-grid">
-                        <!-- Modules will be loaded here -->
+                    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                        <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileSelect(event)">
+                        <div>📁 Klikk eller dra en JSON-fil hit</div>
+                        <div style="color: var(--text-muted); font-size: 0.85em; margin-top: 10px;">Maks 10 MB</div>
                     </div>
                     
-                    <div class="seed-card" style="margin-top: 20px;">
-                        <h3>➕ Legg til ny modul</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Modul-ID</label>
-                                <input type="text" id="new-module-id" placeholder="f.eks. skatterett">
-                            </div>
-                            <div class="form-group">
-                                <label>Navn</label>
-                                <input type="text" id="new-module-name" placeholder="f.eks. Skatterett">
-                            </div>
-                            <div class="form-group">
-                                <label>Ikon</label>
-                                <input type="text" id="new-module-icon" placeholder="f.eks. 💰">
-                            </div>
+                    <div id="importPreview" style="display: none;">
+                        <h4 style="margin-bottom: 10px;">Forhåndsvisning</h4>
+                        <div id="previewInfo"></div>
+                        <div class="progress-bar"><div class="progress-fill" id="importProgress"></div></div>
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-primary" id="btnImport" onclick="startImport()">🚀 Start Import</button>
+                            <button class="btn btn-secondary" onclick="cancelImport()">Avbryt</button>
                         </div>
-                        <div class="form-group">
-                            <label>Beskrivelse</label>
-                            <input type="text" id="new-module-desc" placeholder="Kort beskrivelse av modulen">
-                        </div>
-                        <div class="form-group">
-                            <label>Topics (kommaseparert)</label>
-                            <input type="text" id="new-module-topics" placeholder="f.eks. personskatt, selskapsskatt, mva">
-                        </div>
-                        <button class="btn btn-primary" onclick="addModule()">➕ Legg til modul</button>
-                    </div>
-                    
-                    <div class="seed-card" style="margin-top: 20px;">
-                        <h3>🌱 Seed standardmoduler</h3>
-                        <p>Opprett grunnleggende moduler for AccountingQuest</p>
-                        <button class="btn btn-info" onclick="seedModules()">🌱 Seed moduler</button>
+                        <div class="log" id="importLog" style="display: none; margin-top: 20px;"></div>
                     </div>
                 </div>
                 
-                <!-- Users -->
-                <div id="page-users" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">👥 Brukere</h2>
-                        <button class="btn btn-primary" onclick="loadUsers()">🔄 Oppdater</button>
-                    </div>
-                    <div class="table-container">
-                        <div class="table-header">
-                            <input type="text" class="search-input" placeholder="Søk brukere..." id="user-search" onkeyup="filterUsers()">
-                        </div>
-                        <div class="data-table-scroll">
-                            <table class="data-table">
-                                <thead><tr><th>Bruker</th><th>Rolle</th><th>Opprettet</th><th>Handlinger</th></tr></thead>
-                                <tbody id="users-table-body"><tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
-                            </table>
-                        </div>
+                <div class="card">
+                    <h3>Import fra SQL</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Lim inn SQL INSERT-statements direkte.</p>
+                    <textarea id="sqlInput" style="width: 100%; height: 150px; font-family: monospace; font-size: 0.85em;" placeholder="INSERT INTO questions..."></textarea>
+                    <button class="btn btn-info" onclick="importSQL()" style="margin-top: 10px;">📝 Import SQL</button>
+                </div>
+            </div>
+            
+            <!-- Export -->
+            <div id="page-export" class="page">
+                <div class="page-header">
+                    <h2 class="page-title">📤 Eksporter Data</h2>
+                </div>
+                
+                <div class="card">
+                    <h3>Eksporter Spørsmål</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Last ned alle spørsmål i ulike formater.</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="exportQuestionsJSON()">📄 JSON</button>
+                        <button class="btn btn-info" onclick="exportQuestionsExcel()">📊 Excel</button>
                     </div>
                 </div>
                 
-                <!-- Teachers -->
-                <div id="page-teachers" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">👨‍🏫 Lærere</h2>
-                        <button class="btn btn-primary" onclick="loadTeachers()">🔄 Oppdater</button>
-                    </div>
-                    <div class="table-container">
-                        <div class="data-table-scroll">
-                            <table class="data-table">
-                                <thead><tr><th>Navn</th><th>E-post</th><th>Skole</th><th>Status</th></tr></thead>
-                                <tbody id="teachers-table-body"><tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
-                            </table>
-                        </div>
+                <div class="card">
+                    <h3>Eksporter Moduler</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="exportModulesJSON()">📄 JSON</button>
                     </div>
                 </div>
-                
-                <!-- Quiz -->
-                <!-- Grunnleggende Regnskap (Quiz + Bokføring kombinert) -->
-                <div id="page-grunnleggende" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">📚 Grunnleggende Regnskap</h2>
-                        <div>
-                            <button class="btn btn-info" onclick="openQuizModal()">+ Nytt Quiz-spørsmål</button>
-                            <button class="btn btn-info" onclick="openBokforingModal()">+ Ny Bokføringsoppgave</button>
-                            <button class="btn btn-primary" onclick="loadGrunnleggende()">🔄 Oppdater</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Tabs -->
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                        <button class="btn btn-primary" id="tab-quiz" onclick="showGrunnlegendeTab('quiz')">❓ Quiz</button>
-                        <button class="btn btn-secondary" id="tab-bokforing" onclick="showGrunnlegendeTab('bokforing')">📖 Bokføring</button>
-                    </div>
-                    
-                    <!-- Quiz Tab -->
-                    <div id="grunnleggende-quiz" class="grunnleggende-tab">
-                        <div class="table-container">
-                            <div class="table-header">
-                                <input type="text" class="search-input" placeholder="Søk quiz..." id="quiz-search" onkeyup="filterQuiz()">
-                            </div>
-                            <div class="data-table-scroll">
-                                <table class="data-table">
-                                    <thead><tr><th>Spørsmål</th><th>Kategori</th><th>Type</th><th>Handlinger</th></tr></thead>
-                                    <tbody id="quiz-table-body"><tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="danger-zone">
-                            <h3>⚠️ Danger Zone - Quiz</h3>
-                            <p style="color: var(--text-secondary); margin-bottom: 15px;">Slett alle quiz-spørsmål. Denne handlingen kan ikke angres!</p>
-                            <button class="btn btn-danger" onclick="purgeQuiz()">🗑️ Slett alle Quiz-spørsmål</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Bokføring Tab -->
-                    <div id="grunnleggende-bokforing" class="grunnleggende-tab" style="display: none;">
-                        <div class="table-container">
-                            <div class="data-table-scroll">
-                                <table class="data-table">
-                                    <thead><tr><th>Nr</th><th>Beskrivelse</th><th>Nivå</th><th>Handlinger</th></tr></thead>
-                                    <tbody id="bokforing-table-body"><tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="danger-zone">
-                            <h3>⚠️ Danger Zone - Bokføring</h3>
-                            <p style="color: var(--text-secondary); margin-bottom: 15px;">Slett alle bokføringsoppgaver. Denne handlingen kan ikke angres!</p>
-                            <button class="btn btn-danger" onclick="purgeBokforing()">🗑️ Slett alle Bokføringsoppgaver</button>
-                        </div>
-                    </div>
+            </div>
+            
+            <!-- Settings -->
+            <div id="page-settings" class="page">
+                <div class="page-header">
+                    <h2 class="page-title">⚙️ Innstillinger</h2>
                 </div>
                 
-                <!-- Corporate Finance -->
-                <div id="page-corporate-finance" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">📈 Corporate Finance</h2>
-                        <div>
-                            <button class="btn btn-info" onclick="openCFModal()">+ Ny oppgave</button>
-                            <button class="btn btn-primary" onclick="loadCorporateFinance()">🔄 Oppdater</button>
-                        </div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-card"><div class="stat-value" id="cf-total">-</div><div class="stat-label">Totalt</div></div>
-                        <div class="stat-card"><div class="stat-value" id="cf-mc">-</div><div class="stat-label">Multiple Choice</div></div>
-                        <div class="stat-card"><div class="stat-value" id="cf-calc">-</div><div class="stat-label">Beregning</div></div>
-                    </div>
-                    <div class="table-container">
-                        <div class="data-table-scroll">
-                            <table class="data-table">
-                                <thead><tr><th>ID</th><th>Tittel</th><th>Topic</th><th>Type</th><th>Handlinger</th></tr></thead>
-                                <tbody id="cf-table-body"><tr><td colspan="5" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="danger-zone">
-                        <h3>⚠️ Danger Zone</h3>
-                        <p style="color: var(--text-secondary); margin-bottom: 15px;">Slett alle CF-oppgaver. Denne handlingen kan ikke angres!</p>
-                        <button class="btn btn-danger" onclick="purgeCF()">🗑️ Slett alle CF-oppgaver</button>
-                    </div>
-                </div>
-                
-                <!-- Wiki -->
-                <div id="page-wiki" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">📖 Wiki</h2>
-                        <div>
-                            <button class="btn btn-info" onclick="openWikiModal()">+ Ny artikkel</button>
-                            <button class="btn btn-primary" onclick="loadWiki()">🔄 Oppdater</button>
-                        </div>
-                    </div>
-                    <div class="table-container">
-                        <div class="data-table-scroll">
-                            <table class="data-table">
-                                <thead><tr><th>Tittel</th><th>Kategori</th><th>Lov</th><th>Handlinger</th></tr></thead>
-                                <tbody id="wiki-table-body"><tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="danger-zone">
-                        <h3>⚠️ Danger Zone</h3>
-                        <p style="color: var(--text-secondary); margin-bottom: 15px;">Slett alle wiki-artikler. Denne handlingen kan ikke angres!</p>
-                        <button class="btn btn-danger" onclick="purgeWiki()">🗑️ Slett alle Wiki-artikler</button>
-                    </div>
-                </div>
-                
-                <!-- Seeder -->
-                <div id="page-seeder" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">🌱 Seed Data</h2>
-                    </div>
-                    <div id="seeder-message"></div>
-                    <div class="stats-grid">
-                        <div class="seed-card">
-                            <h3>❓ Quiz (90+ spørsmål)</h3>
-                            <p>Regnskap, bokføring, MVA, skatt, analyse</p>
-                            <button class="btn btn-primary" onclick="seedQuiz()">🌱 Seed Quiz</button>
-                            <div class="progress-bar"><div class="progress-fill" id="prog-quiz" style="width:0%"></div></div>
-                        </div>
-                        <div class="seed-card">
-                            <h3>📖 Bokføring (19 oppgaver)</h3>
-                            <p>Bilagsføring med løsninger</p>
-                            <button class="btn btn-primary" onclick="seedBokforing()">🌱 Seed Bokføring</button>
-                            <div class="progress-bar"><div class="progress-fill" id="prog-bokforing" style="width:0%"></div></div>
-                        </div>
-                        <div class="seed-card">
-                            <h3>📚 Wiki (artikler)</h3>
-                            <p>Regnskapsloven, lover, definisjoner</p>
-                            <button class="btn btn-primary" onclick="seedWiki()">🌱 Seed Wiki</button>
-                            <div class="progress-bar"><div class="progress-fill" id="prog-wiki" style="width:0%"></div></div>
-                        </div>
-                        <div class="seed-card">
-                            <h3>📈 Corporate Finance</h3>
-                            <p>NPV, IRR, WACC eksempler</p>
-                            <button class="btn btn-primary" onclick="seedCorporateFinance()">🌱 Seed CF</button>
-                            <div class="progress-bar"><div class="progress-fill" id="prog-cf" style="width:0%"></div></div>
-                        </div>
-                        <div class="seed-card">
-                            <h3>🧠 Hjernetrim</h3>
-                            <p>Mattespill og hjernetrim</p>
-                            <button class="btn btn-primary" onclick="seedHjernetrim()">🌱 Seed Hjernetrim</button>
-                            <div class="progress-bar"><div class="progress-fill" id="prog-hjernetrim" style="width:0%"></div></div>
-                        </div>
-                        <div class="seed-card">
-                            <h3>🚀 Alt på en gang</h3>
-                            <p>Seed alt innhold</p>
-                            <button class="btn btn-warning" onclick="seedAll()">🌱 Seed ALT</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Import -->
-                <div id="page-import" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">📥 Importer Data</h2>
-                    </div>
-                    <div id="import-message"></div>
-                    <div class="seed-card">
-                        <h3>📄 Last opp JSON-fil</h3>
-                        <p>Velg en JSON-fil med quiz eller corporate finance spørsmål</p>
-                        <input type="file" id="json-file-input" accept=".json" style="display: none;" onchange="handleJsonFile(event)">
-                        <button class="btn btn-primary" onclick="document.getElementById('json-file-input').click()">📂 Velg fil</button>
-                        <span id="json-preview-count" style="margin-left: 15px; color: var(--text-secondary);">Ingen fil valgt</span>
-                    </div>
-                    <div id="json-preview" style="display: none; margin-top: 20px;">
-                        <div class="seed-card">
-                            <h3>Forhåndsvisning</h3>
-                            <div id="json-categories" style="margin-bottom: 15px;"></div>
-                            <button class="btn btn-primary" onclick="importJsonToFirebase()" id="btn-import-json" disabled>⬆️ Importer til Firebase</button>
-                            <div class="progress-bar"><div class="progress-fill" id="prog-json-import" style="width:0%"></div></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Export -->
-                <div id="page-export" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">📤 Eksporter Data</h2>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="seed-card">
-                            <h3>❓ Quiz</h3>
-                            <p>Alle quiz-spørsmål</p>
-                            <button class="btn btn-info" onclick="exportQuizJSON()">📥 JSON</button>
-                            <button class="btn btn-info" onclick="exportQuizExcel()">📥 Excel</button>
-                        </div>
-                        <div class="seed-card">
-                            <h3>📈 Corporate Finance</h3>
-                            <p>Alle CF-oppgaver</p>
-                            <button class="btn btn-info" onclick="exportCFJSON()">📥 JSON</button>
-                        </div>
-                        <div class="seed-card">
-                            <h3>👥 Brukere</h3>
-                            <p>Brukerliste</p>
-                            <button class="btn btn-info" onclick="exportUsersJSON()">📥 JSON</button>
-                        </div>
-                        <div class="seed-card">
-                            <h3>🗄️ Full Backup</h3>
-                            <p>Hele databasen</p>
-                            <button class="btn btn-warning" onclick="exportFullBackup()">📥 Full Backup</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Database Browser -->
-                <div id="page-database" class="page">
-                    <div class="page-header">
-                        <h2 class="page-title">🗄️ Database Browser</h2>
-                    </div>
+                <div class="card">
+                    <h3>🔌 API Konfigurasjon</h3>
                     <div class="form-group">
-                        <label>Database-sti</label>
+                        <label>API URL</label>
                         <div style="display: flex; gap: 10px;">
-                            <input type="text" id="db-path" placeholder="f.eks. users" style="flex: 1;">
-                            <button class="btn btn-primary" onclick="browseDB()">📂 Bla</button>
+                            <input type="text" id="apiUrl" style="flex: 1;">
+                            <button class="btn btn-primary" onclick="saveApiUrl()">Lagre</button>
+                            <button class="btn btn-secondary" onclick="resetApiUrl()">Reset</button>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('users')">users</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('teachers')">teachers</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('modules')">modules</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('questions')">questions</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('solutions')">solutions</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('questions/corporate_finance')">CF questions</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('solutions/corporate_finance')">CF solutions</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('quizQuestions')">quizQuestions (legacy)</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('bokforing')">bokforing</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('wiki')">wiki</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('games')">games</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('classrooms')">classrooms</button>
-                        <button class="btn btn-sm btn-secondary" onclick="setDBPath('leaderboards')">leaderboards</button>
+                    <div class="form-group">
+                        <label>Test tilkobling</label>
+                        <button class="btn btn-info" onclick="testApi()">🔍 Test API</button>
                     </div>
-                    <pre id="db-output" style="background: #000; padding: 15px; border-radius: 8px; max-height: 500px; overflow: auto; font-size: 0.8em;"></pre>
                 </div>
-            </main>
-        </div>
+                
+                <div class="card">
+                    <h3>🗄️ Database</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Administrer databasen direkte.</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Slett alle spørsmål</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>ℹ️ Om</h3>
+                    <p style="color: var(--text-secondary);">
+                        AccountingQuest Admin Panel<br>
+                        Backend: Turso (SQLite)<br>
+                        API: Cloudflare Workers
+                    </p>
+                </div>
+            </div>
+        </main>
     </div>
     
-    <!-- Role Modal -->
-    <div class="modal" id="role-modal">
+    <!-- Add Question Modal -->
+    <div class="modal" id="questionModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Endre rolle</h2>
-                <button class="modal-close" onclick="closeModal('role-modal')">&times;</button>
+                <h3 id="questionModalTitle">➕ Nytt spørsmål</h3>
+                <button class="modal-close" onclick="closeModal('questionModal')">&times;</button>
             </div>
-            <p>Bruker: <strong id="edit-user-name"></strong></p>
-            <input type="hidden" id="edit-user-id">
-            <div class="role-options" id="role-selector" style="margin-top: 15px;">
-                <div class="role-option" data-role="admin">👑 Admin</div>
-                <div class="role-option" data-role="teacher_pro">👨‍🏫 Lærer Pro</div>
-                <div class="role-option" data-role="teacher">👨‍🏫 Lærer</div>
-                <div class="role-option" data-role="pro">⭐ Pro</div>
-                <div class="role-option" data-role="student">📚 Student</div>
-                <div class="role-option" data-role="free">🆓 Gratis</div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('role-modal')">Avbryt</button>
-                <button class="btn btn-primary" onclick="saveRole()">Lagre</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Quiz Modal -->
-    <div class="modal" id="quiz-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="quiz-modal-title">Nytt spørsmål</h2>
-                <button class="modal-close" onclick="closeModal('quiz-modal')">&times;</button>
-            </div>
-            <form onsubmit="saveQuiz(event)">
-                <input type="hidden" id="q-id">
+            <form onsubmit="saveQuestion(event)">
+                <input type="hidden" id="qId">
                 <div class="form-row">
                     <div class="form-group">
                         <label>Type</label>
-                        <select id="q-type">
+                        <select id="qType" required>
                             <option value="mc">Flervalg (MC)</option>
-                            <option value="tf">Sant/Usant</option>
-                            <option value="para">Tekstsvar</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Kategori</label>
-                        <select id="q-category">
-                            <option value="regnskap">Regnskap</option>
-                            <option value="bokforing">Bokføring</option>
-                            <option value="mva">MVA</option>
-                            <option value="skatt">Skatt</option>
-                            <option value="analyse">Analyse</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Spørsmål</label>
-                    <textarea id="q-question" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Alternativer (ett per linje)</label>
-                    <textarea id="q-options" placeholder="Alternativ 1&#10;Alternativ 2&#10;Alternativ 3"></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Riktig svar</label>
-                        <input type="text" id="q-answer" placeholder="0 for første, true/false">
-                    </div>
-                    <div class="form-group">
-                        <label>Lovhenvisning</label>
-                        <input type="text" id="q-law" placeholder="§ 4-1 (BOKL)">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Forklaring</label>
-                    <textarea id="q-explanation"></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('quiz-modal')">Avbryt</button>
-                    <button type="submit" class="btn btn-primary">Lagre</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- CF Modal -->
-    <div class="modal" id="cf-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="cf-modal-title">Ny CF-oppgave</h2>
-                <button class="modal-close" onclick="closeModal('cf-modal')">&times;</button>
-            </div>
-            <form onsubmit="saveCF(event)">
-                <input type="hidden" id="cf-id">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Type</label>
-                        <select id="cf-type">
-                            <option value="multiple_choice">Multiple Choice</option>
+                            <option value="excel_grid">Excel Grid</option>
                             <option value="calculation">Beregning</option>
-                            <option value="true_false">Sant/Usant</option>
+                            <option value="drag_drop">Drag & Drop</option>
+                            <option value="tf">Sant/Usant</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Modul</label>
+                        <select id="qModule" required></select>
+                    </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
                         <label>Topic</label>
-                        <select id="cf-topic">
-                            <option value="npv">NPV</option>
-                            <option value="irr">IRR</option>
-                            <option value="bonds">Obligasjoner</option>
-                            <option value="stocks">Aksjer</option>
-                            <option value="wacc">WACC</option>
-                            <option value="portfolio">Portefølje</option>
-                            <option value="capm">CAPM</option>
-                            <option value="leverage">Gearing</option>
-                            <option value="forex">Valuta</option>
-                            <option value="options">Opsjoner</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Tittel</label>
-                        <input type="text" id="cf-title" required>
+                        <input type="text" id="qTopic" placeholder="f.eks. bokforing, mva, skatt">
                     </div>
                     <div class="form-group">
-                        <label>Vanskelighetsgrad</label>
-                        <select id="cf-difficulty">
+                        <label>Vanskelighet</label>
+                        <select id="qDifficulty">
                             <option value="easy">Lett</option>
                             <option value="medium">Middels</option>
                             <option value="hard">Vanskelig</option>
                         </select>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label>Tittel</label>
+                    <input type="text" id="qTitle" placeholder="Kort beskrivende tittel">
                 </div>
                 <div class="form-group">
                     <label>Spørsmål</label>
-                    <textarea id="cf-question" required></textarea>
+                    <textarea id="qQuestion" required placeholder="Skriv spørsmålet her..."></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Alternativer (ett per linje, for MC)</label>
-                    <textarea id="cf-options" placeholder="A: Første alternativ&#10;B: Andre alternativ&#10;C: Tredje alternativ"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Data (JSON format for beregninger)</label>
-                    <textarea id="cf-data" placeholder='{"investment": 100000, "rate": 0.10}'></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Riktig svar</label>
-                        <input type="text" id="cf-answer" placeholder="a, b, c eller tall">
-                    </div>
-                    <div class="form-group">
-                        <label>Toleranse (for beregninger)</label>
-                        <input type="number" id="cf-tolerance" value="0" step="0.01">
-                    </div>
+                <div class="form-group" id="optionsGroup">
+                    <label>Alternativer (ett per linje, marker riktig med *)</label>
+                    <textarea id="qOptions" placeholder="*Riktig alternativ&#10;Feil alternativ 1&#10;Feil alternativ 2"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Forklaring</label>
-                    <textarea id="cf-explanation"></textarea>
+                    <textarea id="qExplanation" placeholder="Forklaring som vises etter svar..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Formel</label>
-                    <input type="text" id="cf-formula" placeholder="NPV = Σ(CF_t / (1+r)^t)">
+                    <label>Poeng</label>
+                    <input type="number" id="qPoints" value="10" min="1">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('cf-modal')">Avbryt</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('questionModal')">Avbryt</button>
                     <button type="submit" class="btn btn-primary">Lagre</button>
                 </div>
             </form>
         </div>
     </div>
     
-    <!-- Bokføring Modal -->
-    <div class="modal" id="bokforing-modal">
+    <!-- Add Module Modal -->
+    <div class="modal" id="moduleModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="bokforing-modal-title">Ny bokføringsoppgave</h2>
-                <button class="modal-close" onclick="closeModal('bokforing-modal')">&times;</button>
+                <h3>➕ Ny modul</h3>
+                <button class="modal-close" onclick="closeModal('moduleModal')">&times;</button>
             </div>
-            <form onsubmit="saveBokforing(event)">
-                <input type="hidden" id="bok-id">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Oppgavenummer</label>
-                        <input type="number" id="bok-num" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Vanskelighetsgrad</label>
-                        <select id="bok-difficulty">
-                            <option value="easy">Lett</option>
-                            <option value="medium">Middels</option>
-                            <option value="hard">Vanskelig</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Beskrivelse</label>
-                    <textarea id="bok-description" required placeholder="Varekjøp kontant kr 5.000"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Hint</label>
-                    <textarea id="bok-hint" placeholder="Varekjøp debiteres, bank krediteres"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Lovhenvisning</label>
-                    <input type="text" id="bok-law" placeholder="§5-1 BOKL">
-                </div>
-                <div class="form-group">
-                    <label>Løsning (JSON: debit og credit)</label>
-                    <textarea id="bok-solution" placeholder='{"debit": {"4300": 5000}, "credit": {"1920": 5000}}'></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('bokforing-modal')">Avbryt</button>
-                    <button type="submit" class="btn btn-primary">Lagre</button>
-                </div>
-            </form>
+            <div class="form-group">
+                <label>ID (unik, uten mellomrom)</label>
+                <input type="text" id="mId" placeholder="f.eks. corporate_finance">
+            </div>
+            <div class="form-group">
+                <label>Navn</label>
+                <input type="text" id="mName" placeholder="f.eks. Corporate Finance">
+            </div>
+            <div class="form-group">
+                <label>Beskrivelse</label>
+                <textarea id="mDesc" placeholder="Kort beskrivelse av modulen..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Kategori</label>
+                <select id="mCategory">
+                    <option value="accounting">Regnskap</option>
+                    <option value="finance">Finans</option>
+                    <option value="tax">Skatt</option>
+                    <option value="law">Juss</option>
+                    <option value="other">Annet</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('moduleModal')">Avbryt</button>
+                <button class="btn btn-primary" onclick="addModule()">Legg til</button>
+            </div>
         </div>
     </div>
     
-    <!-- Wiki Modal -->
-    <div class="modal" id="wiki-modal">
-        <div class="modal-content">
+    <!-- View Question Modal -->
+    <div class="modal" id="viewModal">
+        <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
-                <h2 id="wiki-modal-title">Ny wiki-artikkel</h2>
-                <button class="modal-close" onclick="closeModal('wiki-modal')">&times;</button>
+                <h3 id="viewModalTitle">📝 Spørsmål</h3>
+                <button class="modal-close" onclick="closeModal('viewModal')">&times;</button>
             </div>
-            <form onsubmit="saveWiki(event)">
-                <input type="hidden" id="wiki-id">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Tittel</label>
-                        <input type="text" id="wiki-title" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Kategori</label>
-                        <select id="wiki-category">
-                            <option value="lover">Lover</option>
-                            <option value="definisjoner">Definisjoner</option>
-                            <option value="regnskap">Regnskap</option>
-                            <option value="skatt">Skatt</option>
-                            <option value="mva">MVA</option>
-                            <option value="analyse">Analyse</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Lovhenvisning</label>
-                    <input type="text" id="wiki-lawref" placeholder="RSKL, BOKL, MVAL...">
-                </div>
-                <div class="form-group">
-                    <label>Sammendrag</label>
-                    <textarea id="wiki-summary" placeholder="Kort beskrivelse..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Innhold (Markdown støttes)</label>
-                    <textarea id="wiki-content" style="min-height: 200px;" placeholder="## Overskrift&#10;&#10;Innhold her..."></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('wiki-modal')">Avbryt</button>
-                    <button type="submit" class="btn btn-primary">Lagre</button>
-                </div>
-            </form>
+            <div id="viewModalContent"></div>
         </div>
     </div>
     
+    <!-- Toast -->
     <div class="toast" id="toast"></div>
-
+    
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
-            authDomain: "accountingquest-multiplayer.firebaseapp.com",
-            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest-multiplayer",
-            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
-            messagingSenderId: "525417361926",
-            appId: "1:525417361926:web:ec9b737f82af9b21700987"
-        };
+        // ============================================
+        // CONFIG
+        // ============================================
+        const DEFAULT_API_URL = 'https://api.accountingquest.app';
+        let API_URL = localStorage.getItem('apiUrl') || DEFAULT_API_URL;
         
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const auth = firebase.auth();
+        let allQuestions = [];
+        let allModules = [];
+        let pendingImport = null;
         
-        const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
-        const ROLE_LABELS = { admin: 'Admin', teacher_pro: 'Lærer Pro', teacher: 'Lærer', pro: 'Pro', student: 'Student', free: 'Gratis' };
-        
-        let currentUser = null;
-        let allUsers = [];
-        let allQuiz = [];
-        let allCF = [];
-        let allBokforing = [];
-        let allWiki = [];
-        let selectedRole = null;
-        let pendingJsonData = null;
-        
-        // Auth
-        auth.onAuthStateChanged(async user => {
-            console.log('Auth state:', user ? user.email : 'not logged in');
-            
-            if (!user) {
-                // Show login required - don't redirect to avoid loops
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('access-denied').innerHTML = `
-                    <div style="text-align: center;">
-                        <div style="font-size: 4em; margin-bottom: 20px;">🔒</div>
-                        <h2 style="margin-bottom: 10px;">Logg inn for å fortsette</h2>
-                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Du må være logget inn som admin for å få tilgang.</p>
-                        <a href="auth.html?redirect=admin.html" class="btn btn-primary" style="text-decoration: none;">🔑 Logg inn</a>
-                        <br><br>
-                        <a href="index.html" class="btn btn-secondary" style="text-decoration: none;">← Tilbake til forsiden</a>
-                    </div>
-                `;
-                document.getElementById('access-denied').style.display = 'flex';
-                return;
-            }
-            
-            currentUser = user;
-            console.log('Logged in as:', user.uid);
-            
-            const snap = await db.ref('users/' + user.uid).once('value');
-            const userData = snap.val() || {};
-            
-            // Accept multiple admin role formats (admin, Administrator, superadmin, etc.)
-            const userRole = (userData.role || '').toLowerCase();
-            const isAdminRole = userRole === 'admin' || userRole === 'administrator' || userRole === 'superadmin';
-            const isAdmin = user.uid === ADMIN_UID || isAdminRole;
-            
-            console.log('Auth check:', { 
-                uid: user.uid, 
-                ADMIN_UID, 
-                isAdmin, 
-                role: userData.role,
-                userRole,
-                isAdminRole,
-                uidMatch: user.uid === ADMIN_UID 
-            });
-            
-            if (!isAdmin) {
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('access-denied').style.display = 'flex';
-                return;
-            }
-            
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            document.getElementById('user-info').textContent = user.email;
-            
-            refreshAll();
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('apiUrl').value = API_URL;
+            setupNavigation();
+            setupDragDrop();
+            await checkApiStatus();
+            await refreshAll();
         });
         
-        function logout() { auth.signOut().then(() => window.location.href = 'index.html'); }
-        
-        // Navigation
-        document.querySelectorAll('.sidebar-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const page = item.dataset.page;
-                if (!page) return;
-                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                item.classList.add('active');
-                document.getElementById('page-' + page).classList.add('active');
-                
-                if (page === 'users') loadUsers();
-                else if (page === 'teachers') loadTeachers();
-                else if (page === 'modules') loadModules();
-                else if (page === 'grunnleggende') loadGrunnleggende();
-                else if (page === 'corporate-finance') loadCorporateFinance();
-                else if (page === 'wiki') loadWiki();
+        function setupNavigation() {
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const page = item.dataset.page;
+                    if (!page) return;
+                    
+                    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                    
+                    item.classList.add('active');
+                    document.getElementById('page-' + page).classList.add('active');
+                });
             });
-        });
-        
-        // Dashboard
-        async function refreshAll() {
-            showToast('Oppdaterer...', 'info');
-            try {
-                console.log('Fetching data with UID:', currentUser?.uid);
-                
-                const [users, quiz, cf, bokforing, wiki, teachers] = await Promise.all([
-                    db.ref('users').once('value').catch(e => { console.error('users error:', e); return { val: () => ({}) }; }),
-                    db.ref('quizQuestions').once('value').catch(e => { console.error('quiz error:', e); return { val: () => ({}) }; }),
-                    db.ref('solutions/corporate_finance').once('value').catch(e => { console.error('cf error:', e); return { val: () => ({}) }; }),
-                    db.ref('bokforing').once('value').catch(e => { console.error('bokforing error:', e); return { val: () => ({}) }; }),
-                    db.ref('wiki').once('value').catch(e => { console.error('wiki error:', e); return { val: () => ({}) }; }),
-                    db.ref('teachers').once('value').catch(e => { console.error('teachers error:', e); return { val: () => ({}) }; })
-                ]);
-                
-                document.getElementById('stat-users').textContent = Object.keys(users.val() || {}).length;
-                document.getElementById('stat-teachers').textContent = Object.keys(teachers.val() || {}).length;
-                document.getElementById('stat-quiz').textContent = Object.keys(quiz.val() || {}).length;
-                document.getElementById('stat-cf').textContent = Object.keys(cf.val() || {}).length;
-                document.getElementById('stat-bokforing').textContent = Object.keys(bokforing.val() || {}).length;
-                document.getElementById('stat-wiki').textContent = Object.keys(wiki.val() || {}).length;
-                
-                showToast('Oppdatert!', 'success');
-            } catch (err) {
-                console.error('refreshAll error:', err);
-                showToast('Feil ved lasting: ' + err.message, 'error');
-            }
         }
         
-        // Grunnleggende Regnskap tabs
-        function showGrunnlegendeTab(tab) {
-            document.getElementById('grunnleggende-quiz').style.display = tab === 'quiz' ? 'block' : 'none';
-            document.getElementById('grunnleggende-bokforing').style.display = tab === 'bokforing' ? 'block' : 'none';
-            document.getElementById('tab-quiz').className = tab === 'quiz' ? 'btn btn-primary' : 'btn btn-secondary';
-            document.getElementById('tab-bokforing').className = tab === 'bokforing' ? 'btn btn-primary' : 'btn btn-secondary';
-            
-            if (tab === 'quiz') loadQuiz();
-            else loadBokforing();
-        }
-        
-        function loadGrunnleggende() {
-            loadQuiz();
-            loadBokforing();
-        }
-        
-        // Purge functions
-        async function purgeQuiz() {
-            if (!confirm('Er du HELT sikker på at du vil slette ALLE quiz-spørsmål?')) return;
-            if (!confirm('Dette kan IKKE angres! Skriv "SLETT" for å bekrefte.')) return;
-            
-            const input = prompt('Skriv SLETT for å bekrefte:');
-            if (input !== 'SLETT') {
-                showToast('Avbrutt - feil bekreftelse', 'info');
-                return;
-            }
-            
-            try {
-                await db.ref('quizQuestions').remove();
-                showToast('Alle quiz-spørsmål slettet!', 'success');
-                loadQuiz();
-                refreshAll();
-            } catch (err) {
-                showToast('Feil: ' + err.message, 'error');
-            }
-        }
-        
-        async function purgeBokforing() {
-            if (!confirm('Er du HELT sikker på at du vil slette ALLE bokføringsoppgaver?')) return;
-            if (!confirm('Dette kan IKKE angres! Skriv "SLETT" for å bekrefte.')) return;
-            
-            const input = prompt('Skriv SLETT for å bekrefte:');
-            if (input !== 'SLETT') {
-                showToast('Avbrutt - feil bekreftelse', 'info');
-                return;
-            }
-            
-            try {
-                await db.ref('bokforing').remove();
-                showToast('Alle bokføringsoppgaver slettet!', 'success');
-                loadBokforing();
-                refreshAll();
-            } catch (err) {
-                showToast('Feil: ' + err.message, 'error');
-            }
-        }
-        
-        async function purgeWiki() {
-            if (!confirm('Er du HELT sikker på at du vil slette ALLE wiki-artikler?')) return;
-            if (!confirm('Dette kan IKKE angres! Skriv "SLETT" for å bekrefte.')) return;
-            
-            const input = prompt('Skriv SLETT for å bekrefte:');
-            if (input !== 'SLETT') {
-                showToast('Avbrutt - feil bekreftelse', 'info');
-                return;
-            }
-            
-            try {
-                await db.ref('wiki').remove();
-                showToast('Alle wiki-artikler slettet!', 'success');
-                loadWiki();
-                refreshAll();
-            } catch (err) {
-                showToast('Feil: ' + err.message, 'error');
-            }
-        }
-        
-        // Users
-        async function loadUsers() {
-            const tbody = document.getElementById('users-table-body');
-            tbody.innerHTML = '<tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr>';
-            
-            const snap = await db.ref('users').once('value');
-            allUsers = Object.entries(snap.val() || {}).map(([uid, data]) => ({ uid, ...data }));
-            allUsers.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            renderUsers(allUsers);
-        }
-        
-        function renderUsers(users) {
-            const tbody = document.getElementById('users-table-body');
-            if (!users.length) { tbody.innerHTML = '<tr><td colspan="4">Ingen brukere</td></tr>'; return; }
-            
-            tbody.innerHTML = users.map(u => {
-                const role = u.role || 'free';
-                const name = u.username || u.email?.split('@')[0] || 'Anonym';
-                const created = u.createdAt ? new Date(u.createdAt).toLocaleDateString('no-NO') : '-';
-                return `<tr>
-                    <td><div style="font-weight:500">${name}</div><div style="font-size:0.75em;color:var(--text-muted)">${u.email || u.uid}</div></td>
-                    <td><span class="badge role-${role}">${ROLE_LABELS[role] || role}</span></td>
-                    <td>${created}</td>
-                    <td><button class="btn btn-sm btn-secondary" onclick="editRole('${u.uid}','${name}','${role}')">✏️</button></td>
-                </tr>`;
-            }).join('');
-        }
-        
-        function filterUsers() {
-            const s = document.getElementById('user-search').value.toLowerCase();
-            renderUsers(allUsers.filter(u => (u.email||'').toLowerCase().includes(s) || (u.username||'').toLowerCase().includes(s)));
-        }
-        
-        function editRole(uid, name, role) {
-            document.getElementById('edit-user-id').value = uid;
-            document.getElementById('edit-user-name').textContent = name;
-            document.querySelectorAll('#role-selector .role-option').forEach(o => {
-                o.classList.toggle('selected', o.dataset.role === role);
-                if (o.dataset.role === role) selectedRole = role;
-            });
-            document.getElementById('role-modal').classList.add('show');
-        }
-        
-        document.querySelectorAll('#role-selector .role-option').forEach(o => {
-            o.addEventListener('click', () => {
-                document.querySelectorAll('#role-selector .role-option').forEach(x => x.classList.remove('selected'));
-                o.classList.add('selected');
-                selectedRole = o.dataset.role;
-            });
-        });
-        
-        async function saveRole() {
-            const uid = document.getElementById('edit-user-id').value;
-            if (!selectedRole) { showToast('Velg rolle', 'error'); return; }
-            await db.ref('users/' + uid + '/role').set(selectedRole);
-            showToast('Rolle oppdatert!', 'success');
-            closeModal('role-modal');
-            loadUsers();
-        }
-        
-        // Teachers
-        async function loadTeachers() {
-            const tbody = document.getElementById('teachers-table-body');
-            tbody.innerHTML = '<tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr>';
-            
-            const snap = await db.ref('teachers').once('value');
-            const teachers = snap.val() || {};
-            
-            if (!Object.keys(teachers).length) { tbody.innerHTML = '<tr><td colspan="4">Ingen lærere</td></tr>'; return; }
-            
-            tbody.innerHTML = Object.entries(teachers).map(([id, t]) => `
-                <tr>
-                    <td>${t.name || '-'}</td>
-                    <td>${t.email || '-'}</td>
-                    <td>${t.school || '-'}</td>
-                    <td><span class="badge ${t.verified ? 'badge-green' : 'badge-orange'}">${t.verified ? 'Verifisert' : 'Venter'}</span></td>
-                </tr>
-            `).join('');
-        }
-        
-        // Quiz
-        async function loadQuiz() {
-            const tbody = document.getElementById('quiz-table-body');
-            tbody.innerHTML = '<tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr>';
-            
-            const snap = await db.ref('quizQuestions').once('value');
-            allQuiz = Object.entries(snap.val() || {}).map(([id, q]) => ({ id, ...q }));
-            renderQuiz(allQuiz);
-        }
-        
-        function renderQuiz(questions) {
-            const tbody = document.getElementById('quiz-table-body');
-            if (!questions.length) { tbody.innerHTML = '<tr><td colspan="4">Ingen spørsmål</td></tr>'; return; }
-            
-            tbody.innerHTML = questions.slice(0, 100).map(q => `
-                <tr>
-                    <td>${(q.q || q.question || '').substring(0, 60)}...</td>
-                    <td><span class="badge badge-blue">${q.category || '-'}</span></td>
-                    <td><span class="badge badge-gray">${q.type || '-'}</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-secondary" onclick="editQuizItem('${q.id}')">✏️</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteQuiz('${q.id}')">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        function filterQuiz() {
-            const s = document.getElementById('quiz-search').value.toLowerCase();
-            renderQuiz(allQuiz.filter(q => (q.q||q.question||'').toLowerCase().includes(s) || (q.category||'').includes(s)));
-        }
-        
-        function openQuizModal(data = null) {
-            document.getElementById('quiz-modal-title').textContent = data ? 'Rediger spørsmål' : 'Nytt spørsmål';
-            document.getElementById('q-id').value = data?.id || '';
-            document.getElementById('q-type').value = data?.type || 'mc';
-            document.getElementById('q-category').value = data?.category || 'regnskap';
-            document.getElementById('q-question').value = data?.q || data?.question || '';
-            document.getElementById('q-options').value = (data?.opts || []).join('\n');
-            document.getElementById('q-answer').value = data?.a ?? '';
-            document.getElementById('q-law').value = data?.l || '';
-            document.getElementById('q-explanation').value = data?.exp || '';
-            document.getElementById('quiz-modal').classList.add('show');
-        }
-        
-        function editQuizItem(id) {
-            const q = allQuiz.find(x => x.id === id);
-            if (q) openQuizModal(q);
-        }
-        
-        async function saveQuiz(e) {
-            e.preventDefault();
-            const id = document.getElementById('q-id').value || 'q_' + Date.now();
-            const opts = document.getElementById('q-options').value.split('\n').filter(x => x.trim());
-            let answer = document.getElementById('q-answer').value;
-            if (answer === 'true') answer = true;
-            else if (answer === 'false') answer = false;
-            else if (!isNaN(answer)) answer = parseInt(answer);
-            
-            const data = {
-                type: document.getElementById('q-type').value,
-                category: document.getElementById('q-category').value,
-                q: document.getElementById('q-question').value,
-                opts: opts.length ? opts : null,
-                a: answer,
-                l: document.getElementById('q-law').value,
-                exp: document.getElementById('q-explanation').value,
-                createdAt: Date.now()
-            };
-            
-            await db.ref('quizQuestions/' + id).set(data);
-            showToast('Lagret!', 'success');
-            closeModal('quiz-modal');
-            loadQuiz();
-        }
-        
-        async function deleteQuiz(id) {
-            if (!confirm('Slett spørsmål?')) return;
-            await db.ref('quizQuestions/' + id).remove();
-            showToast('Slettet!', 'success');
-            loadQuiz();
-        }
-        
-        // Corporate Finance
-        async function loadCorporateFinance() {
-            const tbody = document.getElementById('cf-table-body');
-            tbody.innerHTML = '<tr><td colspan="5" class="loading"><div class="spinner"></div>Laster...</td></tr>';
-            
-            const snap = await db.ref('solutions/corporate_finance').once('value');
-            allCF = Object.entries(snap.val() || {}).map(([id, q]) => ({ id, ...q }));
-            
-            let mc = 0, calc = 0;
-            allCF.forEach(q => { if ((q.type||'').includes('mc')) mc++; else calc++; });
-            document.getElementById('cf-total').textContent = allCF.length;
-            document.getElementById('cf-mc').textContent = mc;
-            document.getElementById('cf-calc').textContent = calc;
-            
-            if (!allCF.length) { tbody.innerHTML = '<tr><td colspan="5">Ingen oppgaver</td></tr>'; return; }
-            
-            tbody.innerHTML = allCF.map(q => `
-                <tr>
-                    <td><code style="font-size:0.8em">${q.id}</code></td>
-                    <td>${q.title || '-'}</td>
-                    <td><span class="badge badge-blue">${q.topic || '-'}</span></td>
-                    <td><span class="badge badge-gray">${q.type || '-'}</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-secondary" onclick="editCFItem('${q.id}')">✏️</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteCF('${q.id}')">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        async function deleteCF(id) {
-            if (!confirm('Slett?')) return;
-            await db.ref('solutions/corporate_finance/' + id).remove();
-            await db.ref('questions/corporate_finance/' + id).remove();
-            showToast('Slettet!', 'success');
-            loadCorporateFinance();
-        }
-        
-        function openCFModal(data = null) {
-            document.getElementById('cf-modal-title').textContent = data ? 'Rediger CF-oppgave' : 'Ny CF-oppgave';
-            document.getElementById('cf-id').value = data?.id || '';
-            document.getElementById('cf-type').value = data?.type || 'multiple_choice';
-            document.getElementById('cf-topic').value = data?.topic || 'npv';
-            document.getElementById('cf-title').value = data?.title || '';
-            document.getElementById('cf-difficulty').value = data?.difficulty || 'medium';
-            document.getElementById('cf-question').value = data?.question || data?.q || '';
-            
-            // Handle options
-            let optionsText = '';
-            if (data?.options) {
-                if (Array.isArray(data.options)) {
-                    optionsText = data.options.map(o => typeof o === 'object' ? `${o.id}: ${o.text}` : o).join('\n');
+        // ============================================
+        // API
+        // ============================================
+        async function api(endpoint, options = {}) {
+            const url = `${API_URL}/api${endpoint}`;
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
                 }
+            });
+            
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+                throw new Error(error.error || `HTTP ${response.status}`);
             }
-            document.getElementById('cf-options').value = optionsText;
             
-            document.getElementById('cf-data').value = data?.data ? JSON.stringify(data.data, null, 2) : '';
-            document.getElementById('cf-answer').value = data?.correct || data?.answer || '';
-            document.getElementById('cf-tolerance').value = data?.tolerance || 0;
-            document.getElementById('cf-explanation').value = data?.explanation || data?.exp || '';
-            document.getElementById('cf-formula').value = data?.formula || '';
-            
-            document.getElementById('cf-modal').classList.add('show');
+            return response.json();
         }
         
-        async function editCFItem(id) {
-            // Fetch both question and solution
-            const [qSnap, sSnap] = await Promise.all([
-                db.ref('questions/corporate_finance/' + id).once('value'),
-                db.ref('solutions/corporate_finance/' + id).once('value')
-            ]);
-            const question = qSnap.val() || {};
-            const solution = sSnap.val() || {};
-            openCFModal({ id, ...question, ...solution });
+        async function checkApiStatus() {
+            const statusDot = document.getElementById('apiStatus');
+            const statusText = document.getElementById('apiStatusText');
+            
+            try {
+                const data = await api('/health');
+                statusDot.classList.add('connected');
+                statusText.textContent = 'Tilkoblet';
+                document.getElementById('apiInfo').innerHTML = `
+                    <strong>Status:</strong> <span style="color: var(--accent);">Online</span><br>
+                    <strong>URL:</strong> ${API_URL}<br>
+                    <strong>Tid:</strong> ${new Date(data.timestamp).toLocaleString('no-NO')}
+                `;
+                return true;
+            } catch (err) {
+                statusDot.classList.remove('connected');
+                statusText.textContent = 'Frakoblet';
+                document.getElementById('apiInfo').innerHTML = `
+                    <strong>Status:</strong> <span style="color: var(--danger);">Offline</span><br>
+                    <strong>Feil:</strong> ${err.message}
+                `;
+                return false;
+            }
         }
         
-        async function saveCF(e) {
+        // ============================================
+        // DATA LOADING
+        // ============================================
+        async function refreshAll() {
+            try {
+                await Promise.all([
+                    loadModules(),
+                    loadQuestions()
+                ]);
+                updateStats();
+            } catch (err) {
+                console.error('refreshAll failed:', err);
+                showToast('Kunne ikke laste data: ' + err.message, 'error');
+            }
+        }
+        
+        async function loadModules() {
+            try {
+                allModules = await api('/modules');
+                document.getElementById('countModules').textContent = allModules.length;
+                
+                // Populate dropdowns
+                const selects = [document.getElementById('filterModule'), document.getElementById('qModule')];
+                selects.forEach(select => {
+                    if (!select) return;
+                    const current = select.value;
+                    select.innerHTML = select.id === 'filterModule' ? '<option value="">Alle moduler</option>' : '';
+                    allModules.forEach(m => {
+                        select.innerHTML += `<option value="${m.id}">${m.name || m.id}</option>`;
+                    });
+                    select.value = current;
+                });
+                
+                // Render table
+                renderModulesTable();
+            } catch (err) {
+                console.error('Failed to load modules:', err);
+            }
+        }
+        
+        function renderModulesTable() {
+            const tbody = document.getElementById('modulesTable');
+            const questionCounts = {};
+            allQuestions.forEach(q => {
+                const mid = q.module_id || 'unknown';
+                questionCounts[mid] = (questionCounts[mid] || 0) + 1;
+            });
+            
+            tbody.innerHTML = allModules.map(m => `
+                <tr>
+                    <td><code>${m.id}</code></td>
+                    <td>${m.name || '-'}</td>
+                    <td>${m.description || '-'}</td>
+                    <td><span class="badge badge-blue">${m.category || '-'}</span></td>
+                    <td><span class="badge badge-green">${questionCounts[m.id] || 0}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteModule('${m.id}')" title="Slett">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        async function loadQuestions() {
+            try {
+                const moduleId = document.getElementById('filterModule')?.value;
+                const type = document.getElementById('filterType')?.value;
+                
+                let endpoint = '/questions?limit=500';
+                if (moduleId) endpoint += `&module=${moduleId}`;
+                if (type) endpoint += `&type=${type}`;
+                
+                allQuestions = await api(endpoint);
+                document.getElementById('countQuestions').textContent = allQuestions.length;
+                
+                renderQuestions(allQuestions);
+                renderModulesTable(); // Update question counts
+            } catch (err) {
+                console.error('Failed to load questions:', err);
+                showToast('Kunne ikke laste spørsmål: ' + err.message, 'error');
+            }
+        }
+        
+        function renderQuestions(questions) {
+            const tbody = document.getElementById('questionsTable');
+            
+            if (questions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Ingen spørsmål funnet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = questions.map(q => `
+                <tr>
+                    <td><code style="font-size: 0.8em;">${q.id}</code></td>
+                    <td><span class="badge ${getTypeBadge(q.type)}">${q.type}</span></td>
+                    <td>${q.module_id || '-'}</td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${escapeHtml(q.title || q.question || '-')}
+                    </td>
+                    <td><span class="badge ${getDifficultyBadge(q.difficulty)}">${q.difficulty || '-'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="viewQuestion('${q.id}')" title="Vis">👁️</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteQuestion('${q.id}')" title="Slett">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function filterQuestions() {
+            const search = document.getElementById('searchQuestions').value.toLowerCase();
+            const filtered = allQuestions.filter(q => 
+                q.id.toLowerCase().includes(search) ||
+                (q.question && q.question.toLowerCase().includes(search)) ||
+                (q.title && q.title.toLowerCase().includes(search))
+            );
+            renderQuestions(filtered);
+        }
+        
+        function updateStats() {
+            document.getElementById('statQuestions').textContent = allQuestions.length;
+            document.getElementById('statModules').textContent = allModules.length;
+            document.getElementById('statMc').textContent = allQuestions.filter(q => q.type === 'mc').length;
+            document.getElementById('statGrid').textContent = allQuestions.filter(q => q.type === 'excel_grid').length;
+            document.getElementById('statCalc').textContent = allQuestions.filter(q => q.type === 'calculation').length;
+            document.getElementById('statDnd').textContent = allQuestions.filter(q => q.type === 'drag_drop').length;
+            
+            // Module stats
+            const moduleStats = {};
+            allQuestions.forEach(q => {
+                const mid = q.module_id || 'unknown';
+                moduleStats[mid] = (moduleStats[mid] || 0) + 1;
+            });
+            
+            document.getElementById('moduleStats').innerHTML = Object.entries(moduleStats)
+                .map(([mod, count]) => `<span class="badge badge-blue" style="margin-right: 8px; margin-bottom: 5px;">${mod}: ${count}</span>`)
+                .join('') || '<span style="color: var(--text-muted);">Ingen spørsmål</span>';
+        }
+        
+        // ============================================
+        // QUESTION MANAGEMENT
+        // ============================================
+        function showAddQuestionModal() {
+            document.getElementById('questionModalTitle').textContent = '➕ Nytt spørsmål';
+            document.getElementById('qId').value = '';
+            document.getElementById('qType').value = 'mc';
+            document.getElementById('qModule').value = allModules[0]?.id || '';
+            document.getElementById('qTopic').value = '';
+            document.getElementById('qDifficulty').value = 'medium';
+            document.getElementById('qTitle').value = '';
+            document.getElementById('qQuestion').value = '';
+            document.getElementById('qOptions').value = '';
+            document.getElementById('qExplanation').value = '';
+            document.getElementById('qPoints').value = '10';
+            showModal('questionModal');
+        }
+        
+        async function saveQuestion(e) {
             e.preventDefault();
-            const id = document.getElementById('cf-id').value || 'cf_' + Date.now();
+            
+            const id = document.getElementById('qId').value;
+            const type = document.getElementById('qType').value;
+            const moduleId = document.getElementById('qModule').value;
+            const topic = document.getElementById('qTopic').value;
+            const difficulty = document.getElementById('qDifficulty').value;
+            const title = document.getElementById('qTitle').value;
+            const question = document.getElementById('qQuestion').value;
+            const optionsText = document.getElementById('qOptions').value;
+            const explanation = document.getElementById('qExplanation').value;
+            const points = parseInt(document.getElementById('qPoints').value) || 10;
             
             // Parse options
-            const optionsText = document.getElementById('cf-options').value;
-            let options = null;
-            if (optionsText.trim()) {
-                options = optionsText.split('\n').filter(l => l.trim()).map(line => {
-                    const match = line.match(/^([a-zA-Z]):\s*(.+)$/);
-                    return match ? { id: match[1].toLowerCase(), text: match[2] } : { id: 'x', text: line };
+            let options = [];
+            let correctIndex = 0;
+            if (type === 'mc' && optionsText) {
+                const lines = optionsText.split('\n').filter(l => l.trim());
+                lines.forEach((line, i) => {
+                    const isCorrect = line.startsWith('*');
+                    const text = isCorrect ? line.substring(1).trim() : line.trim();
+                    if (isCorrect) correctIndex = i;
+                    options.push(text);
                 });
             }
             
-            // Parse data JSON
-            let dataObj = null;
-            const dataText = document.getElementById('cf-data').value;
-            if (dataText.trim()) {
-                try { dataObj = JSON.parse(dataText); } catch (e) { showToast('Ugyldig JSON i data-felt', 'error'); return; }
-            }
-            
-            const questionData = {
-                id: id,
-                module: 'corporate_finance',
-                type: document.getElementById('cf-type').value,
-                topic: document.getElementById('cf-topic').value,
-                title: document.getElementById('cf-title').value,
-                difficulty: document.getElementById('cf-difficulty').value,
-                question: document.getElementById('cf-question').value,
-                options: options,
-                data: dataObj,
-                createdAt: Date.now()
-            };
-            
-            // Remove nulls
-            Object.keys(questionData).forEach(k => { if (questionData[k] === null) delete questionData[k]; });
-            
-            const solutionData = {
-                correct: document.getElementById('cf-answer').value,
-                tolerance: parseFloat(document.getElementById('cf-tolerance').value) || 0,
-                explanation: document.getElementById('cf-explanation').value,
-                formula: document.getElementById('cf-formula').value
-            };
-            
-            await db.ref('questions/corporate_finance/' + id).set(questionData);
-            await db.ref('solutions/corporate_finance/' + id).set(solutionData);
-            
-            showToast('Lagret!', 'success');
-            closeModal('cf-modal');
-            loadCorporateFinance();
-        }
-        
-        async function purgeCF() {
-            if (!confirm('Slett ALLE CF-oppgaver?')) return;
-            if (!confirm('Er du HELT sikker?')) return;
-            await db.ref('solutions/corporate_finance').remove();
-            await db.ref('questions/corporate_finance').remove();
-            showToast('Alle CF-oppgaver slettet!', 'success');
-            loadCorporateFinance();
-        }
-        
-        // Bokføring
-        async function loadBokforing() {
-            const tbody = document.getElementById('bokforing-table-body');
-            tbody.innerHTML = '<tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr>';
-            
-            const snap = await db.ref('bokforing').once('value');
-            const data = snap.val() || {};
-            
-            if (!Object.keys(data).length) { tbody.innerHTML = '<tr><td colspan="4">Ingen oppgaver</td></tr>'; return; }
-            
-            allBokforing = Object.entries(data).map(([id, b]) => ({ id, ...b }));
-            
-            tbody.innerHTML = allBokforing.map(b => `
-                <tr>
-                    <td>${b.num || b.id}</td>
-                    <td>${(b.description || '').substring(0, 50)}...</td>
-                    <td><span class="badge badge-blue">${b.difficulty || '-'}</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-secondary" onclick="editBokforingItem('${b.id}')">✏️</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteBokforing('${b.id}')">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        async function deleteBokforing(id) {
-            if (!confirm('Slett?')) return;
-            await db.ref('bokforing/' + id).remove();
-            showToast('Slettet!', 'success');
-            loadBokforing();
-        }
-        
-        function openBokforingModal(data = null) {
-            document.getElementById('bokforing-modal-title').textContent = data ? 'Rediger bokføringsoppgave' : 'Ny bokføringsoppgave';
-            document.getElementById('bok-id').value = data?.id || '';
-            document.getElementById('bok-num').value = data?.num || '';
-            document.getElementById('bok-difficulty').value = data?.difficulty || 'easy';
-            document.getElementById('bok-description').value = data?.description || '';
-            document.getElementById('bok-hint').value = data?.hint || '';
-            document.getElementById('bok-law').value = data?.law || '';
-            document.getElementById('bok-solution').value = data?.solution ? JSON.stringify(data.solution, null, 2) : '';
-            document.getElementById('bokforing-modal').classList.add('show');
-        }
-        
-        function editBokforingItem(id) {
-            const b = allBokforing.find(x => x.id === id);
-            if (b) openBokforingModal(b);
-        }
-        
-        async function saveBokforing(e) {
-            e.preventDefault();
-            const id = document.getElementById('bok-id').value || 'bok_' + Date.now();
-            
-            let solution = null;
-            const solText = document.getElementById('bok-solution').value;
-            if (solText.trim()) {
-                try { solution = JSON.parse(solText); } catch (e) { showToast('Ugyldig JSON i løsning', 'error'); return; }
-            }
-            
             const data = {
-                num: parseInt(document.getElementById('bok-num').value) || 0,
-                difficulty: document.getElementById('bok-difficulty').value,
-                description: document.getElementById('bok-description').value,
-                hint: document.getElementById('bok-hint').value,
-                law: document.getElementById('bok-law').value,
-                solution: solution,
-                createdAt: Date.now()
+                module_id: moduleId,
+                type,
+                topic,
+                difficulty,
+                title,
+                question,
+                points,
+                explanation,
+                options: type === 'mc' ? options : undefined,
+                correct: type === 'mc' ? correctIndex : undefined
             };
-            
-            await db.ref('bokforing/' + id).set(data);
-            showToast('Lagret!', 'success');
-            closeModal('bokforing-modal');
-            loadBokforing();
-        }
-        
-        // Wiki
-        async function loadWiki() {
-            const tbody = document.getElementById('wiki-table-body');
-            tbody.innerHTML = '<tr><td colspan="4" class="loading"><div class="spinner"></div>Laster...</td></tr>';
-            
-            const snap = await db.ref('wiki').once('value');
-            const data = snap.val() || {};
-            
-            if (!Object.keys(data).length) { tbody.innerHTML = '<tr><td colspan="4">Ingen artikler</td></tr>'; return; }
-            
-            allWiki = Object.entries(data).map(([id, w]) => ({ id, ...w }));
-            
-            tbody.innerHTML = allWiki.map(w => `
-                <tr>
-                    <td>${w.title || w.id}</td>
-                    <td><span class="badge badge-purple">${w.category || '-'}</span></td>
-                    <td>${w.lawRef || '-'}</td>
-                    <td>
-                        <button class="btn btn-sm btn-secondary" onclick="editWikiItem('${w.id}')">✏️</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteWiki('${w.id}')">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        async function deleteWiki(id) {
-            if (!confirm('Slett?')) return;
-            await db.ref('wiki/' + id).remove();
-            showToast('Slettet!', 'success');
-            loadWiki();
-        }
-        
-        function openWikiModal(data = null) {
-            document.getElementById('wiki-modal-title').textContent = data ? 'Rediger artikkel' : 'Ny artikkel';
-            document.getElementById('wiki-id').value = data?.id || '';
-            document.getElementById('wiki-title').value = data?.title || '';
-            document.getElementById('wiki-category').value = data?.category || 'definisjoner';
-            document.getElementById('wiki-lawref').value = data?.lawRef || '';
-            document.getElementById('wiki-summary').value = data?.summary || '';
-            document.getElementById('wiki-content').value = data?.content || '';
-            document.getElementById('wiki-modal').classList.add('show');
-        }
-        
-        function editWikiItem(id) {
-            const w = allWiki.find(x => x.id === id);
-            if (w) openWikiModal(w);
-        }
-        
-        async function saveWiki(e) {
-            e.preventDefault();
-            const id = document.getElementById('wiki-id').value || 'wiki_' + Date.now();
-            
-            const data = {
-                title: document.getElementById('wiki-title').value,
-                category: document.getElementById('wiki-category').value,
-                lawRef: document.getElementById('wiki-lawref').value,
-                summary: document.getElementById('wiki-summary').value,
-                content: document.getElementById('wiki-content').value,
-                createdAt: Date.now()
-            };
-            
-            await db.ref('wiki/' + id).set(data);
-            showToast('Lagret!', 'success');
-            closeModal('wiki-modal');
-            loadWiki();
-        }
-        
-        // Database Browser
-        function setDBPath(path) { document.getElementById('db-path').value = path; browseDB(); }
-        
-        async function browseDB() {
-            const path = document.getElementById('db-path').value.trim();
-            const output = document.getElementById('db-output');
-            if (!path) { output.textContent = 'Skriv inn en sti'; return; }
-            
-            output.textContent = 'Laster...';
-            try {
-                const snap = await db.ref(path).once('value');
-                const data = snap.val();
-                output.textContent = data ? JSON.stringify(data, null, 2) : 'Ingen data funnet';
-            } catch (e) {
-                output.textContent = 'Feil: ' + e.message;
-            }
-        }
-        
-        // Seeding functions
-        async function seedQuiz() {
-            const prog = document.getElementById('prog-quiz');
-            prog.style.width = '10%';
-            showMsg('seeder-message', '🔄 Seeder quiz...', 'info');
-            
-            const questions = [
-                {type:"mc",category:"regnskap",q:"Hva består årsregnskapet av?",opts:["Kun resultat og balanse","Resultat, balanse og noter","Resultat, balanse, kontantstrøm og noter","Kun balansen"],a:2,l:"§ 3-2 (RSKL)",exp:"Årsregnskapet består av resultat, balanse, kontantstrøm og noter."},
-                {type:"tf",category:"regnskap",q:"Balanselikningen er Eiendeler = Egenkapital + Gjeld",a:true,l:"§ 4-1 (RSKL)",exp:"Alt selskapet eier er finansiert av eiere eller kreditorer."},
-                {type:"mc",category:"bokforing",q:"Hvor lenge skal bilag oppbevares?",opts:["3 år","5 år","7 år","10 år"],a:1,l:"§ 13 (BOKL)",exp:"Bilag skal oppbevares i 5 år."},
-                {type:"mc",category:"bokforing",q:"Hvilken kontoklass er kostnader?",opts:["1000-1999","3000-3999","4000-7999","8000-8999"],a:2,l:"NS 4102",exp:"Kontoklass 4-7 er kostnader."},
-                {type:"mc",category:"mva",q:"Hva er standard MVA-sats i Norge?",opts:["15%","20%","25%","27%"],a:2,l:"§ 5-1 (MVAL)",exp:"Alminnelig sats er 25%."},
-                {type:"tf",category:"mva",q:"Matvarer har 15% MVA",a:true,l:"§ 5-2 (MVAL)",exp:"Næringsmidler har 15%."},
-                {type:"mc",category:"skatt",q:"Hva er selskapsskattesatsen?",opts:["20%","22%","24%","27%"],a:1,l:"SKTL",exp:"Satsen er 22%."},
-                {type:"mc",category:"analyse",q:"Hva måler likviditetsgrad 1?",opts:["Lønnsomhet","Evne til å betale kortsiktig gjeld","Soliditet","Effektivitet"],a:1,l:"GRS",exp:"LG1 = Omløpsmidler / Kortsiktig gjeld."}
-            ];
-            
-            prog.style.width = '50%';
-            const batch = {};
-            questions.forEach((q, i) => batch['quiz_' + Date.now() + '_' + i] = {...q, createdAt: Date.now()});
-            await db.ref('quizQuestions').update(batch);
-            prog.style.width = '100%';
-            showMsg('seeder-message', '✅ ' + questions.length + ' quiz-spørsmål lagt til!', 'success');
-            refreshAll();
-        }
-        
-        async function seedBokforing() {
-            const prog = document.getElementById('prog-bokforing');
-            prog.style.width = '10%';
-            showMsg('seeder-message', '🔄 Seeder bokføring...', 'info');
-            
-            const exercises = [
-                {num:1,difficulty:"easy",description:"Varekjøp kontant kr 5.000",hint:"Varekjøp debiteres, bank krediteres",law:"§5-1 BOKL",solution:{debit:{4300:5000},credit:{1920:5000}}},
-                {num:2,difficulty:"easy",description:"Varesalg kontant kr 10.000 + 25% MVA",hint:"Bank debiteres, salg og MVA krediteres",law:"§5-1 BOKL",solution:{debit:{1920:12500},credit:{3000:10000,2700:2500}}},
-                {num:3,difficulty:"medium",description:"Kjøp av inventar kr 50.000 + MVA",hint:"Inventar og inng. MVA debiteres",law:"§5-3 BOKL",solution:{debit:{1200:50000,2710:12500},credit:{2400:62500}}}
-            ];
-            
-            prog.style.width = '50%';
-            const batch = {};
-            exercises.forEach(e => batch['bok_' + e.num] = {...e, createdAt: Date.now()});
-            await db.ref('bokforing').update(batch);
-            prog.style.width = '100%';
-            showMsg('seeder-message', '✅ ' + exercises.length + ' bokføringsoppgaver lagt til!', 'success');
-            refreshAll();
-        }
-        
-        // =========================================
-        // MODULES MANAGEMENT
-        // =========================================
-        async function loadModules() {
-            const grid = document.getElementById('modules-grid');
-            grid.innerHTML = '<div class="loading"><div class="spinner"></div> Laster moduler...</div>';
             
             try {
-                const snap = await db.ref('modules').once('value');
-                const modules = snap.val() || {};
-                
-                if (Object.keys(modules).length === 0) {
-                    grid.innerHTML = '<p style="color: var(--text-muted);">Ingen moduler funnet. Klikk "Seed moduler" for å opprette standardmoduler.</p>';
-                    return;
+                if (id) {
+                    await api(`/questions/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+                    showToast('Spørsmål oppdatert!', 'success');
+                } else {
+                    await api('/questions', { method: 'POST', body: JSON.stringify(data) });
+                    showToast('Spørsmål opprettet!', 'success');
                 }
-                
-                // Also get question counts for each module
-                const qSnap = await db.ref('questions').once('value');
-                const questions = qSnap.val() || {};
-                
-                grid.innerHTML = Object.entries(modules)
-                    .sort((a, b) => (a[1].order || 99) - (b[1].order || 99))
-                    .map(([id, m]) => {
-                        const qCount = questions[id] ? Object.keys(questions[id]).length : 0;
-                        const statusBadge = m.enabled ? 
-                            '<span class="badge badge-green">Aktiv</span>' : 
-                            '<span class="badge badge-gray">Inaktiv</span>';
-                        const premiumBadge = m.premium ? 
-                            '<span class="badge badge-purple">Premium</span>' : '';
-                        
-                        return `
-                            <div class="seed-card">
-                                <div style="display: flex; justify-content: space-between; align-items: start;">
-                                    <h3>${m.icon || '📦'} ${m.name || id}</h3>
-                                    <div>${statusBadge} ${premiumBadge}</div>
-                                </div>
-                                <p style="color: var(--text-secondary); font-size: 0.9em;">${m.description || ''}</p>
-                                <div style="margin: 10px 0;">
-                                    <strong>ID:</strong> <code>${id}</code><br>
-                                    <strong>Spørsmål:</strong> ${qCount}<br>
-                                    <strong>Topics:</strong> ${(m.topics || []).join(', ') || 'Ingen'}
-                                </div>
-                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                    <button class="btn btn-sm btn-${m.enabled ? 'warning' : 'primary'}" onclick="toggleModule('${id}', ${!m.enabled})">
-                                        ${m.enabled ? '⏸️ Deaktiver' : '▶️ Aktiver'}
-                                    </button>
-                                    <button class="btn btn-sm btn-info" onclick="setDBPath('questions/${id}')">📂 Se spørsmål</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteModule('${id}')">🗑️</button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                    
+                closeModal('questionModal');
+                await loadQuestions();
+                updateStats();
             } catch (err) {
-                grid.innerHTML = '<p style="color: var(--danger);">Feil ved lasting: ' + err.message + '</p>';
+                showToast('Feil: ' + err.message, 'error');
             }
         }
         
-        async function toggleModule(id, enabled) {
-            await db.ref('modules/' + id + '/enabled').set(enabled);
-            showToast(enabled ? 'Modul aktivert!' : 'Modul deaktivert!', 'success');
-            loadModules();
+        async function viewQuestion(id) {
+            const q = allQuestions.find(q => q.id === id);
+            if (!q) return;
+            
+            let optionsHtml = '';
+            if (q.options && Array.isArray(q.options)) {
+                optionsHtml = `
+                    <div style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <strong>Alternativer:</strong>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            ${q.options.map(o => {
+                                const text = o.option_text || o.text || o;
+                                const correct = o.is_correct === 1 || o.is_correct === '1';
+                                return `<li>${correct ? '✅' : '⬜'} ${escapeHtml(text)}</li>`;
+                            }).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('viewModalTitle').textContent = '📝 ' + (q.title || q.id);
+            document.getElementById('viewModalContent').innerHTML = `
+                <div style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong>ID:</strong> <code>${q.id}</code><br>
+                    <strong>Type:</strong> <span class="badge ${getTypeBadge(q.type)}">${q.type}</span><br>
+                    <strong>Modul:</strong> ${q.module_id}<br>
+                    <strong>Topic:</strong> ${q.topic || '-'}<br>
+                    <strong>Vanskelighet:</strong> <span class="badge ${getDifficultyBadge(q.difficulty)}">${q.difficulty}</span><br>
+                    <strong>Poeng:</strong> ${q.points || '-'}
+                </div>
+                <div style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong>Spørsmål:</strong>
+                    <p style="margin-top: 10px; white-space: pre-wrap;">${escapeHtml(q.question || '-')}</p>
+                </div>
+                ${optionsHtml}
+                ${q.explanation ? `
+                <div style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong>Forklaring:</strong>
+                    <p style="margin-top: 10px; white-space: pre-wrap;">${escapeHtml(q.explanation)}</p>
+                </div>
+                ` : ''}
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-danger" onclick="deleteQuestion('${q.id}'); closeModal('viewModal');">🗑️ Slett</button>
+                    <button class="btn btn-secondary" onclick="closeModal('viewModal')">Lukk</button>
+                </div>
+            `;
+            showModal('viewModal');
         }
         
-        async function deleteModule(id) {
-            if (!confirm('Slett modul "' + id + '"? Dette sletter IKKE spørsmålene.')) return;
-            await db.ref('modules/' + id).remove();
-            showToast('Modul slettet!', 'success');
-            loadModules();
+        async function deleteQuestion(id) {
+            if (!confirm(`Sikker på at du vil slette spørsmålet "${id}"?`)) return;
+            
+            try {
+                await api(`/questions/${id}`, { method: 'DELETE' });
+                showToast('Spørsmål slettet', 'success');
+                await loadQuestions();
+                updateStats();
+            } catch (err) {
+                showToast('Kunne ikke slette: ' + err.message, 'error');
+            }
+        }
+        
+        // ============================================
+        // MODULE MANAGEMENT
+        // ============================================
+        function showAddModuleModal() {
+            document.getElementById('mId').value = '';
+            document.getElementById('mName').value = '';
+            document.getElementById('mDesc').value = '';
+            document.getElementById('mCategory').value = 'accounting';
+            showModal('moduleModal');
         }
         
         async function addModule() {
-            const id = document.getElementById('new-module-id').value.trim().toLowerCase().replace(/\s+/g, '_');
-            const name = document.getElementById('new-module-name').value.trim();
-            const icon = document.getElementById('new-module-icon').value.trim() || '📦';
-            const desc = document.getElementById('new-module-desc').value.trim();
-            const topics = document.getElementById('new-module-topics').value.split(',').map(t => t.trim()).filter(t => t);
+            const id = document.getElementById('mId').value.trim();
+            const name = document.getElementById('mName').value.trim();
+            const description = document.getElementById('mDesc').value.trim();
+            const category = document.getElementById('mCategory').value;
             
             if (!id || !name) {
-                showToast('ID og navn er påkrevd!', 'error');
+                showToast('ID og navn er påkrevd', 'error');
                 return;
             }
             
-            await db.ref('modules/' + id).set({
-                name: name,
-                icon: icon,
-                description: desc,
-                topics: topics,
-                enabled: true,
-                order: 99,
-                premium: false,
-                createdAt: Date.now()
-            });
-            
-            showToast('Modul opprettet!', 'success');
-            
-            // Clear form
-            document.getElementById('new-module-id').value = '';
-            document.getElementById('new-module-name').value = '';
-            document.getElementById('new-module-icon').value = '';
-            document.getElementById('new-module-desc').value = '';
-            document.getElementById('new-module-topics').value = '';
-            
-            loadModules();
-        }
-        
-        async function seedModules() {
-            if (!confirm('Opprett standardmoduler for AccountingQuest?')) return;
-            
-            const modules = {
-                grunnleggende_regnskap: {
-                    name: 'Grunnleggende Regnskap',
-                    icon: '📚',
-                    description: 'Bokføring, MVA, skatt, årsoppgjør og regnskapsanalyse',
-                    topics: ['bokforing', 'mva', 'skatt', 'arsoppgjor', 'analyse', 'lovverk'],
-                    enabled: true,
-                    order: 1,
-                    premium: false
-                },
-                corporate_finance: {
-                    name: 'Corporate Finance',
-                    icon: '📈',
-                    description: 'NPV, IRR, WACC, CAPM, obligasjoner, aksjer og opsjoner',
-                    topics: ['npv', 'irr', 'wacc', 'capm', 'bonds', 'stocks', 'options', 'forex', 'portfolio'],
-                    enabled: true,
-                    order: 2,
-                    premium: false
-                },
-                driftsregnskap: {
-                    name: 'Driftsregnskap & Økonomistyring',
-                    icon: '🏭',
-                    description: 'Kalkulasjon, budsjettering, avviksanalyse og ABC',
-                    topics: ['kalkulasjon', 'budsjettering', 'avviksanalyse', 'abc', 'bidrag_selvkost'],
-                    enabled: false,
-                    order: 3,
-                    premium: true
-                },
-                matte_okonomer: {
-                    name: 'Matematikk for Økonomer',
-                    icon: '🔢',
-                    description: 'Derivasjon, integrasjon, optimering og statistikk',
-                    topics: ['derivasjon', 'integrasjon', 'optimering', 'statistikk', 'sannsynlighet'],
-                    enabled: false,
-                    order: 4,
-                    premium: true
-                },
-                skatterett: {
-                    name: 'Skatterett',
-                    icon: '💰',
-                    description: 'Personskatt, selskapsskatt og internasjonal skatt',
-                    topics: ['personskatt', 'selskapsskatt', 'mva_avansert', 'internasjonal'],
-                    enabled: false,
-                    order: 5,
-                    premium: true
-                },
-                revisjon: {
-                    name: 'Revisjon',
-                    icon: '🔍',
-                    description: 'Revisjonsstandarder, kontrollhandlinger og rapportering',
-                    topics: ['revisjonsstandarder', 'kontrollhandlinger', 'rapportering', 'etikk'],
-                    enabled: false,
-                    order: 6,
-                    premium: true
-                },
-                hjernetrim: {
-                    name: 'Hjernetrim',
-                    icon: '🧠',
-                    description: 'Hoderegning og mental matematikk',
-                    topics: ['mental_math', 'hoderegning', 'quick_calc'],
-                    enabled: true,
-                    order: 10,
-                    premium: false
-                }
-            };
-            
-            await db.ref('modules').update(modules);
-            showToast('7 moduler opprettet!', 'success');
-            loadModules();
-        }
-        
-        async function seedWiki() {
-            const prog = document.getElementById('prog-wiki');
-            prog.style.width = '10%';
-            showMsg('seeder-message', '🔄 Seeder wiki...', 'info');
-            
-            const articles = [
-                {id:"rskl-intro",title:"Regnskapsloven",category:"lover",lawRef:"RSKL",summary:"Regnskapsloven regulerer bokføring og årsregnskap"},
-                {id:"bokl-intro",title:"Bokføringsloven",category:"lover",lawRef:"BOKL",summary:"Bokføringsloven stiller krav til bilag og oppbevaring"},
-                {id:"mval-intro",title:"Merverdiavgiftsloven",category:"lover",lawRef:"MVAL",summary:"MVA-loven regulerer merverdiavgift"}
-            ];
-            
-            prog.style.width = '50%';
-            const batch = {};
-            articles.forEach(a => batch[a.id] = {...a, createdAt: Date.now()});
-            await db.ref('wiki').update(batch);
-            prog.style.width = '100%';
-            showMsg('seeder-message', '✅ ' + articles.length + ' wiki-artikler lagt til!', 'success');
-            refreshAll();
-        }
-        
-        async function seedCorporateFinance() {
-            const prog = document.getElementById('prog-cf');
-            prog.style.width = '10%';
-            showMsg('seeder-message', '🔄 Seeder Corporate Finance...', 'info');
-            
             try {
-                // Seed to solutions/corporate_finance (this is where CF module reads from)
-                const solutions = {
-                    cf_npv_calc_001: {
-                        id: 'cf_npv_calc_001',
-                        module: 'corporate_finance',
-                        topic: 'npv',
-                        difficulty: 'medium',
-                        type: 'calculation',
-                        title: 'NPV Beregning',
-                        question: 'Et selskap vurderer en investering på kr 100.000. Forventede kontantstrømmer er kr 40.000 i år 1 og kr 50.000 i år 2. Avkastningskravet er 10%. Beregn NPV.',
-                        correct: { npv: -17355.37 },
-                        tolerance: 50,
-                        explanation: 'NPV = 40000/1.1 + 50000/1.21 - 100000 = 36363.64 + 41322.31 - 100000 = -22314.05',
-                        formula: 'NPV = Σ(CF_t / (1+r)^t) - I₀'
-                    },
-                    cf_stocks_mc_001: {
-                        id: 'cf_stocks_mc_001',
-                        module: 'corporate_finance',
-                        topic: 'stocks',
-                        difficulty: 'easy',
-                        type: 'multiple_choice',
-                        title: 'Gordon Growth Model',
-                        question: 'Hvilken formel beskriver Gordon Growth Model for aksjeverdsettelse?',
-                        options: [
-                            { id: 'a', text: 'P₀ = D₁ / (r - g)' },
-                            { id: 'b', text: 'P₀ = D₀ / (r + g)' },
-                            { id: 'c', text: 'P₀ = D₁ × (r - g)' },
-                            { id: 'd', text: 'P₀ = D₀ × (1 + g) / r' }
-                        ],
-                        correct: 'a',
-                        explanation: 'Gordon Growth Model: P₀ = D₁ / (r - g), der D₁ er neste års utbytte, r er avkastningskrav og g er vekstrate.'
-                    },
-                    cf_wacc_mc_001: {
-                        id: 'cf_wacc_mc_001',
-                        module: 'corporate_finance',
-                        topic: 'wacc',
-                        difficulty: 'medium',
-                        type: 'multiple_choice',
-                        title: 'WACC Komponenter',
-                        question: 'Hva inngår IKKE i beregningen av WACC (Weighted Average Cost of Capital)?',
-                        options: [
-                            { id: 'a', text: 'Egenkapitalkostnad' },
-                            { id: 'b', text: 'Gjeldskostnad etter skatt' },
-                            { id: 'c', text: 'Kapitalstruktur (vekter)' },
-                            { id: 'd', text: 'Selskapets omsetning' }
-                        ],
-                        correct: 'd',
-                        explanation: 'WACC = (E/V) × Re + (D/V) × Rd × (1-T). Omsetning er ikke en del av formelen.'
-                    },
-                    cf_irr_calc_001: {
-                        id: 'cf_irr_calc_001',
-                        module: 'corporate_finance',
-                        topic: 'irr',
-                        difficulty: 'hard',
-                        type: 'calculation',
-                        title: 'IRR Estimering',
-                        question: 'En investering koster kr 50.000 og gir kr 30.000 i år 1 og kr 30.000 i år 2. Hva er omtrentlig IRR?',
-                        correct: { irr: 13.1 },
-                        tolerance: 1,
-                        explanation: 'IRR er renten der NPV = 0. Ved prøving: 30000/1.131 + 30000/1.131² ≈ 50000'
-                    }
-                };
-                
-                prog.style.width = '50%';
-                await db.ref('solutions/corporate_finance').update(solutions);
-                prog.style.width = '100%';
-                showMsg('seeder-message', '✅ ' + Object.keys(solutions).length + ' CF-oppgaver lagt til!', 'success');
-                refreshAll();
+                await api('/modules', {
+                    method: 'POST',
+                    body: JSON.stringify({ id, name, description, category })
+                });
+                showToast('Modul opprettet!', 'success');
+                closeModal('moduleModal');
+                await loadModules();
             } catch (err) {
-                console.error('CF seed error:', err);
-                showMsg('seeder-message', '❌ Feil: ' + err.message, 'error');
+                showToast('Feil: ' + err.message, 'error');
             }
         }
         
-        async function seedHjernetrim() {
-            const prog = document.getElementById('prog-hjernetrim');
-            prog.style.width = '50%';
-            showMsg('seeder-message', '🔄 Seeder hjernetrim...', 'info');
+        async function deleteModule(id) {
+            if (!confirm(`Sikker på at du vil slette modulen "${id}"?`)) return;
             
-            // Hjernetrim bruker localStorage, ikke Firebase - bare vis melding
-            prog.style.width = '100%';
-            showMsg('seeder-message', '✅ Hjernetrim bruker lokal data - ingen Firebase-seed nødvendig', 'success');
+            try {
+                await api(`/modules/${id}`, { method: 'DELETE' });
+                showToast('Modul slettet', 'success');
+                await loadModules();
+            } catch (err) {
+                showToast('Kunne ikke slette: ' + err.message, 'error');
+            }
         }
         
-        async function seedAll() {
-            showMsg('seeder-message', '🔄 Seeder alt...', 'info');
-            await seedQuiz();
-            await seedBokforing();
-            await seedWiki();
-            await seedCorporateFinance();
-            showMsg('seeder-message', '✅ Alt innhold seeded!', 'success');
+        // ============================================
+        // IMPORT
+        // ============================================
+        function setupDragDrop() {
+            const zone = document.getElementById('uploadZone');
+            if (!zone) return;
+            
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+            
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('dragover');
+            });
+            
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) handleFile(files[0]);
+            });
         }
         
-        // Import
-        function handleJsonFile(event) {
+        function handleFileSelect(event) {
             const file = event.target.files[0];
-            if (!file) return;
+            if (file) handleFile(file);
+        }
+        
+        function handleFile(file) {
+            if (!file.name.endsWith('.json')) {
+                showToast('Kun JSON-filer støttes', 'error');
+                return;
+            }
             
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    let questions = data.quizQuestions || data.questions || data;
-                    if (Array.isArray(data)) {
-                        questions = {};
-                        data.forEach((q, i) => questions[q.id || 'q_' + i] = q);
-                    }
+                    pendingImport = Array.isArray(data) ? data : (data.questions || [data]);
                     
-                    pendingJsonData = questions;
-                    const count = Object.keys(questions).length;
-                    
-                    // Detect module type
-                    const first = Object.values(questions)[0];
-                    const moduleType = first?.module || first?.category || 'quiz';
-                    const moduleLabel = moduleType === 'corporate_finance' ? '📈 Corporate Finance' :
-                                       moduleType === 'grunnleggende_regnskap' ? '📚 Grunnleggende Regnskap' : '❓ Quiz';
-                    
-                    document.getElementById('json-preview-count').innerHTML = `<strong>${count}</strong> spørsmål funnet → <span style="color: var(--accent)">${moduleLabel}</span>`;
-                    document.getElementById('json-preview').style.display = 'block';
-                    document.getElementById('btn-import-json').disabled = false;
-                    
-                    // Count by topic
-                    const topics = {};
                     const types = {};
-                    const difficulties = {};
-                    Object.values(questions).forEach(q => { 
-                        topics[q.topic || 'ukjent'] = (topics[q.topic || 'ukjent'] || 0) + 1;
-                        types[q.type || 'mc'] = (types[q.type || 'mc'] || 0) + 1;
-                        difficulties[q.difficulty || 'medium'] = (difficulties[q.difficulty || 'medium'] || 0) + 1;
+                    pendingImport.forEach(q => {
+                        types[q.type || 'unknown'] = (types[q.type || 'unknown'] || 0) + 1;
                     });
                     
-                    let preview = '<div style="display: flex; gap: 20px; flex-wrap: wrap;">';
-                    preview += '<div><strong>Topics:</strong><br>' + Object.entries(topics).map(([t, n]) => `<span class="badge badge-blue">${t}: ${n}</span>`).join(' ') + '</div>';
-                    preview += '<div><strong>Type:</strong><br>' + Object.entries(types).map(([t, n]) => `<span class="badge badge-green">${t}: ${n}</span>`).join(' ') + '</div>';
-                    preview += '<div><strong>Difficulty:</strong><br>' + Object.entries(difficulties).map(([d, n]) => `<span class="badge badge-purple">${d}: ${n}</span>`).join(' ') + '</div>';
-                    preview += '</div>';
-                    document.getElementById('json-categories').innerHTML = preview;
-                    
-                    showMsg('import-message', '✅ Fil lastet: ' + file.name, 'success');
+                    document.getElementById('previewInfo').innerHTML = `
+                        <strong>${pendingImport.length}</strong> spørsmål funnet<br>
+                        <span style="color: var(--text-muted);">Typer: ${Object.entries(types).map(([t,c]) => `${t} (${c})`).join(', ')}</span>
+                    `;
+                    document.getElementById('importPreview').style.display = 'block';
+                    document.getElementById('importProgress').style.width = '0%';
+                    document.getElementById('importLog').style.display = 'none';
                 } catch (err) {
-                    showMsg('import-message', '❌ Ugyldig JSON: ' + err.message, 'error');
+                    showToast('Ugyldig JSON: ' + err.message, 'error');
                 }
             };
             reader.readAsText(file);
         }
         
-        async function importJsonToFirebase() {
-            if (!pendingJsonData) return;
-            const count = Object.keys(pendingJsonData).length;
-            if (!confirm('Importer ' + count + ' spørsmål?')) return;
+        async function startImport() {
+            if (!pendingImport || pendingImport.length === 0) return;
             
-            const prog = document.getElementById('prog-json-import');
-            const btn = document.getElementById('btn-import-json');
+            const btn = document.getElementById('btnImport');
+            const progress = document.getElementById('importProgress');
+            const log = document.getElementById('importLog');
+            
             btn.disabled = true;
-            prog.style.width = '10%';
+            log.style.display = 'block';
+            log.innerHTML = '';
+            
+            addLogEntry(log, `Starter import av ${pendingImport.length} spørsmål...`, 'info');
+            progress.style.width = '10%';
             
             try {
-                // Detect module type
-                const first = Object.values(pendingJsonData)[0];
-                const isCF = first?.module === 'corporate_finance' || first?.category === 'corporate_finance';
-                const isGrunnleggende = first?.module === 'grunnleggende_regnskap' || first?.category === 'grunnleggende_regnskap';
+                const result = await api('/questions/bulk', {
+                    method: 'POST',
+                    body: JSON.stringify(pendingImport)
+                });
                 
-                let imported = 0;
-                const total = count;
+                progress.style.width = '100%';
                 
-                if (isCF) {
-                    // Corporate Finance - split into questions and solutions
-                    for (const [key, item] of Object.entries(pendingJsonData)) {
-                        const id = item.id || key;
-                        
-                        // Question data (visible to students)
-                        const questionData = {
-                            id: id,
-                            module: 'corporate_finance',
-                            category: item.category || 'corporate_finance',
-                            topic: item.topic || 'general',
-                            difficulty: item.difficulty || 'medium',
-                            type: item.type || 'mc',
-                            title: item.title || '',
-                            question: item.question || item.q || '',
-                            q: item.q || item.question || '',
-                            options: item.options || null,
-                            data: item.data || null,
-                            scenarioData: item.scenarioData || null,
-                            linkedTo: item.linkedTo || null,
-                            tags: item.tags || [],
-                            source: item.source || '',
-                            wiki: item.wiki || [],
-                            createdAt: Date.now()
-                        };
-                        
-                        // Solution data (hidden until answered)
-                        const solutionData = {
-                            correct: item.correct || item.a || item.answer,
-                            a: item.a || item.answer || item.correct,
-                            answer: item.answer || item.a || item.correct,
-                            tolerance: item.tolerance || 0,
-                            explanation: item.explanation || item.exp || '',
-                            exp: item.exp || item.explanation || '',
-                            hints: item.hints || [],
-                            formula: item.formula || ''
-                        };
-                        
-                        // Write to Firebase
-                        await db.ref('questions/corporate_finance/' + id).set(questionData);
-                        await db.ref('solutions/corporate_finance/' + id).set(solutionData);
-                        
-                        imported++;
-                        prog.style.width = (10 + (imported / total) * 80) + '%';
-                    }
-                } else if (isGrunnleggende) {
-                    // Grunnleggende Regnskap
-                    for (const [key, item] of Object.entries(pendingJsonData)) {
-                        const id = item.id || key;
-                        
-                        const questionData = {
-                            id: id,
-                            module: 'grunnleggende_regnskap',
-                            topic: item.topic || item.category || 'general',
-                            type: item.type || 'mc',
-                            difficulty: item.difficulty || 'medium',
-                            question: item.question || item.q || '',
-                            options: item.options || null,
-                            data: item.data || null,
-                            tags: item.tags || [],
-                            createdAt: Date.now()
-                        };
-                        
-                        const solutionData = {
-                            correct: item.correct || item.a || item.answer,
-                            explanation: item.explanation || item.exp || '',
-                            hints: item.hints || []
-                        };
-                        
-                        await db.ref('questions/grunnleggende_regnskap/' + id).set(questionData);
-                        await db.ref('solutions/grunnleggende_regnskap/' + id).set(solutionData);
-                        
-                        imported++;
-                        prog.style.width = (10 + (imported / total) * 80) + '%';
-                    }
-                } else {
-                    // Legacy quiz format - write to quizQuestions
-                    await db.ref('quizQuestions').update(pendingJsonData);
+                addLogEntry(log, `✓ Importert: ${result.imported}`, 'success');
+                if (result.failed > 0) {
+                    addLogEntry(log, `✗ Feilet: ${result.failed}`, 'error');
                 }
+                if (result.actual_count_in_db !== undefined) {
+                    addLogEntry(log, `📊 Totalt i database: ${result.actual_count_in_db}`, 'info');
+                }
+                addLogEntry(log, `\n--- Ferdig ---`, 'info');
                 
-                prog.style.width = '100%';
-                showMsg('import-message', '✅ ' + count + ' spørsmål importert til ' + (isCF ? 'Corporate Finance' : isGrunnleggende ? 'Grunnleggende Regnskap' : 'Quiz') + '!', 'success');
-                showToast(count + ' spørsmål importert!', 'success');
-                pendingJsonData = null;
-                document.getElementById('json-preview').style.display = 'none';
-                refreshAll();
+                showToast(`Import ferdig: ${result.imported} spørsmål`, result.failed > 0 ? 'warning' : 'success');
                 
+                await refreshAll();
             } catch (err) {
-                console.error('Import error:', err);
-                showMsg('import-message', '❌ Feil ved import: ' + err.message, 'error');
+                addLogEntry(log, `✗ Feil: ${err.message}`, 'error');
                 showToast('Import feilet: ' + err.message, 'error');
             }
             
             btn.disabled = false;
         }
         
-        // Export
+        function cancelImport() {
+            pendingImport = null;
+            document.getElementById('importPreview').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+        
+        function addLogEntry(container, text, type = '') {
+            const entry = document.createElement('div');
+            entry.className = type ? `log-${type}` : '';
+            entry.textContent = text;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        async function importSQL() {
+            const sql = document.getElementById('sqlInput').value.trim();
+            if (!sql) {
+                showToast('Ingen SQL å importere', 'error');
+                return;
+            }
+            
+            try {
+                await api('/sql', { method: 'POST', body: JSON.stringify({ sql }) });
+                showToast('SQL utført!', 'success');
+                await refreshAll();
+            } catch (err) {
+                showToast('SQL feilet: ' + err.message, 'error');
+            }
+        }
+        
+        // ============================================
+        // EXPORT
+        // ============================================
+        async function exportQuestionsJSON() {
+            try {
+                const questions = await api('/questions?limit=1000');
+                downloadJSON(questions, `questions_${getDateString()}.json`);
+                showToast('Eksportert ' + questions.length + ' spørsmål', 'success');
+            } catch (err) {
+                showToast('Eksport feilet: ' + err.message, 'error');
+            }
+        }
+        
+        async function exportQuestionsExcel() {
+            try {
+                const questions = await api('/questions?limit=1000');
+                const data = questions.map(q => ({
+                    ID: q.id,
+                    Type: q.type,
+                    Modul: q.module_id,
+                    Topic: q.topic,
+                    Vanskelighet: q.difficulty,
+                    Tittel: q.title,
+                    Spørsmål: q.question,
+                    Poeng: q.points
+                }));
+                
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Spørsmål');
+                XLSX.writeFile(wb, `questions_${getDateString()}.xlsx`);
+                showToast('Eksportert til Excel', 'success');
+            } catch (err) {
+                showToast('Eksport feilet: ' + err.message, 'error');
+            }
+        }
+        
+        async function exportModulesJSON() {
+            try {
+                const modules = await api('/modules');
+                downloadJSON(modules, `modules_${getDateString()}.json`);
+                showToast('Eksportert ' + modules.length + ' moduler', 'success');
+            } catch (err) {
+                showToast('Eksport feilet: ' + err.message, 'error');
+            }
+        }
+        
         function downloadJSON(data, filename) {
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
+            a.href = url;
             a.download = filename;
             a.click();
-            showToast('Eksportert!', 'success');
+            URL.revokeObjectURL(url);
         }
         
-        async function exportQuizJSON() {
-            const snap = await db.ref('quizQuestions').once('value');
-            downloadJSON(snap.val() || {}, 'quiz_' + new Date().toISOString().split('T')[0] + '.json');
+        // ============================================
+        // SETTINGS
+        // ============================================
+        function saveApiUrl() {
+            const url = document.getElementById('apiUrl').value.trim();
+            if (!url) {
+                showToast('URL kan ikke være tom', 'error');
+                return;
+            }
+            localStorage.setItem('apiUrl', url);
+            API_URL = url;
+            showToast('API URL lagret', 'success');
+            checkApiStatus();
         }
         
-        async function exportQuizExcel() {
-            const snap = await db.ref('quizQuestions').once('value');
-            const data = Object.entries(snap.val() || {}).map(([id, q]) => ({ID: id, Type: q.type, Kategori: q.category, Spørsmål: q.q, Svar: q.a, Lov: q.l}));
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Quiz');
-            XLSX.writeFile(wb, 'quiz.xlsx');
-            showToast('Eksportert!', 'success');
+        function resetApiUrl() {
+            localStorage.removeItem('apiUrl');
+            API_URL = DEFAULT_API_URL;
+            document.getElementById('apiUrl').value = API_URL;
+            showToast('API URL reset til standard', 'info');
+            checkApiStatus();
+            refreshAll();
         }
         
-        async function exportCFJSON() {
-            const [q, s] = await Promise.all([db.ref('questions/corporate_finance').once('value'), db.ref('solutions/corporate_finance').once('value')]);
-            downloadJSON({questions: q.val(), solutions: s.val()}, 'corporate_finance_' + new Date().toISOString().split('T')[0] + '.json');
+        async function testApi() {
+            const connected = await checkApiStatus();
+            showToast(connected ? 'Tilkoblet!' : 'Kunne ikke koble til', connected ? 'success' : 'error');
         }
         
-        async function exportUsersJSON() {
-            const snap = await db.ref('users').once('value');
-            downloadJSON(snap.val() || {}, 'users_' + new Date().toISOString().split('T')[0] + '.json');
+        async function clearAllData() {
+            if (!confirm('⚠️ ADVARSEL: Dette vil slette ALLE spørsmål! Er du sikker?')) return;
+            if (!confirm('Er du HELT sikker? Dette kan ikke angres!')) return;
+            
+            try {
+                // Delete all questions one by one (or implement bulk delete endpoint)
+                for (const q of allQuestions) {
+                    await api(`/questions/${q.id}`, { method: 'DELETE' });
+                }
+                showToast('Alle spørsmål slettet', 'success');
+                await refreshAll();
+            } catch (err) {
+                showToast('Feil ved sletting: ' + err.message, 'error');
+            }
         }
         
-        async function exportFullBackup() {
-            showToast('Laster ned backup...', 'info');
-            const snap = await db.ref('/').once('value');
-            downloadJSON(snap.val() || {}, 'full_backup_' + new Date().toISOString().split('T')[0] + '.json');
+        // ============================================
+        // HELPERS
+        // ============================================
+        function showModal(id) {
+            document.getElementById(id).classList.add('show');
         }
         
-        // Helpers
-        function closeModal(id) { document.getElementById(id).classList.remove('show'); selectedRole = null; }
-        function showToast(msg, type = 'success') {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.className = 'toast ' + type + ' show';
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-        function showMsg(elId, msg, type) {
-            const el = document.getElementById(elId);
-            if (el) el.innerHTML = '<div class="message ' + type + '">' + msg + '</div>';
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
         }
         
-        document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }));
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+        
+        function getTypeBadge(type) {
+            const badges = {
+                'mc': 'badge-green',
+                'calculation': 'badge-blue',
+                'excel_grid': 'badge-purple',
+                'tf': 'badge-yellow',
+                'drag_drop': 'badge-red'
+            };
+            return badges[type] || 'badge-blue';
+        }
+        
+        function getDifficultyBadge(diff) {
+            const badges = { 'easy': 'badge-green', 'medium': 'badge-yellow', 'hard': 'badge-red' };
+            return badges[diff] || 'badge-yellow';
+        }
+        
+        function getDateString() {
+            return new Date().toISOString().split('T')[0];
+        }
     </script>
 </body>
 </html>
