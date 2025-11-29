@@ -1527,16 +1527,29 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="js/firebase-config.js"></script>
+    <!-- Scripts - Turso API (migrert fra Firebase) -->
+    <script src="js/EXCEL-GRID-FINAL.js"></script>
     
     <script>
-        // ==================== CONFIGURATION ====================
-        var MODULE_ID = 'corporate_finance';
+        // ==================== TURSO API CONFIG ====================
+        var API_URL = 'https://api.accountingquest.app';
+        var MODULE_ID = 2; // Numerisk ID for corporate_finance
         
+        async function apiCall(endpoint) {
+            try {
+                console.log('API Call:', API_URL + '/api' + endpoint);
+                var response = await fetch(API_URL + '/api' + endpoint);
+                if (!response.ok) throw new Error('API error: ' + response.status);
+                var data = await response.json();
+                console.log('API Response:', data.length || data, 'items');
+                return data;
+            } catch (err) {
+                console.error('API call failed:', err);
+                return [];
+            }
+        }
+        
+        // ==================== CONFIGURATION ====================
         var topics = [
             { id: 'npv', name: 'NPV & IRR', icon: '💰' },
             { id: 'bonds', name: 'Obligasjoner', icon: '📜' },
@@ -1625,21 +1638,8 @@
             renderTopicList();
             console.log('✓ Topic list rendered');
             
-            // Firebase init
-            var firebaseConfig = {
-                apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
-                authDomain: "accountingquest-multiplayer.firebaseapp.com",
-                databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-                projectId: "accountingquest-multiplayer",
-                storageBucket: "accountingquest-multiplayer.firebasestorage.app",
-                messagingSenderId: "525417361926",
-                appId: "1:525417361926:web:ec9b737f82af9b21700987"
-            };
-            
-            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-                console.log('✓ Firebase initialized');
-            }
+            // Turso API - ingen Firebase init nødvendig
+            console.log('✓ Turso API Mode');
             
             loadQuestionCounts();
             loadFormulasForTopic('npv');
@@ -1778,19 +1778,29 @@
             return topicMapping[lower] || lower;
         }
         
-        function loadQuestionCounts() {
-            if (typeof firebase === 'undefined') return;
+        async function loadQuestionCounts() {
+            console.log('Loading question counts from Turso API...');
             
-            var db = firebase.database();
-            
-            // Use the correct path structure: questions/{moduleId}
-            var questionsPath = 'questions/corporate_finance';
-            
-            console.log('Loading question counts from:', questionsPath);
-            
-            db.ref(questionsPath).once('value').then(function(snap) {
+            try {
+                // Prøv først med module filter
+                var questions = await apiCall('/questions?module=' + MODULE_ID + '&limit=500');
+                
+                if (!questions || questions.length === 0) {
+                    console.log('No questions with module filter, trying module=corporate_finance...');
+                    questions = await apiCall('/questions?module=corporate_finance&limit=500');
+                }
+                
+                if (!questions || questions.length === 0) {
+                    console.warn('No questions found in Turso for corporate_finance');
+                    topics.forEach(function(topic) {
+                        var countEl = document.getElementById('count-' + topic.id);
+                        if (countEl) countEl.textContent = '0 oppgaver';
+                    });
+                    return;
+                }
+                
                 var counts = {};
-                var total = 0;
+                var total = questions.length;
                 var foundTopics = {};
                 
                 // Initialize counts
@@ -1798,15 +1808,22 @@
                     counts[t.id] = 0;
                 });
                 
-                snap.forEach(function(qSnap) {
-                    var q = qSnap.val();
-                    if (!q || typeof q !== 'object') return;
-                    
-                    total++;
-                    
+                questions.forEach(function(q) {
                     var dbTopic = q.topic;
-                    var mappedTopic = mapTopic(dbTopic);
+                    if (!dbTopic && q.id) {
+                        var key = q.id.toLowerCase();
+                        if (key.includes('npv') || key.includes('irr') || key.includes('tvm')) dbTopic = 'npv';
+                        else if (key.includes('bond') || key.includes('oblig')) dbTopic = 'bonds';
+                        else if (key.includes('stock') || key.includes('aksje') || key.includes('dividend')) dbTopic = 'stocks';
+                        else if (key.includes('wacc') || key.includes('capm') || key.includes('kapital')) dbTopic = 'wacc';
+                        else if (key.includes('port') || key.includes('beta') || key.includes('risiko')) dbTopic = 'portfolio';
+                        else if (key.includes('annuit') || key.includes('loan') || key.includes('laan')) dbTopic = 'annuity';
+                        else if (key.includes('forex') || key.includes('valuta')) dbTopic = 'forex';
+                        else if (key.includes('opt') || key.includes('call') || key.includes('put')) dbTopic = 'options';
+                        else dbTopic = 'mixed';
+                    }
                     
+                    var mappedTopic = mapTopic(dbTopic);
                     foundTopics[dbTopic || 'unknown'] = (foundTopics[dbTopic || 'unknown'] || 0) + 1;
                     
                     if (mappedTopic && counts[mappedTopic] !== undefined) {
@@ -1814,12 +1831,12 @@
                     }
                 });
                 
-                console.log('Found', total, 'questions');
+                console.log('Found', total, 'questions from Turso');
                 console.log('Topics:', foundTopics);
                 console.log('Mapped counts:', counts);
                 
-                // Store the working path
-                gameState.questionsPath = questionsPath;
+                // Store questions for later use
+                gameState.cachedQuestions = questions;
                 
                 // Update UI
                 topics.forEach(function(topic) {
@@ -1832,13 +1849,17 @@
                         }
                     }
                 });
-            }).catch(function(err) {
+            } catch (err) {
                 console.error('Error loading questions:', err);
-            });
+                topics.forEach(function(topic) {
+                    var countEl = document.getElementById('count-' + topic.id);
+                    if (countEl) countEl.textContent = 'Feil';
+                });
+            }
         }
         
         // ==================== GAME ====================
-        function startGame(topicId) {
+        async function startGame(topicId) {
             gameState.currentTopic = topicId;
             gameState.currentDifficulty = 'all';
             gameState.score = 0;
@@ -1856,103 +1877,84 @@
             document.getElementById('nav-score').textContent = '0';
             document.getElementById('nav-correct').textContent = '0';
             
-            loadQuestions().then(function() {
-                if (gameState.allQuestions.length === 0) {
-                    alert('Ingen spørsmål funnet for dette temaet.');
-                    return;
-                }
-                
-                updateDifficultyCounts();
-                loadFormulasForTopic(topicId);
-                
-                // Show game UI
-                document.getElementById('welcome-screen').style.display = 'none';
-                document.getElementById('game-view').classList.add('visible');
-                document.getElementById('progress-section').classList.add('visible');
-                document.getElementById('question-selector-section').classList.add('visible');
-                
-                renderQuestionSelector();
-                loadQuestion(0);
-            });
+            await loadQuestions();
+            
+            if (gameState.allQuestions.length === 0) {
+                alert('Ingen spørsmål funnet for dette temaet.');
+                return;
+            }
+            
+            updateDifficultyCounts();
+            loadFormulasForTopic(topicId);
+            
+            // Show game UI
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('game-view').classList.add('visible');
+            document.getElementById('progress-section').classList.add('visible');
+            document.getElementById('question-selector-section').classList.add('visible');
+            
+            renderQuestionSelector();
+            loadQuestion(0);
         }
         
-        function loadQuestions() {
-            return new Promise(function(resolve) {
-                if (typeof firebase === 'undefined') { resolve(); return; }
+        async function loadQuestions() {
+            console.log('Loading questions from Turso API...');
+            
+            var questions = [];
+            
+            // Use cached questions from loadQuestionCounts if available
+            var allQuestions = gameState.cachedQuestions || await apiCall('/questions?module=' + MODULE_ID + '&limit=500');
+            
+            if (!allQuestions || allQuestions.length === 0) {
+                console.warn('No questions found');
+                gameState.allQuestions = [];
+                gameState.questions = [];
+                return;
+            }
+            
+            allQuestions.forEach(function(q) {
+                // Extract topic from ID if not present
+                if (!q.topic && q.id) {
+                    var key = q.id.toLowerCase();
+                    if (key.includes('npv') || key.includes('irr') || key.includes('tvm')) q.topic = 'npv';
+                    else if (key.includes('bond') || key.includes('oblig')) q.topic = 'bonds';
+                    else if (key.includes('stock') || key.includes('aksje') || key.includes('dividend')) q.topic = 'stocks';
+                    else if (key.includes('wacc') || key.includes('capm') || key.includes('kapital')) q.topic = 'wacc';
+                    else if (key.includes('port') || key.includes('beta') || key.includes('risiko') || key.includes('divers')) q.topic = 'portfolio';
+                    else if (key.includes('annuit') || key.includes('loan') || key.includes('laan')) q.topic = 'annuity';
+                    else if (key.includes('forex') || key.includes('valuta') || key.includes('hedg')) q.topic = 'forex';
+                    else if (key.includes('opt') || key.includes('call') || key.includes('put')) q.topic = 'options';
+                    else q.topic = 'mixed';
+                }
                 
-                var db = firebase.database();
-                var questions = [];
+                // Map type names
+                if (q.type === 'mc') q.type = 'multiple_choice';
+                else if (q.type === 'tf') q.type = 'true_false';
+                else if (q.type === 'fill_blank') q.type = 'calculation';
                 
-                // Use the path we found, or try questions/corporate_finance first
-                var basePath = gameState.questionsPath || 'questions/corporate_finance';
+                // Create title from question if not present
+                if (!q.title && q.question) {
+                    q.title = q.question.substring(0, 50) + (q.question.length > 50 ? '...' : '');
+                }
                 
-                console.log('Loading questions from:', basePath);
+                // Map topic for filtering
+                var mappedTopic = mapTopic(q.topic);
                 
-                db.ref(basePath).once('value').then(function(snap) {
-                    snap.forEach(function(qSnap) {
-                        var q = qSnap.val();
-                        
-                        // Skip non-question entries
-                        if (!q || typeof q !== 'object') return;
-                        
-                        q.id = qSnap.key;
-                        
-                        // Extract topic from ID if not present
-                        if (!q.topic) {
-                            var key = qSnap.key.toLowerCase();
-                            if (key.includes('npv') || key.includes('irr') || key.includes('tvm')) q.topic = 'npv';
-                            else if (key.includes('bond') || key.includes('oblig')) q.topic = 'bonds';
-                            else if (key.includes('stock') || key.includes('aksje') || key.includes('dividend')) q.topic = 'stocks';
-                            else if (key.includes('wacc') || key.includes('capm') || key.includes('kapital')) q.topic = 'wacc';
-                            else if (key.includes('port') || key.includes('beta') || key.includes('risiko') || key.includes('divers')) q.topic = 'portfolio';
-                            else if (key.includes('annuit') || key.includes('loan') || key.includes('laan')) q.topic = 'annuity';
-                            else if (key.includes('forex') || key.includes('valuta') || key.includes('hedg')) q.topic = 'forex';
-                            else if (key.includes('opt') || key.includes('call') || key.includes('put')) q.topic = 'options';
-                            else q.topic = 'mixed';
-                        }
-                        
-                        // Determine type from ID if not present
-                        if (!q.type) {
-                            var key = qSnap.key;
-                            if (key.includes('_mc_')) q.type = 'multiple_choice';
-                            else if (key.includes('_tf_')) q.type = 'true_false';
-                            else if (key.includes('_calc_')) q.type = 'calculation';
-                            else if (key.includes('_grid_')) q.type = 'excel_grid';
-                            else if (key.includes('_journal_')) q.type = 'journal_entry';
-                            else if (key.includes('_dnd_')) q.type = 'dnd';
-                            else q.type = 'calculation'; // default
-                        }
-                        
-                        // Create title from ID if not present
-                        if (!q.title) {
-                            q.title = q.id.replace(/cf_/g, '').replace(/bok260_\d+v\d+_/g, '').replace(/_/g, ' ').replace(/\d+/g, '').trim();
-                            q.title = q.title.charAt(0).toUpperCase() + q.title.slice(1);
-                        }
-                        
-                        // Map topic
-                        var mappedTopic = mapTopic(q.topic);
-                        
-                        // Filter by topic if not mixed
-                        if (gameState.currentTopic !== 'mixed') {
-                            if (mappedTopic !== gameState.currentTopic) return;
-                        }
-                        
-                        questions.push(q);
-                    });
-                    
-                    console.log('Loaded ' + questions.length + ' questions for topic: ' + gameState.currentTopic);
-                    if (questions.length > 0) {
-                        console.log('Sample question:', questions[0]);
-                    }
-                    
-                    gameState.allQuestions = questions;
-                    gameState.questions = shuffleArray(questions).slice(0, 10);
-                    resolve();
-                }).catch(function(err) {
-                    console.error('Error loading questions:', err);
-                    resolve();
-                });
+                // Filter by topic if not mixed
+                if (gameState.currentTopic !== 'mixed') {
+                    if (mappedTopic !== gameState.currentTopic) return;
+                }
+                
+                questions.push(q);
             });
+            
+            console.log('Loaded ' + questions.length + ' questions for topic: ' + gameState.currentTopic);
+            if (questions.length > 0) {
+                console.log('Sample question:', questions[0]);
+            }
+            
+            gameState.allQuestions = questions;
+            gameState.questions = shuffleArray(questions).slice(0, 10);
         }
         
         function updateDifficultyCounts() {
@@ -2130,9 +2132,10 @@
             var opts = q.options || [];
             var html = '';
             opts.forEach(function(o, i) {
-                var id = o.id || i.toString();
-                var text = typeof o === 'string' ? o : o.text;
-                html += '<div class="option-item" data-id="' + id + '" onclick="selectOption(\'' + id + '\')">';
+                // Handle both Turso format (option_text) and old format (text/string)
+                var id = o.id || String(i);
+                var text = o.option_text || o.text || (typeof o === 'string' ? o : '');
+                html += '<div class="option-item" data-id="' + id + '" data-index="' + i + '" onclick="selectOption(\'' + id + '\')">';
                 html += '<div class="option-letter">' + String.fromCharCode(65 + i) + '</div>';
                 html += '<div>' + text + '</div>';
                 html += '</div>';
@@ -2603,55 +2606,31 @@
             console.log('Checking answer for question:', q.id);
             console.log('Question data:', q);
             
-            // Check different possible solution structures:
-            // 1. q.solution.correct (from seed script)
-            // 2. q.correct (flat structure)
-            // 3. q.answer (alternative field name)
-            
-            var solutionData = null;
-            
-            if (q.solution && q.solution.correct !== undefined) {
-                // Seed script format: { solution: { correct: "b", explanation: "..." } }
-                console.log('Using q.solution format');
-                solutionData = q.solution;
-            } else if (q.correct !== undefined) {
-                // Flat format: { correct: "b", explanation: "..." }
-                console.log('Using flat q.correct format');
-                solutionData = q;
-            } else if (q.answer !== undefined) {
-                // Alternative format: { answer: "b" }
-                console.log('Using q.answer format');
-                solutionData = { correct: q.answer, explanation: q.explanation || q.exp };
-            }
-            
-            if (solutionData) {
-                processAnswer(q, solutionData);
+            // Turso API includes solution data in the question object
+            // MC options have is_correct, other types have correct/answer field
+            if (q.options && q.options.length > 0) {
+                // MC type - options have is_correct flag
+                console.log('Using MC options with is_correct flag');
+                processAnswer(q, q);
                 return;
             }
             
-            // Fallback: fetch from solutions/corporate_finance path
-            var solutionPath = 'solutions/corporate_finance/' + q.id;
-            console.log('Fetching solution from:', solutionPath);
+            if (q.solution && q.solution.correct !== undefined) {
+                console.log('Using q.solution format');
+                processAnswer(q, q.solution);
+                return;
+            }
             
-            firebase.database().ref(solutionPath).once('value')
-                .then(function(snap) {
-                    var solution = snap.val();
-                    console.log('Solution found:', solution);
-                    
-                    if (!solution) {
-                        console.error('No solution found for:', q.id);
-                        alert('Ingen fasit funnet for: ' + q.id);
-                        document.getElementById('btn-check').disabled = false;
-                        return;
-                    }
-                    
-                    processAnswer(q, solution);
-                })
-                .catch(function(err) {
-                    console.error('Error fetching solution:', err);
-                    alert('Feil ved henting av fasit: ' + err.message);
-                    document.getElementById('btn-check').disabled = false;
-                });
+            if (q.correct !== undefined || q.answer !== undefined) {
+                console.log('Using embedded solution data');
+                processAnswer(q, q);
+                return;
+            }
+            
+            // No solution found
+            console.error('No solution found for:', q.id);
+            alert('Ingen fasit funnet for dette spørsmålet. Kontakt administrator.');
+            document.getElementById('btn-check').disabled = false;
         }
         
         function processAnswer(q, solution) {
@@ -2976,28 +2955,48 @@
                 return null; 
             }
             
-            // Get correct answer - handle different formats
-            var correctId = solution.correct || solution.answer;
-            if (typeof correctId !== 'string') {
-                correctId = String(correctId);
+            var q = gameState.currentQuestion;
+            var opts = q.options || [];
+            var userAnswer = gameState.selectedAnswer;
+            var isCorrect = false;
+            var correctId = null;
+            
+            // Find correct answer from options (Turso format with is_correct)
+            opts.forEach(function(o, i) {
+                var optId = o.id || String(i);
+                if (o.is_correct === 1 || o.is_correct === '1' || o.is_correct === true) {
+                    correctId = optId;
+                    if (userAnswer === optId) {
+                        isCorrect = true;
+                    }
+                }
+            });
+            
+            // Fallback to old format (solution.correct or solution.answer)
+            if (correctId === null) {
+                correctId = solution.correct || solution.answer;
+                if (typeof correctId === 'number') {
+                    correctId = String(correctId);
+                }
+                if (correctId !== null && correctId !== undefined) {
+                    correctId = String(correctId).toLowerCase().trim();
+                    isCorrect = userAnswer.toLowerCase().trim() === correctId;
+                }
             }
-            correctId = correctId.toLowerCase().trim();
             
-            var userAnswer = gameState.selectedAnswer.toLowerCase().trim();
+            console.log('MC Check - User:', userAnswer, 'Correct:', correctId, 'Result:', isCorrect);
             
-            console.log('MC Check - User:', userAnswer, 'Correct:', correctId);
-            
-            // Mark options
+            // Mark options visually
             document.querySelectorAll('.option-item').forEach(function(el) {
-                var optId = el.dataset.id.toLowerCase().trim();
-                if (optId === correctId) {
+                var optId = el.dataset.id;
+                if (optId === correctId || (opts[parseInt(optId)] && (opts[parseInt(optId)].is_correct === 1 || opts[parseInt(optId)].is_correct === '1'))) {
                     el.classList.add('correct');
-                } else if (optId === userAnswer && userAnswer !== correctId) {
+                } else if (optId === userAnswer && !isCorrect) {
                     el.classList.add('incorrect');
                 }
             });
             
-            return userAnswer === correctId;
+            return isCorrect;
         }
         
         function checkCalc(solution) {
@@ -3167,34 +3166,27 @@
             document.getElementById('hint-text').textContent = 'Laster...';
             document.getElementById('hint-box').classList.add('visible');
             
-            // Try to get hints from the question object first
+            // Get hints from the question object (Turso returns hints as JSON)
             var hints = q.hints || (q.solution && q.solution.hints) || [];
+            if (typeof hints === 'string') {
+                try { hints = JSON.parse(hints); } catch(e) { hints = [hints]; }
+            }
             
-            if (hints.length > 0 && gameState.hintsUsed < hints.length) {
-                var hint = hints[gameState.hintsUsed];
-                var hintText = typeof hint === 'string' ? hint : (hint.text || hint);
-                document.getElementById('hint-text').textContent = hintText;
-                document.getElementById('hint-level').textContent = '💡 Hint ' + (gameState.hintsUsed + 1) + ' av ' + hints.length;
-                gameState.hintsUsed++;
-                
-                if (gameState.hintsUsed >= hints.length) {
-                    document.getElementById('btn-hint').disabled = true;
-                }
+            if (gameState.hintsUsed >= hints.length) {
+                document.getElementById('hint-text').textContent = 'Ingen flere hints.';
+                document.getElementById('btn-hint').disabled = true;
                 return;
             }
             
-            // Fallback to Firebase solutions/
-            firebase.database().ref('solutions/corporate_finance/' + q.id + '/hints/' + gameState.hintsUsed).once('value')
-                .then(function(snap) {
-                    var hint = snap.val();
-                    if (!hint) {
-                        document.getElementById('hint-text').textContent = 'Ingen flere hints.';
-                        document.getElementById('btn-hint').disabled = true;
-                        return;
-                    }
-                    document.getElementById('hint-text').textContent = typeof hint === 'string' ? hint : (hint.text || hint);
-                    gameState.hintsUsed++;
-                });
+            var hint = hints[gameState.hintsUsed];
+            var hintText = typeof hint === 'string' ? hint : (hint.text || hint);
+            document.getElementById('hint-text').textContent = hintText;
+            document.getElementById('hint-level').textContent = '💡 Hint ' + (gameState.hintsUsed + 1) + ' av ' + hints.length;
+            gameState.hintsUsed++;
+            
+            if (gameState.hintsUsed >= hints.length) {
+                document.getElementById('btn-hint').disabled = true;
+            }
         }
         
         function closeHint() {
@@ -3212,29 +3204,15 @@
         
         function showExplanation() {
             var q = gameState.currentQuestion;
-            document.getElementById('explanation-main').innerHTML = '<em>Laster...</em>';
-            document.getElementById('explanation-box').classList.add('visible');
             
-            // Try to get explanation from the question object first
+            // Get explanation from the question object (Turso returns it directly)
             var explanation = q.explanation || 
                               (q.solution && q.solution.explanation) || 
                               q.exp || 
-                              null;
+                              'Ingen forklaring tilgjengelig.';
             
-            if (explanation) {
-                document.getElementById('explanation-main').innerHTML = explanation.replace(/\n/g, '<br>');
-                return;
-            }
-            
-            // Fallback to Firebase solutions/
-            firebase.database().ref('solutions/corporate_finance/' + q.id).once('value')
-                .then(function(snap) {
-                    var sol = snap.val();
-                    var expl = sol && sol.explanation;
-                    document.getElementById('explanation-main').innerHTML = expl 
-                        ? expl.replace(/\n/g, '<br>') 
-                        : 'Ingen forklaring tilgjengelig.';
-                });
+            document.getElementById('explanation-main').innerHTML = explanation.replace(/\n/g, '<br>');
+            document.getElementById('explanation-box').classList.add('visible');
         }
         
         function closeExplanation() {
@@ -3257,27 +3235,11 @@
         function showResults() {
             var pct = Math.round((gameState.correctCount / gameState.questions.length) * 100);
             
-            // Save final progress
+            // Save final progress to localStorage
             saveProgress();
             
-            // Save to Firebase if logged in (with correct structure)
-            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                var user = firebase.auth().currentUser;
-                var db = firebase.database();
-                
-                // Update user stats - match the rules structure
-                db.ref('user_progress/' + user.uid + '/corporate_finance/' + gameState.currentTopic).update({
-                    score: gameState.score,
-                    correct: gameState.correctCount,
-                    total: gameState.questions.length,
-                    completed: true,
-                    lastAttempt: Date.now()
-                }).then(function() {
-                    console.log('Final results saved to Firebase');
-                }).catch(function(err) {
-                    console.error('Failed to save final results:', err);
-                });
-            }
+            // TODO: Turso API progress saving kan legges til senere via /api/progress endpoint
+            console.log('Results saved locally. Score:', gameState.score, 'Correct:', gameState.correctCount);
             
             document.getElementById('result-correct').textContent = gameState.correctCount;
             document.getElementById('result-total').textContent = gameState.questions.length;
@@ -3326,15 +3288,8 @@
             
             console.log('Progress data:', progressData);
             
-            // Save to localStorage always (as backup)
+            // Save to localStorage (Turso API progress kan legges til senere)
             saveToLocalStorage(progressData);
-            
-            // Save to Firebase if logged in
-            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                saveToFirebase(progressData);
-            } else {
-                console.log('Not logged in - saving to localStorage only');
-            }
         }
         
         function saveToLocalStorage(data) {
@@ -3354,32 +3309,6 @@
             } catch (e) {
                 console.error('LocalStorage save failed:', e);
             }
-        }
-        
-        function saveToFirebase(data) {
-            var user = firebase.auth().currentUser;
-            if (!user) {
-                console.log('No user logged in for Firebase save');
-                return;
-            }
-            
-            console.log('Saving to Firebase for user:', user.uid);
-            
-            var db = firebase.database();
-            var path = 'user_progress/' + user.uid + '/corporate_finance/' + data.topic;
-            
-            // Match the database rules structure
-            db.ref(path).update({
-                score: data.score,
-                correct: data.correctCount,
-                total: data.totalQuestions,
-                completed: data.answeredQuestions.length > 0,
-                lastAttempt: Date.now() // Use regular timestamp, not ServerValue
-            }).then(function() {
-                console.log('Progress saved to Firebase at:', path);
-            }).catch(function(err) {
-                console.error('Firebase save failed:', err);
-            });
         }
         
         function saveQuestionResult(questionId, isCorrect, userAnswer) {
@@ -3404,33 +3333,14 @@
             } catch (e) {
                 console.error('Answer save failed:', e);
             }
-            
-            // For Firebase, we don't save individual answers under user_progress
-            // because the rules don't allow arbitrary fields under accounting/$topicId
-            // Instead, we update the topic progress which includes completed count
         }
         
         function loadSavedProgress() {
-            // Try to load from Firebase first, then localStorage
-            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-                var user = firebase.auth().currentUser;
-                var db = firebase.database();
-                
-                db.ref('user_progress/' + user.uid + '/corporate_finance').once('value')
-                    .then(function(snap) {
-                        var data = snap.val();
-                        if (data) {
-                            console.log('Loaded progress from Firebase:', data);
-                            updateProgressDisplay(data);
-                        }
-                    });
-            } else {
-                // Load from localStorage
-                var stats = JSON.parse(localStorage.getItem('cf_stats') || '{}');
-                if (Object.keys(stats).length > 0) {
-                    console.log('Loaded progress from localStorage:', stats);
-                    updateProgressDisplay(stats);
-                }
+            // Load from localStorage
+            var stats = JSON.parse(localStorage.getItem('cf_stats') || '{}');
+            if (Object.keys(stats).length > 0) {
+                console.log('Loaded progress from localStorage:', stats);
+                updateProgressDisplay(stats);
             }
         }
         
