@@ -1808,7 +1808,7 @@
     <script>
         // ==================== TURSO API CONFIG ====================
         var API_URL = 'https://api.accountingquest.app';
-        var MODULE_ID = 1; // Numerisk ID fra modules-tabellen
+        var MODULE_IDS = ['grunnleggende', 'grunnleggende_regnskap', '1']; // Prøv flere varianter
         
         async function apiCall(endpoint) {
             try {
@@ -2273,17 +2273,26 @@
             console.log('Loading question counts from Turso API...');
             
             try {
-                // Prøv først med module filter, deretter uten
-                var questions = await apiCall('/questions?module=' + MODULE_ID + '&limit=500');
+                var questions = [];
                 
+                // Prøv forskjellige module IDs
+                for (var i = 0; i < MODULE_IDS.length && questions.length === 0; i++) {
+                    console.log('Trying module:', MODULE_IDS[i]);
+                    questions = await apiCall('/questions?module=' + MODULE_IDS[i] + '&limit=500');
+                }
+                
+                // Fallback: hent alle og filtrer
                 if (!questions || questions.length === 0) {
-                    console.log('No questions with module filter, trying all questions...');
-                    questions = await apiCall('/questions?limit=500');
+                    console.log('No questions with module filter, fetching all and filtering...');
+                    var allQuestions = await apiCall('/questions?limit=500');
+                    questions = allQuestions.filter(function(q) {
+                        var mid = (q.module_id || '').toLowerCase();
+                        return mid === 'grunnleggende' || mid === 'grunnleggende_regnskap' || mid === '1';
+                    });
                 }
                 
                 if (!questions || questions.length === 0) {
-                    console.warn('No questions found in Turso');
-                    // Oppdater UI til å vise 0
+                    console.warn('No questions found for grunnleggende');
                     topics.forEach(function(topic) {
                         var countEl = document.getElementById('count-' + topic.id);
                         if (countEl) countEl.textContent = '0 oppgaver';
@@ -2343,7 +2352,6 @@
                 });
             } catch (err) {
                 console.error('Error loading questions:', err);
-                // Oppdater UI til å vise feil
                 topics.forEach(function(topic) {
                     var countEl = document.getElementById('count-' + topic.id);
                     if (countEl) countEl.textContent = 'Feil';
