@@ -2605,6 +2605,12 @@
                     if (!clickedCell || clickedCell === gridState.currentCell) return;
                     if (clickedCell.classList.contains('readonly')) return;
                     
+                    // Check if we can add a reference (after = or operator)
+                    if (!canAddReference(gridState.currentCell.value)) {
+                        console.log('Cannot add reference - need operator first');
+                        return;
+                    }
+                    
                     // We're in formula mode and clicked a different cell
                     e.preventDefault();
                     e.stopPropagation();
@@ -2628,6 +2634,18 @@
                     
                 }, true); // Use capture phase
             }
+        }
+        
+        // Check if we can add a cell reference (after = or operator)
+        function canAddReference(formula) {
+            if (!formula || formula.length === 0) return false;
+            var lastChar = formula.slice(-1);
+            // Can add after: = + - * / ( , ; ^ % and space
+            return lastChar === '=' || lastChar === '+' || lastChar === '-' || 
+                   lastChar === '*' || lastChar === '/' || lastChar === '(' ||
+                   lastChar === ',' || lastChar === ';' || lastChar === '^' ||
+                   lastChar === '%' || lastChar === ' ';
+        }
         }
         
         function startFormulaMode(cell) {
@@ -2669,7 +2687,6 @@
         // Cell navigation with arrow keys
         function handleCellNavigation(e, cell) {
             var key = e.key;
-            console.log('Key pressed:', key, 'in cell', cell.id || 'unknown');
             
             // Only handle specific keys
             if (!['Enter', 'Tab', 'Escape', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
@@ -2705,7 +2722,56 @@
             }
             
             // Arrow keys
-            // If there's text and cursor is not at edge, let default behavior happen
+            // In FORMULA MODE: add cell reference if we can
+            if (gridState.selectingCell && gridState.currentCell === cell) {
+                if (canAddReference(cell.value)) {
+                    e.preventDefault();
+                    
+                    // Find target cell based on arrow direction
+                    var td = cell.closest('td');
+                    var tr = td.parentElement;
+                    var tbody = tr.parentElement;
+                    var cellIndex = Array.from(tr.children).indexOf(td);
+                    var rowIndex = Array.from(tbody.children).indexOf(tr);
+                    
+                    var targetTd = null;
+                    switch(key) {
+                        case 'ArrowUp':
+                            var prevRow = tbody.children[rowIndex - 1];
+                            if (prevRow) targetTd = prevRow.children[cellIndex];
+                            break;
+                        case 'ArrowDown':
+                            var nextRow = tbody.children[rowIndex + 1];
+                            if (nextRow && !nextRow.classList.contains('sum-row')) {
+                                targetTd = nextRow.children[cellIndex];
+                            }
+                            break;
+                        case 'ArrowLeft':
+                            targetTd = tr.children[cellIndex - 1];
+                            break;
+                        case 'ArrowRight':
+                            targetTd = tr.children[cellIndex + 1];
+                            break;
+                    }
+                    
+                    if (targetTd) {
+                        var targetCell = targetTd.querySelector('.excel-cell:not(.readonly)');
+                        if (targetCell) {
+                            var cellRef = getCellReference(targetCell);
+                            cell.value += cellRef;
+                            
+                            // Visual feedback
+                            targetCell.classList.add('selected-for-formula');
+                            setTimeout(function() {
+                                targetCell.classList.remove('selected-for-formula');
+                            }, 300);
+                        }
+                    }
+                    return;
+                }
+            }
+            
+            // Normal navigation (not in formula mode, or can't add reference)
             var cursorPos = cell.selectionStart;
             var textLen = cell.value.length;
             
@@ -2723,14 +2789,10 @@
         }
         
         function moveTo(fromCell, direction) {
-            console.log('moveTo called:', direction);
-            
             // Get current position from DOM structure
             var td = fromCell.closest('td');
-            if (!td) {
-                console.log('No td found');
-                return;
-            }
+            if (!td) return;
+            
             var tr = td.parentElement;
             var tbody = tr.parentElement;
             
