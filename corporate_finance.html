@@ -2337,6 +2337,27 @@
             
             var grid = q.grid || q.excel_grid;
             var data = q.data || {};
+            var topic = (q.topic || '').toLowerCase();
+            var title = (q.title || '').toLowerCase();
+            var question = (q.question || '').toLowerCase();
+            
+            // Determine if this is a T-konto/journal entry task
+            // ONLY these should use Konto/Debet/Kredit layout
+            var isTKonto = (
+                topic === 'bokforing' ||
+                topic === 'journal' ||
+                topic === 'bilag' ||
+                topic === 't-konto' ||
+                title.includes('bokfør') ||
+                title.includes('poster') ||
+                title.includes('journalfør') ||
+                title.includes('t-konto') ||
+                question.includes('bokfør transaksjonen') ||
+                question.includes('før bilag') ||
+                (grid && grid.columns && grid.columns.includes('Debet') && grid.columns.includes('Kredit'))
+            );
+            
+            console.log('Topic:', topic, 'Title:', title, 'isTKonto:', isTKonto);
             
             // Auto-extract data from question text if not provided
             if (Object.keys(data).length === 0 && !grid) {
@@ -2347,7 +2368,13 @@
                     { regex: /n\s*[=:]\s*(\d+)\s*(år|years?|perioder?)?/i, key: 'Perioder' },
                     { regex: /PMT\s*[=:]\s*\$?([\d,]+)/i, key: 'PMT' },
                     { regex: /PV\s*[=:]\s*\$?([\d,]+)/i, key: 'PV' },
-                    { regex: /FV\s*[=:]\s*\$?([\d,]+)/i, key: 'FV' }
+                    { regex: /FV\s*[=:]\s*\$?([\d,]+)/i, key: 'FV' },
+                    // WACC patterns
+                    { regex: /egenkapital[^:]*[=:]\s*([\d,.]+)/i, key: 'Egenkapital' },
+                    { regex: /gjeld[^:]*[=:]\s*([\d,.]+)/i, key: 'Gjeld' },
+                    { regex: /skattesats[^:]*[=:]\s*([\d,.]+)%?/i, key: 'Skattesats', transform: function(v) { return v + '%'; } },
+                    { regex: /avkastningskrav[^:]*[=:]\s*([\d,.]+)%?/i, key: 'Avkastningskrav EK', transform: function(v) { return v + '%'; } },
+                    { regex: /rentekostnad[^:]*[=:]\s*([\d,.]+)%?/i, key: 'Rentekostnad', transform: function(v) { return v + '%'; } }
                 ];
                 patterns.forEach(function(p) {
                     var match = qText.match(p.regex);
@@ -2362,9 +2389,65 @@
             var gridRows = [];
             var headers = [];
             
-            if (grid && grid.rows && grid.rows.length > 0) {
-                // Use grid structure from question
-                headers = grid.columns || ['Beskrivelse', 'Verdi', 'Formel'];
+            // Override headers for non-T-konto topics
+            if (!isTKonto) {
+                // Use Parameter/Verdi layout for corporate finance
+                headers = ['Parameter', 'Verdi'];
+                
+                if (grid && grid.rows && grid.rows.length > 0) {
+                    // Convert grid rows to Parameter/Verdi format
+                    grid.rows.forEach(function(row, ri) {
+                        if (row.label && row.label.toLowerCase() !== 'sum') {
+                            var cells = row.cells || [];
+                            var paramName = row.label || cells[0]?.value || 'Rad ' + (ri + 1);
+                            var cellValue = cells[1]?.value || cells[0]?.value || '';
+                            var isEditable = cells[1]?.editable || cells[0]?.editable || false;
+                            var answer = cells[1]?.answer || cells[0]?.answer;
+                            
+                            gridRows.push([
+                                { value: paramName, readonly: true, rowLabel: paramName },
+                                { value: isEditable ? '' : cellValue, readonly: !isEditable, answer: answer, highlight: isEditable }
+                            ]);
+                        }
+                    });
+                }
+                
+                // If no grid rows, generate from data
+                if (gridRows.length === 0) {
+                    Object.keys(data).forEach(function(key) {
+                        var val = data[key];
+                        if (typeof val !== 'object') {
+                            gridRows.push([
+                                { value: formatLabel(key), readonly: true },
+                                { value: val, readonly: true }
+                            ]);
+                        }
+                    });
+                    
+                    // Add answer field(s)
+                    var answerFields = [];
+                    if (q.input_fields && q.input_fields.length > 0) {
+                        answerFields = q.input_fields;
+                    } else if (q.solution && typeof q.solution === 'object') {
+                        Object.keys(q.solution).forEach(function(key) {
+                            if (key !== 'tolerance' && key !== 'explanation') {
+                                answerFields.push({ id: key, label: formatLabel(key), answer: q.solution[key] });
+                            }
+                        });
+                    } else {
+                        answerFields = [{ id: 'answer', label: getAnswerLabel(q), answer: q.answer }];
+                    }
+                    
+                    answerFields.forEach(function(field) {
+                        gridRows.push([
+                            { value: field.label || formatLabel(field.id), readonly: true },
+                            { value: '', readonly: false, answer: field.answer, highlight: true }
+                        ]);
+                    });
+                }
+            } else if (grid && grid.rows && grid.rows.length > 0) {
+                // Use T-konto layout for bokforing
+                headers = grid.columns || ['Konto', 'Debet', 'Kredit'];
                 
                 grid.rows.forEach(function(row, ri) {
                     var rowData = [];
@@ -2386,20 +2469,18 @@
                 });
             } else {
                 // Auto-generate grid from data and input_fields
-                // Use single column layout for easier formula references (A1, A2, etc.)
-                headers = ['Verdi'];
+                headers = ['Parameter', 'Verdi'];
                 
-                // Add data rows (readonly) with labels stored for display
                 Object.keys(data).forEach(function(key) {
                     var val = data[key];
                     if (typeof val !== 'object') {
                         gridRows.push([
-                            { value: val, readonly: true, rowLabel: formatLabel(key) }
+                            { value: formatLabel(key), readonly: true },
+                            { value: val, readonly: true }
                         ]);
                     }
                 });
                 
-                // Get answer fields from input_fields or solution
                 var answerFields = [];
                 if (q.input_fields && q.input_fields.length > 0) {
                     answerFields = q.input_fields;
@@ -2413,10 +2494,10 @@
                     answerFields = [{ id: 'answer', label: getAnswerLabel(q), answer: q.answer }];
                 }
                 
-                // Add editable answer rows
                 answerFields.forEach(function(field) {
                     gridRows.push([
-                        { value: '', readonly: false, answer: field.answer || (q.solution && q.solution[field.id]), rowLabel: field.label || formatLabel(field.id), highlight: true }
+                        { value: field.label || formatLabel(field.id), readonly: true },
+                        { value: '', readonly: false, answer: field.answer, highlight: true }
                     ]);
                 });
             }

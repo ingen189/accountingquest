@@ -3705,15 +3705,42 @@
             
             // Check if we have a proper grid structure
             var grid = q.grid || q.excel_grid;
+            var topic = (q.topic || '').toLowerCase();
+            var title = (q.title || '').toLowerCase();
+            var question = (q.question || '').toLowerCase();
+            
+            // Determine if this is a T-konto/journal entry task
+            var isTKonto = (
+                topic === 'bokforing' ||
+                topic === 'journal' ||
+                topic === 'bilag' ||
+                topic === 't-konto' ||
+                title.includes('bokfør') ||
+                title.includes('poster') ||
+                title.includes('journalfør') ||
+                title.includes('t-konto') ||
+                question.includes('bokfør transaksjonen') ||
+                question.includes('bokfør kjøpet') ||
+                question.includes('bokfør salget') ||
+                question.includes('før bilag')
+            );
             
             console.log('=== renderExcelGrid DEBUG ===');
             console.log('Question ID:', q.id);
             console.log('Question type:', q.type);
+            console.log('Topic:', topic, 'isTKonto:', isTKonto);
             console.log('Has q.grid:', !!q.grid);
             console.log('Has q.excel_grid:', !!q.excel_grid);
             console.log('grid value:', grid);
             console.log('grid.rows:', grid ? grid.rows : 'N/A');
             console.log('grid.rows.length:', grid && grid.rows ? grid.rows.length : 'N/A');
+            
+            // For non-T-konto tasks, use Parameter/Verdi layout
+            if (!isTKonto && grid && grid.rows && grid.rows.length > 0) {
+                console.log('Using Parameter/Verdi layout');
+                renderParameterValueGrid(q, grid, thead, tbody);
+                return;
+            }
             
             if (grid && grid.rows && grid.rows.length > 0) {
                 console.log('Using T-konto grid mode');
@@ -3821,6 +3848,58 @@
                     tbody.innerHTML += '<tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Ingen input-felt definert</td></tr>';
                 }
             }
+        }
+        
+        function renderParameterValueGrid(q, grid, thead, tbody) {
+            // Parameter/Verdi layout for non-T-konto tasks (årsregnskap, analyse, etc.)
+            var headerRow = document.querySelector('#excel-grid-container .excel-header-row');
+            if (headerRow) {
+                headerRow.innerHTML = '<span class="excel-title">📊 Beregningstabell</span><span class="excel-hint">Fyll inn verdiene</span>';
+            }
+            
+            thead.innerHTML = '<tr><th style="width: 40px;">#</th><th style="min-width: 200px;">Parameter</th><th style="min-width: 150px;">Verdi</th></tr>';
+            
+            var bodyHtml = '';
+            var dataRows = grid.rows.filter(function(row) {
+                return !row.label || row.label.toLowerCase() !== 'sum';
+            });
+            
+            dataRows.forEach(function(row, ri) {
+                bodyHtml += '<tr>';
+                bodyHtml += '<td class="row-label" style="text-align: center; color: var(--text-secondary);">' + (ri + 1) + '</td>';
+                
+                var cells = row.cells || [];
+                var paramName = row.label || (cells[0] && cells[0].value) || 'Rad ' + (ri + 1);
+                
+                // Parameter name (always readonly)
+                bodyHtml += '<td><input class="excel-cell readonly" value="' + paramName + '" readonly tabindex="-1"></td>';
+                
+                // Value cell - check if editable
+                var valueCell = cells[1] || cells[0] || {};
+                var isEditable = valueCell.editable === true || (cells.length > 1 && cells[1].editable !== false);
+                var cellValue = valueCell.value !== undefined ? valueCell.value : '';
+                
+                if (isEditable) {
+                    bodyHtml += '<td><div class="cell-wrapper">';
+                    bodyHtml += '<input class="excel-cell" type="text" ';
+                    bodyHtml += 'data-row="' + ri + '" data-col="1" ';
+                    bodyHtml += 'data-answer="' + (valueCell.answer || '') + '" ';
+                    bodyHtml += 'placeholder="?" value="">';
+                    bodyHtml += '<div class="fill-handle" title="Dra for å kopiere"></div>';
+                    bodyHtml += '</div></td>';
+                } else {
+                    bodyHtml += '<td><input class="excel-cell readonly" value="' + cellValue + '" readonly tabindex="-1"></td>';
+                }
+                
+                bodyHtml += '</tr>';
+            });
+            
+            tbody.innerHTML = bodyHtml;
+            
+            // Setup basic interactions
+            setTimeout(function() {
+                setupExcelGridFormulas();
+            }, 100);
         }
         
         function renderVariables(q) {
