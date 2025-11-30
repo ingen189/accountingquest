@@ -2604,12 +2604,16 @@
             document.getElementById('btn-check').disabled = true;
             
             console.log('Checking answer for question:', q.id);
-            console.log('Question data:', q);
+            console.log('Question type:', q.type);
             
-            // Turso API includes solution data in the question object
-            // MC options have is_correct, other types have correct/answer field
+            // For excel_grid and calculation, fetch solution from API first
+            if (q.type === 'excel_grid' || q.type === 'calculation') {
+                fetchSolutionAndCheck(q);
+                return;
+            }
+            
+            // For MC, use embedded options with is_correct flag
             if (q.options && q.options.length > 0) {
-                // MC type - options have is_correct flag
                 console.log('Using MC options with is_correct flag');
                 processAnswer(q, q);
                 return;
@@ -2631,6 +2635,164 @@
             console.error('No solution found for:', q.id);
             alert('Ingen fasit funnet for dette spørsmålet. Kontakt administrator.');
             document.getElementById('btn-check').disabled = false;
+        }
+        
+        function fetchSolutionAndCheck(q) {
+            var apiUrl = API_URL + '/api/solution/' + q.id;
+            
+            fetch(apiUrl)
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Solution not found');
+                    }
+                    return response.json();
+                })
+                .then(function(data) {
+                    console.log('Solution from API:', data);
+                    var solution = data.correct_answer;
+                    
+                    if (typeof solution === 'string') {
+                        try {
+                            solution = JSON.parse(solution);
+                        } catch (e) {
+                            // Keep as string/number if not JSON
+                        }
+                    }
+                    
+                    var correct;
+                    var tol = data.tolerance || q.tolerance || 0.5;
+                    
+                    if (q.type === 'excel_grid') {
+                        correct = checkExcelGridWithSolution(q, solution, tol);
+                    } else {
+                        correct = checkCalculationWithSolution(q, solution, tol);
+                    }
+                    
+                    if (correct === null) {
+                        document.getElementById('btn-check').disabled = false;
+                        return;
+                    }
+                    
+                    if (correct) handleCorrect(); else handleIncorrect();
+                    document.getElementById('btn-check').disabled = false;
+                })
+                .catch(function(error) {
+                    console.error('Error fetching solution:', error);
+                    // Fallback to embedded solution
+                    var solution = q.solution || q;
+                    processAnswer(q, solution);
+                });
+        }
+        
+        function checkCalculationWithSolution(q, solution, tol) {
+            var userInput = document.getElementById('answer-input');
+            
+            if (!userInput && currentExcelGrid && currentExcelGrid.cells) {
+                // Find editable cell in ExcelGrid
+                currentExcelGrid.cells.forEach(function(cell) {
+                    if (!cell.classList.contains('readonly')) {
+                        userInput = cell;
+                    }
+                });
+            }
+            
+            if (!userInput || !userInput.value.trim()) {
+                alert('Fyll inn svaret!');
+                return null;
+            }
+            
+            var userStr = userInput.value.replace(/\s/g, '').replace(',', '.').replace('%', '');
+            var user = parseFloat(userStr);
+            
+            if (isNaN(user)) {
+                alert('Ugyldig tall!');
+                return null;
+            }
+            
+            var correctVal = parseFloat(solution);
+            if (isNaN(correctVal)) {
+                console.error('Invalid solution:', solution);
+                return null;
+            }
+            
+            var diff = Math.abs(user - correctVal);
+            var dynamicTol = Math.max(tol, Math.abs(correctVal) * 0.02);
+            var isCorrect = diff <= dynamicTol;
+            
+            console.log('User:', user, 'Correct:', correctVal, 'Diff:', diff, 'Tol:', dynamicTol, 'OK:', isCorrect);
+            
+            userInput.classList.remove('correct', 'incorrect');
+            userInput.classList.add(isCorrect ? 'correct' : 'incorrect');
+            
+            return isCorrect;
+        }
+        
+        function checkExcelGridWithSolution(q, solution, tol) {
+            var allCorrect = true;
+            var hasEditableCells = false;
+            
+            console.log('Checking ExcelGrid with API solution:', solution);
+            
+            if (currentExcelGrid && currentExcelGrid.cells) {
+                var answerIndex = 0;
+                var solutionValues = solution;
+                
+                // Convert object to array if needed
+                if (typeof solution === 'object' && !Array.isArray(solution)) {
+                    solutionValues = Object.keys(solution)
+                        .filter(function(k) { return k !== 'tolerance' && k !== 'explanation'; })
+                        .map(function(k) { return solution[k]; });
+                }
+                
+                // Ensure it's an array
+                if (!Array.isArray(solutionValues)) {
+                    solutionValues = [solutionValues];
+                }
+                
+                currentExcelGrid.cells.forEach(function(cell) {
+                    if (!cell.classList.contains('readonly')) {
+                        hasEditableCells = true;
+                        
+                        var userStr = cell.value.replace(/\s/g, '').replace(',', '.').replace('%', '');
+                        var user = parseFloat(userStr);
+                        
+                        if (userStr === '' || isNaN(user)) {
+                            cell.classList.add('incorrect');
+                            allCorrect = false;
+                            return;
+                        }
+                        
+                        var correctVal = null;
+                        
+                        // Get correct value from solution array or cell attribute
+                        if (answerIndex < solutionValues.length) {
+                            correctVal = parseFloat(solutionValues[answerIndex]);
+                            answerIndex++;
+                        } else if (cell.dataset.answer) {
+                            correctVal = parseFloat(cell.dataset.answer);
+                        }
+                        
+                        if (correctVal !== null && !isNaN(correctVal)) {
+                            var diff = Math.abs(user - correctVal);
+                            var dynamicTol = Math.max(tol, Math.abs(correctVal) * 0.02);
+                            var isOk = diff <= dynamicTol;
+                            
+                            console.log('Cell - User:', user, 'Correct:', correctVal, 'OK:', isOk);
+                            
+                            cell.classList.remove('correct', 'incorrect');
+                            cell.classList.add(isOk ? 'correct' : 'incorrect');
+                            if (!isOk) allCorrect = false;
+                        }
+                    }
+                });
+            }
+            
+            if (!hasEditableCells) {
+                alert('Ingen felt å sjekke!');
+                return null;
+            }
+            
+            return allCorrect;
         }
         
         function processAnswer(q, solution) {
