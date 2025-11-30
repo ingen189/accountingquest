@@ -3729,14 +3729,14 @@
                     return !row.label || row.label.toLowerCase() !== 'sum';
                 });
                 
-                // Use simple column letters A, B, C
-                var numCols = (dataRows[0] && dataRows[0].cells) ? dataRows[0].cells.length : 3;
+                // Use column names: #, Konto, Debet, Kredit
+                var columnNames = ['Konto', 'Debet', 'Kredit'];
                 
-                // Header: row number column + A, B, C...
+                // Header: row number column + Konto, Debet, Kredit
                 var headerHtml = '<tr><th style="width: 40px;">#</th>';
-                for (var hi = 0; hi < numCols; hi++) {
-                    headerHtml += '<th style="min-width: 100px;">' + String.fromCharCode(65 + hi) + '</th>';
-                }
+                columnNames.forEach(function(name) {
+                    headerHtml += '<th style="min-width: 100px;">' + name + '</th>';
+                });
                 headerHtml += '</tr>';
                 thead.innerHTML = headerHtml;
                 
@@ -3854,43 +3854,34 @@
             document.getElementById('btn-check').disabled = true;
             
             console.log('Checking answer for question:', q.id);
-            console.log('Question data:', q);
-            console.log('q.grid:', q.grid);
-            console.log('q.solution:', q.solution);
-            console.log('q.correct:', q.correct);
-            console.log('q.answer:', q.answer);
             
-            // For excel_grid, solution might be in grid cells or separate solution field
+            // For excel_grid, we need to fetch solution from API (not stored in client)
             if (q.type === 'excel_grid') {
-                // Check if grid cells have answer/correct values
-                var hasGridAnswers = false;
-                if (q.grid && q.grid.rows) {
-                    q.grid.rows.forEach(function(row) {
-                        (row.cells || []).forEach(function(cell) {
-                            if (cell.answer !== undefined || cell.correct !== undefined) {
-                                hasGridAnswers = true;
-                            }
-                        });
-                    });
-                }
-                console.log('Grid has embedded answers:', hasGridAnswers);
+                // Collect user's answer first
+                var userAnswer = collectUserGridAnswer();
                 
-                // Also check for solution array
-                if (q.solution || q.correct || hasGridAnswers) {
-                    processAnswer(q, q);
+                if (!userAnswer) {
+                    document.getElementById('btn-check').disabled = false;
                     return;
                 }
                 
-                // If no solution data, still try to check (balance-only mode)
-                console.log('No explicit solution - using balance-only check');
-                processAnswer(q, q);
+                // Check balance before sending to server
+                var totalDebet = userAnswer.reduce(function(sum, e) { return sum + e.debet; }, 0);
+                var totalKredit = userAnswer.reduce(function(sum, e) { return sum + e.kredit; }, 0);
+                
+                if (Math.abs(totalDebet - totalKredit) > 0.01) {
+                    alert('Posteringen balanserer ikke! Debet (' + formatNumber(totalDebet) + ') må være lik Kredit (' + formatNumber(totalKredit) + ')');
+                    document.getElementById('btn-check').disabled = false;
+                    return;
+                }
+                
+                // Fetch solution from API and check
+                fetchSolutionAndCheck(q.id, userAnswer);
                 return;
             }
             
-            // Turso API includes solution data in the question object
-            // MC options have is_correct, other types have correct/answer field
+            // For other question types, use embedded solution
             if (q.options && q.options.length > 0) {
-                // MC type - options have is_correct flag
                 console.log('Using MC options with is_correct flag');
                 processAnswer(q, q);
                 return;
@@ -3902,10 +3893,150 @@
                 return;
             }
             
-            // No solution found
             console.error('No solution found for:', q.id);
             alert('Ingen fasit funnet for dette spørsmålet. Kontakt administrator.');
             document.getElementById('btn-check').disabled = false;
+        }
+        
+        function collectUserGridAnswer() {
+            var userEntries = [];
+            var hasInput = false;
+            
+            var tbody = document.getElementById('excel-tbody');
+            var rows = tbody.querySelectorAll('tr:not(.sum-row)');
+            
+            rows.forEach(function(row, ri) {
+                var cells = row.querySelectorAll('td');
+                
+                var accountInput = cells[1] ? cells[1].querySelector('.excel-cell') : null;
+                var debetInput = cells[2] ? cells[2].querySelector('.excel-cell') : null;
+                var kreditInput = cells[3] ? cells[3].querySelector('.excel-cell') : null;
+                
+                var account = accountInput ? accountInput.value.trim() : '';
+                var debet = debetInput ? parseFloat(debetInput.value.replace(/\s/g, '').replace(',', '.')) || 0 : 0;
+                var kredit = kreditInput ? parseFloat(kreditInput.value.replace(/\s/g, '').replace(',', '.')) || 0 : 0;
+                
+                if (account || debet || kredit) {
+                    hasInput = true;
+                    userEntries.push({
+                        account: account,
+                        debet: debet,
+                        kredit: kredit,
+                        row: ri,
+                        accountEl: accountInput,
+                        debetEl: debetInput,
+                        kreditEl: kreditInput
+                    });
+                }
+            });
+            
+            if (!hasInput) {
+                alert('Fyll inn posteringene i T-kontoen!');
+                return null;
+            }
+            
+            return userEntries;
+        }
+        
+        function fetchSolutionAndCheck(questionId, userAnswer) {
+            // Try to fetch solution from API
+            var apiUrl = 'https://api.accountingquest.app/api/solution/' + questionId;
+            
+            fetch(apiUrl)
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Solution not found');
+                    }
+                    return response.json();
+                })
+                .then(function(data) {
+                    console.log('Solution from API:', data);
+                    var solution = data.correct_answer;
+                    
+                    if (typeof solution === 'string') {
+                        solution = JSON.parse(solution);
+                    }
+                    
+                    var isCorrect = validateBokforingAnswer(userAnswer, solution);
+                    
+                    if (isCorrect) {
+                        handleCorrect();
+                    } else {
+                        handleIncorrect();
+                    }
+                    document.getElementById('btn-check').disabled = false;
+                })
+                .catch(function(error) {
+                    console.error('Error fetching solution:', error);
+                    // Fallback: just check balance
+                    console.log('Fallback: checking balance only');
+                    markAllAsCorrect(userAnswer);
+                    handleCorrect();
+                    document.getElementById('btn-check').disabled = false;
+                });
+        }
+        
+        function validateBokforingAnswer(userAnswer, solution) {
+            if (!solution || !Array.isArray(solution)) {
+                console.log('No valid solution array');
+                return true; // Fallback to balance-only
+            }
+            
+            console.log('Validating user answer against solution');
+            console.log('User:', userAnswer);
+            console.log('Solution:', solution);
+            
+            var allCorrect = true;
+            var matchedSolutions = [];
+            
+            userAnswer.forEach(function(entry) {
+                var found = false;
+                
+                solution.forEach(function(sol, idx) {
+                    if (matchedSolutions.indexOf(idx) > -1) return;
+                    
+                    var solAccount = String(sol.account || sol.konto || '');
+                    var solDebet = parseFloat(sol.debet || sol.debit || 0) || 0;
+                    var solKredit = parseFloat(sol.kredit || sol.credit || 0) || 0;
+                    
+                    var accountMatch = entry.account === solAccount;
+                    var debetMatch = Math.abs(entry.debet - solDebet) < 0.01;
+                    var kreditMatch = Math.abs(entry.kredit - solKredit) < 0.01;
+                    
+                    if (accountMatch && debetMatch && kreditMatch) {
+                        found = true;
+                        matchedSolutions.push(idx);
+                    }
+                });
+                
+                // Mark cells visually
+                if (found) {
+                    if (entry.accountEl) { entry.accountEl.classList.remove('incorrect'); entry.accountEl.classList.add('correct'); }
+                    if (entry.debetEl) { entry.debetEl.classList.remove('incorrect'); entry.debetEl.classList.add('correct'); }
+                    if (entry.kreditEl) { entry.kreditEl.classList.remove('incorrect'); entry.kreditEl.classList.add('correct'); }
+                } else {
+                    if (entry.accountEl) { entry.accountEl.classList.remove('correct'); entry.accountEl.classList.add('incorrect'); }
+                    if (entry.debetEl) { entry.debetEl.classList.remove('correct'); entry.debetEl.classList.add('incorrect'); }
+                    if (entry.kreditEl) { entry.kreditEl.classList.remove('correct'); entry.kreditEl.classList.add('incorrect'); }
+                    allCorrect = false;
+                }
+            });
+            
+            // Check all solutions were matched
+            if (matchedSolutions.length < solution.length) {
+                console.log('Not all solutions matched:', matchedSolutions.length, 'of', solution.length);
+                allCorrect = false;
+            }
+            
+            return allCorrect;
+        }
+        
+        function markAllAsCorrect(userAnswer) {
+            userAnswer.forEach(function(entry) {
+                if (entry.accountEl) entry.accountEl.classList.add('correct');
+                if (entry.debetEl) entry.debetEl.classList.add('correct');
+                if (entry.kreditEl) entry.kreditEl.classList.add('correct');
+            });
         }
         
         function processAnswer(q, solution) {
