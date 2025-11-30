@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Builder - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>">
+    
+    <!-- Felles stilark (kan kobles til om ønskelig) -->
+    <!-- <link rel="stylesheet" href="css/main.css"> -->
+    
+    <!-- KaTeX for LaTeX rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f26;
+            --bg-tertiary: #2d333b;
+            --bg-card: #242a33;
+            --accent: #4ade80;
+            --accent-secondary: #3b82f6;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --text-primary: #e0e0e0;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border: #2d333b;
+            --radius: 10px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+        
+        .header { background: var(--bg-secondary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); position: sticky; top: 0; z-index: 100; }
+        .header h1 { color: var(--accent); font-size: 1.3em; }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        
+        .api-status { display: flex; align-items: center; gap: 6px; font-size: 0.8em; color: var(--text-secondary); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+        .status-dot.connected { background: var(--accent); }
+        
+        .btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85em; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary { background: var(--accent); color: #1a1a1a; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-sm { padding: 5px 10px; font-size: 0.8em; }
+        
+        .container { padding: 20px; max-width: 1800px; margin: 0 auto; }
+        .builder-layout { display: grid; grid-template-columns: 280px 1fr 320px; gap: 20px; min-height: calc(100vh - 120px); }
+        @media (max-width: 1200px) { .builder-layout { grid-template-columns: 250px 1fr; } .preview-panel { display: none; } }
+        @media (max-width: 768px) { .builder-layout { grid-template-columns: 1fr; } .sets-panel { display: none; } }
+        
+        .panel { background: var(--bg-secondary); border-radius: var(--radius); border: 1px solid var(--border); display: flex; flex-direction: column; }
+        .panel-header { background: var(--bg-tertiary); padding: 12px 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .panel-content { padding: 15px; overflow-y: auto; flex: 1; }
+        
+        .set-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; }
+        .set-item:hover { border-color: var(--accent); }
+        .set-item.active { border-color: var(--accent); background: rgba(74, 222, 128, 0.1); }
+        .set-item .title { font-weight: 600; font-size: 0.9em; margin-bottom: 4px; }
+        .set-item .meta { font-size: 0.75em; color: var(--text-secondary); }
+        .set-item .badge { display: inline-block; background: var(--accent); color: #1a1a1a; padding: 2px 6px; border-radius: 8px; font-size: 0.7em; margin-top: 4px; }
+        
+        .template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .template-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; }
+        .template-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .template-card .icon { font-size: 1.8em; margin-bottom: 6px; }
+        .template-card .name { font-size: 0.8em; color: var(--text-secondary); }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 0.85em; }
+        input, select, textarea { width: 100%; padding: 8px 12px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-size: 0.9em; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        textarea { min-height: 80px; resize: vertical; font-family: inherit; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+        
+        .question-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 15px; }
+        .question-card.collapsed .question-card-body { display: none; }
+        .question-card-header { background: var(--bg-tertiary); padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .question-card-header:hover { background: rgba(74, 222, 128, 0.1); }
+        .question-card-title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9em; }
+        .question-card-title .number { background: var(--accent); color: #1a1a1a; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; }
+        .question-card-title .type-badge { background: var(--purple); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7em; }
+        .question-card-actions { display: flex; gap: 6px; }
+        .question-card-body { padding: 15px; }
+        
+        .grid-builder { background: var(--bg-tertiary); border-radius: 8px; padding: 12px; margin-top: 12px; }
+        .grid-builder-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .grid-builder-header h4 { color: var(--accent); font-size: 0.9em; }
+        .grid-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.85em; }
+        .grid-table th, .grid-table td { border: 1px solid var(--border); padding: 6px; }
+        .grid-table th { background: var(--bg-primary); color: var(--accent); font-size: 0.8em; }
+        .grid-table input { width: 100%; padding: 5px 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; color: var(--text-primary); font-size: 0.85em; }
+        .grid-table .editable-cell { background: rgba(74, 222, 128, 0.1); }
+        
+        .collapsible-header { display: flex; justify-content: space-between; padding: 8px 12px; background: var(--bg-tertiary); border-radius: 6px; cursor: pointer; margin-bottom: 8px; font-size: 0.85em; }
+        .collapsible-header:hover { background: rgba(74, 222, 128, 0.1); }
+        .collapsible-content { display: none; padding: 12px; background: var(--bg-card); border-radius: 0 0 6px 6px; margin-top: -8px; margin-bottom: 12px; }
+        .collapsible-content.open { display: block; }
+        
+        .hint-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .hint-item .hint-level { background: var(--warning); color: #1a1a1a; padding: 3px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+        .hint-item input { flex: 1; }
+        
+        .mc-option { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px; background: var(--bg-tertiary); border-radius: 6px; }
+        .mc-option input[type="radio"] { width: 18px; height: 18px; accent-color: var(--accent); }
+        .mc-option input[type="text"] { flex: 1; }
+        .mc-option.correct { border: 2px solid var(--accent); background: rgba(74, 222, 128, 0.1); }
+        
+        .document-editor { background: var(--bg-tertiary); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .document-header { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+        .document-header select { width: auto; min-width: 100px; }
+        .document-header input { flex: 1; }
+        
+        .subquestion-editor { background: var(--bg-tertiary); border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 3px solid var(--accent-secondary); }
+        .subquestion-header { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+        .subq-letter { background: var(--accent-secondary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .subq-type { width: auto; min-width: 100px; }
+        .subq-points { width: 50px; text-align: center; }
+        
+        .preview-question { background: var(--bg-card); border-radius: 10px; padding: 15px; margin-bottom: 12px; }
+        .preview-title { color: var(--accent); font-size: 1em; margin-bottom: 8px; }
+        .preview-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+        .preview-tag { padding: 3px 8px; border-radius: 10px; font-size: 0.7em; font-weight: 600; }
+        .preview-tag.type { background: rgba(139, 92, 246, 0.2); color: var(--purple); }
+        .preview-tag.topic { background: rgba(59, 130, 246, 0.2); color: var(--accent-secondary); }
+        .preview-grid table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+        .preview-grid th, .preview-grid td { border: 1px solid var(--border); padding: 8px; }
+        .preview-grid th { background: var(--bg-tertiary); color: var(--accent); }
+        .preview-grid .editable { background: rgba(74, 222, 128, 0.1); font-style: italic; color: var(--text-secondary); }
+        
+        .variable-preview { background: rgba(139, 92, 246, 0.1); border: 1px solid var(--purple); border-radius: 8px; padding: 12px; margin-bottom: 15px; }
+        .variable-preview h4 { color: var(--purple); font-size: 0.85em; margin-bottom: 8px; }
+        .var-item { font-family: monospace; font-size: 0.8em; margin-bottom: 4px; }
+        .var-name { color: var(--accent); }
+        
+        .tabs { display: flex; gap: 4px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .tab { padding: 6px 12px; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.85em; border-radius: 6px 6px 0 0; }
+        .tab:hover { background: var(--bg-tertiary); }
+        .tab.active { color: var(--accent); background: var(--bg-tertiary); border-bottom: 2px solid var(--accent); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .output-code { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.8em; max-height: 300px; overflow: auto; white-space: pre-wrap; }
+        
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); border: 1px solid var(--accent); border-radius: 8px; padding: 12px 20px; transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 1000; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { border-color: var(--danger); }
+        
+        .empty-state { text-align: center; padding: 30px; color: var(--text-muted); }
+        .empty-state .icon { font-size: 3em; margin-bottom: 15px; opacity: 0.5; }
+        
+        /* Info Tables */
+        .info-table-container { margin: 15px 0; }
+        .info-table-title { font-size: 0.85em; color: var(--text-secondary); margin-bottom: 5px; font-weight: 500; }
+        .info-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        .info-table th { background: var(--bg-tertiary); color: var(--accent); padding: 10px; border: 1px solid var(--border); text-align: left; font-weight: 600; }
+        .info-table td { padding: 10px; border: 1px solid var(--border); }
+        .info-table-financial th { background: #1a365d; color: #90cdf4; }
+        .info-table-financial td { text-align: right; font-family: monospace; }
+        .info-table-compact th, .info-table-compact td { padding: 6px 10px; font-size: 0.85em; }
+        
+        /* Inline Inputs */
+        .inline-input { display: inline-block; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; min-width: 80px; text-align: center; color: var(--text-primary); font-size: 0.9em; }
+        .inline-input:focus { border-color: var(--accent); outline: none; }
+        .inline-input-number, .inline-input-currency, .inline-input-percent { text-align: right; font-family: monospace; }
+        .inline-input-account { width: 60px; text-align: center; font-family: monospace; }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal { background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border); max-width: 700px; width: 90%; max-height: 80vh; overflow: hidden; transform: translateY(-20px); transition: transform 0.3s; }
+        .modal-overlay.show .modal { transform: translateY(0); }
+        .modal-header { background: var(--bg-tertiary); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .modal-header h3 { color: var(--accent); margin: 0; font-size: 1.1em; }
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5em; cursor: pointer; }
+        .modal-body { padding: 20px; overflow-y: auto; max-height: 60vh; }
+        .modal-footer { padding: 15px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+        
+        /* Tabs in modal */
+        .modal-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .modal-tab { padding: 8px 16px; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; border-radius: 6px; }
+        .modal-tab:hover { background: var(--bg-tertiary); }
+        .modal-tab.active { background: var(--accent); color: #1a1a1a; }
+        
+        /* Formula browser */
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .formula-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s; }
+        .formula-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .formula-card .name { font-weight: 600; color: var(--accent); margin-bottom: 5px; }
+        .formula-card .latex { font-family: 'Times New Roman', serif; font-size: 0.9em; margin-bottom: 5px; min-height: 30px; }
+        .formula-card .desc { font-size: 0.75em; color: var(--text-secondary); }
+        
+        /* Kontoplan browser */
+        .kontoplan-search { margin-bottom: 15px; }
+        .kontoplan-results { max-height: 300px; overflow-y: auto; }
+        .konto-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); cursor: pointer; }
+        .konto-item:hover { background: var(--bg-tertiary); }
+        .konto-item .number { font-family: monospace; font-weight: 600; color: var(--accent); width: 60px; }
+        .konto-item .name { flex: 1; }
+        .konto-item .class { font-size: 0.75em; color: var(--text-secondary); background: var(--bg-tertiary); padding: 2px 8px; border-radius: 10px; }
+        
+        /* Law reference browser */
+        .law-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .law-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; cursor: pointer; text-align: center; }
+        .law-card:hover { border-color: var(--accent); }
+        .law-card.active { border-color: var(--accent); background: rgba(74, 222, 128, 0.1); }
+        .law-card .code { font-weight: 700; color: var(--accent); font-size: 1.1em; }
+        .law-card .name { font-size: 0.75em; color: var(--text-secondary); margin-top: 5px; }
+        .law-sections { max-height: 250px; overflow-y: auto; }
+        .law-section { padding: 10px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; gap: 10px; }
+        .law-section:hover { background: var(--bg-tertiary); }
+        .law-section .ref { font-weight: 600; color: var(--accent-secondary); min-width: 60px; }
+        
+        /* Timer settings */
+        .timer-settings { background: var(--bg-tertiary); border-radius: 8px; padding: 15px; margin: 15px 0; }
+        .timer-settings h4 { color: var(--warning); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .timer-row { display: flex; gap: 15px; align-items: center; margin-bottom: 10px; }
+        .timer-row label { min-width: 120px; color: var(--text-secondary); font-size: 0.85em; }
+        .timer-row input[type="number"] { width: 80px; }
+        .timer-row select { width: 150px; }
+        .timer-presets { display: flex; gap: 8px; flex-wrap: wrap; }
+        .timer-preset { padding: 5px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 15px; cursor: pointer; font-size: 0.8em; }
+        .timer-preset:hover { border-color: var(--accent); }
+        
+        /* Scoring settings */
+        .scoring-settings { background: var(--bg-tertiary); border-radius: 8px; padding: 15px; margin: 15px 0; }
+        .scoring-settings h4 { color: var(--purple); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .scoring-row { display: flex; gap: 15px; align-items: center; margin-bottom: 10px; }
+        .scoring-row label { min-width: 150px; color: var(--text-secondary); font-size: 0.85em; }
+        .scoring-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
+        
+        /* Toolbar */
+        .editor-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; }
+        .toolbar-btn { padding: 6px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.85em; display: flex; align-items: center; gap: 5px; color: var(--text-primary); }
+        .toolbar-btn:hover { border-color: var(--accent); background: rgba(74, 222, 128, 0.1); }
+        .toolbar-divider { width: 1px; background: var(--border); margin: 0 5px; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🏗️ Question Builder</h1>
+        <div class="header-actions">
+            <div id="apiStatus" class="api-status"><span class="status-dot"></span><span>Sjekker...</span></div>
+            <button class="btn btn-secondary" onclick="loadFromApiDialog()">📥 Last fra API</button>
+            <button class="btn btn-primary" onclick="QuestionBuilder.saveToApi()">💾 Lagre til API</button>
+            <button class="btn btn-secondary" onclick="QuestionBuilder.downloadJSON()">📄 Eksporter</button>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="builder-layout">
+            <div class="panel sets-panel">
+                <div class="panel-header">
+                    <span>📚 Oppgavesett</span>
+                    <button class="btn btn-sm btn-primary" onclick="showNewSetDialog()">+ Nytt</button>
+                </div>
+                <div class="panel-content" id="setsPanel">
+                    <div class="empty-state"><div class="icon">📁</div><p>Ingen sett</p></div>
+                </div>
+            </div>
+            
+            <div class="panel" style="min-width: 0;">
+                <div class="panel-header">
+                    <span>✏️ Editor</span>
+                    <button class="btn btn-sm btn-secondary" onclick="showAddQuestionDialog()">+ Spørsmål</button>
+                </div>
+                <div class="panel-content" id="editorPanel">
+                    <!-- Toolbar -->
+                    <div class="editor-toolbar" id="editorToolbar" style="display:none;">
+                        <button class="toolbar-btn" onclick="openFormulaModal()" title="Sett inn formel">📐 Formel</button>
+                        <button class="toolbar-btn" onclick="openKontoplanModal()" title="Søk i kontoplan">📋 Kontoplan</button>
+                        <button class="toolbar-btn" onclick="openLawModal()" title="Lovhenvisning">⚖️ Lov</button>
+                        <div class="toolbar-divider"></div>
+                        <button class="toolbar-btn" onclick="openTimerModal()" title="Tidsbegrensning">⏱️ Timer</button>
+                        <button class="toolbar-btn" onclick="openScoringModal()" title="Poenginnstillinger">🎯 Poeng</button>
+                        <div class="toolbar-divider"></div>
+                        <button class="toolbar-btn" onclick="insertVariable()" title="Sett inn variabel">{x} Variabel</button>
+                    </div>
+                    
+                    <div id="templateSection">
+                        <h3 style="margin-bottom: 12px; color: var(--accent);">🚀 Velg mal</h3>
+                        <div class="template-grid" id="templateGrid"></div>
+                    </div>
+                    <div id="setMetadata" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group"><label>Navn</label><input type="text" id="setName"></div>
+                            <div class="form-group"><label>Modul</label><select id="setModule"></select></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Topic</label><select id="setTopic"></select></div>
+                            <div class="form-group"><label>Vanskelighet</label>
+                                <select id="setDifficulty">
+                                    <option value="easy">Lett</option>
+                                    <option value="medium" selected>Middels</option>
+                                    <option value="hard">Vanskelig</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="questionsList"></div>
+                </div>
+            </div>
+            
+            <div class="panel preview-panel">
+                <div class="panel-header">
+                    <span>👁️ Forhåndsvisning</span>
+                    <button class="btn btn-sm btn-secondary" onclick="updatePreview()">🔄</button>
+                </div>
+                <div class="panel-content">
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab('preview')">Visning</button>
+                        <button class="tab" onclick="switchTab('json')">JSON</button>
+                        <button class="tab" onclick="switchTab('sql')">SQL</button>
+                    </div>
+                    <div id="tab-preview" class="tab-content active"><div id="previewContent"><div class="empty-state"><div class="icon">👀</div><p>Velg mal</p></div></div></div>
+                    <div id="tab-json" class="tab-content"><button class="btn btn-sm btn-secondary" onclick="copyJSON()" style="margin-bottom:10px;">📋 Kopier</button><div class="output-code" id="jsonOutput">{}</div></div>
+                    <div id="tab-sql" class="tab-content"><button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.copySQL()" style="margin-bottom:10px;">📋 Kopier</button><div class="output-code" id="sqlOutput">--</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <!-- Formula Modal -->
+    <div class="modal-overlay" id="formulaModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>📐 Sett inn formel</h3>
+                <button class="modal-close" onclick="closeModal('formulaModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-tabs" id="formulaTabs">
+                    <button class="modal-tab active" onclick="showFormulaCategory('finance')">Finans</button>
+                    <button class="modal-tab" onclick="showFormulaCategory('ratios')">Nøkkeltall</button>
+                    <button class="modal-tab" onclick="showFormulaCategory('math')">Matte</button>
+                    <button class="modal-tab" onclick="showFormulaCategory('statistics')">Statistikk</button>
+                    <button class="modal-tab" onclick="showFormulaCategory('tax')">Skatt/MVA</button>
+                </div>
+                <div class="formula-grid" id="formulaGrid"></div>
+                <div class="form-group" style="margin-top:15px;">
+                    <label>Eller skriv egen LaTeX:</label>
+                    <input type="text" id="customLatex" placeholder="f.eks: NPV = \sum \frac{CF_t}{(1+r)^t}">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('formulaModal')">Avbryt</button>
+                <button class="btn btn-primary" onclick="insertSelectedFormula()">Sett inn</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Kontoplan Modal -->
+    <div class="modal-overlay" id="kontoplanModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>📋 Kontoplan (NS 4102)</h3>
+                <button class="modal-close" onclick="closeModal('kontoplanModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="kontoplan-search">
+                    <input type="text" id="kontoplanSearch" placeholder="Søk etter konto (nummer eller navn)..." oninput="searchKontoplan()">
+                </div>
+                <div class="modal-tabs">
+                    <button class="modal-tab active" onclick="filterKontoplanClass(0)">Alle</button>
+                    <button class="modal-tab" onclick="filterKontoplanClass(1)">1: Eiendeler</button>
+                    <button class="modal-tab" onclick="filterKontoplanClass(2)">2: EK/Gjeld</button>
+                    <button class="modal-tab" onclick="filterKontoplanClass(3)">3: Inntekter</button>
+                    <button class="modal-tab" onclick="filterKontoplanClass(4)">4: Varekost</button>
+                    <button class="modal-tab" onclick="filterKontoplanClass(5)">5: Lønn</button>
+                    <button class="modal-tab" onclick="filterKontoplanClass(6)">6-7: Drift</button>
+                    <button class="modal-tab" onclick="filterKontoplanClass(8)">8: Finans</button>
+                </div>
+                <div class="kontoplan-results" id="kontoplanResults"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('kontoplanModal')">Lukk</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Law Reference Modal -->
+    <div class="modal-overlay" id="lawModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>⚖️ Lovhenvisning</h3>
+                <button class="modal-close" onclick="closeModal('lawModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="law-grid" id="lawGrid"></div>
+                <div class="law-sections" id="lawSections"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('lawModal')">Lukk</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Timer Modal -->
+    <div class="modal-overlay" id="timerModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>⏱️ Tidsbegrensning</h3>
+                <button class="modal-close" onclick="closeModal('timerModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="timer-settings">
+                    <div class="timer-row">
+                        <label>Aktivert:</label>
+                        <input type="checkbox" id="timerEnabled" checked>
+                    </div>
+                    <div class="timer-row">
+                        <label>Tid (sekunder):</label>
+                        <input type="number" id="timerDuration" value="60" min="10" max="3600">
+                        <span id="timerFormatted">1:00</span>
+                    </div>
+                    <div class="timer-row">
+                        <label>Type:</label>
+                        <select id="timerType">
+                            <option value="countdown">Nedtelling</option>
+                            <option value="countup">Opptelling</option>
+                            <option value="hidden">Skjult</option>
+                        </select>
+                    </div>
+                    <div class="timer-row">
+                        <label>Varsling ved:</label>
+                        <input type="number" id="timerWarning" value="10" min="5" max="60"> sekunder igjen
+                    </div>
+                    <div class="timer-row">
+                        <label>Auto-lever:</label>
+                        <input type="checkbox" id="timerAutoSubmit">
+                    </div>
+                </div>
+                <div style="margin-top:15px;">
+                    <label style="color:var(--text-secondary);font-size:0.85em;">Forhåndsvalg:</label>
+                    <div class="timer-presets">
+                        <span class="timer-preset" onclick="setTimerPreset(30)">30 sek</span>
+                        <span class="timer-preset" onclick="setTimerPreset(60)">1 min</span>
+                        <span class="timer-preset" onclick="setTimerPreset(120)">2 min</span>
+                        <span class="timer-preset" onclick="setTimerPreset(300)">5 min</span>
+                        <span class="timer-preset" onclick="setTimerPreset(600)">10 min</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('timerModal')">Avbryt</button>
+                <button class="btn btn-primary" onclick="applyTimerSettings()">Lagre</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scoring Modal -->
+    <div class="modal-overlay" id="scoringModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>🎯 Poenginnstillinger</h3>
+                <button class="modal-close" onclick="closeModal('scoringModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="scoring-settings">
+                    <div class="scoring-row">
+                        <label>Maks poeng:</label>
+                        <input type="number" id="scoringMax" value="10" min="1" max="100">
+                    </div>
+                    <div class="scoring-row">
+                        <label>Delpoeng tillatt:</label>
+                        <input type="checkbox" id="scoringPartial" checked>
+                    </div>
+                    <div class="scoring-row">
+                        <label>Minuspoeng ved feil:</label>
+                        <input type="checkbox" id="scoringNegative">
+                        <input type="number" id="scoringNegativeAmount" value="0" min="0" max="10" style="width:60px;margin-left:10px;" disabled>
+                    </div>
+                    <div class="scoring-row">
+                        <label>Tidsbonus:</label>
+                        <input type="checkbox" id="scoringBonus">
+                        <input type="number" id="scoringBonusAmount" value="0.1" min="0" max="1" step="0.1" style="width:60px;margin-left:10px;" disabled> poeng/sek
+                    </div>
+                    <div class="scoring-row">
+                        <label>Beståttgrense:</label>
+                        <input type="number" id="scoringThreshold" value="60" min="0" max="100"> %
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('scoringModal')">Avbryt</button>
+                <button class="btn btn-primary" onclick="applyScoringSettings()">Lagre</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 
+        BRUK:
+        Plasser question_builder.html i rotmappen
+        Plasser question-builder.js i js/ mappen
+        
+        Filstruktur:
+        /question_builder.html
+        /js/question-builder.js
+        
+        For å koble til eksisterende stilark:
+        Fjern kommentar fra: <link rel="stylesheet" href="css/main.css">
+    -->
+    <script src="js/question-builder.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTemplates();
+            renderModuleOptions();
+            renderSetsList();
+            
+            document.getElementById('setName').addEventListener('change', function() { updateSetProperty('name', this.value); });
+            document.getElementById('setModule').addEventListener('change', function() { updateSetProperty('module', this.value); updateTopicOptions(); });
+            document.getElementById('setTopic').addEventListener('change', function() { updateSetProperty('topic', this.value); });
+            document.getElementById('setDifficulty').addEventListener('change', function() { updateSetProperty('difficulty', this.value); });
+        });
+        
+        function renderTemplates() {
+            var templates = QuestionBuilder.getTemplates();
+            var modules = QuestionBuilder.getModules();
+            var container = document.getElementById('templateGrid');
+            var html = '';
+            Object.keys(templates).forEach(function(key) {
+                var t = templates[key];
+                var mod = modules[t.module] || { icon: '📝' };
+                html += '<div class="template-card" onclick="useTemplate(\'' + key + '\')"><div class="icon">' + mod.icon + '</div><div class="name">' + t.name + '</div></div>';
+            });
+            container.innerHTML = html;
+        }
+        
+        function useTemplate(templateId) {
+            var set = QuestionBuilder.useTemplate(templateId);
+            if (set) { renderSetsList(); renderEditor(); updatePreview(); }
+        }
+        
+        function renderModuleOptions() {
+            var modules = QuestionBuilder.getModules();
+            var select = document.getElementById('setModule');
+            select.innerHTML = '';
+            Object.keys(modules).forEach(function(key) {
+                var mod = modules[key];
+                var opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = mod.icon + ' ' + mod.name;
+                select.appendChild(opt);
+            });
+        }
+        
+        function updateTopicOptions() {
+            var modules = QuestionBuilder.getModules();
+            var moduleId = document.getElementById('setModule').value;
+            var mod = modules[moduleId];
+            var select = document.getElementById('setTopic');
+            select.innerHTML = '';
+            if (mod && mod.topics) {
+                mod.topics.forEach(function(topic) {
+                    var opt = document.createElement('option');
+                    opt.value = topic; opt.textContent = topic;
+                    select.appendChild(opt);
+                });
+            }
+        }
+        
+        function renderSetsList() {
+            var state = QuestionBuilder.getState();
+            var container = document.getElementById('setsPanel');
+            if (state.sets.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">📁</div><p>Ingen sett</p><button class="btn btn-primary" style="margin-top:10px;" onclick="showNewSetDialog()">+ Lag nytt</button></div>';
+                return;
+            }
+            var modules = QuestionBuilder.getModules();
+            container.innerHTML = state.sets.map(function(set, i) {
+                var mod = modules[set.module] || { icon: '📝', name: 'Ukjent' };
+                var activeClass = i === state.currentSetIndex ? ' active' : '';
+                return '<div class="set-item' + activeClass + '" onclick="selectSet(' + i + ')"><div class="title">' + escapeHtml(set.name) + '</div><div class="meta">' + set.questions.length + ' spørsmål</div><span class="badge">' + mod.icon + '</span></div>';
+            }).join('');
+        }
+        
+        function selectSet(index) { QuestionBuilder.selectSet(index); renderSetsList(); renderEditor(); updatePreview(); }
+        
+        function showNewSetDialog() {
+            var name = prompt('Navn på oppgavesettet:');
+            if (name) { QuestionBuilder.createNewSet('grunnleggende', name); renderSetsList(); renderEditor(); }
+        }
+        
+        function renderEditor() {
+            var state = QuestionBuilder.getState();
+            var templateSection = document.getElementById('templateSection');
+            var metadataSection = document.getElementById('setMetadata');
+            var questionsList = document.getElementById('questionsList');
+            var toolbar = document.getElementById('editorToolbar');
+            
+            if (state.currentSetIndex < 0) {
+                templateSection.style.display = 'block';
+                metadataSection.style.display = 'none';
+                questionsList.innerHTML = '';
+                toolbar.style.display = 'none';
+                return;
+            }
+            
+            templateSection.style.display = 'none';
+            metadataSection.style.display = 'block';
+            toolbar.style.display = 'flex';
+            
+            var set = state.sets[state.currentSetIndex];
+            document.getElementById('setName').value = set.name || '';
+            document.getElementById('setModule').value = set.module || 'grunnleggende';
+            updateTopicOptions();
+            document.getElementById('setTopic').value = set.topic || '';
+            document.getElementById('setDifficulty').value = set.difficulty || 'medium';
+            
+            if (set.questions.length === 0) {
+                questionsList.innerHTML = '<div class="empty-state"><div class="icon">❓</div><p>Ingen spørsmål</p><button class="btn btn-primary" onclick="showAddQuestionDialog()">+ Legg til</button></div>';
+                return;
+            }
+            
+            var types = QuestionBuilder.getQuestionTypes();
+            questionsList.innerHTML = set.questions.map(function(q, i) {
+                var type = types[q.type] || { icon: '❓', name: q.type };
+                return renderQuestionCard(q, i, type);
+            }).join('');
+        }
+        
+        function renderQuestionCard(q, index, type) {
+            return '<div class="question-card" id="question-' + index + '"><div class="question-card-header" onclick="toggleQuestionCard(' + index + ')"><div class="question-card-title"><span class="number">' + (index + 1) + '</span><span>' + escapeHtml(q.title || 'Uten tittel') + '</span><span class="type-badge">' + type.icon + '</span></div><div class="question-card-actions" onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.duplicateQuestion(' + index + '); renderEditor(); updatePreview();">📋</button><button class="btn btn-sm btn-danger" onclick="deleteQuestion(' + index + ')">🗑️</button></div></div><div class="question-card-body">' + renderQuestionForm(q, index) + '</div></div>';
+        }
+        
+        function renderQuestionForm(q, index) {
+            var types = QuestionBuilder.getQuestionTypes();
+            var typeOptions = Object.keys(types).map(function(key) {
+                return '<option value="' + key + '" ' + (q.type === key ? 'selected' : '') + '>' + types[key].icon + ' ' + types[key].name + '</option>';
+            }).join('');
+            
+            var typeHtml = '';
+            if (q.type === 'excel_grid') typeHtml = renderGridBuilder(q, index);
+            else if (q.type === 'mc') typeHtml = renderMCBuilder(q, index);
+            else if (q.type === 'calculation') typeHtml = renderCalculationBuilder(q, index);
+            else if (q.type === 'case_study') typeHtml = renderCaseStudyBuilder(q, index);
+            else if (q.type === 'inline_input') typeHtml = renderInlineInputBuilder(q, index);
+            
+            // Info tables for all types except case_study (which has documents)
+            var infoTablesHtml = '';
+            if (q.type !== 'case_study') {
+                infoTablesHtml = renderInfoTablesSection(q, index);
+            }
+            
+            return '<div class="form-row"><div class="form-group"><label>Tittel</label><input type="text" value="' + escapeHtml(q.title || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'title\', this.value); updatePreview();"></div><div class="form-group"><label>Type</label><select onchange="QuestionBuilder.updateQuestion(' + index + ', \'type\', this.value); renderEditor(); updatePreview();">' + typeOptions + '</select></div></div><div class="form-group"><label>Spørsmålstekst <small style="color:var(--purple);">Bruk {var:navn:min-max} for randomisering, [___felt:type___] for inline input</small></label><textarea onchange="QuestionBuilder.updateQuestion(' + index + ', \'question\', this.value); updatePreview();">' + escapeHtml(q.question || '') + '</textarea></div>' + infoTablesHtml + typeHtml + renderHintsSection(q, index) + renderExplanationSection(q, index);
+        }
+        
+        function renderGridBuilder(q, index) {
+            var grid = q.grid || { columns: ['Parameter', 'Verdi'], rows: [] };
+            var isTKonto = grid.columns && grid.columns.includes('Debet');
+            var headerHtml = (grid.columns || []).map(function(c) { return '<th>' + c + '</th>'; }).join('');
+            var rowsHtml = (grid.rows || []).map(function(row, ri) {
+                var cellsHtml = (row.cells || []).map(function(cell, ci) {
+                    return '<td class="' + (cell.editable ? 'editable-cell' : '') + '"><input type="text" value="' + escapeHtml(cell.value || '') + '" onchange="QuestionBuilder.updateGridCell(' + index + ', ' + ri + ', ' + ci + ', \'value\', this.value); updatePreview();"><div style="margin-top:4px;font-size:0.75em;"><label><input type="checkbox" ' + (cell.editable ? 'checked' : '') + ' onchange="QuestionBuilder.updateGridCell(' + index + ', ' + ri + ', ' + ci + ', \'editable\', this.checked); renderEditor();">Redigerbar</label>' + (cell.editable ? ' <input type="text" placeholder="Fasit" value="' + (cell.answer || '') + '" style="width:60px;" onchange="QuestionBuilder.updateGridCell(' + index + ', ' + ri + ', ' + ci + ', \'answer\', this.value);">' : '') + '</div></td>';
+                }).join('');
+                return '<tr><td style="width:30px;text-align:center;color:var(--text-secondary);">' + (ri + 1) + '</td>' + cellsHtml + '<td style="width:40px;"><button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteGridRow(' + index + ', ' + ri + '); renderEditor();">×</button></td></tr>';
+            }).join('');
+            
+            return '<div class="grid-builder"><div class="grid-builder-header"><h4>📊 Grid</h4><select onchange="QuestionBuilder.setGridType(' + index + ', this.value); renderEditor();"><option value="tkonto" ' + (isTKonto ? 'selected' : '') + '>T-konto</option><option value="parameter" ' + (!isTKonto ? 'selected' : '') + '>Parameter/Verdi</option></select></div><table class="grid-table"><thead><tr><th>#</th>' + headerHtml + '<th>Slett</th></tr></thead><tbody>' + rowsHtml + '</tbody></table><button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addGridRow(' + index + '); renderEditor();">+ Rad</button></div>';
+        }
+        
+        function renderMCBuilder(q, index) {
+            var optionsHtml = (q.options || []).map(function(opt, oi) {
+                return '<div class="mc-option' + (opt.correct ? ' correct' : '') + '"><input type="radio" name="mc-' + index + '" ' + (opt.correct ? 'checked' : '') + ' onchange="setCorrectOption(' + index + ', ' + oi + ')"><input type="text" value="' + escapeHtml(opt.text) + '" onchange="updateMCOption(' + index + ', ' + oi + ', this.value)"><button class="btn btn-sm btn-danger" onclick="deleteMCOption(' + index + ', ' + oi + ')">×</button></div>';
+            }).join('');
+            return '<div style="margin-top:12px;"><label>Alternativer</label>' + optionsHtml + '<button class="btn btn-sm btn-secondary" onclick="addMCOption(' + index + ')">+ Alternativ</button></div>';
+        }
+        
+        function renderCalculationBuilder(q, index) {
+            return '<div class="form-row" style="margin-top:12px;"><div class="form-group"><label>Fasit</label><input type="text" value="' + (q.solution || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'solution\', this.value);"></div><div class="form-group"><label>Toleranse (±)</label><input type="number" step="0.1" value="' + (q.tolerance || 0.5) + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'tolerance\', parseFloat(this.value));"></div></div>';
+        }
+        
+        function renderInfoTablesSection(q, index) {
+            var tablesHtml = (q.infoTables || []).map(function(table, ti) {
+                var colsHtml = table.columns.map(function(col, ci) {
+                    return '<th><input type="text" value="' + escapeHtml(col) + '" style="width:100%;background:transparent;border:none;color:var(--accent);font-weight:600;text-align:center;" onchange="updateInfoTableColumn(' + index + ', ' + ti + ', ' + ci + ', this.value)"></th>';
+                }).join('');
+                
+                var rowsHtml = table.rows.map(function(row, ri) {
+                    var cellsHtml = row.map(function(cell, ci) {
+                        return '<td><input type="text" value="' + escapeHtml(cell) + '" onchange="QuestionBuilder.updateInfoTableCell(' + index + ', ' + ti + ', ' + ri + ', ' + ci + ', this.value)"></td>';
+                    }).join('');
+                    return '<tr>' + cellsHtml + '<td><button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteInfoTableRow(' + index + ', ' + ti + ', ' + ri + ')">×</button></td></tr>';
+                }).join('');
+                
+                return '<div class="info-table-editor" style="background:var(--bg-tertiary);border-radius:8px;padding:12px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><input type="text" value="' + escapeHtml(table.title) + '" placeholder="Tabelltittel" style="flex:1;margin-right:10px;" onchange="QuestionBuilder.updateInfoTable(' + index + ', ' + ti + ', \'title\', this.value)"><select onchange="QuestionBuilder.updateInfoTable(' + index + ', ' + ti + ', \'style\', this.value)" style="width:auto;"><option value="default" ' + (table.style === 'default' ? 'selected' : '') + '>Standard</option><option value="financial" ' + (table.style === 'financial' ? 'selected' : '') + '>Finansiell</option><option value="compact" ' + (table.style === 'compact' ? 'selected' : '') + '>Kompakt</option></select><button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteInfoTable(' + index + ', ' + ti + ')" style="margin-left:10px;">🗑️</button></div><table class="grid-table"><thead><tr>' + colsHtml + '<th style="width:40px;">Slett</th></tr></thead><tbody>' + rowsHtml + '</tbody></table><div style="display:flex;gap:8px;margin-top:8px;"><button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addInfoTableRow(' + index + ', ' + ti + '); renderEditor();">+ Rad</button><button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addInfoTableColumn(' + index + ', ' + ti + '); renderEditor();">+ Kolonne</button></div></div>';
+            }).join('');
+            
+            return '<div class="collapsible-header" onclick="toggleSection(this)"><span>📋 Info-tabeller (' + (q.infoTables || []).length + ')</span><span>▼</span></div><div class="collapsible-content">' + tablesHtml + '<button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addInfoTable(' + index + '); renderEditor();">+ Legg til tabell</button><p style="font-size:0.75em;color:var(--text-muted);margin-top:8px;">Info-tabeller vises som les-bare data til studenten. Bruk variabler som {var:belop:1000-5000}</p></div>';
+        }
+        
+        function renderInlineInputBuilder(q, index) {
+            var fieldsHtml = '';
+            var fieldAnswers = q.fieldAnswers || {};
+            var fieldNames = Object.keys(fieldAnswers);
+            
+            if (fieldNames.length > 0) {
+                fieldsHtml = fieldNames.map(function(name) {
+                    return '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;"><span style="background:var(--accent-secondary);color:white;padding:3px 8px;border-radius:4px;font-size:0.75em;font-weight:600;">[___' + name + '___]</span><input type="text" value="' + escapeHtml(fieldAnswers[name]) + '" placeholder="Fasit for ' + name + '" style="flex:1;" onchange="updateFieldAnswer(' + index + ', \'' + name + '\', this.value)"></div>';
+                }).join('');
+            }
+            
+            return '<div style="margin-top:12px;background:var(--bg-tertiary);padding:12px;border-radius:8px;"><h4 style="color:var(--accent-secondary);font-size:0.9em;margin-bottom:10px;">✏️ Inline felter</h4><p style="font-size:0.75em;color:var(--text-muted);margin-bottom:10px;">Bruk [___feltnavn___] eller [___feltnavn:type___] i teksten. Typer: number, currency, percent, account, text</p>' + fieldsHtml + '<button class="btn btn-sm btn-secondary" onclick="parseInlineFields(' + index + ')">🔍 Finn felter fra tekst</button></div>';
+        }
+        
+        function updateFieldAnswer(qIndex, fieldName, value) {
+            var s = QuestionBuilder.getState();
+            if (!s.sets[s.currentSetIndex].questions[qIndex].fieldAnswers) {
+                s.sets[s.currentSetIndex].questions[qIndex].fieldAnswers = {};
+            }
+            s.sets[s.currentSetIndex].questions[qIndex].fieldAnswers[fieldName] = value;
+            QuestionBuilder.saveToStorage();
+            updatePreview();
+        }
+        
+        function parseInlineFields(qIndex) {
+            var s = QuestionBuilder.getState();
+            var q = s.sets[s.currentSetIndex].questions[qIndex];
+            var fields = QuestionBuilder.InputFieldSystem.parseFields(q.question || '');
+            
+            if (!q.fieldAnswers) q.fieldAnswers = {};
+            
+            fields.forEach(function(f) {
+                if (!q.fieldAnswers[f.name]) {
+                    q.fieldAnswers[f.name] = '';
+                }
+            });
+            
+            QuestionBuilder.saveToStorage();
+            renderEditor();
+            QuestionBuilder.showToast('Fant ' + fields.length + ' felt!');
+        }
+        
+        function updateInfoTableColumn(qIndex, tIndex, cIndex, value) {
+            var s = QuestionBuilder.getState();
+            s.sets[s.currentSetIndex].questions[qIndex].infoTables[tIndex].columns[cIndex] = value;
+            QuestionBuilder.saveToStorage();
+            updatePreview();
+        }
+        
+        function renderCaseStudyBuilder(q, index) {
+            var docsHtml = (q.documents || []).map(function(doc, di) {
+                return '<div class="document-editor"><div class="document-header"><select onchange="QuestionBuilder.updateDocument(' + index + ', ' + di + ', \'type\', this.value)"><option value="bilag" ' + (doc.type === 'bilag' ? 'selected' : '') + '>Bilag</option><option value="balanse" ' + (doc.type === 'balanse' ? 'selected' : '') + '>Balanse</option><option value="resultat" ' + (doc.type === 'resultat' ? 'selected' : '') + '>Resultat</option></select><input type="text" value="' + escapeHtml(doc.title) + '" onchange="QuestionBuilder.updateDocument(' + index + ', ' + di + ', \'title\', this.value)"><button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteDocument(' + index + ', ' + di + '); renderEditor();">×</button></div><textarea onchange="QuestionBuilder.updateDocument(' + index + ', ' + di + ', \'content\', this.value)">' + escapeHtml(doc.content) + '</textarea></div>';
+            }).join('');
+            
+            var subqHtml = (q.subquestions || []).map(function(subq, si) {
+                var letter = String.fromCharCode(97 + si);
+                return '<div class="subquestion-editor"><div class="subquestion-header"><span class="subq-letter">' + letter + '</span><select class="subq-type" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'type\', this.value)"><option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>Beregning</option><option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>Tekst</option></select><input type="number" class="subq-points" value="' + (subq.points || 5) + '" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'points\', parseInt(this.value))"><button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteSubquestion(' + index + ', ' + si + '); renderEditor();">×</button></div><textarea placeholder="Delspørsmål..." onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'question\', this.value)">' + escapeHtml(subq.question) + '</textarea></div>';
+            }).join('');
+            
+            return '<div class="collapsible-header" onclick="toggleSection(this)"><span>📁 Dokumenter (' + (q.documents || []).length + ')</span><span>▼</span></div><div class="collapsible-content">' + docsHtml + '<button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addDocument(' + index + '); renderEditor();">+ Dokument</button></div><div class="collapsible-header" onclick="toggleSection(this)"><span>📋 Delspørsmål (' + (q.subquestions || []).length + ')</span><span>▼</span></div><div class="collapsible-content">' + subqHtml + '<button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addSubquestion(' + index + '); renderEditor();">+ Delspørsmål</button></div>';
+        }
+        
+        function renderHintsSection(q, index) {
+            var hintsHtml = (q.hints || []).map(function(hint, hi) {
+                return '<div class="hint-item"><span class="hint-level">Hint ' + (hi + 1) + '</span><input type="text" value="' + escapeHtml(hint) + '" onchange="QuestionBuilder.updateHint(' + index + ', ' + hi + ', this.value);"><button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteHint(' + index + ', ' + hi + '); renderEditor();">×</button></div>';
+            }).join('');
+            return '<div class="collapsible-header" onclick="toggleSection(this)"><span>💡 Hints (' + (q.hints || []).length + ')</span><span>▼</span></div><div class="collapsible-content">' + hintsHtml + '<button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addHint(' + index + '); renderEditor();">+ Hint</button></div>';
+        }
+        
+        function renderExplanationSection(q, index) {
+            return '<div class="collapsible-header" onclick="toggleSection(this)"><span>📖 Forklaring</span><span>▼</span></div><div class="collapsible-content"><textarea onchange="QuestionBuilder.updateQuestion(' + index + ', \'explanation\', this.value);">' + escapeHtml(q.explanation || '') + '</textarea></div>';
+        }
+        
+        function addMCOption(qIndex) { var s = QuestionBuilder.getState(); var q = s.sets[s.currentSetIndex].questions[qIndex]; if (!q.options) q.options = []; q.options.push({ text: '', correct: false }); QuestionBuilder.saveToStorage(); renderEditor(); }
+        function updateMCOption(qIndex, oi, value) { var s = QuestionBuilder.getState(); s.sets[s.currentSetIndex].questions[qIndex].options[oi].text = value; QuestionBuilder.saveToStorage(); updatePreview(); }
+        function setCorrectOption(qIndex, oi) { var s = QuestionBuilder.getState(); s.sets[s.currentSetIndex].questions[qIndex].options.forEach(function(o, i) { o.correct = (i === oi); }); QuestionBuilder.saveToStorage(); renderEditor(); }
+        function deleteMCOption(qIndex, oi) { var s = QuestionBuilder.getState(); s.sets[s.currentSetIndex].questions[qIndex].options.splice(oi, 1); QuestionBuilder.saveToStorage(); renderEditor(); }
+        
+        function toggleQuestionCard(index) { document.getElementById('question-' + index).classList.toggle('collapsed'); }
+        function toggleSection(header) { var content = header.nextElementSibling; content.classList.toggle('open'); header.querySelector('span:last-child').textContent = content.classList.contains('open') ? '▲' : '▼'; }
+        function updateSetProperty(prop, value) { var s = QuestionBuilder.getState(); if (s.currentSetIndex < 0) return; s.sets[s.currentSetIndex][prop] = value; QuestionBuilder.saveToStorage(); renderSetsList(); }
+        function deleteQuestion(index) { if (confirm('Slette?')) { QuestionBuilder.deleteQuestion(index); renderEditor(); updatePreview(); } }
+        function showAddQuestionDialog() { var s = QuestionBuilder.getState(); if (s.currentSetIndex < 0) { QuestionBuilder.showToast('Opprett sett først', 'error'); return; } var type = prompt('Type? (excel_grid, mc, calculation, case_study, drag_drop)', 'excel_grid'); if (type) { QuestionBuilder.addQuestion(type); renderEditor(); updatePreview(); } }
+        function switchTab(tabId) { document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); }); document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); }); document.querySelector('.tab[onclick="switchTab(\'' + tabId + '\')"]').classList.add('active'); document.getElementById('tab-' + tabId).classList.add('active'); }
+        
+        function updatePreview() {
+            var state = QuestionBuilder.getState();
+            var previewContent = document.getElementById('previewContent');
+            if (state.currentSetIndex < 0 || !state.sets[state.currentSetIndex] || state.sets[state.currentSetIndex].questions.length === 0) {
+                previewContent.innerHTML = '<div class="empty-state"><div class="icon">👀</div><p>Velg mal eller legg til spørsmål</p></div>';
+                return;
+            }
+            var set = state.sets[state.currentSetIndex];
+            previewContent.innerHTML = set.questions.map(function(q, i) {
+                var processed = QuestionBuilder.generatePreview(i);
+                var varHtml = '';
+                if (processed._generatedValues && Object.keys(processed._generatedValues).length > 0) {
+                    varHtml = '<div class="variable-preview"><h4>🎲 Genererte verdier</h4>' + Object.keys(processed._generatedValues).map(function(k) { return '<div class="var-item"><span class="var-name">' + k + ':</span> ' + processed._generatedValues[k] + '</div>'; }).join('') + '</div>';
+                }
+                var gridHtml = '';
+                if (processed.grid) {
+                    gridHtml = '<div class="preview-grid"><table><thead><tr>' + (processed.grid.columns || []).map(function(c) { return '<th>' + c + '</th>'; }).join('') + '</tr></thead><tbody>' + (processed.grid.rows || []).map(function(row) { return '<tr>' + (row.cells || []).map(function(cell) { return '<td class="' + (cell.editable ? 'editable' : '') + '">' + (cell.editable ? '?' : (cell.value || '')) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+                }
+                
+                // Render info tables
+                var infoTablesHtml = '';
+                if (processed.infoTables && processed.infoTables.length > 0) {
+                    infoTablesHtml = processed.infoTables.map(function(table) {
+                        var headerHtml = table.columns.map(function(c) { return '<th style="background:var(--bg-tertiary);padding:8px;border:1px solid var(--border);">' + c + '</th>'; }).join('');
+                        var rowsHtml = table.rows.map(function(row) {
+                            return '<tr>' + row.map(function(cell) {
+                                // Apply variable replacement
+                                var value = cell;
+                                if (processed._generatedValues) {
+                                    value = String(value).replace(/\{(\w+)\}/g, function(m, name) {
+                                        return processed._generatedValues[name] !== undefined ? processed._generatedValues[name] : m;
+                                    });
+                                }
+                                return '<td style="padding:8px;border:1px solid var(--border);">' + value + '</td>';
+                            }).join('') + '</tr>';
+                        }).join('');
+                        return '<div style="margin:10px 0;"><div style="font-size:0.85em;color:var(--text-secondary);margin-bottom:5px;">' + (table.title || '') + '</div><table style="width:100%;border-collapse:collapse;font-size:0.9em;"><thead><tr>' + headerHtml + '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>';
+                    }).join('');
+                }
+                
+                // Render inline inputs
+                var questionText = processed.question || '';
+                if (processed.type === 'inline_input' || questionText.includes('[___')) {
+                    questionText = questionText.replace(/\[___(\w+)(?::(\w+))?___\]/g, function(m, name, type) {
+                        return '<span style="display:inline-block;background:var(--bg-tertiary);border:1px solid var(--accent-secondary);border-radius:4px;padding:2px 8px;min-width:60px;text-align:center;color:var(--accent-secondary);">?' + (type ? ' (' + type + ')' : '') + '</span>';
+                    });
+                }
+                
+                return '<div class="preview-question"><div class="preview-title">' + (i + 1) + '. ' + (processed.title || '') + '</div><div class="preview-tags"><span class="preview-tag type">' + processed.type + '</span><span class="preview-tag topic">' + (processed.topic || '') + '</span></div>' + varHtml + infoTablesHtml + '<div style="margin:10px 0;">' + questionText + '</div>' + gridHtml + '</div>';
+            }).join('');
+            document.getElementById('jsonOutput').textContent = QuestionBuilder.exportToJSON() || '{}';
+            document.getElementById('sqlOutput').textContent = QuestionBuilder.exportToSQL() || '--';
+            
+            // Render LaTeX in preview
+            if (typeof renderMathInElement !== 'undefined') {
+                setTimeout(function() {
+                    renderMathInElement(previewContent, { 
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '$', right: '$', display: false }
+                        ]
+                    });
+                }, 100);
+            }
+        }
+        
+        function copyJSON() { navigator.clipboard.writeText(QuestionBuilder.exportToJSON()); QuestionBuilder.showToast('Kopiert!'); }
+        function loadFromApiDialog() { var mod = prompt('Modul?', 'grunnleggende'); if (mod) QuestionBuilder.loadFromApi(mod).then(function() { renderSetsList(); renderEditor(); }); }
+        function escapeHtml(str) { return str ? String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : ''; }
+        
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+        
+        // Formula Modal
+        var selectedFormula = null;
+        
+        function openFormulaModal() {
+            showFormulaCategory('finance');
+            openModal('formulaModal');
+        }
+        
+        function showFormulaCategory(category) {
+            document.querySelectorAll('#formulaTabs .modal-tab').forEach(function(t) { t.classList.remove('active'); });
+            event.target.classList.add('active');
+            
+            var formulas = QuestionBuilder.LaTeXSystem.getByCategory(category);
+            var grid = document.getElementById('formulaGrid');
+            
+            grid.innerHTML = formulas.map(function(f) {
+                return '<div class="formula-card" onclick="selectFormula(\'' + f.key + '\')" data-key="' + f.key + '"><div class="name">' + f.name + '</div><div class="latex">$' + f.latex + '$</div><div class="desc">' + f.description + '</div></div>';
+            }).join('');
+            
+            // Render LaTeX
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(grid, { delimiters: [{ left: '$', right: '$', display: false }] });
+            }
+        }
+        
+        function selectFormula(key) {
+            document.querySelectorAll('.formula-card').forEach(function(c) { c.style.borderColor = ''; });
+            var card = document.querySelector('.formula-card[data-key="' + key + '"]');
+            if (card) card.style.borderColor = 'var(--accent)';
+            selectedFormula = key;
+        }
+        
+        function insertSelectedFormula() {
+            var latex = document.getElementById('customLatex').value;
+            if (!latex && selectedFormula) {
+                latex = QuestionBuilder.LaTeXSystem.formulas[selectedFormula].latex;
+            }
+            if (latex) {
+                insertAtCursor('$' + latex + '$');
+                closeModal('formulaModal');
+            }
+        }
+        
+        // Kontoplan Modal
+        var currentKontoClass = 0;
+        
+        function openKontoplanModal() {
+            searchKontoplan();
+            openModal('kontoplanModal');
+        }
+        
+        function searchKontoplan() {
+            var query = document.getElementById('kontoplanSearch').value;
+            var results;
+            
+            if (query) {
+                results = QuestionBuilder.KontoplanSystem.search(query);
+            } else if (currentKontoClass > 0) {
+                results = QuestionBuilder.KontoplanSystem.getByClass(currentKontoClass).map(function(a) {
+                    return { number: a.number, name: a.name, className: QuestionBuilder.KontoplanSystem.classes[currentKontoClass].name };
+                });
+            } else {
+                results = QuestionBuilder.KontoplanSystem.search('');
+            }
+            
+            // Filter by class if selected
+            if (currentKontoClass > 0 && !query) {
+                results = results.filter(function(r) { return r.number.charAt(0) == currentKontoClass || (currentKontoClass == 6 && (r.number.charAt(0) == '6' || r.number.charAt(0) == '7')); });
+            }
+            
+            var container = document.getElementById('kontoplanResults');
+            container.innerHTML = results.slice(0, 50).map(function(r) {
+                return '<div class="konto-item" onclick="insertKonto(\'' + r.number + '\', \'' + escapeHtml(r.name) + '\')"><span class="number">' + r.number + '</span><span class="name">' + r.name + '</span><span class="class">' + (r.className || '') + '</span></div>';
+            }).join('');
+        }
+        
+        function filterKontoplanClass(classNum) {
+            currentKontoClass = classNum;
+            document.querySelectorAll('#kontoplanModal .modal-tab').forEach(function(t, i) { t.classList.toggle('active', i == (classNum == 0 ? 0 : classNum)); });
+            searchKontoplan();
+        }
+        
+        function insertKonto(number, name) {
+            insertAtCursor(number + ' ' + name);
+            closeModal('kontoplanModal');
+        }
+        
+        // Law Modal
+        var currentLaw = null;
+        
+        function openLawModal() {
+            var laws = QuestionBuilder.LawReferenceSystem.laws;
+            var grid = document.getElementById('lawGrid');
+            
+            grid.innerHTML = Object.keys(laws).map(function(code) {
+                return '<div class="law-card" onclick="selectLaw(\'' + code + '\')" data-code="' + code + '"><div class="code">' + code + '</div><div class="name">' + laws[code].name + '</div></div>';
+            }).join('');
+            
+            document.getElementById('lawSections').innerHTML = '<p style="color:var(--text-muted);text-align:center;">Velg en lov for å se paragrafer</p>';
+            openModal('lawModal');
+        }
+        
+        function selectLaw(code) {
+            currentLaw = code;
+            document.querySelectorAll('.law-card').forEach(function(c) { c.classList.remove('active'); });
+            document.querySelector('.law-card[data-code="' + code + '"]').classList.add('active');
+            
+            var law = QuestionBuilder.LawReferenceSystem.laws[code];
+            var sections = document.getElementById('lawSections');
+            
+            sections.innerHTML = Object.keys(law.sections).map(function(section) {
+                return '<div class="law-section" onclick="insertLawRef(\'' + code + '\', \'' + section + '\')"><span class="ref">' + section + '</span><span>' + law.sections[section] + '</span></div>';
+            }).join('');
+        }
+        
+        function insertLawRef(code, section) {
+            var ref = QuestionBuilder.LawReferenceSystem.formatReference(code, section);
+            insertAtCursor(ref);
+            closeModal('lawModal');
+        }
+        
+        // Timer Modal
+        function openTimerModal() {
+            var state = QuestionBuilder.getState();
+            if (state.currentSetIndex < 0) {
+                QuestionBuilder.showToast('Velg et sett først', 'error');
+                return;
+            }
+            
+            var set = state.sets[state.currentSetIndex];
+            var timer = set.timer || { enabled: false, duration: 60, type: 'countdown', warningAt: 10, autoSubmit: false };
+            
+            document.getElementById('timerEnabled').checked = timer.enabled;
+            document.getElementById('timerDuration').value = timer.duration;
+            document.getElementById('timerType').value = timer.type;
+            document.getElementById('timerWarning').value = timer.warningAt;
+            document.getElementById('timerAutoSubmit').checked = timer.autoSubmit;
+            updateTimerFormatted();
+            
+            openModal('timerModal');
+        }
+        
+        function updateTimerFormatted() {
+            var secs = parseInt(document.getElementById('timerDuration').value) || 60;
+            document.getElementById('timerFormatted').textContent = QuestionBuilder.TimerSystem.formatTime(secs);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var timerInput = document.getElementById('timerDuration');
+            if (timerInput) timerInput.addEventListener('input', updateTimerFormatted);
+        });
+        
+        function setTimerPreset(secs) {
+            document.getElementById('timerDuration').value = secs;
+            updateTimerFormatted();
+        }
+        
+        function applyTimerSettings() {
+            var state = QuestionBuilder.getState();
+            if (state.currentSetIndex < 0) return;
+            
+            state.sets[state.currentSetIndex].timer = {
+                enabled: document.getElementById('timerEnabled').checked,
+                duration: parseInt(document.getElementById('timerDuration').value),
+                type: document.getElementById('timerType').value,
+                warningAt: parseInt(document.getElementById('timerWarning').value),
+                autoSubmit: document.getElementById('timerAutoSubmit').checked
+            };
+            
+            QuestionBuilder.saveToStorage();
+            closeModal('timerModal');
+            QuestionBuilder.showToast('Timer-innstillinger lagret!');
+        }
+        
+        // Scoring Modal
+        function openScoringModal() {
+            var state = QuestionBuilder.getState();
+            if (state.currentSetIndex < 0) {
+                QuestionBuilder.showToast('Velg et sett først', 'error');
+                return;
+            }
+            
+            var set = state.sets[state.currentSetIndex];
+            var scoring = set.scoring || { maxPoints: 10, partialCredit: true, negativePoints: false, negativeAmount: 0, bonusTime: false, bonusPointsPerSecond: 0.1, passingThreshold: 60 };
+            
+            document.getElementById('scoringMax').value = scoring.maxPoints;
+            document.getElementById('scoringPartial').checked = scoring.partialCredit;
+            document.getElementById('scoringNegative').checked = scoring.negativePoints;
+            document.getElementById('scoringNegativeAmount').value = scoring.negativeAmount;
+            document.getElementById('scoringBonus').checked = scoring.bonusTime;
+            document.getElementById('scoringBonusAmount').value = scoring.bonusPointsPerSecond;
+            document.getElementById('scoringThreshold').value = scoring.passingThreshold * 100;
+            
+            updateScoringDisabled();
+            openModal('scoringModal');
+        }
+        
+        function updateScoringDisabled() {
+            document.getElementById('scoringNegativeAmount').disabled = !document.getElementById('scoringNegative').checked;
+            document.getElementById('scoringBonusAmount').disabled = !document.getElementById('scoringBonus').checked;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var neg = document.getElementById('scoringNegative');
+            var bonus = document.getElementById('scoringBonus');
+            if (neg) neg.addEventListener('change', updateScoringDisabled);
+            if (bonus) bonus.addEventListener('change', updateScoringDisabled);
+        });
+        
+        function applyScoringSettings() {
+            var state = QuestionBuilder.getState();
+            if (state.currentSetIndex < 0) return;
+            
+            state.sets[state.currentSetIndex].scoring = {
+                maxPoints: parseInt(document.getElementById('scoringMax').value),
+                partialCredit: document.getElementById('scoringPartial').checked,
+                negativePoints: document.getElementById('scoringNegative').checked,
+                negativeAmount: parseFloat(document.getElementById('scoringNegativeAmount').value),
+                bonusTime: document.getElementById('scoringBonus').checked,
+                bonusPointsPerSecond: parseFloat(document.getElementById('scoringBonusAmount').value),
+                passingThreshold: parseInt(document.getElementById('scoringThreshold').value) / 100
+            };
+            
+            QuestionBuilder.saveToStorage();
+            closeModal('scoringModal');
+            QuestionBuilder.showToast('Poenginnstillinger lagret!');
+        }
+        
+        // Insert variable helper
+        function insertVariable() {
+            var varName = prompt('Variabelnavn (f.eks. "belop"):', 'belop');
+            if (!varName) return;
+            
+            var varType = prompt('Type?\n1. Range (min-max)\n2. Liste (verdi1,verdi2)\n3. Fast verdi', '1');
+            
+            var varStr = '';
+            if (varType == '1') {
+                var min = prompt('Minimum:', '1000');
+                var max = prompt('Maksimum:', '10000');
+                var step = prompt('Steg (valgfritt):', '');
+                varStr = '{var:' + varName + ':' + min + '-' + max + (step ? ':' + step : '') + '}';
+            } else if (varType == '2') {
+                var values = prompt('Verdier (kommaseparert):', '10,20,30');
+                varStr = '{var:' + varName + ':' + values + '}';
+            } else {
+                var value = prompt('Verdi:', '100');
+                varStr = '{' + varName + '}';
+            }
+            
+            insertAtCursor(varStr);
+        }
+        
+        // Helper to insert text at cursor in active textarea
+        function insertAtCursor(text) {
+            var activeEl = document.activeElement;
+            if (activeEl && activeEl.tagName === 'TEXTAREA') {
+                var start = activeEl.selectionStart;
+                var end = activeEl.selectionEnd;
+                activeEl.value = activeEl.value.substring(0, start) + text + activeEl.value.substring(end);
+                activeEl.selectionStart = activeEl.selectionEnd = start + text.length;
+                activeEl.focus();
+                activeEl.dispatchEvent(new Event('change'));
+            } else {
+                // Copy to clipboard as fallback
+                navigator.clipboard.writeText(text);
+                QuestionBuilder.showToast('Kopiert til utklippstavle: ' + text);
+            }
+        }
+    </script>
+</body>
+</html>
