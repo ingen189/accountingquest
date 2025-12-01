@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+    
+    <!-- Felles stilark -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Firebase for Realtime multiplayer -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    
+    <style>
+        /* ==================== LAYOUT ==================== */
+        .app-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* === ICON MENU === */
+        .icon-menu {
+            width: 60px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            gap: var(--space-xs);
+        }
+        
+        .icon-btn {
+            width: 46px;
+            height: 46px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+            position: relative;
+        }
+        
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .icon-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .icon-btn-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--error);
+            color: white;
+            font-size: 0.5em;
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .icon-menu-divider {
+            width: 30px;
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--space-sm) 0;
+        }
+        
+        /* === SIDEBAR PANEL === */
+        .sidebar-panel {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-title {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1.1em;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-md);
+        }
+        
+        .sidebar-view {
+            display: none;
+        }
+        
+        .sidebar-view.active {
+            display: block;
+        }
+        
+        /* === MAIN WORKSPACE === */
+        .workspace {
+            flex: 1;
+            padding: var(--space-lg);
+            overflow-y: auto;
+            background: var(--bg-primary);
+        }
+        
+        /* === JOIN GAME === */
+        .join-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+        
+        .join-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            text-align: center;
+        }
+        
+        .join-title {
+            font-size: 2.5em;
+            margin-bottom: var(--space-md);
+        }
+        
+        .join-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .pin-input {
+            font-size: 2.5em;
+            text-align: center;
+            letter-spacing: 10px;
+            padding: var(--space-lg);
+            background: var(--bg-primary);
+            border: 3px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--accent);
+            font-family: monospace;
+            width: 100%;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .pin-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .name-input {
+            font-size: 1.2em;
+            padding: var(--space-md);
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            width: 100%;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .join-btn {
+            width: 100%;
+            padding: var(--space-lg);
+            font-size: 1.3em;
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius-lg);
+            color: var(--bg-primary);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .join-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.02);
+        }
+        
+        .join-btn:disabled {
+            background: var(--bg-tertiary);
+            cursor: not-allowed;
+        }
+        
+        /* === WAITING ROOM === */
+        .waiting-container {
+            text-align: center;
+            padding: var(--space-2xl);
+        }
+        
+        .waiting-icon {
+            font-size: 5em;
+            margin-bottom: var(--space-lg);
+            animation: pulse 2s infinite;
+        }
+        
+        .waiting-text {
+            font-size: 1.5em;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-md);
+        }
+        
+        .player-name-display {
+            font-size: 2em;
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        /* === CLASSROOM === */
+        .classroom-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .classroom-card:hover {
+            border-color: var(--accent);
+            transform: translateX(5px);
+        }
+        
+        .classroom-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: var(--space-xs);
+        }
+        
+        .classroom-teacher {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        /* === ASSIGNMENTS === */
+        .assignment-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+        }
+        
+        .assignment-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .assignment-meta {
+            display: flex;
+            gap: var(--space-md);
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: var(--space-md);
+        }
+        
+        .assignment-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .assignment-status.pending {
+            background: var(--warning);
+            color: var(--bg-primary);
+        }
+        
+        .assignment-status.completed {
+            background: var(--success);
+            color: var(--bg-primary);
+        }
+        
+        .assignment-status.overdue {
+            background: var(--error);
+            color: white;
+        }
+        
+        /* === PROGRESS === */
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: var(--space-lg);
+        }
+        
+        .progress-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+        }
+        
+        .progress-icon {
+            font-size: 2.5em;
+            margin-bottom: var(--space-md);
+        }
+        
+        .progress-module {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .progress-bar-container {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            height: 20px;
+            overflow: hidden;
+            margin: var(--space-md) 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: var(--radius-full);
+            transition: width var(--transition-normal);
+        }
+        
+        .progress-stats {
+            display: flex;
+            justify-content: space-around;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        /* === FORMS === */
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+        
+        .form-label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+            font-weight: 600;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: var(--space-md);
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        /* === BUTTONS === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: 12px 24px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .btn:hover {
+            border-color: var(--accent);
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+        
+        /* === EMPTY STATE === */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 4em;
+            margin-bottom: var(--space-md);
+            opacity: 0.5;
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .app-layout {
+                flex-direction: column;
+            }
+            
+            .icon-menu {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                order: 2;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                border-top: 1px solid var(--border-color);
+                border-right: none;
+            }
+            
+            .sidebar-panel {
+                width: 100%;
+                display: none;
+            }
+            
+            .sidebar-panel.mobile-open {
+                display: flex;
+                max-height: 40vh;
+            }
+            
+            .workspace {
+                padding-bottom: 80px;
+            }
+            
+            .icon-menu-divider {
+                width: 1px;
+                height: 30px;
+                margin: 0 var(--space-sm);
+            }
+            
+            .join-container {
+                padding: var(--space-md);
+            }
+            
+            .pin-input {
+                font-size: 1.8em;
+                letter-spacing: 5px;
+            }
+        }
+        
+        /* === ANIMATIONS === */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="aq-header">
+        <a href="index.html" class="header-brand">
+            <span class="brand-icon">📚</span>
+            <span class="brand-text">AccountingQuest</span>
+        </a>
+        <div class="header-center">
+            <span id="student-name" style="color: var(--accent);">🎓 Student</span>
+        </div>
+        <div class="header-actions">
+            <a href="index.html" class="btn btn-sm">← Hjem</a>
+        </div>
+    </header>
+    
+    <!-- App Layout -->
+    <div class="app-layout">
+        <!-- Icon Menu -->
+        <nav class="icon-menu">
+            <button class="icon-btn active" id="btn-join" onclick="showView('join')" title="Bli med i spill">🎮</button>
+            <div class="icon-menu-divider"></div>
+            <button class="icon-btn" id="btn-classrooms" onclick="showView('classrooms')" title="Mine klasserom">🏫</button>
+            <button class="icon-btn" id="btn-assignments" onclick="showView('assignments')" title="Oppgaver">📋</button>
+            <button class="icon-btn" id="btn-progress" onclick="showView('progress')" title="Min fremgang">📊</button>
+        </nav>
+        
+        <!-- Sidebar Panel -->
+        <aside class="sidebar-panel" id="sidebar-panel">
+            <div class="sidebar-header">
+                <span class="sidebar-title" id="sidebar-title">Bli med i spill</span>
+            </div>
+            <div class="sidebar-content">
+                <!-- Join View -->
+                <div class="sidebar-view active" id="view-join">
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                        Har du en spillkode fra læreren? Skriv den inn til høyre for å bli med!
+                    </p>
+                    <div id="recent-games">
+                        <h4 style="margin-bottom: var(--space-sm);">Nylige spill</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9em;">Ingen nylige spill</p>
+                    </div>
+                </div>
+                
+                <!-- Classrooms View -->
+                <div class="sidebar-view" id="view-classrooms">
+                    <div id="classrooms-list"></div>
+                </div>
+                
+                <!-- Assignments View -->
+                <div class="sidebar-view" id="view-assignments">
+                    <div id="assignments-list"></div>
+                </div>
+                
+                <!-- Progress View -->
+                <div class="sidebar-view" id="view-progress">
+                    <p style="color: var(--text-secondary);">Velg en modul for å se detaljer</p>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Workspace -->
+        <main class="workspace" id="workspace">
+            <!-- Join Game (default view) -->
+            <div class="join-container" id="join-game-view">
+                <div class="join-card">
+                    <div class="join-title">🎮</div>
+                    <h2 style="margin-bottom: var(--space-sm);">Bli med i spill</h2>
+                    <p class="join-subtitle">Skriv inn spillkoden fra læreren</p>
+                    
+                    <form id="join-form" onsubmit="return handleJoin(event)">
+                        <input type="text" 
+                               id="game-pin" 
+                               class="pin-input" 
+                               placeholder="000000"
+                               maxlength="6"
+                               pattern="[0-9]{6}"
+                               inputmode="numeric"
+                               autocomplete="off"
+                               required>
+                        
+                        <input type="text" 
+                               id="player-name" 
+                               class="name-input" 
+                               placeholder="Ditt navn"
+                               maxlength="20"
+                               required>
+                        
+                        <button type="submit" class="join-btn" id="join-btn">
+                            Bli med! →
+                        </button>
+                    </form>
+                    
+                    <p id="join-error" style="color: var(--error); margin-top: var(--space-md); display: none;"></p>
+                </div>
+            </div>
+            
+            <!-- Waiting Room (shown after joining) -->
+            <div class="waiting-container" id="waiting-view" style="display: none;">
+                <div class="waiting-icon">⏳</div>
+                <div class="waiting-text">Venter på at spillet skal starte...</div>
+                <div class="player-name-display" id="waiting-name"></div>
+                <p style="color: var(--text-secondary); margin-top: var(--space-lg);">
+                    Du er med! Vent til læreren starter spillet.
+                </p>
+                <button class="btn" style="margin-top: var(--space-xl);" onclick="leaveGame()">Forlat spill</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==================== CONFIG ====================
+        const API_URL = 'https://accountingquest-api.truls-n.workers.dev';
+        
+        // ==================== STATE ====================
+        var currentView = 'join';
+        var studentName = localStorage.getItem('aq_student_name') || '';
+        var studentId = localStorage.getItem('aq_student_id') || generateStudentId();
+        var currentGame = null;
+        var gameRef = null;
+        
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check URL params
+            var params = new URLSearchParams(window.location.search);
+            var pin = params.get('pin');
+            var name = params.get('name');
+            
+            if (pin) {
+                document.getElementById('game-pin').value = pin;
+            }
+            
+            if (name) {
+                document.getElementById('player-name').value = name;
+                studentName = name;
+            } else if (studentName) {
+                document.getElementById('player-name').value = studentName;
+            }
+            
+            updateStudentDisplay();
+            loadMyClassrooms();
+            loadMyProgress();
+            
+            // Auto-focus on pin input
+            document.getElementById('game-pin').focus();
+        });
+        
+        function generateStudentId() {
+            var id = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('aq_student_id', id);
+            return id;
+        }
+        
+        function updateStudentDisplay() {
+            if (studentName) {
+                document.getElementById('student-name').textContent = '🎓 ' + studentName;
+            }
+        }
+        
+        // ==================== NAVIGATION ====================
+        function showView(viewId) {
+            currentView = viewId;
+            
+            // Update icon buttons
+            document.querySelectorAll('.icon-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            document.getElementById('btn-' + viewId).classList.add('active');
+            
+            // Update sidebar views
+            document.querySelectorAll('.sidebar-view').forEach(function(view) {
+                view.classList.remove('active');
+            });
+            document.getElementById('view-' + viewId).classList.add('active');
+            
+            // Update sidebar title
+            var titles = {
+                join: 'Bli med i spill',
+                classrooms: 'Mine klasserom',
+                assignments: 'Oppgaver',
+                progress: 'Min fremgang'
+            };
+            document.getElementById('sidebar-title').textContent = titles[viewId] || viewId;
+            
+            // Update workspace
+            switch (viewId) {
+                case 'join':
+                    showJoinView();
+                    break;
+                case 'classrooms':
+                    showClassroomsView();
+                    break;
+                case 'assignments':
+                    showAssignmentsView();
+                    break;
+                case 'progress':
+                    showProgressView();
+                    break;
+            }
+        }
+        
+        function showJoinView() {
+            document.getElementById('join-game-view').style.display = 'block';
+            document.getElementById('waiting-view').style.display = 'none';
+        }
+        
+        // ==================== JOIN GAME ====================
+        function handleJoin(e) {
+            e.preventDefault();
+            
+            var pin = document.getElementById('game-pin').value.trim();
+            var name = document.getElementById('player-name').value.trim();
+            
+            if (!pin || pin.length !== 6) {
+                showJoinError('Skriv inn en 6-sifret spillkode');
+                return false;
+            }
+            
+            if (!name) {
+                showJoinError('Skriv inn navnet ditt');
+                return false;
+            }
+            
+            // Save name
+            studentName = name;
+            localStorage.setItem('aq_student_name', name);
+            updateStudentDisplay();
+            
+            // Join game
+            joinGame(pin, name);
+            
+            return false;
+        }
+        
+        function showJoinError(message) {
+            var errorEl = document.getElementById('join-error');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(function() {
+                errorEl.style.display = 'none';
+            }, 3000);
+        }
+        
+        async function joinGame(pin, name) {
+            var joinBtn = document.getElementById('join-btn');
+            joinBtn.disabled = true;
+            joinBtn.textContent = 'Kobler til...';
+            
+            try {
+                if (typeof firebase === 'undefined' || !firebase.database) {
+                    throw new Error('Firebase ikke tilgjengelig');
+                }
+                
+                // Check if game exists
+                var gamesRef = firebase.database().ref('games/' + pin);
+                var snapshot = await gamesRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    throw new Error('Fant ingen spill med denne koden');
+                }
+                
+                var game = snapshot.val();
+                
+                if (game.status !== 'waiting') {
+                    throw new Error('Spillet har allerede startet');
+                }
+                
+                // Join game
+                await gamesRef.child('players/' + studentId).set({
+                    name: name,
+                    joinedAt: Date.now(),
+                    score: 0
+                });
+                
+                currentGame = { pin: pin, data: game };
+                gameRef = gamesRef;
+                
+                // Listen for game start
+                gamesRef.child('status').on('value', function(snapshot) {
+                    var status = snapshot.val();
+                    if (status === 'playing') {
+                        // Redirect to game
+                        window.location.href = 'student_game.html?pin=' + pin + '&name=' + encodeURIComponent(name);
+                    }
+                });
+                
+                // Show waiting room
+                showWaitingRoom(name);
+                
+            } catch (err) {
+                showJoinError(err.message);
+                joinBtn.disabled = false;
+                joinBtn.textContent = 'Bli med! →';
+            }
+        }
+        
+        function showWaitingRoom(name) {
+            document.getElementById('join-game-view').style.display = 'none';
+            document.getElementById('waiting-view').style.display = 'block';
+            document.getElementById('waiting-name').textContent = name;
+        }
+        
+        function leaveGame() {
+            if (gameRef && currentGame) {
+                gameRef.child('players/' + studentId).remove();
+                gameRef.child('status').off();
+            }
+            
+            currentGame = null;
+            gameRef = null;
+            
+            document.getElementById('join-game-view').style.display = 'block';
+            document.getElementById('waiting-view').style.display = 'none';
+            
+            var joinBtn = document.getElementById('join-btn');
+            joinBtn.disabled = false;
+            joinBtn.textContent = 'Bli med! →';
+        }
+        
+        // ==================== CLASSROOMS ====================
+        async function loadMyClassrooms() {
+            var container = document.getElementById('classrooms-list');
+            container.innerHTML = '<p style="color: var(--text-secondary);">Laster...</p>';
+            
+            try {
+                // Get classrooms from localStorage (joined classrooms)
+                var joinedClassrooms = JSON.parse(localStorage.getItem('aq_joined_classrooms') || '[]');
+                
+                if (joinedClassrooms.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: var(--space-lg);">
+                            <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">Du er ikke med i noen klasserom</p>
+                            <button class="btn btn-primary btn-sm" onclick="showJoinClassroomModal()">Bli med i klasserom</button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = joinedClassrooms.map(function(c) {
+                    return `
+                        <div class="classroom-card" onclick="selectClassroom('${c.id}')">
+                            <div class="classroom-name">${c.name}</div>
+                            <div class="classroom-teacher">Lærer: ${c.teacherName || 'Ukjent'}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML += `
+                    <button class="btn btn-sm" style="width: 100%; margin-top: var(--space-md);" onclick="showJoinClassroomModal()">
+                        + Bli med i nytt klasserom
+                    </button>
+                `;
+            } catch (err) {
+                container.innerHTML = '<p style="color: var(--error);">Feil ved lasting</p>';
+            }
+        }
+        
+        function showClassroomsView() {
+            var workspace = document.getElementById('workspace');
+            workspace.innerHTML = `
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: var(--accent); margin-bottom: var(--space-lg);">🏫 Mine klasserom</h2>
+                    
+                    <div class="join-classroom-form" style="background: var(--bg-secondary); padding: var(--space-lg); border-radius: var(--radius-lg); margin-bottom: var(--space-xl);">
+                        <h3 style="margin-bottom: var(--space-md);">Bli med i klasserom</h3>
+                        <form onsubmit="return joinClassroom(event)">
+                            <div class="form-group">
+                                <input type="text" id="classroom-code" class="form-input" placeholder="Skriv inn klasseromkode" maxlength="6">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Bli med</button>
+                        </form>
+                    </div>
+                    
+                    <div id="classrooms-detail"></div>
+                </div>
+            `;
+            
+            loadClassroomsDetail();
+        }
+        
+        async function loadClassroomsDetail() {
+            var container = document.getElementById('classrooms-detail');
+            var joinedClassrooms = JSON.parse(localStorage.getItem('aq_joined_classrooms') || '[]');
+            
+            if (joinedClassrooms.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🏫</div>
+                        <p>Du er ikke med i noen klasserom ennå</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = joinedClassrooms.map(function(c) {
+                return `
+                    <div class="classroom-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div class="classroom-name">${c.name}</div>
+                                <div class="classroom-teacher">Lærer: ${c.teacherName || 'Ukjent'}</div>
+                            </div>
+                            <button class="btn btn-sm" onclick="leaveClassroom('${c.id}')">Forlat</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function joinClassroom(e) {
+            e.preventDefault();
+            
+            var code = document.getElementById('classroom-code').value.trim().toUpperCase();
+            if (!code) {
+                alert('Skriv inn en klasseromkode');
+                return false;
+            }
+            
+            try {
+                var response = await fetch(API_URL + '/api/classrooms/code/' + code);
+                var data = await response.json();
+                
+                if (data.error || !data.classroom) {
+                    alert('Fant ingen klasserom med denne koden');
+                    return false;
+                }
+                
+                var classroom = data.classroom;
+                
+                // Join via API
+                await fetch(API_URL + '/api/classrooms/join', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        code: code,
+                        studentName: studentName || 'Ukjent',
+                        studentEmail: ''
+                    })
+                });
+                
+                // Save locally
+                var joinedClassrooms = JSON.parse(localStorage.getItem('aq_joined_classrooms') || '[]');
+                if (!joinedClassrooms.find(function(c) { return c.id === classroom.id; })) {
+                    joinedClassrooms.push({
+                        id: classroom.id,
+                        name: classroom.name,
+                        code: classroom.code,
+                        teacherName: classroom.teacherName
+                    });
+                    localStorage.setItem('aq_joined_classrooms', JSON.stringify(joinedClassrooms));
+                }
+                
+                alert('Du er nå med i ' + classroom.name + '!');
+                document.getElementById('classroom-code').value = '';
+                loadMyClassrooms();
+                loadClassroomsDetail();
+                
+            } catch (err) {
+                alert('Feil: ' + err.message);
+            }
+            
+            return false;
+        }
+        
+        function leaveClassroom(classroomId) {
+            if (!confirm('Er du sikker på at du vil forlate dette klasserommet?')) return;
+            
+            var joinedClassrooms = JSON.parse(localStorage.getItem('aq_joined_classrooms') || '[]');
+            joinedClassrooms = joinedClassrooms.filter(function(c) { return c.id !== classroomId; });
+            localStorage.setItem('aq_joined_classrooms', JSON.stringify(joinedClassrooms));
+            
+            loadMyClassrooms();
+            loadClassroomsDetail();
+        }
+        
+        // ==================== ASSIGNMENTS ====================
+        function showAssignmentsView() {
+            var workspace = document.getElementById('workspace');
+            workspace.innerHTML = `
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <h2 style="color: var(--accent); margin-bottom: var(--space-lg);">📋 Mine oppgaver</h2>
+                    <div id="assignments-detail">
+                        <p style="color: var(--text-secondary);">Laster oppgaver...</p>
+                    </div>
+                </div>
+            `;
+            
+            loadAssignmentsDetail();
+        }
+        
+        async function loadAssignmentsDetail() {
+            var container = document.getElementById('assignments-detail');
+            
+            try {
+                var response = await fetch(API_URL + '/api/assignments/student/' + studentId);
+                var data = await response.json();
+                var assignments = data.assignments || [];
+                
+                if (assignments.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <p>Ingen oppgaver tilgjengelig</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = assignments.map(function(a) {
+                    var status = getAssignmentStatus(a);
+                    return `
+                        <div class="assignment-card">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div>
+                                    <div class="assignment-title">${a.title}</div>
+                                    <div class="assignment-meta">
+                                        <span>📅 Frist: ${formatDate(a.dueDate)}</span>
+                                        <span>❓ ${a.questionCount || 0} spørsmål</span>
+                                    </div>
+                                </div>
+                                <span class="assignment-status ${status.class}">${status.text}</span>
+                            </div>
+                            ${!a.completed ? `
+                                <button class="btn btn-primary btn-sm" style="margin-top: var(--space-md);" onclick="startAssignment('${a.id}')">
+                                    Start oppgave
+                                </button>
+                            ` : `
+                                <p style="color: var(--success); margin-top: var(--space-md);">
+                                    ✓ Fullført - Score: ${a.score || 0}%
+                                </p>
+                            `}
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = '<p style="color: var(--error);">Feil ved lasting av oppgaver</p>';
+            }
+        }
+        
+        function getAssignmentStatus(assignment) {
+            if (assignment.completed) {
+                return { text: 'Fullført', class: 'completed' };
+            }
+            
+            var now = new Date();
+            var due = new Date(assignment.dueDate);
+            
+            if (due < now) {
+                return { text: 'Forfalt', class: 'overdue' };
+            }
+            
+            return { text: 'Venter', class: 'pending' };
+        }
+        
+        function startAssignment(assignmentId) {
+            window.location.href = 'assignment_quiz.html?id=' + assignmentId;
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return 'Ingen frist';
+            var date = new Date(dateStr);
+            return date.toLocaleDateString('nb-NO');
+        }
+        
+        // ==================== PROGRESS ====================
+        async function loadMyProgress() {
+            // Load from localStorage
+            var modules = ['grunnleggende_regnskap', 'corporate_finance', 'bokforing'];
+            var progress = {};
+            
+            modules.forEach(function(mod) {
+                var data = localStorage.getItem('aq_progress_' + mod);
+                if (data) {
+                    progress[mod] = JSON.parse(data);
+                }
+            });
+            
+            return progress;
+        }
+        
+        async function showProgressView() {
+            var workspace = document.getElementById('workspace');
+            var progress = await loadMyProgress();
+            
+            var modules = [
+                { id: 'grunnleggende_regnskap', name: 'Grunnleggende Regnskap', icon: '📚' },
+                { id: 'corporate_finance', name: 'Corporate Finance', icon: '💼' },
+                { id: 'bokforing', name: 'Bokføringsspill', icon: '📒' }
+            ];
+            
+            workspace.innerHTML = `
+                <div style="max-width: 1000px; margin: 0 auto;">
+                    <h2 style="color: var(--accent); margin-bottom: var(--space-lg);">📊 Min fremgang</h2>
+                    
+                    <div class="progress-grid">
+                        ${modules.map(function(mod) {
+                            var p = progress[mod.id] || { score: 0, correctCount: 0, totalAnswered: 0 };
+                            var percentage = p.totalAnswered > 0 ? Math.round((p.correctCount / p.totalAnswered) * 100) : 0;
+                            
+                            return `
+                                <div class="progress-card">
+                                    <div class="progress-icon">${mod.icon}</div>
+                                    <div class="progress-module">${mod.name}</div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar" style="width: ${percentage}%"></div>
+                                    </div>
+                                    <div class="progress-stats">
+                                        <span>✓ ${p.correctCount || 0} riktige</span>
+                                        <span>📝 ${p.totalAnswered || 0} besvart</span>
+                                    </div>
+                                    <p style="font-size: 2em; color: var(--accent); margin-top: var(--space-md);">${p.score || 0} poeng</p>
+                                    <a href="${mod.id === 'corporate_finance' ? 'corporate_finance.html' : 'grunnleggende_regnskap.html'}" class="btn btn-sm" style="margin-top: var(--space-md);">
+                                        Fortsett →
+                                    </a>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

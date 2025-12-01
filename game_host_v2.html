@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spill Host - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+    
+    <!-- Felles stilark -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Firebase for Realtime -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    
+    <style>
+        /* ==================== LAYOUT ==================== */
+        .app-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* === ICON MENU === */
+        .icon-menu {
+            width: 60px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            gap: var(--space-xs);
+        }
+        
+        .icon-btn {
+            width: 46px;
+            height: 46px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+            position: relative;
+        }
+        
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .icon-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .icon-btn-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            font-size: 0.5em;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .icon-menu-divider {
+            width: 30px;
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--space-sm) 0;
+        }
+        
+        /* === SIDEBAR PANEL === */
+        .sidebar-panel {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-title {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1.1em;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-md);
+        }
+        
+        .sidebar-view {
+            display: none;
+        }
+        
+        .sidebar-view.active {
+            display: block;
+        }
+        
+        /* === MAIN WORKSPACE === */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-primary);
+        }
+        
+        /* === PIN DISPLAY === */
+        .pin-display {
+            text-align: center;
+            padding: var(--space-2xl);
+            background: var(--bg-secondary);
+            border-bottom: 3px solid var(--accent);
+        }
+        
+        .pin-label {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-md);
+        }
+        
+        .pin-code {
+            font-size: 5em;
+            font-weight: bold;
+            color: var(--accent);
+            letter-spacing: 15px;
+            font-family: monospace;
+            text-shadow: 0 0 30px rgba(74, 222, 128, 0.4);
+        }
+        
+        .pin-url {
+            margin-top: var(--space-md);
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+        
+        /* === PLAYERS GRID === */
+        .players-section {
+            flex: 1;
+            padding: var(--space-lg);
+            overflow-y: auto;
+        }
+        
+        .players-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .players-count {
+            font-size: 1.5em;
+            color: var(--accent);
+        }
+        
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--space-md);
+        }
+        
+        .player-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .player-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), #22c55e);
+            border-radius: 50%;
+            margin: 0 auto var(--space-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+        }
+        
+        .player-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .player-score {
+            color: var(--accent);
+            font-size: 0.9em;
+            margin-top: var(--space-xs);
+        }
+        
+        /* === QUESTION SCREEN === */
+        .question-screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+        
+        .question-screen.active {
+            display: flex;
+        }
+        
+        .question-header {
+            background: var(--bg-secondary);
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+        
+        .question-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        
+        .question-progress {
+            color: var(--text-secondary);
+        }
+        
+        .question-type-badge {
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 6px 16px;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .timer {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--accent);
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .timer.warning {
+            color: var(--warning);
+        }
+        
+        .timer.danger {
+            color: var(--error);
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .question-content {
+            flex: 1;
+            padding: var(--space-xl);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+        }
+        
+        .question-text {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: var(--space-xl);
+            max-width: 900px;
+            line-height: 1.4;
+        }
+        
+        /* === ANSWERS DISPLAY === */
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        .answer-box {
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            color: white;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+        
+        .answer-a { background: #ef4444; }
+        .answer-b { background: #3b82f6; }
+        .answer-c { background: #f59e0b; }
+        .answer-d { background: #22c55e; }
+        
+        .answer-box.correct {
+            box-shadow: 0 0 30px rgba(74, 222, 128, 0.8);
+            transform: scale(1.05);
+        }
+        
+        .answer-count {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .answer-label {
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+        
+        .answer-text {
+            flex: 1;
+        }
+        
+        /* === TRUE/FALSE === */
+        .tf-display {
+            display: flex;
+            gap: var(--space-xl);
+            justify-content: center;
+        }
+        
+        .tf-option {
+            padding: var(--space-xl);
+            border-radius: var(--radius-xl);
+            text-align: center;
+            min-width: 200px;
+            color: white;
+        }
+        
+        .tf-option.true { background: #22c55e; }
+        .tf-option.false { background: #ef4444; }
+        
+        .tf-option .count {
+            font-size: 3em;
+            font-weight: bold;
+        }
+        
+        .tf-option .label {
+            font-size: 1.3em;
+            margin-top: var(--space-sm);
+        }
+        
+        /* === CONTROLS === */
+        .controls-bar {
+            background: var(--bg-secondary);
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            border-top: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: 12px 24px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .btn:hover {
+            border-color: var(--accent);
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-danger {
+            background: var(--error);
+            border-color: var(--error);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            border-color: var(--warning);
+            color: var(--bg-primary);
+        }
+        
+        .btn-large {
+            padding: 20px 50px;
+            font-size: 1.3em;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* === LEADERBOARD === */
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .leaderboard-rank {
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .leaderboard-rank.gold { background: #fbbf24; }
+        .leaderboard-rank.silver { background: #9ca3af; }
+        .leaderboard-rank.bronze { background: #cd7f32; }
+        
+        .leaderboard-name {
+            flex: 1;
+            font-weight: 600;
+        }
+        
+        .leaderboard-score {
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        /* === RESULTS SCREEN === */
+        .results-screen {
+            display: none;
+            flex: 1;
+            padding: var(--space-xl);
+            text-align: center;
+            overflow-y: auto;
+        }
+        
+        .results-screen.active {
+            display: block;
+        }
+        
+        .results-title {
+            font-size: 3em;
+            color: var(--accent);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .podium {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: var(--space-lg);
+            margin: var(--space-2xl) 0;
+        }
+        
+        .podium-place {
+            text-align: center;
+        }
+        
+        .podium-block {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: var(--space-lg);
+            min-width: 150px;
+        }
+        
+        .podium-block.first {
+            height: 200px;
+            background: linear-gradient(to bottom, #fbbf24, #f59e0b);
+        }
+        
+        .podium-block.second {
+            height: 150px;
+            background: linear-gradient(to bottom, #9ca3af, #6b7280);
+        }
+        
+        .podium-block.third {
+            height: 120px;
+            background: linear-gradient(to bottom, #cd7f32, #a0522d);
+        }
+        
+        .podium-avatar {
+            font-size: 3em;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .podium-name {
+            font-weight: bold;
+            color: white;
+        }
+        
+        .podium-score {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .app-layout {
+                flex-direction: column;
+            }
+            
+            .icon-menu {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                order: 2;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                border-top: 1px solid var(--border-color);
+                border-right: none;
+                padding: var(--space-xs) 0;
+            }
+            
+            .sidebar-panel {
+                display: none;
+            }
+            
+            .workspace {
+                padding-bottom: 70px;
+            }
+            
+            .pin-code {
+                font-size: 3em;
+                letter-spacing: 8px;
+            }
+            
+            .question-text {
+                font-size: 1.4em;
+            }
+            
+            .answers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tf-display {
+                flex-direction: column;
+            }
+            
+            .controls-bar {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="aq-header">
+        <div class="aq-header-left">
+            <a href="teacher_portal_v2.html" class="btn" style="padding: 8px 16px;">← Avslutt</a>
+            <span style="color: var(--accent); font-weight: 600;">🎮 Spill Host</span>
+        </div>
+        <div class="aq-header-right">
+            <span id="game-status" style="color: var(--text-secondary);">Venter på spillere...</span>
+        </div>
+    </header>
+    
+    <!-- App Layout -->
+    <div class="app-layout">
+        <!-- Icon Menu -->
+        <nav class="icon-menu">
+            <button class="icon-btn active" id="btn-players" onclick="showSidebarView('players')" title="Spillere">
+                👥
+                <span class="icon-btn-badge" id="player-count-badge">0</span>
+            </button>
+            <button class="icon-btn" id="btn-quiz" onclick="showSidebarView('quiz')" title="Quiz-info">📝</button>
+            <div class="icon-menu-divider"></div>
+            <button class="icon-btn" id="btn-leaderboard" onclick="showSidebarView('leaderboard')" title="Poengstilling">🏆</button>
+            <button class="icon-btn" id="btn-settings" onclick="showSidebarView('settings')" title="Innstillinger">⚙️</button>
+        </nav>
+        
+        <!-- Sidebar Panel -->
+        <aside class="sidebar-panel" id="sidebar-panel">
+            <div class="sidebar-header">
+                <span class="sidebar-title" id="sidebar-title">Spillere</span>
+            </div>
+            
+            <div class="sidebar-content">
+                <!-- Players View -->
+                <div class="sidebar-view active" id="view-players">
+                    <div id="sidebar-players-list">
+                        <p style="color: var(--text-secondary); text-align: center;">Ingen spillere ennå</p>
+                    </div>
+                </div>
+                
+                <!-- Quiz View -->
+                <div class="sidebar-view" id="view-quiz">
+                    <div id="quiz-info">
+                        <h3 id="quiz-name" style="color: var(--accent); margin-bottom: var(--space-md);">Quiz</h3>
+                        <p><strong>Spørsmål:</strong> <span id="quiz-question-count">0</span></p>
+                        <p><strong>Modul:</strong> <span id="quiz-module">-</span></p>
+                    </div>
+                </div>
+                
+                <!-- Leaderboard View -->
+                <div class="sidebar-view" id="view-leaderboard">
+                    <div id="leaderboard-list"></div>
+                </div>
+                
+                <!-- Settings View -->
+                <div class="sidebar-view" id="view-settings">
+                    <div class="form-group">
+                        <label style="color: var(--text-secondary);">Timer per spørsmål</label>
+                        <select id="timer-setting" style="width: 100%; padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary);">
+                            <option value="15">15 sekunder</option>
+                            <option value="30" selected>30 sekunder</option>
+                            <option value="45">45 sekunder</option>
+                            <option value="60">60 sekunder</option>
+                            <option value="90">90 sekunder</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="auto-advance" checked style="width: 18px; height: 18px;">
+                            <span style="color: var(--text-secondary);">Auto-gå til neste</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="show-answers" checked style="width: 18px; height: 18px;">
+                            <span style="color: var(--text-secondary);">Vis fasit</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Workspace -->
+        <main class="workspace" id="workspace">
+            <!-- Lobby Screen -->
+            <div id="lobby-screen">
+                <div class="pin-display">
+                    <div class="pin-label">Gå til accountingquest.app og bruk kode:</div>
+                    <div class="pin-code" id="pin-display">------</div>
+                    <div class="pin-url">eller: accountingquest.app/student_join.html</div>
+                </div>
+                
+                <div class="players-section">
+                    <div class="players-header">
+                        <h2>Spillere som venter</h2>
+                        <span class="players-count" id="players-count">0 spillere</span>
+                    </div>
+                    
+                    <div class="players-grid" id="players-grid">
+                        <!-- Players will be added here -->
+                    </div>
+                </div>
+                
+                <div class="controls-bar">
+                    <button class="btn btn-primary btn-large" id="start-btn" onclick="startQuiz()" disabled>
+                        ▶️ Venter på spillere...
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Question Screen -->
+            <div class="question-screen" id="question-screen">
+                <div class="question-header">
+                    <div class="question-meta">
+                        <span class="question-progress" id="question-progress">Spørsmål 1 av 10</span>
+                        <span class="question-type-badge" id="question-type">📝 Flervalg</span>
+                    </div>
+                    <div class="timer" id="timer">30</div>
+                </div>
+                
+                <div class="question-content">
+                    <div class="question-text" id="question-text">
+                        Spørsmålet vises her...
+                    </div>
+                    
+                    <div id="answers-display">
+                        <!-- Answers will be rendered here based on type -->
+                    </div>
+                </div>
+                
+                <div class="controls-bar">
+                    <button class="btn btn-warning" id="pause-btn" onclick="togglePause()">⏸️ Pause</button>
+                    <button class="btn" onclick="showFasit()">👁️ Vis fasit</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()">Neste ➡️</button>
+                    <button class="btn btn-danger" onclick="endGame()">🛑 Avslutt</button>
+                </div>
+            </div>
+            
+            <!-- Results Screen -->
+            <div class="results-screen" id="results-screen">
+                <h1 class="results-title">🏆 Resultater!</h1>
+                
+                <div class="podium" id="podium">
+                    <!-- Top 3 will be rendered here -->
+                </div>
+                
+                <div style="max-width: 500px; margin: 0 auto;">
+                    <h3 style="margin-bottom: var(--space-md);">Alle spillere</h3>
+                    <div id="final-leaderboard"></div>
+                </div>
+                
+                <div style="margin-top: var(--space-xl);">
+                    <button class="btn btn-primary btn-large" onclick="newGame()">🔄 Nytt spill</button>
+                    <button class="btn btn-large" onclick="window.location.href='teacher_portal_v2.html'">← Tilbake</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==================== CONFIG ====================
+        var gameState = {
+            pin: null,
+            quiz: null,
+            players: {},
+            currentQuestion: 0,
+            timerValue: 30,
+            timerInterval: null,
+            isPaused: false,
+            showingFasit: false,
+            answers: {}
+        };
+        
+        var db = null;
+        var gameRef = null;
+        
+        const TYPE_LABELS = {
+            'multiple_choice': '📝 Flervalg',
+            'mc': '📝 Flervalg',
+            'true_false': '✓✗ Sant/Usant',
+            'tf': '✓✗ Sant/Usant',
+            'calculation': '🔢 Beregning',
+            'bokforing': '📒 Bokføring',
+            'drag_drop': '🎯 Dra og slipp'
+        };
+        
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get PIN from URL
+            var params = new URLSearchParams(window.location.search);
+            gameState.pin = params.get('pin');
+            
+            if (!gameState.pin) {
+                alert('Ingen spill-PIN funnet. Gå tilbake og start et nytt spill.');
+                window.location.href = 'teacher_portal_v2.html';
+                return;
+            }
+            
+            document.getElementById('pin-display').textContent = gameState.pin;
+            
+            // Initialize Firebase
+            initFirebase();
+        });
+        
+        function initFirebase() {
+            if (typeof firebase === 'undefined') {
+                console.error('Firebase not loaded');
+                return;
+            }
+            
+            db = firebase.database();
+            gameRef = db.ref('games/' + gameState.pin);
+            
+            // Load quiz data
+            gameRef.once('value').then(function(snapshot) {
+                var data = snapshot.val();
+                if (!data) {
+                    alert('Fant ikke spillet. Det kan ha blitt avsluttet.');
+                    window.location.href = 'teacher_portal_v2.html';
+                    return;
+                }
+                
+                gameState.quiz = data.quiz;
+                
+                // Update quiz info
+                document.getElementById('quiz-name').textContent = gameState.quiz.name || 'Quiz';
+                document.getElementById('quiz-question-count').textContent = (gameState.quiz.questions || []).length;
+                document.getElementById('quiz-module').textContent = gameState.quiz.module || '-';
+                
+                // Listen for players
+                listenForPlayers();
+            });
+        }
+        
+        function listenForPlayers() {
+            gameRef.child('players').on('value', function(snapshot) {
+                gameState.players = snapshot.val() || {};
+                renderPlayers();
+                updateLeaderboard();
+            });
+        }
+        
+        function renderPlayers() {
+            var players = gameState.players;
+            var playerCount = Object.keys(players).length;
+            
+            // Update counts
+            document.getElementById('players-count').textContent = playerCount + ' spiller' + (playerCount !== 1 ? 'e' : '');
+            document.getElementById('player-count-badge').textContent = playerCount;
+            
+            // Update start button
+            var btn = document.getElementById('start-btn');
+            btn.disabled = playerCount === 0;
+            btn.innerHTML = playerCount > 0 
+                ? '▶️ Start Quiz (' + playerCount + ' spiller' + (playerCount !== 1 ? 'e' : '') + ')'
+                : '▶️ Venter på spillere...';
+            
+            // Render player grid
+            var grid = document.getElementById('players-grid');
+            var sidebarList = document.getElementById('sidebar-players-list');
+            
+            if (playerCount === 0) {
+                grid.innerHTML = '<p style="color: var(--text-secondary); grid-column: 1/-1; text-align: center;">Venter på at spillere skal bli med...</p>';
+                sidebarList.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Ingen spillere ennå</p>';
+                return;
+            }
+            
+            var gridHtml = '';
+            var sidebarHtml = '';
+            
+            Object.keys(players).forEach(function(id) {
+                var player = players[id];
+                var initial = (player.name || 'S')[0].toUpperCase();
+                
+                gridHtml += `
+                    <div class="player-card">
+                        <div class="player-avatar">${initial}</div>
+                        <div class="player-name">${player.name || 'Spiller'}</div>
+                        <div class="player-score">${player.score || 0} poeng</div>
+                    </div>
+                `;
+                
+                sidebarHtml += `
+                    <div class="leaderboard-item">
+                        <div style="width: 30px; height: 30px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--bg-primary);">${initial}</div>
+                        <div class="leaderboard-name">${player.name || 'Spiller'}</div>
+                        <div class="leaderboard-score">${player.score || 0}</div>
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = gridHtml;
+            sidebarList.innerHTML = sidebarHtml;
+        }
+        
+        // ==================== NAVIGATION ====================
+        function showSidebarView(viewId) {
+            document.querySelectorAll('.icon-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            document.getElementById('btn-' + viewId).classList.add('active');
+            
+            document.querySelectorAll('.sidebar-view').forEach(function(view) {
+                view.classList.remove('active');
+            });
+            document.getElementById('view-' + viewId).classList.add('active');
+            
+            var titles = {
+                players: 'Spillere',
+                quiz: 'Quiz-info',
+                leaderboard: 'Poengstilling',
+                settings: 'Innstillinger'
+            };
+            document.getElementById('sidebar-title').textContent = titles[viewId] || viewId;
+        }
+        
+        // ==================== GAME CONTROL ====================
+        function startQuiz() {
+            gameRef.child('status').set('playing');
+            
+            document.getElementById('lobby-screen').style.display = 'none';
+            document.getElementById('question-screen').classList.add('active');
+            document.getElementById('game-status').textContent = 'Spill i gang';
+            
+            showQuestion(0);
+        }
+        
+        function showQuestion(index) {
+            var questions = gameState.quiz.questions || [];
+            
+            if (index >= questions.length) {
+                showResults();
+                return;
+            }
+            
+            gameState.currentQuestion = index;
+            gameState.isPaused = false;
+            gameState.showingFasit = false;
+            gameState.answers = {};
+            
+            var question = questions[index];
+            var type = question.type || 'multiple_choice';
+            
+            // Update Firebase
+            gameRef.child('currentQuestionIndex').set(index);
+            gameRef.child('currentQuestion').set({
+                index: index,
+                text: question.question || question.text,
+                type: type,
+                options: question.options || [],
+                startedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            gameRef.child('answers').remove();
+            
+            // Update UI
+            document.getElementById('question-progress').textContent = 
+                'Spørsmål ' + (index + 1) + ' av ' + questions.length;
+            document.getElementById('question-text').textContent = question.question || question.text;
+            document.getElementById('question-type').textContent = TYPE_LABELS[type] || '📝 Quiz';
+            
+            // Build answers display
+            buildAnswersDisplay(question, type);
+            
+            // Start timer
+            startTimer();
+            
+            // Listen for answers
+            listenForAnswers();
+        }
+        
+        function buildAnswersDisplay(question, type) {
+            var container = document.getElementById('answers-display');
+            
+            switch (type) {
+                case 'multiple_choice':
+                case 'mc':
+                    container.innerHTML = buildMCDisplay(question);
+                    break;
+                case 'true_false':
+                case 'tf':
+                    container.innerHTML = buildTFDisplay();
+                    break;
+                default:
+                    container.innerHTML = buildMCDisplay(question);
+            }
+        }
+        
+        function buildMCDisplay(question) {
+            var options = question.options || [];
+            var labels = ['A', 'B', 'C', 'D', 'E', 'F'];
+            var classes = ['answer-a', 'answer-b', 'answer-c', 'answer-d', 'answer-a', 'answer-b'];
+            
+            var html = '<div class="answers-grid">';
+            options.forEach(function(opt, i) {
+                var text = typeof opt === 'object' ? opt.text : opt;
+                html += `
+                    <div class="answer-box ${classes[i % classes.length]}" id="answer-box-${i}">
+                        <div class="answer-count" id="answer-count-${i}">0</div>
+                        <div class="answer-label">${labels[i]}</div>
+                        <div class="answer-text">${text}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            return html;
+        }
+        
+        function buildTFDisplay() {
+            return `
+                <div class="tf-display">
+                    <div class="tf-option true" id="tf-true">
+                        <div class="count" id="tf-true-count">0</div>
+                        <div class="label">✅ SANT</div>
+                    </div>
+                    <div class="tf-option false" id="tf-false">
+                        <div class="count" id="tf-false-count">0</div>
+                        <div class="label">❌ USANT</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function listenForAnswers() {
+            gameRef.child('answers').on('value', function(snapshot) {
+                gameState.answers = snapshot.val() || {};
+                updateAnswerCounts();
+            });
+        }
+        
+        function updateAnswerCounts() {
+            var answers = gameState.answers;
+            var counts = {};
+            
+            Object.keys(answers).forEach(function(playerId) {
+                var answer = answers[playerId].answer;
+                counts[answer] = (counts[answer] || 0) + 1;
+            });
+            
+            var question = gameState.quiz.questions[gameState.currentQuestion];
+            var type = question.type || 'multiple_choice';
+            
+            if (type === 'true_false' || type === 'tf') {
+                var trueEl = document.getElementById('tf-true-count');
+                var falseEl = document.getElementById('tf-false-count');
+                if (trueEl) trueEl.textContent = counts['true'] || 0;
+                if (falseEl) falseEl.textContent = counts['false'] || 0;
+            } else {
+                (question.options || []).forEach(function(opt, i) {
+                    var el = document.getElementById('answer-count-' + i);
+                    if (el) el.textContent = counts[i] || 0;
+                });
+            }
+        }
+        
+        // ==================== TIMER ====================
+        function startTimer() {
+            var duration = parseInt(document.getElementById('timer-setting').value) || 30;
+            gameState.timerValue = duration;
+            
+            var timerEl = document.getElementById('timer');
+            timerEl.textContent = duration;
+            timerEl.className = 'timer';
+            
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            
+            gameState.timerInterval = setInterval(function() {
+                if (gameState.isPaused) return;
+                
+                gameState.timerValue--;
+                timerEl.textContent = gameState.timerValue;
+                
+                if (gameState.timerValue <= 10) {
+                    timerEl.className = 'timer warning';
+                }
+                if (gameState.timerValue <= 5) {
+                    timerEl.className = 'timer danger';
+                }
+                
+                if (gameState.timerValue <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    timeUp();
+                }
+            }, 1000);
+        }
+        
+        function timeUp() {
+            if (document.getElementById('show-answers').checked) {
+                showFasit();
+            }
+            
+            if (document.getElementById('auto-advance').checked) {
+                setTimeout(function() {
+                    nextQuestion();
+                }, 3000);
+            }
+        }
+        
+        function togglePause() {
+            gameState.isPaused = !gameState.isPaused;
+            var btn = document.getElementById('pause-btn');
+            btn.innerHTML = gameState.isPaused ? '▶️ Fortsett' : '⏸️ Pause';
+            btn.className = gameState.isPaused ? 'btn btn-primary' : 'btn btn-warning';
+        }
+        
+        // ==================== FASIT ====================
+        function showFasit() {
+            gameState.showingFasit = true;
+            
+            var question = gameState.quiz.questions[gameState.currentQuestion];
+            var correct = question.correct;
+            var type = question.type || 'multiple_choice';
+            
+            if (type === 'true_false' || type === 'tf') {
+                var correctId = correct === true || correct === 'true' ? 'tf-true' : 'tf-false';
+                document.getElementById(correctId).style.boxShadow = '0 0 30px rgba(74, 222, 128, 0.8)';
+                document.getElementById(correctId).style.transform = 'scale(1.05)';
+            } else {
+                var correctIndex = typeof correct === 'number' ? correct : 0;
+                var el = document.getElementById('answer-box-' + correctIndex);
+                if (el) {
+                    el.classList.add('correct');
+                }
+            }
+            
+            // Calculate scores
+            calculateScores(question);
+        }
+        
+        function calculateScores(question) {
+            var correct = question.correct;
+            var points = question.points || 100;
+            var type = question.type || 'multiple_choice';
+            
+            Object.keys(gameState.answers).forEach(function(playerId) {
+                var playerAnswer = gameState.answers[playerId].answer;
+                var isCorrect = false;
+                
+                if (type === 'true_false' || type === 'tf') {
+                    isCorrect = (playerAnswer === 'true') === (correct === true || correct === 'true');
+                } else {
+                    isCorrect = playerAnswer === correct;
+                }
+                
+                if (isCorrect) {
+                    // Add points based on speed (simplified)
+                    var earnedPoints = Math.round(points * (gameState.timerValue / 30 + 0.5));
+                    gameRef.child('players/' + playerId + '/score').transaction(function(currentScore) {
+                        return (currentScore || 0) + earnedPoints;
+                    });
+                }
+            });
+        }
+        
+        function nextQuestion() {
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            showQuestion(gameState.currentQuestion + 1);
+        }
+        
+        // ==================== LEADERBOARD ====================
+        function updateLeaderboard() {
+            var players = gameState.players;
+            var sorted = Object.keys(players).map(function(id) {
+                return { id: id, ...players[id] };
+            }).sort(function(a, b) {
+                return (b.score || 0) - (a.score || 0);
+            });
+            
+            var html = sorted.map(function(player, i) {
+                var rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+                return `
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank ${rankClass}">${i + 1}</div>
+                        <div class="leaderboard-name">${player.name || 'Spiller'}</div>
+                        <div class="leaderboard-score">${player.score || 0}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('leaderboard-list').innerHTML = html || '<p style="color: var(--text-secondary);">Ingen spillere</p>';
+        }
+        
+        // ==================== RESULTS ====================
+        function showResults() {
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            
+            gameRef.child('status').set('finished');
+            
+            document.getElementById('question-screen').classList.remove('active');
+            document.getElementById('results-screen').classList.add('active');
+            document.getElementById('game-status').textContent = 'Spill avsluttet';
+            
+            // Get sorted players
+            var players = gameState.players;
+            var sorted = Object.keys(players).map(function(id) {
+                return { id: id, ...players[id] };
+            }).sort(function(a, b) {
+                return (b.score || 0) - (a.score || 0);
+            });
+            
+            // Build podium
+            var podiumHtml = '';
+            if (sorted.length >= 2) {
+                podiumHtml += buildPodiumPlace(sorted[1], 2, 'second');
+            }
+            if (sorted.length >= 1) {
+                podiumHtml += buildPodiumPlace(sorted[0], 1, 'first');
+            }
+            if (sorted.length >= 3) {
+                podiumHtml += buildPodiumPlace(sorted[2], 3, 'third');
+            }
+            document.getElementById('podium').innerHTML = podiumHtml;
+            
+            // Build full leaderboard
+            var leaderboardHtml = sorted.map(function(player, i) {
+                return `
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">${i + 1}</div>
+                        <div class="leaderboard-name">${player.name || 'Spiller'}</div>
+                        <div class="leaderboard-score">${player.score || 0} poeng</div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('final-leaderboard').innerHTML = leaderboardHtml;
+        }
+        
+        function buildPodiumPlace(player, rank, className) {
+            var medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
+            return `
+                <div class="podium-place">
+                    <div class="podium-avatar">${medals[rank]}</div>
+                    <div class="podium-block ${className}">
+                        <div class="podium-name">${player.name || 'Spiller'}</div>
+                        <div class="podium-score">${player.score || 0} poeng</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function endGame() {
+            if (!confirm('Er du sikker på at du vil avslutte spillet?')) return;
+            showResults();
+        }
+        
+        function newGame() {
+            // Clean up old game
+            if (gameRef) {
+                gameRef.remove();
+            }
+            window.location.href = 'teacher_portal_v2.html';
+        }
+    </script>
+</body>
+</html>

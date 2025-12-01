@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lærerportal - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👨‍🏫</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+    
+    <!-- Felles stilark -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Firebase for Auth + Realtime (multiplayer) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    
+    <style>
+        /* ==================== LAYOUT ==================== */
+        .app-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* === ICON MENU === */
+        .icon-menu {
+            width: 60px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            gap: var(--space-xs);
+        }
+        
+        .icon-btn {
+            width: 46px;
+            height: 46px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+            position: relative;
+        }
+        
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .icon-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .icon-btn-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--error);
+            color: white;
+            font-size: 0.5em;
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .icon-menu-divider {
+            width: 30px;
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--space-sm) 0;
+        }
+        
+        /* === SIDEBAR PANEL === */
+        .sidebar-panel {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-title {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1.1em;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-md);
+        }
+        
+        .sidebar-view {
+            display: none;
+        }
+        
+        .sidebar-view.active {
+            display: block;
+        }
+        
+        /* === MAIN WORKSPACE === */
+        .workspace {
+            flex: 1;
+            padding: var(--space-lg);
+            overflow-y: auto;
+            background: var(--bg-primary);
+        }
+        
+        .workspace-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .workspace-title {
+            font-size: 1.5em;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        /* === LIST ITEMS === */
+        .list-item {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .list-item:hover {
+            border-color: var(--accent);
+            transform: translateX(5px);
+        }
+        
+        .list-item.active {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .list-item-icon {
+            font-size: 1.5em;
+            margin-right: var(--space-md);
+        }
+        
+        .list-item-content {
+            flex: 1;
+        }
+        
+        .list-item-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        
+        .list-item-meta {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+        
+        .list-item-badge {
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        /* === CARDS GRID === */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--space-lg);
+        }
+        
+        .card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+        
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.15);
+        }
+        
+        .card-icon {
+            font-size: 2.5em;
+            margin-bottom: var(--space-md);
+        }
+        
+        .card-title {
+            font-size: 1.2em;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        /* === CLASSROOM === */
+        .classroom-code {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-weight: bold;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+            font-family: monospace;
+        }
+        
+        .student-list {
+            margin-top: var(--space-lg);
+        }
+        
+        .student-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--bg-primary);
+        }
+        
+        /* === QUIZ BUILDER === */
+        .question-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .question-type-btn {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+        
+        .question-type-btn:hover {
+            border-color: var(--accent);
+        }
+        
+        .question-type-btn.active {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.15);
+        }
+        
+        .question-type-icon {
+            font-size: 2em;
+            margin-bottom: var(--space-xs);
+        }
+        
+        .question-type-name {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+        
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+        
+        .form-label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+            font-weight: 600;
+        }
+        
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: var(--space-md);
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1em;
+            transition: border-color var(--transition-fast);
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        
+        .option-row {
+            display: flex;
+            gap: var(--space-sm);
+            align-items: center;
+        }
+        
+        .option-input {
+            flex: 1;
+        }
+        
+        .option-correct {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            color: var(--text-secondary);
+        }
+        
+        /* === QUESTIONS PREVIEW === */
+        .questions-preview {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+        
+        .preview-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .preview-num {
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .preview-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .preview-type {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+        }
+        
+        /* === GAME PIN === */
+        .game-pin-display {
+            text-align: center;
+            padding: var(--space-xl);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            margin: var(--space-lg) 0;
+        }
+        
+        .game-pin-label {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-md);
+        }
+        
+        .game-pin {
+            font-size: 4em;
+            font-weight: bold;
+            color: var(--accent);
+            letter-spacing: 10px;
+            font-family: monospace;
+        }
+        
+        .game-pin-url {
+            margin-top: var(--space-md);
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .players-waiting {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            justify-content: center;
+            margin-top: var(--space-lg);
+        }
+        
+        .player-chip {
+            background: var(--bg-tertiary);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* === STATS === */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-top: var(--space-xs);
+        }
+        
+        /* === BUTTONS === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: 12px 24px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .btn:hover {
+            border-color: var(--accent);
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-danger {
+            background: var(--error);
+            border-color: var(--error);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+        
+        .btn-icon {
+            padding: 8px;
+            min-width: 36px;
+        }
+        
+        /* === EMPTY STATE === */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 4em;
+            margin-bottom: var(--space-md);
+            opacity: 0.5;
+        }
+        
+        /* === MODAL === */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding: var(--space-xl);
+            overflow-y: auto;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-title {
+            font-size: 1.3em;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: var(--space-lg);
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* === LOGIN === */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: var(--space-lg);
+        }
+        
+        .login-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .login-title {
+            font-size: 2em;
+            color: var(--accent);
+            margin-bottom: var(--space-lg);
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .app-layout {
+                flex-direction: column;
+            }
+            
+            .icon-menu {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                order: 2;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                border-top: 1px solid var(--border-color);
+                border-right: none;
+            }
+            
+            .sidebar-panel {
+                width: 100%;
+                max-height: 50vh;
+                display: none;
+            }
+            
+            .sidebar-panel.mobile-open {
+                display: flex;
+            }
+            
+            .workspace {
+                padding-bottom: 80px;
+            }
+            
+            .icon-menu-divider {
+                width: 1px;
+                height: 30px;
+                margin: 0 var(--space-sm);
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* === ANIMATIONS === */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login View (shown when not logged in) -->
+    <div id="login-view" class="login-container">
+        <div class="login-card">
+            <div class="login-title">👨‍🏫 Lærerportal</div>
+            <p style="color: var(--text-secondary); margin-bottom: var(--space-lg);">
+                Logg inn for å administrere quizer og klasserom
+            </p>
+            
+            <form id="login-form" onsubmit="return handleLogin(event)">
+                <div class="form-group">
+                    <input type="email" id="login-email" class="form-input" placeholder="E-post" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" class="form-input" placeholder="Passord" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Logg inn</button>
+            </form>
+            
+            <p style="margin-top: var(--space-lg); color: var(--text-secondary);">
+                Ny lærer? <a href="#" onclick="showRegister()">Registrer deg</a>
+            </p>
+            
+            <p style="margin-top: var(--space-md);">
+                <a href="index.html" style="color: var(--text-secondary);">← Tilbake til forsiden</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Main App (shown when logged in) -->
+    <div id="app-view" style="display: none;">
+        <!-- Header -->
+        <header class="aq-header">
+            <a href="index.html" class="header-brand">
+                <span class="brand-icon">📚</span>
+                <span class="brand-text">AccountingQuest</span>
+            </a>
+            <div class="header-center">
+                <span style="color: var(--accent);">👨‍🏫 Lærerportal</span>
+            </div>
+            <div class="header-actions">
+                <span id="user-email" style="color: var(--text-secondary);"></span>
+                <button class="btn btn-sm" onclick="handleLogout()">Logg ut</button>
+            </div>
+        </header>
+        
+        <!-- App Layout -->
+        <div class="app-layout">
+            <!-- Icon Menu -->
+            <nav class="icon-menu">
+                <button class="icon-btn active" id="btn-quizzes" onclick="showView('quizzes')" title="Mine quizer">📝</button>
+                <button class="icon-btn" id="btn-public" onclick="showView('public')" title="Offentlige quizer">🌐</button>
+                <div class="icon-menu-divider"></div>
+                <button class="icon-btn" id="btn-classrooms" onclick="showView('classrooms')" title="Klasserom">🏫</button>
+                <button class="icon-btn" id="btn-assignments" onclick="showView('assignments')" title="Oppgaver">📋</button>
+                <div class="icon-menu-divider"></div>
+                <button class="icon-btn" id="btn-game" onclick="showView('game')" title="Start spill">🎮</button>
+                <button class="icon-btn" id="btn-results" onclick="showView('results')" title="Resultater">📊</button>
+            </nav>
+            
+            <!-- Sidebar Panel -->
+            <aside class="sidebar-panel" id="sidebar-panel">
+                <div class="sidebar-header">
+                    <span class="sidebar-title" id="sidebar-title">Mine quizer</span>
+                    <button class="btn btn-sm btn-primary" id="sidebar-action" onclick="handleSidebarAction()">+ Ny</button>
+                </div>
+                <div class="sidebar-content">
+                    <!-- Quizzes View -->
+                    <div class="sidebar-view active" id="view-quizzes">
+                        <div id="quizzes-list"></div>
+                    </div>
+                    
+                    <!-- Public Quizzes View -->
+                    <div class="sidebar-view" id="view-public">
+                        <div id="public-list"></div>
+                    </div>
+                    
+                    <!-- Classrooms View -->
+                    <div class="sidebar-view" id="view-classrooms">
+                        <div id="classrooms-list"></div>
+                    </div>
+                    
+                    <!-- Assignments View -->
+                    <div class="sidebar-view" id="view-assignments">
+                        <div id="assignments-list"></div>
+                    </div>
+                    
+                    <!-- Game View -->
+                    <div class="sidebar-view" id="view-game">
+                        <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">Velg en quiz å spille:</p>
+                        <div id="game-quiz-list"></div>
+                    </div>
+                    
+                    <!-- Results View -->
+                    <div class="sidebar-view" id="view-results">
+                        <div id="results-list"></div>
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- Main Workspace -->
+            <main class="workspace" id="workspace">
+                <div class="empty-state">
+                    <div class="empty-icon">👈</div>
+                    <h3>Velg fra menyen</h3>
+                    <p>Klikk på et ikon til venstre for å starte</p>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Modal for Quiz Builder -->
+    <div class="modal-overlay" id="quiz-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="modal-title">Ny quiz</span>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Quiz builder content -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <button class="btn" onclick="closeModal()">Avbryt</button>
+                <button class="btn btn-primary" onclick="saveQuiz()">Lagre quiz</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Question Builder -->
+    <div class="modal-overlay" id="question-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">Legg til spørsmål</span>
+                <button class="modal-close" onclick="closeQuestionModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="question-modal-body">
+                <!-- Question builder content -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeQuestionModal()">Avbryt</button>
+                <button class="btn btn-primary" onclick="addQuestion()">Legg til</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIG ====================
+        const API_URL = 'https://accountingquest-api.truls-n.workers.dev';
+        
+        // ==================== STATE ====================
+        var currentUser = null;
+        var currentView = 'quizzes';
+        var currentQuiz = null;
+        var currentClassroom = null;
+        var currentQuestions = [];
+        var myQuizzes = [];
+        var publicQuizzes = [];
+        var myClassrooms = [];
+        var gameSession = null;
+        
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check auth state
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().onAuthStateChanged(function(user) {
+                    if (user) {
+                        currentUser = user;
+                        showApp();
+                    } else {
+                        showLogin();
+                    }
+                });
+            } else {
+                // Demo mode without Firebase
+                console.log('Demo mode - no Firebase');
+                showLogin();
+            }
+        });
+        
+        // ==================== AUTH ====================
+        function showLogin() {
+            document.getElementById('login-view').style.display = 'flex';
+            document.getElementById('app-view').style.display = 'none';
+        }
+        
+        function showApp() {
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('app-view').style.display = 'block';
+            
+            if (currentUser) {
+                document.getElementById('user-email').textContent = currentUser.email;
+            }
+            
+            // Load initial data
+            loadMyQuizzes();
+            loadMyClassrooms();
+        }
+        
+        function handleLogin(e) {
+            e.preventDefault();
+            var email = document.getElementById('login-email').value;
+            var password = document.getElementById('login-password').value;
+            
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().signInWithEmailAndPassword(email, password)
+                    .then(function(result) {
+                        currentUser = result.user;
+                        showApp();
+                    })
+                    .catch(function(error) {
+                        alert('Feil: ' + error.message);
+                    });
+            } else {
+                // Demo login
+                currentUser = { uid: 'demo_' + Date.now(), email: email };
+                showApp();
+            }
+            
+            return false;
+        }
+        
+        function handleLogout() {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().signOut();
+            }
+            currentUser = null;
+            showLogin();
+        }
+        
+        function showRegister() {
+            var email = prompt('E-post:');
+            var password = prompt('Passord (minst 6 tegn):');
+            
+            if (email && password) {
+                if (typeof firebase !== 'undefined' && firebase.auth) {
+                    firebase.auth().createUserWithEmailAndPassword(email, password)
+                        .then(function(result) {
+                            alert('Konto opprettet! Du er nå logget inn.');
+                            currentUser = result.user;
+                            showApp();
+                        })
+                        .catch(function(error) {
+                            alert('Feil: ' + error.message);
+                        });
+                } else {
+                    alert('Demo-modus: Registrering simulert');
+                    currentUser = { uid: 'demo_' + Date.now(), email: email };
+                    showApp();
+                }
+            }
+        }
+        
+        // ==================== NAVIGATION ====================
+        function showView(viewId) {
+            currentView = viewId;
+            
+            // Update icon buttons
+            document.querySelectorAll('.icon-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            document.getElementById('btn-' + viewId).classList.add('active');
+            
+            // Update sidebar views
+            document.querySelectorAll('.sidebar-view').forEach(function(view) {
+                view.classList.remove('active');
+            });
+            document.getElementById('view-' + viewId).classList.add('active');
+            
+            // Update sidebar title and action
+            var titles = {
+                quizzes: 'Mine quizer',
+                public: 'Offentlige quizer',
+                classrooms: 'Klasserom',
+                assignments: 'Oppgaver',
+                game: 'Start spill',
+                results: 'Resultater'
+            };
+            document.getElementById('sidebar-title').textContent = titles[viewId] || viewId;
+            
+            // Update action button
+            var actionBtn = document.getElementById('sidebar-action');
+            if (viewId === 'quizzes') {
+                actionBtn.textContent = '+ Ny quiz';
+                actionBtn.style.display = 'block';
+            } else if (viewId === 'classrooms') {
+                actionBtn.textContent = '+ Nytt klasserom';
+                actionBtn.style.display = 'block';
+            } else if (viewId === 'assignments') {
+                actionBtn.textContent = '+ Ny oppgave';
+                actionBtn.style.display = 'block';
+            } else {
+                actionBtn.style.display = 'none';
+            }
+            
+            // Load view-specific content
+            switch (viewId) {
+                case 'quizzes':
+                    loadMyQuizzes();
+                    break;
+                case 'public':
+                    loadPublicQuizzes();
+                    break;
+                case 'classrooms':
+                    loadMyClassrooms();
+                    break;
+                case 'assignments':
+                    loadAssignments();
+                    break;
+                case 'game':
+                    loadGameQuizList();
+                    break;
+                case 'results':
+                    loadResults();
+                    break;
+            }
+            
+            // Clear workspace
+            showWelcome();
+        }
+        
+        function showWelcome() {
+            document.getElementById('workspace').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">👈</div>
+                    <h3>Velg fra listen</h3>
+                    <p>Klikk på et element i sidepanelet for å se detaljer</p>
+                </div>
+            `;
+        }
+        
+        function handleSidebarAction() {
+            switch (currentView) {
+                case 'quizzes':
+                    openQuizBuilder();
+                    break;
+                case 'classrooms':
+                    openClassroomCreator();
+                    break;
+                case 'assignments':
+                    openAssignmentCreator();
+                    break;
+            }
+        }
+        
+        // ==================== API HELPERS ====================
+        async function apiGet(endpoint) {
+            try {
+                var response = await fetch(API_URL + endpoint);
+                return await response.json();
+            } catch (err) {
+                console.error('API Error:', err);
+                return { error: err.message };
+            }
+        }
+        
+        async function apiPost(endpoint, data) {
+            try {
+                var response = await fetch(API_URL + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                return await response.json();
+            } catch (err) {
+                console.error('API Error:', err);
+                return { error: err.message };
+            }
+        }
+        
+        async function apiDelete(endpoint) {
+            try {
+                var response = await fetch(API_URL + endpoint, { method: 'DELETE' });
+                return await response.json();
+            } catch (err) {
+                console.error('API Error:', err);
+                return { error: err.message };
+            }
+        }
+        
+        // ==================== QUIZZES ====================
+        async function loadMyQuizzes() {
+            var container = document.getElementById('quizzes-list');
+            container.innerHTML = '<p style="color: var(--text-secondary);">Laster...</p>';
+            
+            try {
+                var userId = currentUser ? currentUser.uid : 'demo';
+                var data = await apiGet('/api/quizzes?teacherId=' + userId);
+                myQuizzes = data.quizzes || [];
+                
+                if (myQuizzes.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: var(--space-lg);">
+                            <p>Ingen quizer ennå</p>
+                            <button class="btn btn-primary btn-sm" style="margin-top: var(--space-md);" onclick="openQuizBuilder()">
+                                Lag din første quiz
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = myQuizzes.map(function(quiz, i) {
+                    return `
+                        <div class="list-item" onclick="selectQuiz(${i})">
+                            <span class="list-item-icon">📝</span>
+                            <div class="list-item-content">
+                                <div class="list-item-title">${quiz.name || 'Uten navn'}</div>
+                                <div class="list-item-meta">${(quiz.questions || []).length} spørsmål</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = '<p style="color: var(--error);">Feil ved lasting</p>';
+            }
+        }
+        
+        async function loadPublicQuizzes() {
+            var container = document.getElementById('public-list');
+            container.innerHTML = '<p style="color: var(--text-secondary);">Laster...</p>';
+            
+            try {
+                var data = await apiGet('/api/quizzes/public');
+                publicQuizzes = data.quizzes || [];
+                
+                if (publicQuizzes.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary);">Ingen offentlige quizer</p>';
+                    return;
+                }
+                
+                container.innerHTML = publicQuizzes.map(function(quiz, i) {
+                    return `
+                        <div class="list-item" onclick="selectPublicQuiz(${i})">
+                            <span class="list-item-icon">🌐</span>
+                            <div class="list-item-content">
+                                <div class="list-item-title">${quiz.name || 'Uten navn'}</div>
+                                <div class="list-item-meta">${(quiz.questions || []).length} spørsmål</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = '<p style="color: var(--error);">Feil ved lasting</p>';
+            }
+        }
+        
+        function selectQuiz(index) {
+            currentQuiz = myQuizzes[index];
+            renderQuizDetails(currentQuiz, true);
+        }
+        
+        function selectPublicQuiz(index) {
+            currentQuiz = publicQuizzes[index];
+            renderQuizDetails(currentQuiz, false);
+        }
+        
+        function renderQuizDetails(quiz, isOwner) {
+            var workspace = document.getElementById('workspace');
+            var questions = quiz.questions || [];
+            
+            workspace.innerHTML = `
+                <div class="workspace-header">
+                    <div>
+                        <h2 class="workspace-title">${quiz.name || 'Uten navn'}</h2>
+                        <p style="color: var(--text-secondary);">${questions.length} spørsmål</p>
+                    </div>
+                    <div style="display: flex; gap: var(--space-sm);">
+                        <button class="btn btn-primary" onclick="startGameWithQuiz('${quiz.id}')">🎮 Start spill</button>
+                        ${isOwner ? `
+                            <button class="btn" onclick="editQuiz('${quiz.id}')">✏️ Rediger</button>
+                            <button class="btn btn-danger" onclick="deleteQuiz('${quiz.id}')">🗑️</button>
+                        ` : `
+                            <button class="btn" onclick="copyQuiz('${quiz.id}')">📋 Kopier</button>
+                        `}
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${questions.length}</div>
+                        <div class="stat-label">Spørsmål</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${countQuestionTypes(questions, 'mc')}</div>
+                        <div class="stat-label">Flervalg</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${countQuestionTypes(questions, 'tf')}</div>
+                        <div class="stat-label">Sant/Usant</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${quiz.timesPlayed || 0}</div>
+                        <div class="stat-label">Spilt</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: var(--space-md);">Spørsmålsoversikt</h3>
+                <div class="questions-list">
+                    ${questions.map(function(q, i) {
+                        return `
+                            <div class="preview-item">
+                                <div class="preview-num">${i + 1}</div>
+                                <div class="preview-text">${q.question || q.text || 'Uten tekst'}</div>
+                                <div class="preview-type">${getQuestionTypeName(q.type)}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        function countQuestionTypes(questions, type) {
+            return questions.filter(function(q) { 
+                return q.type === type || (type === 'mc' && q.type === 'multiple_choice');
+            }).length;
+        }
+        
+        function getQuestionTypeName(type) {
+            var names = {
+                'mc': 'Flervalg',
+                'multiple_choice': 'Flervalg',
+                'tf': 'Sant/Usant',
+                'true_false': 'Sant/Usant',
+                'calculation': 'Beregning',
+                'drag_drop': 'Dra og slipp',
+                'bokforing': 'Bokføring'
+            };
+            return names[type] || type;
+        }
+        
+        // ==================== QUIZ BUILDER ====================
+        function openQuizBuilder(existingQuiz) {
+            currentQuiz = existingQuiz || null;
+            currentQuestions = existingQuiz ? [...(existingQuiz.questions || [])] : [];
+            
+            document.getElementById('modal-title').textContent = existingQuiz ? 'Rediger quiz' : 'Ny quiz';
+            document.getElementById('modal-body').innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Navn på quiz</label>
+                    <input type="text" id="quiz-name" class="form-input" placeholder="F.eks. 'MVA-quiz'" value="${existingQuiz ? existingQuiz.name : ''}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Synlighet</label>
+                    <select id="quiz-visibility" class="form-select">
+                        <option value="private" ${!existingQuiz || existingQuiz.visibility === 'private' ? 'selected' : ''}>Privat (bare du)</option>
+                        <option value="public" ${existingQuiz && existingQuiz.visibility === 'public' ? 'selected' : ''}>Offentlig</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+                    <h3>Spørsmål (${currentQuestions.length})</h3>
+                    <button class="btn btn-primary btn-sm" onclick="openQuestionBuilder()">+ Legg til spørsmål</button>
+                </div>
+                
+                <div id="questions-preview">
+                    ${renderQuestionsPreview()}
+                </div>
+            `;
+            
+            document.getElementById('quiz-modal').classList.add('active');
+        }
+        
+        function renderQuestionsPreview() {
+            if (currentQuestions.length === 0) {
+                return '<p style="color: var(--text-secondary); text-align: center;">Ingen spørsmål lagt til</p>';
+            }
+            
+            return currentQuestions.map(function(q, i) {
+                return `
+                    <div class="preview-item">
+                        <div class="preview-num">${i + 1}</div>
+                        <div class="preview-text">${q.question || q.text || 'Uten tekst'}</div>
+                        <div class="preview-type">${getQuestionTypeName(q.type)}</div>
+                        <button class="btn btn-icon btn-sm" onclick="removeQuestion(${i})" title="Fjern">🗑️</button>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function openQuestionBuilder() {
+            document.getElementById('question-modal-body').innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Spørsmålstype</label>
+                    <div class="question-type-grid">
+                        <div class="question-type-btn active" onclick="selectQuestionType('mc', this)">
+                            <div class="question-type-icon">📋</div>
+                            <div class="question-type-name">Flervalg</div>
+                        </div>
+                        <div class="question-type-btn" onclick="selectQuestionType('tf', this)">
+                            <div class="question-type-icon">✓✗</div>
+                            <div class="question-type-name">Sant/Usant</div>
+                        </div>
+                        <div class="question-type-btn" onclick="selectQuestionType('calculation', this)">
+                            <div class="question-type-icon">🔢</div>
+                            <div class="question-type-name">Beregning</div>
+                        </div>
+                        <div class="question-type-btn" onclick="selectQuestionType('bokforing', this)">
+                            <div class="question-type-icon">📒</div>
+                            <div class="question-type-name">Bokføring</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Spørsmål</label>
+                    <textarea id="q-text" class="form-textarea" placeholder="Skriv spørsmålet her..."></textarea>
+                </div>
+                
+                <div id="question-options">
+                    ${buildMCOptions()}
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Forklaring (valgfritt)</label>
+                    <textarea id="q-explanation" class="form-textarea" placeholder="Forklaring som vises etter svar..."></textarea>
+                </div>
+            `;
+            
+            document.getElementById('question-modal').classList.add('active');
+        }
+        
+        var currentQuestionType = 'mc';
+        
+        function selectQuestionType(type, btn) {
+            currentQuestionType = type;
+            
+            document.querySelectorAll('.question-type-btn').forEach(function(b) {
+                b.classList.remove('active');
+            });
+            btn.classList.add('active');
+            
+            var container = document.getElementById('question-options');
+            
+            switch (type) {
+                case 'mc':
+                    container.innerHTML = buildMCOptions();
+                    break;
+                case 'tf':
+                    container.innerHTML = buildTFOptions();
+                    break;
+                case 'calculation':
+                    container.innerHTML = buildCalcOptions();
+                    break;
+                case 'bokforing':
+                    container.innerHTML = buildBokforingOptions();
+                    break;
+            }
+        }
+        
+        function buildMCOptions() {
+            return `
+                <div class="form-group">
+                    <label class="form-label">Svaralternativer</label>
+                    <div class="options-list" id="mc-options">
+                        <div class="option-row">
+                            <input type="text" class="form-input option-input" placeholder="Alternativ A">
+                            <label class="option-correct"><input type="radio" name="correct" value="0" checked> Riktig</label>
+                        </div>
+                        <div class="option-row">
+                            <input type="text" class="form-input option-input" placeholder="Alternativ B">
+                            <label class="option-correct"><input type="radio" name="correct" value="1"> Riktig</label>
+                        </div>
+                        <div class="option-row">
+                            <input type="text" class="form-input option-input" placeholder="Alternativ C">
+                            <label class="option-correct"><input type="radio" name="correct" value="2"> Riktig</label>
+                        </div>
+                        <div class="option-row">
+                            <input type="text" class="form-input option-input" placeholder="Alternativ D">
+                            <label class="option-correct"><input type="radio" name="correct" value="3"> Riktig</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function buildTFOptions() {
+            return `
+                <div class="form-group">
+                    <label class="form-label">Riktig svar</label>
+                    <div style="display: flex; gap: var(--space-lg);">
+                        <label style="display: flex; align-items: center; gap: var(--space-sm); cursor: pointer;">
+                            <input type="radio" name="tf-correct" value="true" checked>
+                            <span style="font-size: 1.5em;">✓</span> Sant
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-sm); cursor: pointer;">
+                            <input type="radio" name="tf-correct" value="false">
+                            <span style="font-size: 1.5em;">✗</span> Usant
+                        </label>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function buildCalcOptions() {
+            return `
+                <div class="form-group">
+                    <label class="form-label">Riktig svar (tall)</label>
+                    <input type="number" id="calc-answer" class="form-input" placeholder="F.eks. 12500" step="any">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Toleranse (valgfritt)</label>
+                    <input type="number" id="calc-tolerance" class="form-input" placeholder="F.eks. 0.01 for 1%" step="any" value="0.01">
+                </div>
+            `;
+        }
+        
+        function buildBokforingOptions() {
+            return `
+                <div class="form-group">
+                    <label class="form-label">Posteringer</label>
+                    <div id="bokforing-rows">
+                        <div class="option-row" style="margin-bottom: var(--space-sm);">
+                            <input type="text" class="form-input" style="width: 100px;" placeholder="Konto">
+                            <input type="number" class="form-input" style="width: 100px;" placeholder="Debet">
+                            <input type="number" class="form-input" style="width: 100px;" placeholder="Kredit">
+                            <button class="btn btn-icon btn-sm" onclick="removeBokforingRow(this)">🗑️</button>
+                        </div>
+                        <div class="option-row" style="margin-bottom: var(--space-sm);">
+                            <input type="text" class="form-input" style="width: 100px;" placeholder="Konto">
+                            <input type="number" class="form-input" style="width: 100px;" placeholder="Debet">
+                            <input type="number" class="form-input" style="width: 100px;" placeholder="Kredit">
+                            <button class="btn btn-icon btn-sm" onclick="removeBokforingRow(this)">🗑️</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm" onclick="addBokforingRow()">+ Legg til rad</button>
+                </div>
+            `;
+        }
+        
+        function addBokforingRow() {
+            var container = document.getElementById('bokforing-rows');
+            var row = document.createElement('div');
+            row.className = 'option-row';
+            row.style.marginBottom = 'var(--space-sm)';
+            row.innerHTML = `
+                <input type="text" class="form-input" style="width: 100px;" placeholder="Konto">
+                <input type="number" class="form-input" style="width: 100px;" placeholder="Debet">
+                <input type="number" class="form-input" style="width: 100px;" placeholder="Kredit">
+                <button class="btn btn-icon btn-sm" onclick="removeBokforingRow(this)">🗑️</button>
+            `;
+            container.appendChild(row);
+        }
+        
+        function removeBokforingRow(btn) {
+            btn.parentElement.remove();
+        }
+        
+        function addQuestion() {
+            var text = document.getElementById('q-text').value.trim();
+            if (!text) {
+                alert('Skriv inn spørsmålstekst');
+                return;
+            }
+            
+            var question = {
+                question: text,
+                type: currentQuestionType,
+                explanation: document.getElementById('q-explanation').value.trim()
+            };
+            
+            // Get type-specific data
+            switch (currentQuestionType) {
+                case 'mc':
+                    var options = [];
+                    var correctIndex = 0;
+                    document.querySelectorAll('#mc-options .option-row').forEach(function(row, i) {
+                        var input = row.querySelector('.option-input');
+                        var radio = row.querySelector('input[type="radio"]');
+                        if (input.value.trim()) {
+                            options.push(input.value.trim());
+                            if (radio.checked) correctIndex = i;
+                        }
+                    });
+                    question.options = options;
+                    question.correct = correctIndex;
+                    break;
+                    
+                case 'tf':
+                    question.correct = document.querySelector('input[name="tf-correct"]:checked').value === 'true';
+                    break;
+                    
+                case 'calculation':
+                    question.correct = parseFloat(document.getElementById('calc-answer').value);
+                    question.tolerance = parseFloat(document.getElementById('calc-tolerance').value) || 0.01;
+                    break;
+                    
+                case 'bokforing':
+                    var postings = [];
+                    document.querySelectorAll('#bokforing-rows .option-row').forEach(function(row) {
+                        var inputs = row.querySelectorAll('input');
+                        if (inputs[0].value.trim()) {
+                            postings.push({
+                                account: inputs[0].value.trim(),
+                                debet: parseFloat(inputs[1].value) || 0,
+                                kredit: parseFloat(inputs[2].value) || 0
+                            });
+                        }
+                    });
+                    question.solution = { postings: postings };
+                    break;
+            }
+            
+            currentQuestions.push(question);
+            document.getElementById('questions-preview').innerHTML = renderQuestionsPreview();
+            document.querySelector('#modal-body h3').textContent = 'Spørsmål (' + currentQuestions.length + ')';
+            
+            closeQuestionModal();
+        }
+        
+        function removeQuestion(index) {
+            currentQuestions.splice(index, 1);
+            document.getElementById('questions-preview').innerHTML = renderQuestionsPreview();
+            document.querySelector('#modal-body h3').textContent = 'Spørsmål (' + currentQuestions.length + ')';
+        }
+        
+        async function saveQuiz() {
+            var name = document.getElementById('quiz-name').value.trim();
+            if (!name) {
+                alert('Gi quizen et navn');
+                return;
+            }
+            
+            if (currentQuestions.length === 0) {
+                alert('Legg til minst ett spørsmål');
+                return;
+            }
+            
+            var quizData = {
+                name: name,
+                questions: currentQuestions,
+                visibility: document.getElementById('quiz-visibility').value,
+                teacherId: currentUser ? currentUser.uid : 'demo',
+                updatedAt: new Date().toISOString()
+            };
+            
+            if (currentQuiz && currentQuiz.id) {
+                quizData.id = currentQuiz.id;
+            }
+            
+            try {
+                var result = await apiPost('/api/quizzes', quizData);
+                if (result.error) {
+                    alert('Feil: ' + result.error);
+                    return;
+                }
+                
+                alert('Quiz lagret!');
+                closeModal();
+                loadMyQuizzes();
+            } catch (err) {
+                alert('Feil ved lagring: ' + err.message);
+            }
+        }
+        
+        function editQuiz(quizId) {
+            var quiz = myQuizzes.find(function(q) { return q.id === quizId; });
+            if (quiz) {
+                openQuizBuilder(quiz);
+            }
+        }
+        
+        async function deleteQuiz(quizId) {
+            if (!confirm('Er du sikker på at du vil slette denne quizen?')) return;
+            
+            try {
+                await apiDelete('/api/quizzes/' + quizId);
+                loadMyQuizzes();
+                showWelcome();
+            } catch (err) {
+                alert('Feil ved sletting: ' + err.message);
+            }
+        }
+        
+        async function copyQuiz(quizId) {
+            var quiz = publicQuizzes.find(function(q) { return q.id === quizId; });
+            if (!quiz) return;
+            
+            var newQuiz = {
+                name: quiz.name + ' (kopi)',
+                questions: quiz.questions,
+                visibility: 'private',
+                teacherId: currentUser ? currentUser.uid : 'demo'
+            };
+            
+            try {
+                await apiPost('/api/quizzes', newQuiz);
+                alert('Quiz kopiert til dine quizer!');
+                loadMyQuizzes();
+            } catch (err) {
+                alert('Feil ved kopiering: ' + err.message);
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('quiz-modal').classList.remove('active');
+        }
+        
+        function closeQuestionModal() {
+            document.getElementById('question-modal').classList.remove('active');
+        }
+        
+        // ==================== CLASSROOMS ====================
+        async function loadMyClassrooms() {
+            var container = document.getElementById('classrooms-list');
+            container.innerHTML = '<p style="color: var(--text-secondary);">Laster...</p>';
+            
+            try {
+                var userId = currentUser ? currentUser.uid : 'demo';
+                var data = await apiGet('/api/classrooms?teacherId=' + userId);
+                myClassrooms = data.classrooms || [];
+                
+                if (myClassrooms.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: var(--space-lg);">
+                            <p>Ingen klasserom</p>
+                            <button class="btn btn-primary btn-sm" style="margin-top: var(--space-md);" onclick="openClassroomCreator()">
+                                Opprett klasserom
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = myClassrooms.map(function(classroom, i) {
+                    return `
+                        <div class="list-item" onclick="selectClassroom(${i})">
+                            <span class="list-item-icon">🏫</span>
+                            <div class="list-item-content">
+                                <div class="list-item-title">${classroom.name || 'Uten navn'}</div>
+                                <div class="list-item-meta">Kode: ${classroom.code}</div>
+                            </div>
+                            <span class="list-item-badge">${classroom.studentCount || 0} elever</span>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = '<p style="color: var(--error);">Feil ved lasting</p>';
+            }
+        }
+        
+        function selectClassroom(index) {
+            currentClassroom = myClassrooms[index];
+            renderClassroomDetails(currentClassroom);
+        }
+        
+        async function renderClassroomDetails(classroom) {
+            var workspace = document.getElementById('workspace');
+            
+            workspace.innerHTML = `
+                <div class="workspace-header">
+                    <div>
+                        <h2 class="workspace-title">${classroom.name}</h2>
+                        <p style="color: var(--text-secondary);">${classroom.description || ''}</p>
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteClassroom('${classroom.id}')">🗑️ Slett</button>
+                </div>
+                
+                <div style="text-align: center; margin: var(--space-xl) 0;">
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-sm);">Klasseromkode</p>
+                    <div class="classroom-code">${classroom.code}</div>
+                    <p style="color: var(--text-secondary); margin-top: var(--space-sm); font-size: 0.9em;">
+                        Elever bruker denne koden for å bli med
+                    </p>
+                </div>
+                
+                <h3 style="margin-bottom: var(--space-md);">Elever</h3>
+                <div id="students-list">
+                    <p style="color: var(--text-secondary);">Laster elever...</p>
+                </div>
+            `;
+            
+            // Load students
+            try {
+                var data = await apiGet('/api/classrooms/' + classroom.id + '/students');
+                var students = data.students || [];
+                
+                var studentsContainer = document.getElementById('students-list');
+                if (students.length === 0) {
+                    studentsContainer.innerHTML = '<p style="color: var(--text-secondary);">Ingen elever ennå</p>';
+                } else {
+                    studentsContainer.innerHTML = students.map(function(student) {
+                        return `
+                            <div class="student-item">
+                                <div class="student-avatar">${(student.name || 'E')[0].toUpperCase()}</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600;">${student.name || 'Ukjent'}</div>
+                                    <div style="font-size: 0.85em; color: var(--text-secondary);">${student.email || ''}</div>
+                                </div>
+                                <button class="btn btn-sm btn-danger" onclick="removeStudent('${classroom.id}', '${student.id}')">Fjern</button>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (err) {
+                document.getElementById('students-list').innerHTML = '<p style="color: var(--error);">Feil ved lasting</p>';
+            }
+        }
+        
+        function openClassroomCreator() {
+            var name = prompt('Navn på klasserom:');
+            if (!name) return;
+            
+            var description = prompt('Beskrivelse (valgfritt):') || '';
+            
+            createClassroom(name, description);
+        }
+        
+        async function createClassroom(name, description) {
+            try {
+                var result = await apiPost('/api/classrooms', {
+                    name: name,
+                    description: description,
+                    teacherId: currentUser ? currentUser.uid : 'demo'
+                });
+                
+                if (result.error) {
+                    alert('Feil: ' + result.error);
+                    return;
+                }
+                
+                alert('Klasserom opprettet! Kode: ' + result.code);
+                loadMyClassrooms();
+            } catch (err) {
+                alert('Feil ved opprettelse: ' + err.message);
+            }
+        }
+        
+        async function deleteClassroom(classroomId) {
+            if (!confirm('Er du sikker på at du vil slette dette klasserommet?')) return;
+            
+            try {
+                await apiDelete('/api/classrooms/' + classroomId);
+                loadMyClassrooms();
+                showWelcome();
+            } catch (err) {
+                alert('Feil ved sletting: ' + err.message);
+            }
+        }
+        
+        async function removeStudent(classroomId, studentId) {
+            if (!confirm('Fjerne denne eleven fra klasserommet?')) return;
+            
+            try {
+                await apiDelete('/api/classrooms/' + classroomId + '/students/' + studentId);
+                selectClassroom(myClassrooms.findIndex(function(c) { return c.id === classroomId; }));
+            } catch (err) {
+                alert('Feil: ' + err.message);
+            }
+        }
+        
+        // ==================== ASSIGNMENTS ====================
+        async function loadAssignments() {
+            var container = document.getElementById('assignments-list');
+            container.innerHTML = '<p style="color: var(--text-secondary);">Kommer snart...</p>';
+        }
+        
+        function openAssignmentCreator() {
+            alert('Oppgave-opprettelse kommer snart!');
+        }
+        
+        // ==================== GAME ====================
+        function loadGameQuizList() {
+            var container = document.getElementById('game-quiz-list');
+            
+            if (myQuizzes.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Du har ingen quizer. Lag en quiz først!</p>';
+                return;
+            }
+            
+            container.innerHTML = myQuizzes.map(function(quiz, i) {
+                return `
+                    <div class="list-item" onclick="startGameWithQuiz('${quiz.id}')">
+                        <span class="list-item-icon">🎮</span>
+                        <div class="list-item-content">
+                            <div class="list-item-title">${quiz.name}</div>
+                            <div class="list-item-meta">${(quiz.questions || []).length} spørsmål</div>
+                        </div>
+                        <span style="color: var(--accent);">Spill →</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function startGameWithQuiz(quizId) {
+            var quiz = myQuizzes.find(function(q) { return q.id === quizId; }) ||
+                       publicQuizzes.find(function(q) { return q.id === quizId; });
+            
+            if (!quiz) {
+                alert('Fant ikke quizen');
+                return;
+            }
+            
+            // Generate game PIN
+            var pin = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Create game session in Firebase
+            if (typeof firebase !== 'undefined' && firebase.database) {
+                var gameRef = firebase.database().ref('games/' + pin);
+                await gameRef.set({
+                    quiz: quiz,
+                    host: currentUser ? currentUser.uid : 'demo',
+                    status: 'waiting',
+                    players: {},
+                    createdAt: Date.now()
+                });
+                
+                // Listen for players
+                gameRef.child('players').on('child_added', function(snapshot) {
+                    updatePlayersWaiting();
+                });
+                
+                gameSession = { pin: pin, quiz: quiz, ref: gameRef };
+            }
+            
+            // Show game lobby
+            showGameLobby(pin, quiz);
+        }
+        
+        function showGameLobby(pin, quiz) {
+            var workspace = document.getElementById('workspace');
+            
+            workspace.innerHTML = `
+                <div class="workspace-header">
+                    <h2 class="workspace-title">🎮 ${quiz.name}</h2>
+                    <button class="btn btn-danger" onclick="cancelGame()">Avbryt</button>
+                </div>
+                
+                <div class="game-pin-display">
+                    <div class="game-pin-label">Gå til accountingquest.app og bruk kode:</div>
+                    <div class="game-pin">${pin}</div>
+                    <div class="game-pin-url">eller gå direkte til: accountingquest.app/student_join.html</div>
+                </div>
+                
+                <h3 style="text-align: center; margin-bottom: var(--space-md);">Spillere som venter</h3>
+                <div class="players-waiting" id="players-waiting">
+                    <p style="color: var(--text-secondary);">Venter på spillere...</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: var(--space-xl);">
+                    <button class="btn btn-primary" style="font-size: 1.3em; padding: 20px 50px;" onclick="startGame()">
+                        ▶️ Start spill
+                    </button>
+                </div>
+            `;
+        }
+        
+        function updatePlayersWaiting() {
+            if (!gameSession || !gameSession.ref) return;
+            
+            gameSession.ref.child('players').once('value', function(snapshot) {
+                var players = snapshot.val() || {};
+                var container = document.getElementById('players-waiting');
+                
+                var playerNames = Object.values(players).map(function(p) { return p.name || 'Ukjent'; });
+                
+                if (playerNames.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary);">Venter på spillere...</p>';
+                } else {
+                    container.innerHTML = playerNames.map(function(name) {
+                        return '<div class="player-chip">' + name + '</div>';
+                    }).join('');
+                }
+            });
+        }
+        
+        async function startGame() {
+            if (!gameSession || !gameSession.ref) {
+                alert('Ingen aktiv spilløkt');
+                return;
+            }
+            
+            await gameSession.ref.update({ status: 'playing', startedAt: Date.now() });
+            
+            // Redirect to game host view
+            window.location.href = 'game_host.html?pin=' + gameSession.pin;
+        }
+        
+        function cancelGame() {
+            if (gameSession && gameSession.ref) {
+                gameSession.ref.remove();
+            }
+            gameSession = null;
+            showWelcome();
+        }
+        
+        // ==================== RESULTS ====================
+        function loadResults() {
+            var container = document.getElementById('results-list');
+            container.innerHTML = '<p style="color: var(--text-secondary);">Resultater kommer snart...</p>';
+        }
+    </script>
+</body>
+</html>

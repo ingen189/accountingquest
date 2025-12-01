@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spill - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+    
+    <!-- Felles stilark -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Firebase for Realtime -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    
+    <style>
+        /* ==================== BASE ==================== */
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--bg-primary);
+        }
+        
+        /* === HEADER === */
+        .game-header {
+            background: var(--bg-secondary);
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--accent);
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        
+        .player-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--accent), #22c55e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+        
+        .player-name {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .score-display {
+            text-align: right;
+        }
+        
+        .score-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .score-label {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+        
+        /* === GAME CONTENT === */
+        .game-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: var(--space-lg);
+            overflow-y: auto;
+        }
+        
+        /* === SCREENS === */
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+        
+        .screen.active {
+            display: flex;
+        }
+        
+        /* === WAITING SCREEN === */
+        .waiting-screen {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .waiting-icon {
+            font-size: 5em;
+            margin-bottom: var(--space-lg);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .waiting-text {
+            font-size: 1.5em;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-md);
+        }
+        
+        .waiting-hint {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        /* === QUESTION SCREEN === */
+        .question-screen {
+            gap: var(--space-lg);
+        }
+        
+        .question-box {
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent);
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg);
+            text-align: center;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+        
+        .question-number {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .question-type {
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .question-text {
+            font-size: 1.4em;
+            line-height: 1.4;
+            margin-bottom: var(--space-md);
+        }
+        
+        .timer-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .timer-display.warning {
+            color: var(--warning);
+            animation: pulse 0.5s infinite;
+        }
+        
+        .timer-display.danger {
+            color: var(--error);
+        }
+        
+        /* === ANSWERS === */
+        .answers-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+            flex: 1;
+        }
+        
+        .answer-btn {
+            background: var(--bg-secondary);
+            border: 4px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            font-size: 1.1em;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 100px;
+        }
+        
+        .answer-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .answer-btn.answer-a { border-color: #ef4444; }
+        .answer-btn.answer-a.selected, .answer-btn.answer-a:hover { background: #ef4444; color: white; }
+        
+        .answer-btn.answer-b { border-color: #3b82f6; }
+        .answer-btn.answer-b.selected, .answer-btn.answer-b:hover { background: #3b82f6; color: white; }
+        
+        .answer-btn.answer-c { border-color: #f59e0b; }
+        .answer-btn.answer-c.selected, .answer-btn.answer-c:hover { background: #f59e0b; color: white; }
+        
+        .answer-btn.answer-d { border-color: #22c55e; }
+        .answer-btn.answer-d.selected, .answer-btn.answer-d:hover { background: #22c55e; color: white; }
+        
+        .answer-btn.selected {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+        }
+        
+        .answer-btn.correct {
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+            color: var(--bg-primary) !important;
+        }
+        
+        .answer-btn.incorrect {
+            opacity: 0.5;
+        }
+        
+        .answer-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .answer-label {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: var(--space-xs);
+        }
+        
+        .answer-text {
+            font-size: 0.95em;
+        }
+        
+        /* === TRUE/FALSE === */
+        .tf-container {
+            display: flex;
+            gap: var(--space-lg);
+            flex: 1;
+        }
+        
+        .tf-btn {
+            flex: 1;
+            border-radius: var(--radius-xl);
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 4px solid;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            min-height: 150px;
+        }
+        
+        .tf-btn.true {
+            background: var(--bg-secondary);
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+        
+        .tf-btn.true.selected, .tf-btn.true:hover {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .tf-btn.false {
+            background: var(--bg-secondary);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        
+        .tf-btn.false.selected, .tf-btn.false:hover {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .tf-icon {
+            font-size: 2em;
+        }
+        
+        /* === CALCULATION INPUT === */
+        .calc-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-lg);
+        }
+        
+        .calc-input {
+            font-size: 2em;
+            padding: var(--space-lg);
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .calc-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+        }
+        
+        .submit-btn {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: var(--space-lg) var(--space-2xl);
+            border-radius: var(--radius-lg);
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .submit-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.05);
+        }
+        
+        /* === FEEDBACK === */
+        .feedback-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            padding: var(--space-xl);
+        }
+        
+        .feedback-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .feedback-icon {
+            font-size: 6em;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .feedback-text {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: var(--space-md);
+        }
+        
+        .feedback-text.correct {
+            color: var(--accent);
+        }
+        
+        .feedback-text.incorrect {
+            color: var(--error);
+        }
+        
+        .feedback-points {
+            font-size: 1.5em;
+            color: var(--accent);
+        }
+        
+        /* === RESULTS SCREEN === */
+        .results-screen {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .results-rank {
+            font-size: 4em;
+            margin-bottom: var(--space-md);
+        }
+        
+        .results-title {
+            font-size: 2em;
+            color: var(--accent);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .results-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: var(--space-md);
+        }
+        
+        .results-stats {
+            display: flex;
+            gap: var(--space-xl);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .result-stat {
+            text-align: center;
+        }
+        
+        .result-stat-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .result-stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: 14px 28px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 500px) {
+            .game-header {
+                padding: var(--space-sm) var(--space-md);
+            }
+            
+            .player-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 1.2em;
+            }
+            
+            .player-name {
+                font-size: 0.95em;
+            }
+            
+            .score-value {
+                font-size: 1.4em;
+            }
+            
+            .game-content {
+                padding: var(--space-md);
+            }
+            
+            .question-text {
+                font-size: 1.1em;
+            }
+            
+            .timer-display {
+                font-size: 2em;
+            }
+            
+            .answers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .answer-btn {
+                min-height: 70px;
+                padding: var(--space-md);
+            }
+            
+            .tf-container {
+                flex-direction: column;
+            }
+            
+            .tf-btn {
+                min-height: 100px;
+            }
+        }
+        
+        @media (min-height: 800px) {
+            .answer-btn {
+                min-height: 120px;
+            }
+            
+            .tf-btn {
+                min-height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <header class="game-header">
+            <div class="player-info">
+                <div class="player-avatar" id="player-avatar">🎓</div>
+                <div class="player-name" id="player-name">Spiller</div>
+            </div>
+            <div class="score-display">
+                <div class="score-value" id="score-value">0</div>
+                <div class="score-label">poeng</div>
+            </div>
+        </header>
+        
+        <!-- Game Content -->
+        <div class="game-content">
+            <!-- Waiting Screen -->
+            <div class="screen active" id="waiting-screen">
+                <div class="waiting-screen">
+                    <div class="waiting-icon">⏳</div>
+                    <div class="waiting-text">Venter på at spillet skal starte...</div>
+                    <div class="waiting-hint">Læreren starter snart!</div>
+                </div>
+            </div>
+            
+            <!-- Question Screen -->
+            <div class="screen" id="question-screen">
+                <div class="question-screen">
+                    <div class="question-box">
+                        <div class="question-header">
+                            <span class="question-number" id="question-number">Spørsmål 1 av 10</span>
+                            <span class="question-type" id="question-type">📝 Flervalg</span>
+                        </div>
+                        <div class="question-text" id="question-text">
+                            Spørsmålet vises her...
+                        </div>
+                        <div class="timer-display" id="timer">30</div>
+                    </div>
+                    
+                    <div class="answers-container" id="answers-container">
+                        <!-- Answers will be rendered here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Screen -->
+            <div class="screen" id="results-screen">
+                <div class="results-screen">
+                    <div class="results-rank" id="results-rank">🏆</div>
+                    <div class="results-title">Spillet er ferdig!</div>
+                    <div class="results-score" id="final-score">0 poeng</div>
+                    
+                    <div class="results-stats">
+                        <div class="result-stat">
+                            <div class="result-stat-value" id="correct-count">0</div>
+                            <div class="result-stat-label">Riktige</div>
+                        </div>
+                        <div class="result-stat">
+                            <div class="result-stat-value" id="total-questions">0</div>
+                            <div class="result-stat-label">Spørsmål</div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="playAgain()">🔄 Spill igjen</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feedback Overlay -->
+        <div class="feedback-overlay" id="feedback-overlay">
+            <div class="feedback-icon" id="feedback-icon">✅</div>
+            <div class="feedback-text" id="feedback-text">Riktig!</div>
+            <div class="feedback-points" id="feedback-points">+100 poeng</div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIG ====================
+        var gameState = {
+            pin: null,
+            playerId: null,
+            playerName: null,
+            score: 0,
+            correctCount: 0,
+            currentQuestion: null,
+            hasAnswered: false,
+            answerTime: null
+        };
+        
+        var db = null;
+        var gameRef = null;
+        
+        const TYPE_LABELS = {
+            'multiple_choice': '📝 Flervalg',
+            'mc': '📝 Flervalg',
+            'true_false': '✓✗ Sant/Usant',
+            'tf': '✓✗ Sant/Usant',
+            'calculation': '🔢 Beregning'
+        };
+        
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get params from URL
+            var params = new URLSearchParams(window.location.search);
+            gameState.pin = params.get('pin');
+            gameState.playerName = params.get('name') || localStorage.getItem('aq_student_name') || 'Spiller';
+            gameState.playerId = localStorage.getItem('aq_student_id') || generatePlayerId();
+            
+            if (!gameState.pin) {
+                alert('Ingen spill-PIN funnet. Gå tilbake og bli med på nytt.');
+                window.location.href = 'student_portal_v2.html';
+                return;
+            }
+            
+            // Update UI
+            document.getElementById('player-name').textContent = gameState.playerName;
+            document.getElementById('player-avatar').textContent = gameState.playerName[0].toUpperCase();
+            
+            // Initialize Firebase
+            initFirebase();
+        });
+        
+        function generatePlayerId() {
+            var id = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('aq_student_id', id);
+            return id;
+        }
+        
+        function initFirebase() {
+            if (typeof firebase === 'undefined') {
+                console.error('Firebase not loaded');
+                return;
+            }
+            
+            db = firebase.database();
+            gameRef = db.ref('games/' + gameState.pin);
+            
+            // Check if game exists
+            gameRef.once('value').then(function(snapshot) {
+                if (!snapshot.exists()) {
+                    alert('Fant ikke spillet. Det kan ha blitt avsluttet.');
+                    window.location.href = 'student_portal_v2.html';
+                    return;
+                }
+                
+                // Listen for game status
+                listenForGameState();
+                
+                // Listen for score updates
+                listenForScore();
+            });
+        }
+        
+        function listenForGameState() {
+            // Listen for status changes
+            gameRef.child('status').on('value', function(snapshot) {
+                var status = snapshot.val();
+                
+                if (status === 'playing') {
+                    // Game started, listen for questions
+                    listenForQuestions();
+                } else if (status === 'finished') {
+                    showResults();
+                }
+            });
+        }
+        
+        function listenForQuestions() {
+            gameRef.child('currentQuestion').on('value', function(snapshot) {
+                var question = snapshot.val();
+                if (question) {
+                    showQuestion(question);
+                }
+            });
+        }
+        
+        function listenForScore() {
+            gameRef.child('players/' + gameState.playerId + '/score').on('value', function(snapshot) {
+                var score = snapshot.val() || 0;
+                gameState.score = score;
+                document.getElementById('score-value').textContent = score;
+            });
+        }
+        
+        // ==================== QUESTION ====================
+        function showQuestion(question) {
+            gameState.currentQuestion = question;
+            gameState.hasAnswered = false;
+            gameState.answerTime = Date.now();
+            
+            // Hide feedback
+            document.getElementById('feedback-overlay').classList.remove('active');
+            
+            // Show question screen
+            showScreen('question-screen');
+            
+            // Update UI
+            document.getElementById('question-number').textContent = 
+                'Spørsmål ' + (question.index + 1);
+            document.getElementById('question-text').textContent = question.text;
+            document.getElementById('question-type').textContent = 
+                TYPE_LABELS[question.type] || '📝 Quiz';
+            
+            // Build answers
+            buildAnswers(question);
+            
+            // Start local timer (visual only)
+            startTimer(30);
+        }
+        
+        function buildAnswers(question) {
+            var container = document.getElementById('answers-container');
+            var type = question.type || 'multiple_choice';
+            
+            switch (type) {
+                case 'true_false':
+                case 'tf':
+                    container.innerHTML = buildTFAnswers();
+                    break;
+                case 'calculation':
+                    container.innerHTML = buildCalcInput();
+                    break;
+                default:
+                    container.innerHTML = buildMCAnswers(question);
+            }
+        }
+        
+        function buildMCAnswers(question) {
+            var options = question.options || [];
+            var labels = ['A', 'B', 'C', 'D', 'E', 'F'];
+            var classes = ['answer-a', 'answer-b', 'answer-c', 'answer-d', 'answer-a', 'answer-b'];
+            
+            var html = '<div class="answers-grid">';
+            options.forEach(function(opt, i) {
+                var text = typeof opt === 'object' ? opt.text : opt;
+                html += `
+                    <button class="answer-btn ${classes[i % classes.length]}" onclick="submitAnswer(${i})">
+                        <div class="answer-label">${labels[i]}</div>
+                        <div class="answer-text">${text}</div>
+                    </button>
+                `;
+            });
+            html += '</div>';
+            return html;
+        }
+        
+        function buildTFAnswers() {
+            return `
+                <div class="tf-container">
+                    <button class="tf-btn true" onclick="submitAnswer('true')">
+                        <div class="tf-icon">✅</div>
+                        <div>SANT</div>
+                    </button>
+                    <button class="tf-btn false" onclick="submitAnswer('false')">
+                        <div class="tf-icon">❌</div>
+                        <div>USANT</div>
+                    </button>
+                </div>
+            `;
+        }
+        
+        function buildCalcInput() {
+            return `
+                <div class="calc-container">
+                    <input type="number" class="calc-input" id="calc-input" placeholder="Skriv svaret..." inputmode="decimal">
+                    <button class="submit-btn" onclick="submitCalcAnswer()">Lever svar</button>
+                </div>
+            `;
+        }
+        
+        // ==================== SUBMIT ANSWER ====================
+        function submitAnswer(answer) {
+            if (gameState.hasAnswered) return;
+            gameState.hasAnswered = true;
+            
+            var responseTime = Date.now() - gameState.answerTime;
+            
+            // Disable all buttons
+            document.querySelectorAll('.answer-btn, .tf-btn').forEach(function(btn) {
+                btn.disabled = true;
+            });
+            
+            // Mark selected
+            var type = gameState.currentQuestion.type || 'multiple_choice';
+            if (type === 'true_false' || type === 'tf') {
+                document.querySelector('.tf-btn.' + answer).classList.add('selected');
+            } else {
+                document.querySelectorAll('.answer-btn')[answer].classList.add('selected');
+            }
+            
+            // Send answer to Firebase
+            gameRef.child('answers/' + gameState.playerId).set({
+                answer: answer,
+                responseTime: responseTime,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            // Show waiting state
+            document.getElementById('timer').textContent = '✓';
+            document.getElementById('timer').className = 'timer-display';
+        }
+        
+        function submitCalcAnswer() {
+            var input = document.getElementById('calc-input');
+            var answer = parseFloat(input.value);
+            
+            if (isNaN(answer)) {
+                input.style.borderColor = 'var(--error)';
+                return;
+            }
+            
+            submitAnswer(answer);
+        }
+        
+        // ==================== TIMER ====================
+        var timerInterval = null;
+        
+        function startTimer(seconds) {
+            var timerEl = document.getElementById('timer');
+            var remaining = seconds;
+            
+            timerEl.textContent = remaining;
+            timerEl.className = 'timer-display';
+            
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(function() {
+                remaining--;
+                
+                if (gameState.hasAnswered) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                timerEl.textContent = remaining;
+                
+                if (remaining <= 10) {
+                    timerEl.className = 'timer-display warning';
+                }
+                if (remaining <= 5) {
+                    timerEl.className = 'timer-display danger';
+                }
+                
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    timerEl.textContent = '⏰';
+                    
+                    // Auto-submit no answer
+                    if (!gameState.hasAnswered) {
+                        gameState.hasAnswered = true;
+                        showFeedback(false, 0);
+                    }
+                }
+            }, 1000);
+        }
+        
+        // ==================== FEEDBACK ====================
+        function showFeedback(isCorrect, points) {
+            var overlay = document.getElementById('feedback-overlay');
+            var icon = document.getElementById('feedback-icon');
+            var text = document.getElementById('feedback-text');
+            var pointsEl = document.getElementById('feedback-points');
+            
+            if (isCorrect) {
+                icon.textContent = '✅';
+                text.textContent = 'Riktig!';
+                text.className = 'feedback-text correct';
+                pointsEl.textContent = '+' + points + ' poeng';
+                gameState.correctCount++;
+            } else {
+                icon.textContent = '❌';
+                text.textContent = 'Feil';
+                text.className = 'feedback-text incorrect';
+                pointsEl.textContent = '';
+            }
+            
+            overlay.classList.add('active');
+            
+            // Hide after 2 seconds
+            setTimeout(function() {
+                overlay.classList.remove('active');
+            }, 2000);
+        }
+        
+        // ==================== SCREENS ====================
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(function(screen) {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+        
+        // ==================== RESULTS ====================
+        function showResults() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            showScreen('results-screen');
+            
+            document.getElementById('final-score').textContent = gameState.score + ' poeng';
+            document.getElementById('correct-count').textContent = gameState.correctCount;
+            
+            // Get rank from leaderboard
+            gameRef.child('players').once('value').then(function(snapshot) {
+                var players = snapshot.val() || {};
+                var sorted = Object.keys(players).map(function(id) {
+                    return { id: id, score: players[id].score || 0 };
+                }).sort(function(a, b) {
+                    return b.score - a.score;
+                });
+                
+                var rank = sorted.findIndex(function(p) { return p.id === gameState.playerId; }) + 1;
+                var totalPlayers = sorted.length;
+                
+                document.getElementById('total-questions').textContent = totalPlayers + ' spillere';
+                
+                var medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
+                document.getElementById('results-rank').textContent = medals[rank] || '#' + rank;
+            });
+        }
+        
+        function playAgain() {
+            window.location.href = 'student_portal_v2.html';
+        }
+    </script>
+</body>
+</html>

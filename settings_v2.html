@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innstillinger - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    
+    <style>
+        /* Layout */
+        .app-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* Icon Menu */
+        .icon-menu {
+            width: 60px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            gap: var(--space-xs);
+        }
+        
+        .icon-btn {
+            width: 46px;
+            height: 46px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+        }
+        
+        .icon-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .icon-btn.active { background: var(--accent); color: var(--bg-primary); }
+        
+        .icon-menu-divider {
+            width: 30px;
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--space-sm) 0;
+        }
+        
+        /* Sidebar */
+        .sidebar-panel {
+            width: 250px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-title { font-weight: 600; color: var(--accent); }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-sm);
+        }
+        
+        .sidebar-view { display: none; }
+        .sidebar-view.active { display: block; }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+        
+        .nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .nav-item.active { background: var(--accent); color: var(--bg-primary); }
+        
+        /* Workspace */
+        .workspace {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-xl);
+            background: var(--bg-primary);
+        }
+        
+        .settings-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .settings-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .settings-section-title {
+            color: var(--accent);
+            font-size: 1.2em;
+            margin-bottom: var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-label {
+            flex: 1;
+        }
+        
+        .setting-label strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+        
+        .setting-label small {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+        
+        /* Toggle switch */
+        .toggle {
+            position: relative;
+            width: 54px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .toggle.active {
+            background: var(--accent);
+        }
+        
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .toggle.active::after {
+            transform: translateX(26px);
+        }
+        
+        /* Input */
+        .setting-input {
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1em;
+            width: 200px;
+        }
+        
+        .setting-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        /* Select */
+        .setting-select {
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1em;
+            min-width: 150px;
+            cursor: pointer;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .btn:hover {
+            border-color: var(--accent);
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .btn-danger {
+            background: var(--error);
+            border-color: var(--error);
+            color: white;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+        
+        /* User profile card */
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            padding: var(--space-lg);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent), #22c55e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+        }
+        
+        .profile-info h2 {
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .profile-info p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .profile-badge {
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-top: var(--space-sm);
+            display: inline-block;
+        }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--space-md);
+        }
+        
+        .stat-card {
+            background: var(--bg-tertiary);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            margin-top: 4px;
+        }
+        
+        /* Danger zone */
+        .danger-zone {
+            border: 2px solid var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .danger-zone .settings-section-title {
+            color: var(--error);
+        }
+        
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-md);
+            display: none;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-layout { flex-direction: column; }
+            
+            .icon-menu {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                order: 2;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                border-top: 1px solid var(--border-color);
+                border-right: none;
+            }
+            
+            .sidebar-panel { display: none; }
+            
+            .workspace {
+                padding: var(--space-md);
+                padding-bottom: 80px;
+            }
+            
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-md);
+            }
+            
+            .setting-input, .setting-select {
+                width: 100%;
+            }
+            
+            .profile-card {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="aq-header">
+        <div class="aq-header-left">
+            <a href="index.html" class="btn" style="padding: 8px 16px;">← Hjem</a>
+            <span style="color: var(--accent); font-weight: 600;">⚙️ Innstillinger</span>
+        </div>
+        <div class="aq-header-right">
+            <span id="save-status" style="color: var(--text-secondary);">Alle endringer lagres automatisk</span>
+        </div>
+    </header>
+    
+    <div class="app-layout">
+        <!-- Icon Menu -->
+        <nav class="icon-menu">
+            <button class="icon-btn active" onclick="showSection('profile')" title="Profil">👤</button>
+            <button class="icon-btn" onclick="showSection('appearance')" title="Utseende">🎨</button>
+            <button class="icon-btn" onclick="showSection('sound')" title="Lyd">🔊</button>
+            <div class="icon-menu-divider"></div>
+            <button class="icon-btn" onclick="showSection('game')" title="Spill">🎮</button>
+            <button class="icon-btn" onclick="showSection('data')" title="Data">💾</button>
+        </nav>
+        
+        <!-- Sidebar -->
+        <aside class="sidebar-panel">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Innstillinger</span>
+            </div>
+            <div class="sidebar-content">
+                <div class="nav-item active" onclick="showSection('profile')">👤 Profil</div>
+                <div class="nav-item" onclick="showSection('appearance')">🎨 Utseende</div>
+                <div class="nav-item" onclick="showSection('sound')">🔊 Lyd</div>
+                <div class="nav-item" onclick="showSection('game')">🎮 Spillinnstillinger</div>
+                <div class="nav-item" onclick="showSection('data')">💾 Data & Lagring</div>
+            </div>
+        </aside>
+        
+        <!-- Workspace -->
+        <main class="workspace">
+            <div class="settings-container">
+                <!-- Profile Section -->
+                <div id="section-profile" class="settings-view active">
+                    <div class="profile-card">
+                        <div class="profile-avatar" id="profile-avatar">👤</div>
+                        <div class="profile-info">
+                            <h2 id="profile-name">Gjest</h2>
+                            <p id="profile-email">Ikke logget inn</p>
+                            <span class="profile-badge" id="profile-badge">Gratis</span>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">👤 Brukerprofil</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Brukernavn</strong>
+                                <small>Vises i multiplayer og leaderboards</small>
+                            </div>
+                            <input type="text" class="setting-input" id="username" placeholder="Ditt navn" maxlength="20">
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>E-post</strong>
+                                <small>For innlogging og varsler</small>
+                            </div>
+                            <input type="email" class="setting-input" id="email" placeholder="din@email.no" disabled>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="saveProfile()">💾 Lagre</button>
+                            <button class="btn" id="auth-btn" onclick="toggleAuth()">🔑 Logg inn</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">📊 Din statistikk</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-completed">0</div>
+                                <div class="stat-label">Oppgaver</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-correct">0%</div>
+                                <div class="stat-label">Riktige</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-streak">0</div>
+                                <div class="stat-label">Streak</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-xp">0</div>
+                                <div class="stat-label">XP</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Appearance Section -->
+                <div id="section-appearance" class="settings-view">
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🎨 Utseende</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Mørk modus</strong>
+                                <small>Bytt mellom mørkt og lyst tema</small>
+                            </div>
+                            <button class="toggle active" id="toggle-darkmode" onclick="toggleSetting('darkmode')"></button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Animasjoner</strong>
+                                <small>Slå av for bedre ytelse</small>
+                            </div>
+                            <button class="toggle active" id="toggle-animations" onclick="toggleSetting('animations')"></button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Fontstørrelse</strong>
+                                <small>Juster tekststørrelse</small>
+                            </div>
+                            <select class="setting-select" id="fontsize" onchange="changeFontSize(this.value)">
+                                <option value="small">Liten</option>
+                                <option value="medium" selected>Normal</option>
+                                <option value="large">Stor</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sound Section -->
+                <div id="section-sound" class="settings-view">
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🔊 Lyd</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Lydeffekter</strong>
+                                <small>Lyder ved riktige/gale svar</small>
+                            </div>
+                            <button class="toggle" id="toggle-sounds" onclick="toggleSetting('sounds')"></button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Bakgrunnsmusikk</strong>
+                                <small>Rolig musikk under oppgaver</small>
+                            </div>
+                            <button class="toggle" id="toggle-music" onclick="toggleSetting('music')"></button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Volum</strong>
+                                <small>Juster lydnivå</small>
+                            </div>
+                            <input type="range" min="0" max="100" value="50" id="volume" style="width: 150px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Game Section -->
+                <div id="section-game" class="settings-view">
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🎮 Spillinnstillinger</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Vis hint</strong>
+                                <small>Få hint når du står fast</small>
+                            </div>
+                            <button class="toggle active" id="toggle-hints" onclick="toggleSetting('hints')"></button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Vis forklaringer</strong>
+                                <small>Se forklaring etter hvert svar</small>
+                            </div>
+                            <button class="toggle active" id="toggle-explanations" onclick="toggleSetting('explanations')"></button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Timer i quiz</strong>
+                                <small>Standard tid per spørsmål</small>
+                            </div>
+                            <select class="setting-select" id="quiz-timer">
+                                <option value="15">15 sekunder</option>
+                                <option value="30" selected>30 sekunder</option>
+                                <option value="45">45 sekunder</option>
+                                <option value="60">60 sekunder</option>
+                                <option value="0">Ingen timer</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Vanskelighetsgrad</strong>
+                                <small>Start-nivå for nye moduler</small>
+                            </div>
+                            <select class="setting-select" id="difficulty">
+                                <option value="easy">Lett</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="hard">Vanskelig</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data Section -->
+                <div id="section-data" class="settings-view">
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">💾 Data & Lagring</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Lagret lokalt</strong>
+                                <small>Data lagret i nettleseren</small>
+                            </div>
+                            <span id="storage-size" style="color: var(--accent);">Beregner...</span>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Synkronisering</strong>
+                                <small>Sync fremgang til sky (krever innlogging)</small>
+                            </div>
+                            <button class="toggle" id="toggle-sync" onclick="toggleSetting('sync')"></button>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button class="btn" onclick="exportData()">📤 Eksporter data</button>
+                            <button class="btn" onclick="importData()">📥 Importer data</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section danger-zone">
+                        <h3 class="settings-section-title">⚠️ Faresone</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Nullstill fremgang</strong>
+                                <small>Slett all fremgang og start på nytt</small>
+                            </div>
+                            <button class="btn btn-danger" onclick="resetProgress()">🗑️ Nullstill</button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Slett all data</strong>
+                                <small>Fjern all lagret data fra denne enheten</small>
+                            </div>
+                            <button class="btn btn-danger" onclick="clearAllData()">💣 Slett alt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span id="toast-icon">✅</span>
+        <span id="toast-message">Lagret!</span>
+    </div>
+
+    <script>
+        // Settings state
+        let settings = {
+            username: '',
+            darkmode: true,
+            animations: true,
+            sounds: false,
+            music: false,
+            hints: true,
+            explanations: true,
+            sync: false,
+            volume: 50,
+            fontsize: 'medium',
+            quizTimer: 30,
+            difficulty: 'medium'
+        };
+        
+        // Load settings
+        function loadSettings() {
+            const saved = localStorage.getItem('aq_settings');
+            if (saved) {
+                settings = { ...settings, ...JSON.parse(saved) };
+            }
+            
+            // Apply settings to UI
+            document.getElementById('username').value = settings.username || localStorage.getItem('aq_username') || '';
+            document.getElementById('volume').value = settings.volume;
+            document.getElementById('fontsize').value = settings.fontsize;
+            document.getElementById('quiz-timer').value = settings.quizTimer;
+            document.getElementById('difficulty').value = settings.difficulty;
+            
+            // Apply toggles
+            ['darkmode', 'animations', 'sounds', 'music', 'hints', 'explanations', 'sync'].forEach(key => {
+                const toggle = document.getElementById('toggle-' + key);
+                if (toggle) {
+                    toggle.classList.toggle('active', settings[key]);
+                }
+            });
+            
+            // Load stats
+            loadStats();
+            
+            // Calculate storage
+            calculateStorage();
+        }
+        
+        // Save settings
+        function saveSettings() {
+            localStorage.setItem('aq_settings', JSON.stringify(settings));
+            showToast('Lagret!');
+        }
+        
+        // Toggle setting
+        function toggleSetting(key) {
+            settings[key] = !settings[key];
+            const toggle = document.getElementById('toggle-' + key);
+            if (toggle) {
+                toggle.classList.toggle('active', settings[key]);
+            }
+            
+            // Special handling
+            if (key === 'darkmode') {
+                document.body.setAttribute('data-theme', settings.darkmode ? 'dark' : 'light');
+            }
+            
+            saveSettings();
+        }
+        
+        // Show section
+        function showSection(section) {
+            document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
+            event.target.closest('.icon-btn')?.classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => {
+                if (n.textContent.toLowerCase().includes(section)) {
+                    n.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.settings-view').forEach(v => v.classList.remove('active'));
+            document.getElementById('section-' + section)?.classList.add('active');
+        }
+        
+        // Save profile
+        function saveProfile() {
+            const username = document.getElementById('username').value.trim();
+            if (username) {
+                settings.username = username;
+                localStorage.setItem('aq_username', username);
+                document.getElementById('profile-name').textContent = username;
+                document.getElementById('profile-avatar').textContent = username[0].toUpperCase();
+            }
+            saveSettings();
+        }
+        
+        // Toggle auth
+        function toggleAuth() {
+            // Simple auth flow - would connect to Firebase
+            const btn = document.getElementById('auth-btn');
+            if (btn.textContent.includes('Logg inn')) {
+                // Show login modal or redirect
+                alert('Innlogging kommer snart! Bruk Google eller e-post.');
+            } else {
+                // Logout
+                firebase.auth().signOut();
+            }
+        }
+        
+        // Load stats
+        function loadStats() {
+            // Load from localStorage
+            let totalCompleted = 0;
+            let totalCorrect = 0;
+            let totalAttempts = 0;
+            
+            ['grunnleggende_regnskap', 'corporate_finance', 'bokforing', 'quiz'].forEach(module => {
+                const progress = localStorage.getItem('aq_progress_' + module);
+                if (progress) {
+                    const data = JSON.parse(progress);
+                    totalCompleted += data.completed || 0;
+                    totalCorrect += data.correct || 0;
+                    totalAttempts += data.attempts || 0;
+                }
+            });
+            
+            document.getElementById('stat-completed').textContent = totalCompleted;
+            document.getElementById('stat-correct').textContent = totalAttempts > 0 
+                ? Math.round(totalCorrect / totalAttempts * 100) + '%' 
+                : '0%';
+            document.getElementById('stat-streak').textContent = localStorage.getItem('aq_streak') || 0;
+            document.getElementById('stat-xp').textContent = localStorage.getItem('aq_xp') || 0;
+        }
+        
+        // Calculate storage
+        function calculateStorage() {
+            let total = 0;
+            for (let key in localStorage) {
+                if (key.startsWith('aq_')) {
+                    total += localStorage[key].length * 2; // UTF-16
+                }
+            }
+            const kb = (total / 1024).toFixed(1);
+            document.getElementById('storage-size').textContent = kb + ' KB';
+        }
+        
+        // Export data
+        function exportData() {
+            const data = {};
+            for (let key in localStorage) {
+                if (key.startsWith('aq_')) {
+                    data[key] = localStorage[key];
+                }
+            }
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'accountingquest-backup.json';
+            a.click();
+            
+            showToast('Data eksportert!');
+        }
+        
+        // Import data
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        Object.keys(data).forEach(key => {
+                            localStorage.setItem(key, data[key]);
+                        });
+                        showToast('Data importert!');
+                        loadSettings();
+                    } catch (err) {
+                        alert('Kunne ikke lese filen.');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        // Reset progress
+        function resetProgress() {
+            if (!confirm('Er du sikker? All fremgang vil bli slettet.')) return;
+            
+            ['grunnleggende_regnskap', 'corporate_finance', 'bokforing', 'quiz', 'case', 'analyse'].forEach(module => {
+                localStorage.removeItem('aq_progress_' + module);
+            });
+            localStorage.removeItem('aq_streak');
+            localStorage.removeItem('aq_xp');
+            
+            showToast('Fremgang nullstilt');
+            loadStats();
+        }
+        
+        // Clear all data
+        function clearAllData() {
+            if (!confirm('ADVARSEL: All data vil bli permanent slettet!')) return;
+            if (!confirm('Er du HELT sikker?')) return;
+            
+            const keys = Object.keys(localStorage).filter(k => k.startsWith('aq_'));
+            keys.forEach(k => localStorage.removeItem(k));
+            
+            showToast('All data slettet');
+            location.reload();
+        }
+        
+        // Font size
+        function changeFontSize(size) {
+            settings.fontsize = size;
+            document.documentElement.style.fontSize = {
+                'small': '14px',
+                'medium': '16px',
+                'large': '18px'
+            }[size];
+            saveSettings();
+        }
+        
+        // Toast notification
+        function showToast(message, icon = '✅') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            document.getElementById('toast-icon').textContent = icon;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        
+        // Init
+        document.addEventListener('DOMContentLoaded', loadSettings);
+    </script>
+</body>
+</html>

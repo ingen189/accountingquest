@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oppgavebygger - AccountingQuest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>">
+    <meta name="theme-color" content="#0f1419">
+    
+    <!-- Felles stilark -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- KaTeX for formler -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        /* ==================== LAYOUT ==================== */
+        .app-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* === ICON MENU === */
+        .icon-menu {
+            width: 60px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            gap: var(--space-xs);
+        }
+        
+        .icon-btn {
+            width: 46px;
+            height: 46px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+            position: relative;
+        }
+        
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .icon-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .icon-btn-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--error);
+            color: white;
+            font-size: 0.5em;
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .icon-menu-divider {
+            width: 30px;
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--space-sm) 0;
+        }
+        
+        /* === SIDEBAR PANEL === */
+        .sidebar-panel {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-title {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1.1em;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-md);
+        }
+        
+        .sidebar-view {
+            display: none;
+        }
+        
+        .sidebar-view.active {
+            display: block;
+        }
+        
+        /* === MAIN WORKSPACE === */
+        .workspace {
+            flex: 1;
+            padding: var(--space-lg);
+            overflow-y: auto;
+            background: var(--bg-primary);
+        }
+        
+        .workspace-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .workspace-title {
+            font-size: 1.5em;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        /* === SET ITEMS === */
+        .set-item {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .set-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .set-item.active {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .set-item-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .set-item-meta {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+        
+        .set-item-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-top: var(--space-xs);
+        }
+        
+        /* === QUESTION TEMPLATES === */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .template-card {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .template-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .template-card.active {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.15);
+        }
+        
+        .template-icon {
+            font-size: 2em;
+            margin-bottom: var(--space-xs);
+        }
+        
+        .template-name {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+        
+        /* === QUESTION CARDS === */
+        .question-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-md);
+            overflow: hidden;
+        }
+        
+        .question-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            background: var(--bg-tertiary);
+            cursor: pointer;
+        }
+        
+        .question-card-header:hover {
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .question-card-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-weight: 600;
+        }
+        
+        .question-num {
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .question-type-badge {
+            background: #8b5cf6;
+            color: white;
+            padding: 3px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.75em;
+        }
+        
+        .question-card-body {
+            padding: var(--space-lg);
+        }
+        
+        .question-card.collapsed .question-card-body {
+            display: none;
+        }
+        
+        /* === FORMS === */
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+        
+        .form-label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: var(--space-md);
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1em;
+            font-family: inherit;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-md);
+        }
+        
+        /* === MC OPTIONS === */
+        .mc-option {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .mc-option.correct {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .mc-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent);
+        }
+        
+        .mc-option input[type="text"] {
+            flex: 1;
+        }
+        
+        /* === GRID BUILDER === */
+        .grid-builder {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-top: var(--space-md);
+        }
+        
+        .grid-builder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+        
+        .grid-builder-title {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .grid-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        
+        .grid-table th,
+        .grid-table td {
+            border: 1px solid var(--border-color);
+            padding: var(--space-sm);
+        }
+        
+        .grid-table th {
+            background: var(--bg-primary);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .grid-table input {
+            width: 100%;
+            padding: 6px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+        
+        .grid-table .editable-cell {
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .grid-table .readonly-cell {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        /* === KONTOPLAN === */
+        .konto-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        
+        .konto-item:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .konto-number {
+            font-family: monospace;
+            font-weight: 600;
+            color: var(--accent);
+            width: 60px;
+        }
+        
+        .konto-name {
+            flex: 1;
+            margin: 0 var(--space-md);
+        }
+        
+        .konto-class {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+        }
+        
+        /* === FORMULAS === */
+        .formula-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: var(--space-md);
+        }
+        
+        .formula-card {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .formula-card:hover {
+            border-color: var(--accent);
+        }
+        
+        .formula-name {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: var(--space-xs);
+            font-size: 0.9em;
+        }
+        
+        .formula-latex {
+            font-family: 'Times New Roman', serif;
+            font-size: 0.95em;
+            min-height: 30px;
+            margin-bottom: var(--space-xs);
+        }
+        
+        .formula-desc {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+        }
+        
+        /* === LAWS === */
+        .law-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+        
+        .law-card {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .law-card:hover,
+        .law-card.active {
+            border-color: var(--accent);
+        }
+        
+        .law-card.active {
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .law-code {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1.1em;
+        }
+        
+        .law-name {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        .law-section {
+            display: flex;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        
+        .law-section:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .law-section-ref {
+            font-weight: 600;
+            color: #3b82f6;
+            min-width: 60px;
+        }
+        
+        /* === PREVIEW === */
+        .preview-panel {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+        
+        .preview-title {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .preview-tabs {
+            display: flex;
+            gap: var(--space-xs);
+            margin-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: var(--space-sm);
+        }
+        
+        .preview-tab {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.9em;
+            border-radius: var(--radius-sm);
+        }
+        
+        .preview-tab:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .preview-tab.active {
+            color: var(--accent);
+            background: var(--bg-tertiary);
+        }
+        
+        .preview-content {
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            min-height: 200px;
+        }
+        
+        .code-output {
+            font-family: monospace;
+            font-size: 0.85em;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow: auto;
+        }
+        
+        /* === BUTTONS === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .btn:hover {
+            border-color: var(--accent);
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-danger {
+            background: var(--error);
+            border-color: var(--error);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
+        
+        .btn-icon {
+            padding: 8px;
+            min-width: 36px;
+        }
+        
+        /* === MODAL === */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding: var(--space-xl);
+            overflow-y: auto;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-title {
+            font-size: 1.2em;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: var(--space-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .modal-tabs {
+            display: flex;
+            gap: var(--space-xs);
+            margin-bottom: var(--space-md);
+            flex-wrap: wrap;
+        }
+        
+        .modal-tab {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            font-size: 0.9em;
+        }
+        
+        .modal-tab:hover {
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .modal-tab.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        /* === EMPTY STATE === */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 4em;
+            margin-bottom: var(--space-md);
+            opacity: 0.5;
+        }
+        
+        /* === TOAST === */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) var(--space-lg);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .app-layout {
+                flex-direction: column;
+            }
+            
+            .icon-menu {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                order: 2;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                border-top: 1px solid var(--border-color);
+                border-right: none;
+            }
+            
+            .sidebar-panel {
+                width: 100%;
+                max-height: 40vh;
+                display: none;
+            }
+            
+            .sidebar-panel.mobile-open {
+                display: flex;
+            }
+            
+            .workspace {
+                padding-bottom: 80px;
+            }
+            
+            .icon-menu-divider {
+                width: 1px;
+                height: 30px;
+                margin: 0 var(--space-sm);
+            }
+            
+            .template-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="aq-header">
+        <div class="aq-header-left">
+            <a href="teacher_portal_v2.html" class="btn btn-sm">← Tilbake</a>
+            <span style="color: var(--text-secondary);">
+                <strong style="color: var(--accent);">🏗️ Oppgavebygger</strong>
+            </span>
+        </div>
+        <div class="aq-header-right">
+            <span id="api-status" style="font-size: 0.85em; color: var(--text-secondary);">
+                <span class="status-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--warning);"></span>
+                Sjekker API...
+            </span>
+            <button class="btn btn-sm" onclick="loadFromApi()">📥 Last</button>
+            <button class="btn btn-sm btn-primary" onclick="saveToApi()">💾 Lagre</button>
+        </div>
+    </header>
+    
+    <!-- App Layout -->
+    <div class="app-layout">
+        <!-- Icon Menu -->
+        <nav class="icon-menu">
+            <button class="icon-btn active" id="btn-sets" onclick="showSidebarView('sets')" title="Oppgavesett">📚</button>
+            <button class="icon-btn" id="btn-templates" onclick="showSidebarView('templates')" title="Maler">🎯</button>
+            <div class="icon-menu-divider"></div>
+            <button class="icon-btn" id="btn-formulas" onclick="showSidebarView('formulas')" title="Formler">📐</button>
+            <button class="icon-btn" id="btn-kontoplan" onclick="showSidebarView('kontoplan')" title="Kontoplan">📋</button>
+            <button class="icon-btn" id="btn-laws" onclick="showSidebarView('laws')" title="Lover">⚖️</button>
+            <div class="icon-menu-divider"></div>
+            <button class="icon-btn" id="btn-preview" onclick="showSidebarView('preview')" title="Forhåndsvisning">👁️</button>
+        </nav>
+        
+        <!-- Sidebar Panel -->
+        <aside class="sidebar-panel" id="sidebar-panel">
+            <div class="sidebar-header">
+                <span class="sidebar-title" id="sidebar-title">Oppgavesett</span>
+                <button class="btn btn-sm btn-primary" id="sidebar-action" onclick="handleSidebarAction()">+ Nytt</button>
+            </div>
+            
+            <div class="sidebar-content">
+                <!-- Sets View -->
+                <div class="sidebar-view active" id="view-sets">
+                    <div id="sets-list"></div>
+                </div>
+                
+                <!-- Templates View -->
+                <div class="sidebar-view" id="view-templates">
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md); font-size: 0.9em;">
+                        Velg en mal for å legge til et nytt spørsmål:
+                    </p>
+                    <div class="template-grid" id="templates-grid"></div>
+                </div>
+                
+                <!-- Formulas View -->
+                <div class="sidebar-view" id="view-formulas">
+                    <input type="text" class="form-input" placeholder="🔍 Søk formler..." style="margin-bottom: var(--space-md);" oninput="filterFormulas(this.value)">
+                    <div id="formulas-list"></div>
+                </div>
+                
+                <!-- Kontoplan View -->
+                <div class="sidebar-view" id="view-kontoplan">
+                    <input type="text" class="form-input" id="kontoplan-search" placeholder="🔍 Søk konto..." style="margin-bottom: var(--space-md);" oninput="filterKontoplan(this.value)">
+                    <div id="kontoplan-list"></div>
+                </div>
+                
+                <!-- Laws View -->
+                <div class="sidebar-view" id="view-laws">
+                    <div id="laws-grid"></div>
+                    <div id="law-sections"></div>
+                </div>
+                
+                <!-- Preview View -->
+                <div class="sidebar-view" id="view-preview">
+                    <p style="color: var(--text-secondary); font-size: 0.9em;">
+                        Se hvordan spørsmålet vil se ut for elevene.
+                    </p>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Workspace -->
+        <main class="workspace" id="workspace">
+            <!-- Welcome Screen -->
+            <div id="welcome-screen">
+                <div class="empty-state">
+                    <div class="empty-icon">🏗️</div>
+                    <h2 style="color: var(--accent); margin-bottom: var(--space-md);">Oppgavebygger</h2>
+                    <p>Lag spørsmål og oppgaver for quiz, multiplayer eller klasserom.</p>
+                    <button class="btn btn-primary" style="margin-top: var(--space-lg);" onclick="createNewSet()">
+                        + Opprett nytt oppgavesett
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Editor Screen -->
+            <div id="editor-screen" style="display: none;">
+                <div class="workspace-header">
+                    <div>
+                        <h2 class="workspace-title" id="set-name-display">Oppgavesett</h2>
+                        <p style="color: var(--text-secondary);" id="set-meta"></p>
+                    </div>
+                    <div style="display: flex; gap: var(--space-sm);">
+                        <button class="btn btn-sm" onclick="editSetSettings()">⚙️ Innstillinger</button>
+                        <button class="btn btn-sm btn-primary" onclick="addQuestion()">+ Legg til spørsmål</button>
+                    </div>
+                </div>
+                
+                <!-- Set Settings -->
+                <div id="set-settings" style="display: none; background: var(--bg-secondary); border-radius: var(--radius-lg); padding: var(--space-lg); margin-bottom: var(--space-lg);">
+                    <h3 style="color: var(--accent); margin-bottom: var(--space-md);">Innstillinger</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Navn</label>
+                            <input type="text" id="set-name" class="form-input" placeholder="F.eks. MVA-oppgaver">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Modul</label>
+                            <select id="set-module" class="form-select">
+                                <option value="grunnleggende_regnskap">Grunnleggende Regnskap</option>
+                                <option value="corporate_finance">Corporate Finance</option>
+                                <option value="bokforing">Bokføring</option>
+                                <option value="skatt">Skatt</option>
+                                <option value="revisjon">Revisjon</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tema</label>
+                            <select id="set-topic" class="form-select">
+                                <option value="mva">MVA</option>
+                                <option value="bokforing">Bokføring</option>
+                                <option value="balanse">Balanse</option>
+                                <option value="resultat">Resultatregnskap</option>
+                                <option value="analyse">Analyse</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vanskelighetsgrad</label>
+                            <select id="set-difficulty" class="form-select">
+                                <option value="easy">Lett</option>
+                                <option value="medium" selected>Middels</option>
+                                <option value="hard">Vanskelig</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm" onclick="toggleSetSettings()">Lukk</button>
+                </div>
+                
+                <!-- Questions List -->
+                <div id="questions-container"></div>
+                
+                <!-- Preview Panel -->
+                <div class="preview-panel" id="preview-panel">
+                    <div class="preview-header">
+                        <span class="preview-title">👁️ Forhåndsvisning</span>
+                        <button class="btn btn-sm" onclick="updatePreview()">🔄 Oppdater</button>
+                    </div>
+                    <div class="preview-tabs">
+                        <button class="preview-tab active" onclick="showPreviewTab('visual')">Visning</button>
+                        <button class="preview-tab" onclick="showPreviewTab('json')">JSON</button>
+                        <button class="preview-tab" onclick="showPreviewTab('sql')">SQL</button>
+                    </div>
+                    <div class="preview-content" id="preview-content">
+                        <p style="color: var(--text-secondary);">Legg til spørsmål for å se forhåndsvisning</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+    
+    <!-- Formula Modal -->
+    <div class="modal-overlay" id="formula-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">📐 Sett inn formel</span>
+                <button class="modal-close" onclick="closeModal('formula-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-tabs" id="formula-tabs"></div>
+                <div class="formula-grid" id="formula-grid"></div>
+                <div class="form-group" style="margin-top: var(--space-lg);">
+                    <label class="form-label">Eller skriv egen LaTeX:</label>
+                    <input type="text" id="custom-latex" class="form-input" placeholder="f.eks: NPV = \sum \frac{CF_t}{(1+r)^t}">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('formula-modal')">Avbryt</button>
+                <button class="btn btn-primary" onclick="insertFormula()">Sett inn</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- New Set Modal -->
+    <div class="modal-overlay" id="new-set-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">📚 Nytt oppgavesett</span>
+                <button class="modal-close" onclick="closeModal('new-set-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Navn på oppgavesett</label>
+                    <input type="text" id="new-set-name" class="form-input" placeholder="F.eks. MVA-oppgaver">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Modul</label>
+                        <select id="new-set-module" class="form-select">
+                            <option value="grunnleggende_regnskap">Grunnleggende Regnskap</option>
+                            <option value="corporate_finance">Corporate Finance</option>
+                            <option value="bokforing">Bokføring</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vanskelighetsgrad</label>
+                        <select id="new-set-difficulty" class="form-select">
+                            <option value="easy">Lett</option>
+                            <option value="medium" selected>Middels</option>
+                            <option value="hard">Vanskelig</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('new-set-modal')">Avbryt</button>
+                <button class="btn btn-primary" onclick="confirmNewSet()">Opprett</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIG ====================
+        const API_URL = 'https://accountingquest-api.truls-n.workers.dev';
+        
+        // ==================== DATA ====================
+        const QUESTION_TYPES = {
+            mc: { name: 'Flervalg', icon: '📋' },
+            tf: { name: 'Sant/Usant', icon: '✓✗' },
+            calculation: { name: 'Beregning', icon: '🔢' },
+            bokforing: { name: 'Bokføring', icon: '📒' },
+            tkonto: { name: 'T-konto', icon: '📊' },
+            drag_drop: { name: 'Dra og slipp', icon: '🎯' },
+            fill_blank: { name: 'Fyll inn', icon: '✏️' },
+            case_study: { name: 'Case-studie', icon: '📁' }
+        };
+        
+        const KONTOPLAN = [
+            { num: '1000', name: 'Forskning og utvikling', class: 'Eiendeler' },
+            { num: '1070', name: 'Utsatt skattefordel', class: 'Eiendeler' },
+            { num: '1200', name: 'Maskiner og anlegg', class: 'Eiendeler' },
+            { num: '1250', name: 'Inventar', class: 'Eiendeler' },
+            { num: '1300', name: 'Investeringer i datterselskap', class: 'Eiendeler' },
+            { num: '1500', name: 'Kundefordringer', class: 'Eiendeler' },
+            { num: '1700', name: 'Forskuddsbetalt kostnad', class: 'Eiendeler' },
+            { num: '1900', name: 'Bankinnskudd', class: 'Eiendeler' },
+            { num: '1920', name: 'Bankinnskudd, skattetrekk', class: 'Eiendeler' },
+            { num: '2000', name: 'Aksjekapital', class: 'EK & Gjeld' },
+            { num: '2020', name: 'Overkursfond', class: 'EK & Gjeld' },
+            { num: '2050', name: 'Annen egenkapital', class: 'EK & Gjeld' },
+            { num: '2400', name: 'Leverandørgjeld', class: 'EK & Gjeld' },
+            { num: '2600', name: 'Skyldig skattetrekk', class: 'EK & Gjeld' },
+            { num: '2700', name: 'Skyldig mva', class: 'EK & Gjeld' },
+            { num: '2770', name: 'Skyldig arbeidsgiveravgift', class: 'EK & Gjeld' },
+            { num: '2800', name: 'Avsatt utbytte', class: 'EK & Gjeld' },
+            { num: '2900', name: 'Annen kortsiktig gjeld', class: 'EK & Gjeld' },
+            { num: '3000', name: 'Salgsinntekt, avgiftspliktig', class: 'Inntekter' },
+            { num: '3100', name: 'Salgsinntekt, avgiftsfri', class: 'Inntekter' },
+            { num: '4000', name: 'Varekostnad', class: 'Varekost' },
+            { num: '4300', name: 'Innkjøp av varer for videresalg', class: 'Varekost' },
+            { num: '5000', name: 'Lønn', class: 'Lønn' },
+            { num: '5400', name: 'Arbeidsgiveravgift', class: 'Lønn' },
+            { num: '6000', name: 'Avskrivning', class: 'Driftskostnader' },
+            { num: '6300', name: 'Leie lokaler', class: 'Driftskostnader' },
+            { num: '6800', name: 'Kontorkostnader', class: 'Driftskostnader' },
+            { num: '6900', name: 'Telefon og porto', class: 'Driftskostnader' },
+            { num: '7000', name: 'Reisekostnad', class: 'Driftskostnader' },
+            { num: '7400', name: 'Markedsføring', class: 'Driftskostnader' },
+            { num: '8000', name: 'Renteinntekt', class: 'Finans' },
+            { num: '8100', name: 'Rentekostnad', class: 'Finans' },
+            { num: '8300', name: 'Skattekostnad', class: 'Finans' }
+        ];
+        
+        const FORMULAS = {
+            finance: [
+                { name: 'NPV', latex: 'NPV = \\sum_{t=0}^{n} \\frac{CF_t}{(1+r)^t}', desc: 'Nåverdi' },
+                { name: 'IRR', latex: '0 = \\sum_{t=0}^{n} \\frac{CF_t}{(1+IRR)^t}', desc: 'Internrente' },
+                { name: 'WACC', latex: 'WACC = \\frac{E}{V}r_e + \\frac{D}{V}r_d(1-T_c)', desc: 'Vektet kapitalkostnad' },
+                { name: 'CAPM', latex: 'r_e = r_f + \\beta(r_m - r_f)', desc: 'Kapitalverdimodell' },
+                { name: 'Gordon', latex: 'P_0 = \\frac{D_1}{r-g}', desc: 'Gordon Growth Model' }
+            ],
+            ratios: [
+                { name: 'LG1', latex: 'LG_1 = \\frac{OM}{KG}', desc: 'Likviditetsgrad 1' },
+                { name: 'LG2', latex: 'LG_2 = \\frac{OM - Varelager}{KG}', desc: 'Likviditetsgrad 2' },
+                { name: 'EK%', latex: 'EK\\% = \\frac{EK}{TK} \\times 100', desc: 'Egenkapitalandel' },
+                { name: 'TKR', latex: 'TKR = \\frac{DR + FI}{TK} \\times 100', desc: 'Totalkapitalrentabilitet' },
+                { name: 'EKR', latex: 'EKR = \\frac{Resultat}{EK} \\times 100', desc: 'Egenkapitalrentabilitet' }
+            ],
+            tax: [
+                { name: 'MVA 25%', latex: 'MVA = Netto \\times 0.25', desc: 'Alminnelig sats' },
+                { name: 'MVA 15%', latex: 'MVA = Netto \\times 0.15', desc: 'Matvarer' },
+                { name: 'MVA 12%', latex: 'MVA = Netto \\times 0.12', desc: 'Lav sats' },
+                { name: 'Brutto', latex: 'Brutto = Netto \\times 1.25', desc: 'Med mva' }
+            ]
+        };
+        
+        const LAWS = [
+            { code: 'BOKL', name: 'Bokføringsloven', sections: ['§ 4', '§ 5', '§ 6', '§ 7', '§ 10', '§ 11', '§ 13'] },
+            { code: 'RSKL', name: 'Regnskapsloven', sections: ['§ 3-1', '§ 3-2', '§ 4-1', '§ 5-1', '§ 5-3', '§ 7-1'] },
+            { code: 'SKTL', name: 'Skatteloven', sections: ['§ 5-1', '§ 6-1', '§ 14-3', '§ 14-41'] },
+            { code: 'MVAL', name: 'Merverdiavgiftsloven', sections: ['§ 1-2', '§ 3-1', '§ 4-1', '§ 5-1', '§ 6-1'] },
+            { code: 'ASAL', name: 'Aksjeloven', sections: ['§ 3-4', '§ 8-1', '§ 8-2'] }
+        ];
+        
+        // ==================== STATE ====================
+        var state = {
+            sets: [],
+            currentSetIndex: -1,
+            currentQuestionType: 'mc',
+            selectedFormula: null,
+            selectedLaw: null
+        };
+        
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFromStorage();
+            renderSetsList();
+            renderTemplates();
+            renderFormulas('finance');
+            renderKontoplan();
+            renderLaws();
+            checkApiStatus();
+        });
+        
+        // ==================== STORAGE ====================
+        function saveToStorage() {
+            localStorage.setItem('aq_question_builder', JSON.stringify(state));
+        }
+        
+        function loadFromStorage() {
+            var saved = localStorage.getItem('aq_question_builder');
+            if (saved) {
+                try {
+                    var parsed = JSON.parse(saved);
+                    state = { ...state, ...parsed };
+                } catch (e) {
+                    console.error('Failed to load state:', e);
+                }
+            }
+        }
+        
+        // ==================== API ====================
+        async function checkApiStatus() {
+            var statusEl = document.getElementById('api-status');
+            try {
+                var response = await fetch(API_URL + '/api/health');
+                if (response.ok) {
+                    statusEl.innerHTML = '<span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent);"></span> API tilkoblet';
+                } else {
+                    throw new Error('API not ok');
+                }
+            } catch (e) {
+                statusEl.innerHTML = '<span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--error);"></span> API frakoblet';
+            }
+        }
+        
+        async function saveToApi() {
+            if (state.currentSetIndex < 0) {
+                showToast('Velg et oppgavesett først', 'warning');
+                return;
+            }
+            
+            var set = state.sets[state.currentSetIndex];
+            
+            try {
+                // Convert to API format
+                var questions = set.questions.map(function(q) {
+                    return {
+                        question: q.text,
+                        type: q.type,
+                        module: set.module,
+                        topic: set.topic || 'mixed',
+                        difficulty: set.difficulty,
+                        options: q.options,
+                        correct_answer: q.correct,
+                        solution: q.solution,
+                        explanation: q.explanation,
+                        hints: q.hints
+                    };
+                });
+                
+                var response = await fetch(API_URL + '/api/questions/bulk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ questions: questions })
+                });
+                
+                var result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                showToast('Lagret ' + result.imported + ' spørsmål til databasen!', 'success');
+            } catch (e) {
+                showToast('Feil ved lagring: ' + e.message, 'error');
+            }
+        }
+        
+        async function loadFromApi() {
+            try {
+                var module = prompt('Hvilken modul vil du laste fra?', 'grunnleggende_regnskap');
+                if (!module) return;
+                
+                var response = await fetch(API_URL + '/api/questions?module=' + module + '&limit=50');
+                var data = await response.json();
+                
+                if (!data.questions || data.questions.length === 0) {
+                    showToast('Ingen spørsmål funnet', 'warning');
+                    return;
+                }
+                
+                // Create a new set from loaded questions
+                var newSet = {
+                    name: 'Importert fra ' + module,
+                    module: module,
+                    difficulty: 'medium',
+                    questions: data.questions.map(function(q) {
+                        return {
+                            type: q.type,
+                            text: q.question,
+                            options: q.options,
+                            correct: q.correct_answer,
+                            solution: q.solution,
+                            explanation: q.explanation
+                        };
+                    })
+                };
+                
+                state.sets.push(newSet);
+                state.currentSetIndex = state.sets.length - 1;
+                saveToStorage();
+                renderSetsList();
+                showEditor();
+                
+                showToast('Lastet ' + data.questions.length + ' spørsmål', 'success');
+            } catch (e) {
+                showToast('Feil ved lasting: ' + e.message, 'error');
+            }
+        }
+        
+        // ==================== NAVIGATION ====================
+        function showSidebarView(viewId) {
+            // Update buttons
+            document.querySelectorAll('.icon-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            document.getElementById('btn-' + viewId).classList.add('active');
+            
+            // Update views
+            document.querySelectorAll('.sidebar-view').forEach(function(view) {
+                view.classList.remove('active');
+            });
+            document.getElementById('view-' + viewId).classList.add('active');
+            
+            // Update title and action
+            var titles = {
+                sets: 'Oppgavesett',
+                templates: 'Velg mal',
+                formulas: 'Formler',
+                kontoplan: 'Kontoplan',
+                laws: 'Lover',
+                preview: 'Forhåndsvisning'
+            };
+            document.getElementById('sidebar-title').textContent = titles[viewId] || viewId;
+            
+            var actionBtn = document.getElementById('sidebar-action');
+            if (viewId === 'sets') {
+                actionBtn.textContent = '+ Nytt';
+                actionBtn.style.display = 'block';
+            } else {
+                actionBtn.style.display = 'none';
+            }
+        }
+        
+        function handleSidebarAction() {
+            createNewSet();
+        }
+        
+        // ==================== SETS ====================
+        function renderSetsList() {
+            var container = document.getElementById('sets-list');
+            
+            if (state.sets.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Ingen oppgavesett</p>';
+                return;
+            }
+            
+            container.innerHTML = state.sets.map(function(set, i) {
+                var isActive = i === state.currentSetIndex;
+                return `
+                    <div class="set-item ${isActive ? 'active' : ''}" onclick="selectSet(${i})">
+                        <div class="set-item-title">${set.name || 'Uten navn'}</div>
+                        <div class="set-item-meta">${set.module || 'Ukjent modul'}</div>
+                        <span class="set-item-badge">${(set.questions || []).length} spm</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function selectSet(index) {
+            state.currentSetIndex = index;
+            saveToStorage();
+            renderSetsList();
+            showEditor();
+        }
+        
+        function createNewSet() {
+            document.getElementById('new-set-modal').classList.add('active');
+            document.getElementById('new-set-name').value = '';
+            document.getElementById('new-set-name').focus();
+        }
+        
+        function confirmNewSet() {
+            var name = document.getElementById('new-set-name').value.trim();
+            var module = document.getElementById('new-set-module').value;
+            var difficulty = document.getElementById('new-set-difficulty').value;
+            
+            if (!name) {
+                showToast('Gi oppgavesettet et navn', 'warning');
+                return;
+            }
+            
+            var newSet = {
+                name: name,
+                module: module,
+                difficulty: difficulty,
+                questions: []
+            };
+            
+            state.sets.push(newSet);
+            state.currentSetIndex = state.sets.length - 1;
+            saveToStorage();
+            
+            closeModal('new-set-modal');
+            renderSetsList();
+            showEditor();
+            showToast('Oppgavesett opprettet!', 'success');
+        }
+        
+        // ==================== EDITOR ====================
+        function showEditor() {
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('editor-screen').style.display = 'block';
+            
+            var set = state.sets[state.currentSetIndex];
+            document.getElementById('set-name-display').textContent = set.name || 'Uten navn';
+            document.getElementById('set-meta').textContent = set.module + ' • ' + set.difficulty + ' • ' + (set.questions || []).length + ' spørsmål';
+            
+            // Update settings form
+            document.getElementById('set-name').value = set.name || '';
+            document.getElementById('set-module').value = set.module || 'grunnleggende_regnskap';
+            document.getElementById('set-difficulty').value = set.difficulty || 'medium';
+            
+            renderQuestions();
+            updatePreview();
+        }
+        
+        function toggleSetSettings() {
+            var settings = document.getElementById('set-settings');
+            settings.style.display = settings.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function editSetSettings() {
+            toggleSetSettings();
+        }
+        
+        function updateSetProperty(prop, value) {
+            if (state.currentSetIndex < 0) return;
+            state.sets[state.currentSetIndex][prop] = value;
+            saveToStorage();
+            showEditor();
+        }
+        
+        // ==================== QUESTIONS ====================
+        function renderQuestions() {
+            var container = document.getElementById('questions-container');
+            var set = state.sets[state.currentSetIndex];
+            var questions = set.questions || [];
+            
+            if (questions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: var(--space-xl);">
+                        <div class="empty-icon">📝</div>
+                        <p>Ingen spørsmål ennå. Klikk på "Legg til spørsmål" for å starte.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = questions.map(function(q, i) {
+                return renderQuestionCard(q, i);
+            }).join('');
+        }
+        
+        function renderQuestionCard(q, index) {
+            var typeInfo = QUESTION_TYPES[q.type] || { name: q.type, icon: '❓' };
+            
+            return `
+                <div class="question-card" id="question-${index}">
+                    <div class="question-card-header" onclick="toggleQuestion(${index})">
+                        <div class="question-card-title">
+                            <span class="question-num">${index + 1}</span>
+                            <span>${q.text ? q.text.substring(0, 50) + (q.text.length > 50 ? '...' : '') : 'Uten tekst'}</span>
+                            <span class="question-type-badge">${typeInfo.icon} ${typeInfo.name}</span>
+                        </div>
+                        <div style="display: flex; gap: var(--space-sm);">
+                            <button class="btn btn-sm btn-icon" onclick="event.stopPropagation(); moveQuestion(${index}, -1)" title="Flytt opp">↑</button>
+                            <button class="btn btn-sm btn-icon" onclick="event.stopPropagation(); moveQuestion(${index}, 1)" title="Flytt ned">↓</button>
+                            <button class="btn btn-sm btn-icon btn-danger" onclick="event.stopPropagation(); deleteQuestion(${index})" title="Slett">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="question-card-body">
+                        ${renderQuestionForm(q, index)}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderQuestionForm(q, index) {
+            var typeOptions = Object.keys(QUESTION_TYPES).map(function(key) {
+                var t = QUESTION_TYPES[key];
+                return '<option value="' + key + '" ' + (q.type === key ? 'selected' : '') + '>' + t.icon + ' ' + t.name + '</option>';
+            }).join('');
+            
+            var html = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" onchange="updateQuestion(${index}, 'type', this.value)">${typeOptions}</select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Poeng</label>
+                        <input type="number" class="form-input" value="${q.points || 10}" min="1" max="100" onchange="updateQuestion(${index}, 'points', parseInt(this.value))">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Spørsmålstekst</label>
+                    <textarea class="form-textarea" placeholder="Skriv spørsmålet her..." onchange="updateQuestion(${index}, 'text', this.value)">${q.text || ''}</textarea>
+                </div>
+            `;
+            
+            // Type-specific fields
+            switch (q.type) {
+                case 'mc':
+                    html += renderMCBuilder(q, index);
+                    break;
+                case 'tf':
+                    html += renderTFBuilder(q, index);
+                    break;
+                case 'calculation':
+                    html += renderCalculationBuilder(q, index);
+                    break;
+                case 'bokforing':
+                case 'tkonto':
+                    html += renderGridBuilder(q, index);
+                    break;
+            }
+            
+            // Explanation
+            html += `
+                <div class="form-group" style="margin-top: var(--space-lg);">
+                    <label class="form-label">Forklaring (vises etter svar)</label>
+                    <textarea class="form-textarea" placeholder="Forklaring av riktig svar..." onchange="updateQuestion(${index}, 'explanation', this.value)">${q.explanation || ''}</textarea>
+                </div>
+            `;
+            
+            return html;
+        }
+        
+        function renderMCBuilder(q, index) {
+            var options = q.options || ['', '', '', ''];
+            var correct = q.correct !== undefined ? q.correct : 0;
+            
+            var optionsHtml = options.map(function(opt, oi) {
+                return `
+                    <div class="mc-option ${oi === correct ? 'correct' : ''}">
+                        <input type="radio" name="mc-correct-${index}" ${oi === correct ? 'checked' : ''} onchange="setCorrectOption(${index}, ${oi})">
+                        <input type="text" class="form-input" value="${opt}" placeholder="Alternativ ${String.fromCharCode(65 + oi)}" onchange="updateMCOption(${index}, ${oi}, this.value)">
+                        <button class="btn btn-sm btn-icon" onclick="deleteMCOption(${index}, ${oi})">🗑️</button>
+                    </div>
+                `;
+            }).join('');
+            
+            return `
+                <div class="form-group">
+                    <label class="form-label">Svaralternativer (marker riktig)</label>
+                    ${optionsHtml}
+                    <button class="btn btn-sm" onclick="addMCOption(${index})" style="margin-top: var(--space-sm);">+ Legg til alternativ</button>
+                </div>
+            `;
+        }
+        
+        function renderTFBuilder(q, index) {
+            var correct = q.correct === true || q.correct === 'true';
+            return `
+                <div class="form-group">
+                    <label class="form-label">Riktig svar</label>
+                    <div style="display: flex; gap: var(--space-lg);">
+                        <label style="display: flex; align-items: center; gap: var(--space-sm); cursor: pointer;">
+                            <input type="radio" name="tf-correct-${index}" value="true" ${correct ? 'checked' : ''} onchange="updateQuestion(${index}, 'correct', true)" style="width: 20px; height: 20px;">
+                            <span style="font-size: 1.5em;">✓</span> Sant
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-sm); cursor: pointer;">
+                            <input type="radio" name="tf-correct-${index}" value="false" ${!correct ? 'checked' : ''} onchange="updateQuestion(${index}, 'correct', false)" style="width: 20px; height: 20px;">
+                            <span style="font-size: 1.5em;">✗</span> Usant
+                        </label>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderCalculationBuilder(q, index) {
+            return `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Riktig svar (tall)</label>
+                        <input type="number" class="form-input" value="${q.correct || ''}" step="any" placeholder="F.eks. 12500" onchange="updateQuestion(${index}, 'correct', parseFloat(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Toleranse</label>
+                        <input type="number" class="form-input" value="${q.tolerance || 0.01}" step="0.01" onchange="updateQuestion(${index}, 'tolerance', parseFloat(this.value))">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Enhet (valgfritt)</label>
+                    <input type="text" class="form-input" value="${q.unit || ''}" placeholder="F.eks. kr, %, enheter" onchange="updateQuestion(${index}, 'unit', this.value)">
+                </div>
+            `;
+        }
+        
+        function renderGridBuilder(q, index) {
+            var solution = q.solution || { postings: [] };
+            var postings = solution.postings || [];
+            
+            var rowsHtml = postings.map(function(p, pi) {
+                return `
+                    <tr>
+                        <td><input type="text" value="${p.account || ''}" placeholder="Konto" onchange="updatePosting(${index}, ${pi}, 'account', this.value)"></td>
+                        <td><input type="number" value="${p.debet || ''}" placeholder="0" onchange="updatePosting(${index}, ${pi}, 'debet', parseFloat(this.value) || 0)"></td>
+                        <td><input type="number" value="${p.kredit || ''}" placeholder="0" onchange="updatePosting(${index}, ${pi}, 'kredit', parseFloat(this.value) || 0)"></td>
+                        <td><button class="btn btn-sm btn-icon" onclick="deletePosting(${index}, ${pi})">🗑️</button></td>
+                    </tr>
+                `;
+            }).join('');
+            
+            return `
+                <div class="grid-builder">
+                    <div class="grid-builder-header">
+                        <span class="grid-builder-title">📊 Posteringer (fasit)</span>
+                        <button class="btn btn-sm" onclick="addPosting(${index})">+ Rad</button>
+                    </div>
+                    <table class="grid-table">
+                        <thead>
+                            <tr>
+                                <th>Konto</th>
+                                <th>Debet</th>
+                                <th>Kredit</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml || '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">Ingen posteringer</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // ==================== QUESTION ACTIONS ====================
+        function addQuestion() {
+            if (state.currentSetIndex < 0) {
+                showToast('Velg et oppgavesett først', 'warning');
+                return;
+            }
+            
+            var newQuestion = {
+                type: 'mc',
+                text: '',
+                options: ['', '', '', ''],
+                correct: 0,
+                points: 10
+            };
+            
+            state.sets[state.currentSetIndex].questions.push(newQuestion);
+            saveToStorage();
+            renderQuestions();
+            showEditor();
+        }
+        
+        function updateQuestion(index, prop, value) {
+            state.sets[state.currentSetIndex].questions[index][prop] = value;
+            saveToStorage();
+            
+            // Re-render if type changed
+            if (prop === 'type') {
+                renderQuestions();
+            }
+            
+            updatePreview();
+        }
+        
+        function deleteQuestion(index) {
+            if (!confirm('Slette dette spørsmålet?')) return;
+            state.sets[state.currentSetIndex].questions.splice(index, 1);
+            saveToStorage();
+            renderQuestions();
+            showEditor();
+        }
+        
+        function moveQuestion(index, direction) {
+            var questions = state.sets[state.currentSetIndex].questions;
+            var newIndex = index + direction;
+            
+            if (newIndex < 0 || newIndex >= questions.length) return;
+            
+            var temp = questions[index];
+            questions[index] = questions[newIndex];
+            questions[newIndex] = temp;
+            
+            saveToStorage();
+            renderQuestions();
+        }
+        
+        function toggleQuestion(index) {
+            document.getElementById('question-' + index).classList.toggle('collapsed');
+        }
+        
+        // MC specific
+        function addMCOption(qIndex) {
+            var q = state.sets[state.currentSetIndex].questions[qIndex];
+            if (!q.options) q.options = [];
+            q.options.push('');
+            saveToStorage();
+            renderQuestions();
+        }
+        
+        function updateMCOption(qIndex, optIndex, value) {
+            state.sets[state.currentSetIndex].questions[qIndex].options[optIndex] = value;
+            saveToStorage();
+            updatePreview();
+        }
+        
+        function setCorrectOption(qIndex, optIndex) {
+            state.sets[state.currentSetIndex].questions[qIndex].correct = optIndex;
+            saveToStorage();
+            renderQuestions();
+        }
+        
+        function deleteMCOption(qIndex, optIndex) {
+            var q = state.sets[state.currentSetIndex].questions[qIndex];
+            q.options.splice(optIndex, 1);
+            if (q.correct >= optIndex && q.correct > 0) q.correct--;
+            saveToStorage();
+            renderQuestions();
+        }
+        
+        // Grid specific
+        function addPosting(qIndex) {
+            var q = state.sets[state.currentSetIndex].questions[qIndex];
+            if (!q.solution) q.solution = { postings: [] };
+            q.solution.postings.push({ account: '', debet: 0, kredit: 0 });
+            saveToStorage();
+            renderQuestions();
+        }
+        
+        function updatePosting(qIndex, postIndex, prop, value) {
+            state.sets[state.currentSetIndex].questions[qIndex].solution.postings[postIndex][prop] = value;
+            saveToStorage();
+            updatePreview();
+        }
+        
+        function deletePosting(qIndex, postIndex) {
+            state.sets[state.currentSetIndex].questions[qIndex].solution.postings.splice(postIndex, 1);
+            saveToStorage();
+            renderQuestions();
+        }
+        
+        // ==================== TEMPLATES ====================
+        function renderTemplates() {
+            var container = document.getElementById('templates-grid');
+            container.innerHTML = Object.keys(QUESTION_TYPES).map(function(key) {
+                var t = QUESTION_TYPES[key];
+                return `
+                    <div class="template-card" onclick="useTemplate('${key}')">
+                        <div class="template-icon">${t.icon}</div>
+                        <div class="template-name">${t.name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function useTemplate(type) {
+            if (state.currentSetIndex < 0) {
+                showToast('Opprett et oppgavesett først', 'warning');
+                return;
+            }
+            
+            var newQuestion = {
+                type: type,
+                text: '',
+                points: 10
+            };
+            
+            // Add type-specific defaults
+            switch (type) {
+                case 'mc':
+                    newQuestion.options = ['', '', '', ''];
+                    newQuestion.correct = 0;
+                    break;
+                case 'tf':
+                    newQuestion.correct = true;
+                    break;
+                case 'calculation':
+                    newQuestion.correct = 0;
+                    newQuestion.tolerance = 0.01;
+                    break;
+                case 'bokforing':
+                case 'tkonto':
+                    newQuestion.solution = { postings: [{ account: '', debet: 0, kredit: 0 }] };
+                    break;
+            }
+            
+            state.sets[state.currentSetIndex].questions.push(newQuestion);
+            saveToStorage();
+            showEditor();
+            showSidebarView('sets');
+            
+            showToast('Spørsmål lagt til', 'success');
+        }
+        
+        // ==================== FORMULAS ====================
+        function renderFormulas(category) {
+            var container = document.getElementById('formulas-list');
+            var formulas = FORMULAS[category] || [];
+            
+            container.innerHTML = formulas.map(function(f) {
+                return `
+                    <div class="formula-card" onclick="insertFormulaToQuestion('${f.latex.replace(/'/g, "\\'")}')">
+                        <div class="formula-name">${f.name}</div>
+                        <div class="formula-latex">${f.latex}</div>
+                        <div class="formula-desc">${f.desc}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Render LaTeX
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(container, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false },
+                        { left: '\\(', right: '\\)', display: false },
+                        { left: '\\[', right: '\\]', display: true }
+                    ]
+                });
+            }
+        }
+        
+        function filterFormulas(query) {
+            // Simple filter - could be expanded
+            var allFormulas = [];
+            Object.keys(FORMULAS).forEach(function(cat) {
+                allFormulas = allFormulas.concat(FORMULAS[cat]);
+            });
+            
+            var filtered = allFormulas.filter(function(f) {
+                return f.name.toLowerCase().includes(query.toLowerCase()) ||
+                       f.desc.toLowerCase().includes(query.toLowerCase());
+            });
+            
+            var container = document.getElementById('formulas-list');
+            container.innerHTML = filtered.map(function(f) {
+                return `
+                    <div class="formula-card" onclick="insertFormulaToQuestion('${f.latex.replace(/'/g, "\\'")}')">
+                        <div class="formula-name">${f.name}</div>
+                        <div class="formula-latex">${f.latex}</div>
+                        <div class="formula-desc">${f.desc}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function insertFormulaToQuestion(latex) {
+            showToast('Formel: ' + latex, 'info');
+            // Could insert into current question text
+        }
+        
+        // ==================== KONTOPLAN ====================
+        function renderKontoplan() {
+            var container = document.getElementById('kontoplan-list');
+            container.innerHTML = KONTOPLAN.map(function(k) {
+                return `
+                    <div class="konto-item" onclick="insertKonto('${k.num}', '${k.name}')">
+                        <span class="konto-number">${k.num}</span>
+                        <span class="konto-name">${k.name}</span>
+                        <span class="konto-class">${k.class}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function filterKontoplan(query) {
+            var filtered = KONTOPLAN.filter(function(k) {
+                return k.num.includes(query) ||
+                       k.name.toLowerCase().includes(query.toLowerCase());
+            });
+            
+            var container = document.getElementById('kontoplan-list');
+            container.innerHTML = filtered.map(function(k) {
+                return `
+                    <div class="konto-item" onclick="insertKonto('${k.num}', '${k.name}')">
+                        <span class="konto-number">${k.num}</span>
+                        <span class="konto-name">${k.name}</span>
+                        <span class="konto-class">${k.class}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function insertKonto(num, name) {
+            showToast('Konto: ' + num + ' - ' + name, 'info');
+        }
+        
+        // ==================== LAWS ====================
+        function renderLaws() {
+            var container = document.getElementById('laws-grid');
+            container.innerHTML = LAWS.map(function(law, i) {
+                return `
+                    <div class="law-card" onclick="selectLaw(${i})">
+                        <div class="law-code">${law.code}</div>
+                        <div class="law-name">${law.name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function selectLaw(index) {
+            state.selectedLaw = index;
+            
+            // Update active state
+            document.querySelectorAll('.law-card').forEach(function(card, i) {
+                card.classList.toggle('active', i === index);
+            });
+            
+            // Show sections
+            var law = LAWS[index];
+            var container = document.getElementById('law-sections');
+            container.innerHTML = '<h4 style="color: var(--accent); margin: var(--space-md) 0;">Paragrafer</h4>' +
+                law.sections.map(function(sec) {
+                    return `
+                        <div class="law-section" onclick="insertLawRef('${law.code}', '${sec}')">
+                            <span class="law-section-ref">${sec}</span>
+                        </div>
+                    `;
+                }).join('');
+        }
+        
+        function insertLawRef(code, section) {
+            showToast('Lovhenvisning: ' + code + ' ' + section, 'info');
+        }
+        
+        // ==================== PREVIEW ====================
+        function updatePreview() {
+            if (state.currentSetIndex < 0) return;
+            
+            var set = state.sets[state.currentSetIndex];
+            var container = document.getElementById('preview-content');
+            
+            if (!set.questions || set.questions.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Ingen spørsmål å vise</p>';
+                return;
+            }
+            
+            var q = set.questions[0]; // Show first question
+            var typeInfo = QUESTION_TYPES[q.type] || { name: q.type, icon: '❓' };
+            
+            container.innerHTML = `
+                <div style="margin-bottom: var(--space-md);">
+                    <span class="question-type-badge">${typeInfo.icon} ${typeInfo.name}</span>
+                </div>
+                <p style="font-size: 1.1em; margin-bottom: var(--space-md);">${q.text || 'Ingen tekst'}</p>
+                ${renderPreviewOptions(q)}
+            `;
+        }
+        
+        function renderPreviewOptions(q) {
+            switch (q.type) {
+                case 'mc':
+                    return (q.options || []).map(function(opt, i) {
+                        return '<div style="padding: 8px 12px; background: var(--bg-tertiary); border-radius: 6px; margin-bottom: 6px;">' +
+                            String.fromCharCode(65 + i) + ') ' + (opt || '...') + '</div>';
+                    }).join('');
+                case 'tf':
+                    return '<div style="display: flex; gap: var(--space-md);"><button class="btn">✓ Sant</button><button class="btn">✗ Usant</button></div>';
+                case 'calculation':
+                    return '<input type="text" class="form-input" placeholder="Skriv inn svar..." style="max-width: 200px;">';
+                default:
+                    return '<p style="color: var(--text-secondary);">Forhåndsvisning ikke tilgjengelig for denne typen</p>';
+            }
+        }
+        
+        function showPreviewTab(tab) {
+            document.querySelectorAll('.preview-tab').forEach(function(t) {
+                t.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            var container = document.getElementById('preview-content');
+            var set = state.sets[state.currentSetIndex];
+            
+            switch (tab) {
+                case 'visual':
+                    updatePreview();
+                    break;
+                case 'json':
+                    container.innerHTML = '<div class="code-output">' + JSON.stringify(set, null, 2) + '</div>';
+                    break;
+                case 'sql':
+                    container.innerHTML = '<div class="code-output">' + generateSQL(set) + '</div>';
+                    break;
+            }
+        }
+        
+        function generateSQL(set) {
+            if (!set.questions || set.questions.length === 0) return '-- Ingen spørsmål';
+            
+            return set.questions.map(function(q) {
+                return "INSERT INTO questions (question, type, module, topic, difficulty, options, correct_answer, explanation)\n" +
+                       "VALUES ('" + (q.text || '').replace(/'/g, "''") + "', '" + q.type + "', '" + set.module + "', '" + (set.topic || 'mixed') + "', '" + set.difficulty + "', " +
+                       "'" + JSON.stringify(q.options || []).replace(/'/g, "''") + "', " +
+                       "'" + JSON.stringify(q.correct).replace(/'/g, "''") + "', " +
+                       "'" + (q.explanation || '').replace(/'/g, "''") + "');";
+            }).join('\n\n');
+        }
+        
+        // ==================== MODALS ====================
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        // ==================== TOAST ====================
+        function showToast(message, type) {
+            var toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.borderColor = type === 'error' ? 'var(--error)' : type === 'warning' ? 'var(--warning)' : 'var(--accent)';
+            toast.classList.add('show');
+            
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
