@@ -1,0 +1,15 @@
+# Cloudflare Pages Redirects
+# https://developers.cloudflare.com/pages/configuration/redirects/
+
+# Redirect www to non-www (301 permanent)
+https://www.accountingquest.app/* https://accountingquest.app/:splat 301
+
+# Redirect old paths (for fremtiden hvis du endrer struktur)
+/bokforing /bokforingsspill_excel.html 301
+/spill /bokforingsspill_excel.html 301
+/test /quiz.html 301
+/analyse /regnskapsanalyse.html 301
+/case /case_studies.html 301
+
+# 404 fallback - send til hovedside
+/* /index.html 404
