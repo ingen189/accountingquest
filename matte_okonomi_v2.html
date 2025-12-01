@@ -1,0 +1,2479 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matte for Økonomer - AccountingQuest</title>
+    
+    <!-- Felles stilark -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/EXCEL-GRID.css">
+    
+    <!-- Chart.js for grafer -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Math.js for avanserte beregninger -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
+    
+    <!-- Excel Grid Component -->
+    <script src="js/EXCEL-GRID-FINAL.js"></script>
+    
+    <style>
+        /* ==================== LAYOUT ==================== */
+        .app-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* === ICON MENU (leftmost) === */
+        .icon-menu {
+            width: 60px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            gap: var(--space-xs);
+        }
+        
+        .icon-btn {
+            width: 46px;
+            height: 46px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+            position: relative;
+        }
+        
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .icon-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .icon-btn-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--error);
+            color: white;
+            font-size: 0.5em;
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .icon-menu-divider {
+            width: 30px;
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--space-sm) 0;
+        }
+        
+        /* === SIDEBAR PANEL === */
+        .sidebar-panel {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-title {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1em;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-sm);
+        }
+        
+        /* Sidebar views */
+        .sidebar-view {
+            display: none;
+        }
+        
+        .sidebar-view.active {
+            display: block;
+        }
+        
+        /* === TOPICS VIEW === */
+        .topic-item {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-xs);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            padding: var(--space-sm) var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        
+        .topic-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .topic-item.active {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.15);
+        }
+        
+        .topic-item-icon {
+            font-size: 1.3em;
+        }
+        
+        .topic-item-info {
+            flex: 1;
+        }
+        
+        .topic-item-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+        
+        .topic-item-count {
+            font-size: 0.75em;
+            color: var(--accent);
+        }
+        
+        .topic-item-points {
+            font-size: 0.7em;
+            color: var(--warning);
+            margin-top: 2px;
+        }
+        
+        /* === FORMULAS VIEW === */
+        .formula-section {
+            margin-bottom: var(--space-md);
+        }
+        
+        .formula-section-title {
+            color: var(--warning);
+            font-weight: 600;
+            font-size: 0.85em;
+            margin-bottom: var(--space-sm);
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .formula-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+        
+        .formula-item {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: var(--space-sm);
+        }
+        
+        .formula-name {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.8em;
+            margin-bottom: 2px;
+        }
+        
+        .formula-equation {
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-bottom: 2px;
+        }
+        
+        .formula-description {
+            color: var(--text-secondary);
+            font-size: 0.7em;
+        }
+        
+        /* === MAIN CONTENT === */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Progress Bar */
+        .progress-section {
+            padding: var(--space-sm) var(--space-lg);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: none;
+        }
+        
+        .progress-section.visible {
+            display: block;
+        }
+        
+        .progress-bar-container {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            height: 16px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7em;
+            font-weight: bold;
+            transition: width var(--transition-slow);
+            min-width: 30px;
+        }
+        
+        /* Question Selector */
+        .question-selector {
+            padding: var(--space-sm) var(--space-lg);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: none;
+        }
+        
+        .question-selector.visible {
+            display: block;
+        }
+        
+        .question-selector-grid {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .question-selector-item {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            min-width: 32px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+        
+        .question-selector-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .question-selector-item.current {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .question-selector-item.completed {
+            background: rgba(74, 222, 128, 0.2);
+            border-color: var(--accent);
+        }
+        
+        /* Workspace */
+        .workspace {
+            flex: 1;
+            padding: var(--space-lg);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: var(--space-2xl);
+            height: 100%;
+        }
+        
+        .welcome-screen h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-md);
+        }
+        
+        .welcome-screen p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            max-width: 600px;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .exam-overview {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            max-width: 700px;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .exam-overview h3 {
+            color: var(--accent);
+            margin-bottom: var(--space-md);
+            text-align: center;
+        }
+        
+        .exam-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .exam-table th, .exam-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .exam-table th {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+        
+        .exam-table td {
+            color: var(--text-primary);
+        }
+        
+        .exam-table .points {
+            color: var(--warning);
+            font-weight: 600;
+        }
+        
+        /* Game View */
+        .game-view {
+            display: none;
+        }
+        
+        .game-view.visible {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        /* Question Header */
+        .question-header {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            border-left: 4px solid var(--accent);
+        }
+        
+        .question-number {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            margin-bottom: 4px;
+        }
+        
+        .question-title {
+            color: var(--accent);
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .question-text {
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .question-badges {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .badge-topic {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-secondary);
+        }
+        
+        .badge-type {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+        
+        .badge-diff {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--accent);
+        }
+        
+        /* Graph Container */
+        .graph-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            display: none;
+        }
+        
+        .graph-container.visible {
+            display: block;
+        }
+        
+        .graph-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+        
+        .graph-title {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .graph-controls {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+        
+        .graph-input {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            width: 200px;
+        }
+        
+        .graph-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .graph-btn {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        
+        .graph-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .graph-canvas-wrapper {
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            position: relative;
+        }
+        
+        #graph-canvas {
+            width: 100%;
+            max-height: 400px;
+        }
+        
+        .graph-info {
+            margin-top: var(--space-md);
+            padding: var(--space-sm);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            font-size: 0.85em;
+        }
+        
+        .graph-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .graph-info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .graph-info-label {
+            color: var(--text-secondary);
+        }
+        
+        .graph-info-value {
+            color: var(--accent);
+            font-family: 'Consolas', monospace;
+        }
+        
+        /* Options Container */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        
+        .option-item {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        
+        .option-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .option-item.selected {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .option-item.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.15);
+        }
+        
+        .option-item.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.15);
+        }
+        
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+        
+        .option-item.selected .option-letter {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        /* Input Fields */
+        .input-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .input-group label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .input-group input {
+            padding: 12px var(--space-md);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+            font-size: 1em;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .input-group input.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--success);
+        }
+        
+        .input-group input.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--error);
+        }
+        
+        /* Excel Grid */
+        .excel-grid-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        
+        .excel-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-tertiary);
+        }
+        
+        .excel-title {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .excel-hint {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+        }
+        
+        .excel-grid-wrapper {
+            overflow-x: auto;
+        }
+        
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Consolas', 'Monaco', monospace;
+            min-width: 400px;
+        }
+        
+        .excel-table th {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        
+        .excel-table td {
+            border: 1px solid var(--border-color);
+            padding: 0;
+            min-width: 100px;
+        }
+        
+        .excel-cell {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 10px 12px;
+            font-size: 0.9em;
+            font-family: 'Consolas', 'Monaco', monospace;
+            text-align: right;
+            outline: none;
+        }
+        
+        .excel-cell:focus {
+            outline: 2px solid var(--accent);
+            background: rgba(74, 222, 128, 0.05);
+        }
+        
+        .excel-cell.readonly {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        .excel-cell.correct {
+            background: rgba(34, 197, 94, 0.2) !important;
+            color: var(--success);
+        }
+        
+        .excel-cell.incorrect {
+            background: rgba(239, 68, 68, 0.2) !important;
+            color: var(--error);
+        }
+        
+        /* Formula Bar */
+        .formula-bar {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm) var(--space-md);
+            margin-top: var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        
+        .cell-reference {
+            background: var(--bg-tertiary);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-weight: bold;
+            color: var(--accent);
+            min-width: 50px;
+            text-align: center;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .formula-input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: var(--space-xs) var(--space-sm);
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+        }
+        
+        .formula-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        /* Drag & Drop */
+        .dnd-container {
+            display: flex;
+            gap: var(--space-lg);
+            flex-wrap: wrap;
+        }
+        
+        .dnd-source {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .dnd-source-title {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .dnd-targets {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        .dnd-item {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm) var(--space-md);
+            margin-bottom: var(--space-xs);
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .dnd-item:active {
+            cursor: grabbing;
+        }
+        
+        .dnd-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .dnd-item.dragging {
+            opacity: 0.5;
+            transform: scale(1.02);
+        }
+        
+        .dnd-target {
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            min-height: 80px;
+        }
+        
+        .dnd-target.drag-over {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .dnd-target.correct {
+            border-color: var(--success);
+            border-style: solid;
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .dnd-target.incorrect {
+            border-color: var(--error);
+            border-style: solid;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .dnd-target-label {
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--text-secondary);
+        }
+        
+        .dnd-target-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            min-height: 40px;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: var(--space-sm) var(--space-lg);
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-hint {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-graph {
+            background: var(--accent-secondary);
+            color: white;
+        }
+        
+        /* Feedback Area */
+        .feedback-area {
+            display: none;
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            margin-top: var(--space-md);
+        }
+        
+        .feedback-area.visible {
+            display: block;
+        }
+        
+        .feedback-area.correct {
+            background: rgba(34, 197, 94, 0.15);
+            border: 2px solid var(--success);
+        }
+        
+        .feedback-area.incorrect {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid var(--error);
+        }
+        
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .feedback-area.correct .feedback-title { color: var(--success); }
+        .feedback-area.incorrect .feedback-title { color: var(--error); }
+        
+        .feedback-explanation {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .page-header {
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--accent);
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        
+        .back-btn {
+            background: var(--bg-tertiary);
+            border: none;
+            color: var(--text-primary);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+        }
+        
+        .back-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .page-title {
+            font-size: 1.3em;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+        
+        .nav-stat {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .nav-stat-value {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        /* Calculator Panel */
+        .calc-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .calc-panel.visible {
+            display: block;
+        }
+        
+        .calc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+        
+        .calc-title {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .calc-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        
+        .calc-display {
+            padding: var(--space-md);
+            background: var(--bg-primary);
+        }
+        
+        .calc-expression {
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            min-height: 20px;
+            word-wrap: break-word;
+        }
+        
+        .calc-result {
+            font-family: 'Consolas', monospace;
+            font-size: 1.8em;
+            color: var(--text-primary);
+            text-align: right;
+            word-wrap: break-word;
+        }
+        
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            padding: var(--space-sm);
+        }
+        
+        .calc-btn {
+            padding: var(--space-sm);
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .calc-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+        
+        .calc-btn.operator {
+            background: var(--accent-secondary);
+            color: white;
+        }
+        
+        .calc-btn.function {
+            background: var(--warning);
+            color: white;
+            font-size: 0.8em;
+        }
+        
+        .calc-btn.equals {
+            background: var(--accent);
+            color: var(--bg-primary);
+            grid-column: span 2;
+        }
+        
+        /* Fill Handle */
+        .fill-handle {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: crosshair;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .cell-wrapper:hover .fill-handle {
+            opacity: 1;
+        }
+        
+        .cell-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 900px) {
+            .app-layout {
+                flex-direction: column;
+            }
+            
+            .icon-menu {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: var(--space-xs) 0;
+            }
+            
+            .icon-menu-divider {
+                width: 1px;
+                height: 30px;
+                margin: 0 var(--space-sm);
+            }
+            
+            .sidebar-panel {
+                width: 100%;
+                max-height: 40vh;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .sidebar-panel:not(.mobile-visible) {
+                display: none;
+            }
+            
+            .workspace {
+                padding: var(--space-md);
+            }
+            
+            .calc-panel {
+                width: calc(100% - 40px);
+                left: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="page-header">
+        <div class="header-left">
+            <button class="back-btn" onclick="window.location.href='index.html'">← Tilbake</button>
+            <h1 class="page-title">📐 Matte for Økonomer</h1>
+        </div>
+        <div class="header-right">
+            <div class="nav-stat">
+                <span>🎯</span>
+                <span id="nav-correct" class="nav-stat-value">0</span>
+                <span>riktige</span>
+            </div>
+            <div class="nav-stat">
+                <span>⭐</span>
+                <span id="nav-score" class="nav-stat-value">0</span>
+                <span>poeng</span>
+            </div>
+            <button class="back-btn" onclick="toggleCalculator()" title="Vitenskapelig kalkulator">🧮</button>
+        </div>
+    </header>
+    
+    <!-- Main Layout -->
+    <div class="app-layout">
+        <!-- Icon Menu -->
+        <div class="icon-menu">
+            <button class="icon-btn active" id="btn-topics" onclick="showSidebarView('topics')" title="Eksamenstemaer">
+                📚
+            </button>
+            <button class="icon-btn" id="btn-difficulty" onclick="showSidebarView('difficulty')" title="Vanskelighetsgrad">
+                🎚️
+            </button>
+            <div class="icon-menu-divider"></div>
+            <button class="icon-btn" id="btn-formulas" onclick="showSidebarView('formulas')" title="Formelsamling">
+                📝
+            </button>
+            <button class="icon-btn" id="btn-data" onclick="showSidebarView('data')" title="Oppgavedata">
+                📊
+            </button>
+            <div class="icon-menu-divider"></div>
+            <button class="icon-btn" id="btn-graph" onclick="toggleGraphPanel()" title="Graf-verktøy">
+                📈
+            </button>
+        </div>
+        
+        <!-- Sidebar Panel -->
+        <div class="sidebar-panel mobile-visible" id="sidebar-panel">
+            <div class="sidebar-header">
+                <span class="sidebar-title" id="sidebar-title">Eksamenstemaer</span>
+            </div>
+            <div class="sidebar-content">
+                <!-- Topics View -->
+                <div class="sidebar-view active" id="view-topics">
+                    <div id="topic-list"></div>
+                </div>
+                
+                <!-- Difficulty View -->
+                <div class="sidebar-view" id="view-difficulty">
+                    <div class="diff-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-sm);">
+                        <div class="diff-card active" onclick="setDifficulty('all')" style="background: var(--bg-tertiary); border: 2px solid var(--accent); border-radius: var(--radius-md); padding: var(--space-md); cursor: pointer; text-align: center;">
+                            <div style="font-size: 1.8em;">🎯</div>
+                            <div style="font-weight: 600;">Alle</div>
+                            <div style="color: var(--accent); font-size: 0.8em;" id="diff-all">0</div>
+                        </div>
+                        <div class="diff-card" onclick="setDifficulty('easy')" style="background: var(--bg-tertiary); border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-md); cursor: pointer; text-align: center;">
+                            <div style="font-size: 1.8em;">🌱</div>
+                            <div style="font-weight: 600;">Lett</div>
+                            <div style="color: var(--accent); font-size: 0.8em;" id="diff-easy">0</div>
+                        </div>
+                        <div class="diff-card" onclick="setDifficulty('medium')" style="background: var(--bg-tertiary); border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-md); cursor: pointer; text-align: center;">
+                            <div style="font-size: 1.8em;">🔥</div>
+                            <div style="font-weight: 600;">Medium</div>
+                            <div style="color: var(--accent); font-size: 0.8em;" id="diff-medium">0</div>
+                        </div>
+                        <div class="diff-card" onclick="setDifficulty('hard')" style="background: var(--bg-tertiary); border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-md); cursor: pointer; text-align: center;">
+                            <div style="font-size: 1.8em;">💀</div>
+                            <div style="font-weight: 600;">Vanskelig</div>
+                            <div style="color: var(--accent); font-size: 0.8em;" id="diff-hard">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Formulas View -->
+                <div class="sidebar-view" id="view-formulas">
+                    <div id="formula-list"></div>
+                </div>
+                
+                <!-- Data View -->
+                <div class="sidebar-view" id="view-data">
+                    <div id="variable-list">
+                        <p style="color: var(--text-secondary); text-align: center;">Velg en oppgave for å se data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Progress Section -->
+            <div class="progress-section" id="progress-section">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%">0%</div>
+                </div>
+            </div>
+            
+            <!-- Question Selector -->
+            <div class="question-selector" id="question-selector-section">
+                <div class="question-selector-grid" id="question-selector"></div>
+            </div>
+            
+            <!-- Workspace -->
+            <div class="workspace">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcome-screen">
+                    <h1>📐 Matte for Økonomer</h1>
+                    <p>Øv på eksamensforberedende matematikk. Temaene er basert på typisk eksamensoppgave-struktur.</p>
+                    
+                    <div class="exam-overview">
+                        <h3>📋 Eksamensstruktur (100 poeng)</h3>
+                        <table class="exam-table">
+                            <thead>
+                                <tr>
+                                    <th>Oppgave</th>
+                                    <th>Tema</th>
+                                    <th>Poeng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Lineære funksjoner</td>
+                                    <td class="points">10p</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Derivasjon (én variabel)</td>
+                                    <td class="points">12p</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Analyse av økonomiske funksjoner</td>
+                                    <td class="points">30p</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Integrasjon</td>
+                                    <td class="points">8p</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Funksjoner med to variabler</td>
+                                    <td class="points">20p</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>Finansmatematikk</td>
+                                    <td class="points">20p</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Game View -->
+                <div class="game-view" id="game-view">
+                    <!-- Question Header -->
+                    <div class="question-header" id="question-header">
+                        <div class="question-number" id="question-number">Oppgave 1 av 10</div>
+                        <h2 class="question-title" id="question-title">Laster oppgave...</h2>
+                        <div class="question-text" id="question-text"></div>
+                        <div class="question-badges" id="question-badges"></div>
+                    </div>
+                    
+                    <!-- Graph Container -->
+                    <div class="graph-container" id="graph-container">
+                        <div class="graph-header">
+                            <span class="graph-title">📈 Graf</span>
+                            <div class="graph-controls">
+                                <input type="text" class="graph-input" id="graph-function" placeholder="f(x) = x^2 - 4*x + 3" value="">
+                                <button class="graph-btn" onclick="plotFunction()">Tegn</button>
+                                <button class="graph-btn" onclick="clearGraph()" style="background: var(--error);">Nullstill</button>
+                            </div>
+                        </div>
+                        <div class="graph-canvas-wrapper">
+                            <canvas id="graph-canvas"></canvas>
+                        </div>
+                        <div class="graph-info" id="graph-info">
+                            <div class="graph-info-item">
+                                <span class="graph-info-label">Funksjon:</span>
+                                <span class="graph-info-value" id="info-function">-</span>
+                            </div>
+                            <div class="graph-info-item">
+                                <span class="graph-info-label">Derivert:</span>
+                                <span class="graph-info-value" id="info-derivative">-</span>
+                            </div>
+                            <div class="graph-info-item">
+                                <span class="graph-info-label">Nullpunkt:</span>
+                                <span class="graph-info-value" id="info-zeros">-</span>
+                            </div>
+                            <div class="graph-info-item">
+                                <span class="graph-info-label">Stasjonære pkt:</span>
+                                <span class="graph-info-value" id="info-stationary">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Answer Area -->
+                    <div id="answer-area">
+                        <!-- Dynamically populated based on question type -->
+                    </div>
+                    
+                    <!-- Excel Grid Component -->
+                    <div class="excel-grid-container" id="excel-grid-section" style="display: none;">
+                        <div class="excel-header-row">
+                            <span class="excel-title">📊 Regneark</span>
+                            <span class="excel-hint">Bruk formler som =SUM(A1:A5) eller =B2*C2</span>
+                        </div>
+                        <div id="excel-grid-component"></div>
+                        <div class="formula-bar" id="formula-bar" style="display: none;">
+                            <span class="cell-reference" id="cell-ref">A1</span>
+                            <input type="text" class="formula-input" id="formula-input" placeholder="Formel eller verdi...">
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn btn-hint" id="btn-hint" onclick="showHint()">💡 Hint</button>
+                        <button class="btn btn-graph" id="btn-show-graph" onclick="toggleGraphForQuestion()">📈 Vis graf</button>
+                        <button class="btn btn-primary" id="btn-check" onclick="checkAnswer()">✓ Sjekk svar</button>
+                        <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" style="display: none;">Neste →</button>
+                    </div>
+                    
+                    <!-- Feedback Area -->
+                    <div class="feedback-area" id="feedback-area">
+                        <div class="feedback-title" id="feedback-title"></div>
+                        <div class="feedback-explanation" id="feedback-explanation"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calculator Panel -->
+    <div class="calc-panel" id="calc-panel">
+        <div class="calc-header">
+            <span class="calc-title">🧮 Vitenskapelig Kalkulator</span>
+            <button class="calc-close" onclick="toggleCalculator()">×</button>
+        </div>
+        <div class="calc-display">
+            <div class="calc-expression" id="calc-expression"></div>
+            <div class="calc-result" id="calc-result">0</div>
+        </div>
+        <div class="calc-buttons">
+            <button class="calc-btn function" onclick="calcFunction('sin')">sin</button>
+            <button class="calc-btn function" onclick="calcFunction('cos')">cos</button>
+            <button class="calc-btn function" onclick="calcFunction('tan')">tan</button>
+            <button class="calc-btn function" onclick="calcFunction('ln')">ln</button>
+            <button class="calc-btn function" onclick="calcFunction('log')">log</button>
+            <button class="calc-btn function" onclick="calcFunction('sqrt')">√</button>
+            <button class="calc-btn function" onclick="calcFunction('exp')">eˣ</button>
+            <button class="calc-btn function" onclick="calcInput('Math.PI')">π</button>
+            <button class="calc-btn function" onclick="calcInput('Math.E')">e</button>
+            <button class="calc-btn operator" onclick="calcInput('**')">^</button>
+            <button class="calc-btn" onclick="calcInput('7')">7</button>
+            <button class="calc-btn" onclick="calcInput('8')">8</button>
+            <button class="calc-btn" onclick="calcInput('9')">9</button>
+            <button class="calc-btn operator" onclick="calcInput('/')">/</button>
+            <button class="calc-btn" onclick="calcInput('(')">(</button>
+            <button class="calc-btn" onclick="calcInput('4')">4</button>
+            <button class="calc-btn" onclick="calcInput('5')">5</button>
+            <button class="calc-btn" onclick="calcInput('6')">6</button>
+            <button class="calc-btn operator" onclick="calcInput('*')">×</button>
+            <button class="calc-btn" onclick="calcInput(')')">)</button>
+            <button class="calc-btn" onclick="calcInput('1')">1</button>
+            <button class="calc-btn" onclick="calcInput('2')">2</button>
+            <button class="calc-btn" onclick="calcInput('3')">3</button>
+            <button class="calc-btn operator" onclick="calcInput('-')">−</button>
+            <button class="calc-btn" onclick="calcClear()">C</button>
+            <button class="calc-btn" onclick="calcInput('0')">0</button>
+            <button class="calc-btn" onclick="calcInput('.')">.</button>
+            <button class="calc-btn" onclick="calcBackspace()">⌫</button>
+            <button class="calc-btn operator" onclick="calcInput('+')">+</button>
+            <button class="calc-btn equals" onclick="calcEquals()">=</button>
+            <button class="calc-btn" onclick="calcAns()">Ans</button>
+            <button class="calc-btn function" onclick="calcFunction('abs')">|x|</button>
+            <button class="calc-btn function" onclick="calcFunction('factorial')">n!</button>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script>
+        // ==================== TURSO API CONFIG ====================
+        var API_URL = 'https://api.accountingquest.app';
+        var MODULE_ID = 3;
+        
+        async function apiCall(endpoint) {
+            try {
+                var response = await fetch(API_URL + '/api' + endpoint);
+                if (!response.ok) throw new Error('API error: ' + response.status);
+                return await response.json();
+            } catch (err) {
+                console.error('API call failed:', err);
+                return [];
+            }
+        }
+        
+        // ==================== EXAM-BASED TOPICS ====================
+        var topics = [
+            { id: 'linear', name: 'Oppg 1: Lineære funksjoner', icon: '📏', points: 10, subtopics: ['Stigningstall', 'Skjæringspunkt', 'Likningssett'] },
+            { id: 'derivasjon', name: 'Oppg 2: Derivasjon', icon: '📈', points: 12, subtopics: ['Potensregel', 'Produktregel', 'Kjerneregel'] },
+            { id: 'analyse', name: 'Oppg 3: Økonomisk analyse', icon: '💹', points: 30, subtopics: ['Stasjonære pkt', 'Vendepunkt', 'Elastisitet', 'Profitt'] },
+            { id: 'integrasjon', name: 'Oppg 4: Integrasjon', icon: '∫', points: 8, subtopics: ['Ubestemt', 'Bestemt', 'Areal'] },
+            { id: 'flervariabel', name: 'Oppg 5: To variabler', icon: '🎯', points: 20, subtopics: ['Partiell derivasjon', 'Stasjonære pkt', 'Lagrange'] },
+            { id: 'finans', name: 'Oppg 6: Finansmatematikk', icon: '💰', points: 20, subtopics: ['Annuitet', 'Nåverdi', 'Geometrisk rekke'] },
+            { id: 'mixed', name: 'Blandet eksamensquiz', icon: '🎲', points: 100, subtopics: [] }
+        ];
+        
+        // ==================== COMPREHENSIVE FORMULA LIBRARY ====================
+        var formulas = {
+            linear: {
+                title: 'Lineære funksjoner',
+                sections: [
+                    {
+                        name: 'Grunnleggende',
+                        formulas: [
+                            { name: 'Lineær funksjon', equation: 'f(x) = ax + b', description: 'a = stigningstall, b = konstantledd (y-skjæring)' },
+                            { name: 'Stigningstall (2 pkt)', equation: 'a = (y₂ - y₁)/(x₂ - x₁)', description: 'Gitt to kjente punkter' },
+                            { name: 'Ettpunktsformen', equation: 'y - y₁ = a(x - x₁)', description: 'Gitt stigningstall + ett punkt' },
+                            { name: 'Nullpunkt', equation: 'f(x) = 0 → x = -b/a', description: 'Skjæring med x-aksen' },
+                            { name: 'Y-skjæring', equation: 'f(0) = b', description: 'Skjæring med y-aksen' }
+                        ]
+                    },
+                    {
+                        name: 'Økonomiske funksjoner',
+                        formulas: [
+                            { name: 'Inntektsfunksjon', equation: 'I(x) = p·x', description: 'Inntekt = pris × mengde' },
+                            { name: 'Kostnadsfunksjon', equation: 'K(x) = FK + VK·x', description: 'Faste + variable kostnader' },
+                            { name: 'Profittfunksjon', equation: 'π(x) = I(x) - K(x)', description: 'Inntekt minus kostnad' },
+                            { name: 'Etterspørsel', equation: 'Q = a - b·P', description: 'Lineær etterspørselsfunksjon' },
+                            { name: 'Nullpunktomsetning', equation: 'I(x) = K(x)', description: 'Break-even punkt' }
+                        ]
+                    },
+                    {
+                        name: 'Likningssett',
+                        formulas: [
+                            { name: 'Innsettingsmetoden', equation: 'Løs én for y, sett inn', description: 'Substitusjon' },
+                            { name: 'Addisjonsmetoden', equation: 'Eliminer én variabel', description: 'Legg sammen likninger' },
+                            { name: 'Skjæringspunkt', equation: 'f(x) = g(x), løs for x', description: 'Likevektspunkt i marked' }
+                        ]
+                    }
+                ]
+            },
+            derivasjon: {
+                title: 'Derivasjon',
+                sections: [
+                    {
+                        name: 'Grunnregler',
+                        formulas: [
+                            { name: 'Potensregel', equation: "(xⁿ)' = n·xⁿ⁻¹", description: 'Derivasjon av potenser' },
+                            { name: 'Konstantregel', equation: "(k)' = 0", description: 'Derivert av konstant er null' },
+                            { name: 'Sumregel', equation: "(f + g)' = f' + g'", description: 'Derivert av sum' },
+                            { name: 'Konstantmultiplikasjon', equation: "(k·f)' = k·f'", description: 'Konstant kan tas ut' }
+                        ]
+                    },
+                    {
+                        name: 'Produkt og brøk',
+                        formulas: [
+                            { name: 'Produktregel', equation: "(f·g)' = f'·g + f·g'", description: 'Derivasjon av produkt av to funksjoner' },
+                            { name: 'Brøkregel (kvotient)', equation: "(f/g)' = (f'·g - f·g')/g²", description: 'Derivasjon av brøk' }
+                        ]
+                    },
+                    {
+                        name: 'Kjerneregel (sammensatt)',
+                        formulas: [
+                            { name: 'Kjerneregel', equation: "[f(g(x))]' = f'(g(x))·g'(x)", description: 'Ytre derivert × indre derivert' },
+                            { name: 'Eksempel', equation: "(e^(2x))' = e^(2x)·2 = 2e^(2x)", description: 'Indre funksjon: 2x' },
+                            { name: 'Eksempel 2', equation: "(ln(x²))' = (1/x²)·2x = 2/x", description: 'Indre funksjon: x²' }
+                        ]
+                    },
+                    {
+                        name: 'Eksponentialfunksjoner',
+                        formulas: [
+                            { name: 'Naturlig eksponential', equation: "(eˣ)' = eˣ", description: 'e^x er sin egen derivert!' },
+                            { name: 'Med kjerneregel', equation: "(e^(kx))' = k·e^(kx)", description: 'k er konstant' },
+                            { name: 'Generell eksponential', equation: "(aˣ)' = aˣ·ln(a)", description: 'For alle baser a > 0' }
+                        ]
+                    },
+                    {
+                        name: 'Logaritmefunksjoner',
+                        formulas: [
+                            { name: 'Naturlig logaritme', equation: "(ln x)' = 1/x", description: 'Derivert av ln x' },
+                            { name: 'Med kjerneregel', equation: "(ln(f(x)))' = f'(x)/f(x)", description: 'Logaritmisk derivasjon' },
+                            { name: 'Generell logaritme', equation: "(log_a x)' = 1/(x·ln a)", description: 'Logaritme med base a' }
+                        ]
+                    }
+                ]
+            },
+            analyse: {
+                title: 'Økonomisk analyse',
+                sections: [
+                    {
+                        name: 'Stasjonære punkt',
+                        formulas: [
+                            { name: 'FOC', equation: "f'(x) = 0", description: 'Første ordens betingelse' },
+                            { name: 'Maks (SOC)', equation: "f''(x) < 0", description: 'Negativ andrederivert' },
+                            { name: 'Min (SOC)', equation: "f''(x) > 0", description: 'Positiv andrederivert' },
+                            { name: 'Vendepunkt', equation: "f''(x) = 0, f'''(x) ≠ 0", description: 'Infleksjonspunkt' }
+                        ]
+                    },
+                    {
+                        name: 'Økonomiske funksjoner',
+                        formulas: [
+                            { name: 'Profitt', equation: 'π(x) = R(x) - C(x)', description: 'Inntekt minus kostnad' },
+                            { name: 'Marginalinntekt', equation: "MR = R'(x) = dR/dx", description: 'Derivert av inntekt' },
+                            { name: 'Marginalkostnad', equation: "MC = C'(x) = dC/dx", description: 'Derivert av kostnad' },
+                            { name: 'Profittmaks', equation: 'MR = MC', description: 'Optimal produksjon' }
+                        ]
+                    },
+                    {
+                        name: 'Elastisitet',
+                        formulas: [
+                            { name: 'Priselastisitet', equation: 'Eₚ = (dQ/dP)·(P/Q)', description: 'Prosentvis endring' },
+                            { name: 'Elastisk', equation: '|Eₚ| > 1', description: 'Sensitiv for prisendring' },
+                            { name: 'Uelastisk', equation: '|Eₚ| < 1', description: 'Lite sensitiv' },
+                            { name: 'Enhetselastisk', equation: '|Eₚ| = 1', description: 'Proporsjonal endring' }
+                        ]
+                    },
+                    {
+                        name: 'Nytte og produksjon',
+                        formulas: [
+                            { name: 'Marginalnytte', equation: "MU = U'(x)", description: 'Ekstra nytte per enhet' },
+                            { name: 'Avtakende MU', equation: "U''(x) < 0", description: 'Nytten avtar' },
+                            { name: 'Grenseprodukt', equation: "MP = f'(L)", description: 'Ekstra output per arbeider' }
+                        ]
+                    }
+                ]
+            },
+            integrasjon: {
+                title: 'Integrasjon',
+                sections: [
+                    {
+                        name: 'Ubestemt integral',
+                        formulas: [
+                            { name: 'Potensregel', equation: '∫xⁿ dx = xⁿ⁺¹/(n+1) + C', description: 'n ≠ -1' },
+                            { name: 'Eksponential', equation: '∫eˣ dx = eˣ + C', description: 'Integral av e^x' },
+                            { name: 'Logaritme', equation: '∫(1/x) dx = ln|x| + C', description: 'Integral av 1/x' },
+                            { name: 'Konstantregel', equation: '∫k dx = kx + C', description: 'Integral av konstant' }
+                        ]
+                    },
+                    {
+                        name: 'Bestemt integral',
+                        formulas: [
+                            { name: 'Fundamental theorem', equation: '∫ₐᵇ f(x)dx = F(b) - F(a)', description: 'Analysens fundamentalteorem' },
+                            { name: 'Areal under kurve', equation: 'A = ∫ₐᵇ f(x)dx', description: 'Når f(x) ≥ 0' },
+                            { name: 'Areal mellom kurver', equation: 'A = ∫ₐᵇ |f(x)-g(x)|dx', description: 'Absolutt differanse' }
+                        ]
+                    },
+                    {
+                        name: 'Økonomiske anvendelser',
+                        formulas: [
+                            { name: 'Konsumentoverskudd', equation: 'CS = ∫₀^Q* D(Q)dQ - P*·Q*', description: 'Consumer surplus' },
+                            { name: 'Produsentoverskudd', equation: 'PS = P*·Q* - ∫₀^Q* S(Q)dQ', description: 'Producer surplus' },
+                            { name: 'Total kostnad fra MC', equation: 'C(x) = ∫MC(x)dx', description: 'Integral av marginalkostnad' }
+                        ]
+                    }
+                ]
+            },
+            flervariabel: {
+                title: 'Funksjoner med to variabler',
+                sections: [
+                    {
+                        name: 'Partiell derivasjon',
+                        formulas: [
+                            { name: 'Partiell mht x', equation: '∂f/∂x = fₓ', description: 'Hold y konstant' },
+                            { name: 'Partiell mht y', equation: '∂f/∂y = fᵧ', description: 'Hold x konstant' },
+                            { name: 'Andreordens', equation: 'fₓₓ, fᵧᵧ, fₓᵧ', description: 'Partiell av partiell' }
+                        ]
+                    },
+                    {
+                        name: 'Stasjonære punkt',
+                        formulas: [
+                            { name: 'FOC', equation: 'fₓ = 0 og fᵧ = 0', description: 'Begge må være null' },
+                            { name: 'Hesse-determinant', equation: 'H = fₓₓ·fᵧᵧ - (fₓᵧ)²', description: 'For klassifisering' },
+                            { name: 'Maks', equation: 'H > 0 og fₓₓ < 0', description: 'Lokalt maksimum' },
+                            { name: 'Min', equation: 'H > 0 og fₓₓ > 0', description: 'Lokalt minimum' },
+                            { name: 'Sadelpunkt', equation: 'H < 0', description: 'Verken maks eller min' }
+                        ]
+                    },
+                    {
+                        name: 'Lagrange',
+                        formulas: [
+                            { name: 'Lagrangefunksjon', equation: 'L = f(x,y) - λ·g(x,y)', description: 'Med bibetingelse g=0' },
+                            { name: 'FOC Lagrange', equation: 'Lₓ = Lᵧ = Lλ = 0', description: 'Tre likninger' },
+                            { name: 'Tolkning av λ', equation: 'λ = ∂f*/∂c', description: 'Skyggeprisen' }
+                        ]
+                    }
+                ]
+            },
+            finans: {
+                title: 'Finansmatematikk',
+                sections: [
+                    {
+                        name: 'Grunnleggende',
+                        formulas: [
+                            { name: 'Enkel rente', equation: 'K = K₀(1 + r·t)', description: 'Lineær vekst' },
+                            { name: 'Sammensatt rente', equation: 'K = K₀(1 + r)ⁿ', description: 'Eksponentiell vekst' },
+                            { name: 'Kontinuerlig rente', equation: 'K = K₀·eʳᵗ', description: 'e som base' },
+                            { name: 'Nåverdi', equation: 'K₀ = K/(1 + r)ⁿ', description: 'Diskontering' }
+                        ]
+                    },
+                    {
+                        name: 'Geometrisk rekke',
+                        formulas: [
+                            { name: 'Sum endelig', equation: 'S = a(1-kⁿ)/(1-k)', description: 'n ledd, k ≠ 1' },
+                            { name: 'Sum uendelig', equation: 'S = a/(1-k), |k|<1', description: 'Konvergent rekke' },
+                            { name: 'Vekstfaktor', equation: 'k = 1 + r', description: 'Med rente r' }
+                        ]
+                    },
+                    {
+                        name: 'Annuitet',
+                        formulas: [
+                            { name: 'Etterskuddsannuitet NV', equation: 'NV = a·[(1-(1+r)⁻ⁿ)/r]', description: 'Nåverdi av betalinger' },
+                            { name: 'Forskuddsannuitet NV', equation: 'NV = a·[(1-(1+r)⁻ⁿ)/r]·(1+r)', description: 'Første betaling i dag' },
+                            { name: 'Sluttverdi annuitet', equation: 'SV = a·[(1+r)ⁿ-1]/r', description: 'Oppspart beløp' },
+                            { name: 'Terminbeløp', equation: 'a = NV·r/[1-(1+r)⁻ⁿ]', description: 'Periodisk betaling' }
+                        ]
+                    },
+                    {
+                        name: 'Lån',
+                        formulas: [
+                            { name: 'Annuitetslån', equation: 'Like terminbeløp', description: 'Vanligste låneform' },
+                            { name: 'Serielån', equation: 'Like avdrag', description: 'Synkende terminbeløp' },
+                            { name: 'Restgjeld', equation: 'R = a·[(1-(1+r)⁻ᵐ)/r]', description: 'm = gjenstående terminer' }
+                        ]
+                    }
+                ]
+            },
+            mixed: {
+                title: 'Alle formler',
+                sections: []
+            }
+        };
+        
+        // ==================== STATE ====================
+        var gameState = {
+            currentTopic: null,
+            currentDifficulty: 'all',
+            questions: [],
+            allQuestions: [],
+            currentIndex: 0,
+            currentQuestion: null,
+            selectedAnswer: null,
+            answeredCorrectly: false,
+            score: 0,
+            correctCount: 0,
+            answered: [],
+            cachedQuestions: []
+        };
+        
+        var currentSidebarView = 'topics';
+        var currentExcelGrid = null;
+        var calcExpression = '';
+        var calcLastAnswer = 0;
+        var graphChart = null;
+        
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Matte for Økonomer v2 loading...');
+            renderTopicList();
+            loadQuestionCounts();
+            loadFormulasForTopic('derivasjon');
+            initGraph();
+        });
+        
+        // ==================== SIDEBAR ====================
+        function showSidebarView(viewId) {
+            currentSidebarView = viewId;
+            
+            document.querySelectorAll('.icon-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            var activeBtn = document.getElementById('btn-' + viewId);
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            document.querySelectorAll('.sidebar-view').forEach(function(view) {
+                view.classList.remove('active');
+            });
+            var activeView = document.getElementById('view-' + viewId);
+            if (activeView) activeView.classList.add('active');
+            
+            var titles = {
+                topics: 'Eksamenstemaer',
+                difficulty: 'Vanskelighetsgrad',
+                formulas: 'Formelsamling',
+                data: 'Oppgavedata'
+            };
+            document.getElementById('sidebar-title').textContent = titles[viewId] || viewId;
+        }
+        
+        // ==================== TOPICS ====================
+        function renderTopicList() {
+            var html = '';
+            topics.forEach(function(topic) {
+                html += '<div class="topic-item" id="topic-' + topic.id + '" onclick="startGame(\'' + topic.id + '\')">';
+                html += '<span class="topic-item-icon">' + topic.icon + '</span>';
+                html += '<div class="topic-item-info">';
+                html += '<div class="topic-item-name">' + topic.name + '</div>';
+                html += '<div class="topic-item-count" id="count-' + topic.id + '">Laster...</div>';
+                html += '<div class="topic-item-points">📊 ' + topic.points + ' poeng på eksamen</div>';
+                html += '</div>';
+                html += '</div>';
+            });
+            document.getElementById('topic-list').innerHTML = html;
+        }
+        
+        var topicMapping = {
+            'linear': 'linear', 'lineær': 'linear', 'linje': 'linear',
+            'derivasjon': 'derivasjon', 'derivat': 'derivasjon', 'derivert': 'derivasjon',
+            'analyse': 'analyse', 'økonomisk': 'analyse', 'profitt': 'analyse', 'elastisitet': 'analyse',
+            'integrasjon': 'integrasjon', 'integral': 'integrasjon',
+            'flervariabel': 'flervariabel', 'partiell': 'flervariabel', 'lagrange': 'flervariabel', 'to_variabler': 'flervariabel',
+            'finans': 'finans', 'annuitet': 'finans', 'lån': 'finans', 'rente': 'finans', 'nåverdi': 'finans'
+        };
+        
+        function mapTopic(dbTopic) {
+            if (!dbTopic) return null;
+            return topicMapping[dbTopic.toLowerCase()] || dbTopic.toLowerCase();
+        }
+        
+        async function loadQuestionCounts() {
+            try {
+                var questions = await apiCall('/questions?module=' + MODULE_ID + '&limit=500');
+                if (!questions || questions.length === 0) {
+                    questions = await apiCall('/questions?module=matte_okonomi&limit=500');
+                }
+                
+                var counts = {};
+                topics.forEach(function(t) { counts[t.id] = 0; });
+                
+                if (questions && questions.length > 0) {
+                    gameState.cachedQuestions = questions;
+                    questions.forEach(function(q) {
+                        var mapped = mapTopic(q.topic);
+                        if (mapped && counts[mapped] !== undefined) counts[mapped]++;
+                    });
+                }
+                
+                topics.forEach(function(topic) {
+                    var el = document.getElementById('count-' + topic.id);
+                    if (el) {
+                        el.textContent = (topic.id === 'mixed' ? (questions ? questions.length : 0) : counts[topic.id]) + ' oppgaver';
+                    }
+                });
+            } catch (err) {
+                console.error('Error loading questions:', err);
+            }
+        }
+        
+        // ==================== FORMULAS ====================
+        function loadFormulasForTopic(topicId) {
+            var container = document.getElementById('formula-list');
+            var topicData = formulas[topicId];
+            
+            if (!topicData || !topicData.sections || topicData.sections.length === 0) {
+                // For mixed, show all formulas
+                if (topicId === 'mixed') {
+                    var html = '';
+                    Object.keys(formulas).forEach(function(key) {
+                        if (key !== 'mixed' && formulas[key].sections) {
+                            html += '<div class="formula-section"><div class="formula-section-title">' + formulas[key].title + '</div>';
+                            formulas[key].sections.forEach(function(section) {
+                                section.formulas.slice(0, 2).forEach(function(f) {
+                                    html += '<div class="formula-item">';
+                                    html += '<div class="formula-name">' + f.name + '</div>';
+                                    html += '<div class="formula-equation">' + f.equation + '</div>';
+                                    html += '</div>';
+                                });
+                            });
+                            html += '</div>';
+                        }
+                    });
+                    container.innerHTML = html;
+                    return;
+                }
+                container.innerHTML = '<p style="color: var(--text-secondary);">Ingen formler tilgjengelig.</p>';
+                return;
+            }
+            
+            var html = '';
+            topicData.sections.forEach(function(section) {
+                html += '<div class="formula-section">';
+                html += '<div class="formula-section-title">' + section.name + '</div>';
+                html += '<div class="formula-list">';
+                section.formulas.forEach(function(f) {
+                    html += '<div class="formula-item">';
+                    html += '<div class="formula-name">' + f.name + '</div>';
+                    html += '<div class="formula-equation">' + f.equation + '</div>';
+                    html += '<div class="formula-description">' + f.description + '</div>';
+                    html += '</div>';
+                });
+                html += '</div></div>';
+            });
+            container.innerHTML = html;
+        }
+        
+        // ==================== GRAPH ====================
+        function initGraph() {
+            var ctx = document.getElementById('graph-canvas');
+            if (!ctx) return;
+            
+            graphChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'center',
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'center',
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#9ca3af' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: true, labels: { color: '#e0e0e0' } }
+                    }
+                }
+            });
+        }
+        
+        function toggleGraphPanel() {
+            var container = document.getElementById('graph-container');
+            container.classList.toggle('visible');
+        }
+        
+        function toggleGraphForQuestion() {
+            toggleGraphPanel();
+            var q = gameState.currentQuestion;
+            if (q && q.function) {
+                document.getElementById('graph-function').value = q.function;
+                plotFunction();
+            }
+        }
+        
+        function plotFunction() {
+            var funcStr = document.getElementById('graph-function').value;
+            if (!funcStr) return;
+            
+            try {
+                // Parse and compile the function
+                var expr = funcStr.replace(/f\(x\)\s*=\s*/i, '').trim();
+                var compiled = math.compile(expr);
+                
+                // Generate data points
+                var data = [];
+                var xMin = -10, xMax = 10, step = 0.1;
+                
+                for (var x = xMin; x <= xMax; x += step) {
+                    try {
+                        var y = compiled.evaluate({ x: x });
+                        if (isFinite(y) && Math.abs(y) < 1000) {
+                            data.push({ x: x, y: y });
+                        }
+                    } catch (e) {}
+                }
+                
+                // Calculate derivative
+                var derivative = math.derivative(expr, 'x').toString();
+                var derivCompiled = math.compile(derivative);
+                
+                var derivData = [];
+                for (var x = xMin; x <= xMax; x += step) {
+                    try {
+                        var y = derivCompiled.evaluate({ x: x });
+                        if (isFinite(y) && Math.abs(y) < 1000) {
+                            derivData.push({ x: x, y: y });
+                        }
+                    } catch (e) {}
+                }
+                
+                // Find zeros and stationary points
+                var zeros = findZeros(compiled, xMin, xMax);
+                var stationary = findZeros(derivCompiled, xMin, xMax);
+                
+                // Update chart
+                graphChart.data.datasets = [
+                    {
+                        label: 'f(x) = ' + expr,
+                        data: data,
+                        borderColor: '#4ade80',
+                        backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                        fill: false,
+                        pointRadius: 0,
+                        borderWidth: 2
+                    },
+                    {
+                        label: "f'(x) = " + derivative,
+                        data: derivData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: false,
+                        pointRadius: 0,
+                        borderWidth: 2,
+                        borderDash: [5, 5]
+                    }
+                ];
+                
+                graphChart.update();
+                
+                // Update info
+                document.getElementById('info-function').textContent = 'f(x) = ' + expr;
+                document.getElementById('info-derivative').textContent = "f'(x) = " + derivative;
+                document.getElementById('info-zeros').textContent = zeros.length > 0 ? 'x = ' + zeros.map(function(z) { return z.toFixed(2); }).join(', ') : 'Ingen funnet';
+                document.getElementById('info-stationary').textContent = stationary.length > 0 ? 'x = ' + stationary.map(function(s) { return s.toFixed(2); }).join(', ') : 'Ingen funnet';
+                
+            } catch (e) {
+                console.error('Graph error:', e);
+                alert('Feil i funksjonen: ' + e.message);
+            }
+        }
+        
+        function findZeros(compiled, xMin, xMax) {
+            var zeros = [];
+            var step = 0.1;
+            var prevY = null;
+            
+            for (var x = xMin; x <= xMax; x += step) {
+                try {
+                    var y = compiled.evaluate({ x: x });
+                    if (prevY !== null && prevY * y < 0) {
+                        // Sign change - zero crossing
+                        var zeroX = x - step * (y / (y - prevY));
+                        if (isFinite(zeroX)) zeros.push(zeroX);
+                    }
+                    if (Math.abs(y) < 0.01) {
+                        zeros.push(x);
+                    }
+                    prevY = y;
+                } catch (e) {
+                    prevY = null;
+                }
+            }
+            
+            // Remove duplicates
+            return zeros.filter(function(z, i, arr) {
+                return i === 0 || Math.abs(z - arr[i-1]) > 0.1;
+            });
+        }
+        
+        function clearGraph() {
+            graphChart.data.datasets = [];
+            graphChart.update();
+            document.getElementById('graph-function').value = '';
+            document.getElementById('info-function').textContent = '-';
+            document.getElementById('info-derivative').textContent = '-';
+            document.getElementById('info-zeros').textContent = '-';
+            document.getElementById('info-stationary').textContent = '-';
+        }
+        
+        // ==================== GAME ====================
+        async function startGame(topicId) {
+            gameState.currentTopic = topicId;
+            gameState.score = 0;
+            gameState.correctCount = 0;
+            gameState.currentIndex = 0;
+            gameState.answered = [];
+            
+            document.querySelectorAll('.topic-item').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            document.getElementById('topic-' + topicId).classList.add('active');
+            
+            document.getElementById('nav-score').textContent = '0';
+            document.getElementById('nav-correct').textContent = '0';
+            
+            await loadQuestions();
+            
+            if (gameState.allQuestions.length === 0) {
+                alert('Ingen spørsmål funnet for dette temaet ennå. Legg til oppgaver i Question Builder.');
+                return;
+            }
+            
+            loadFormulasForTopic(topicId);
+            
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('game-view').classList.add('visible');
+            document.getElementById('progress-section').classList.add('visible');
+            document.getElementById('question-selector-section').classList.add('visible');
+            
+            renderQuestionSelector();
+            loadQuestion(0);
+        }
+        
+        async function loadQuestions() {
+            var allQuestions = gameState.cachedQuestions.length > 0 
+                ? gameState.cachedQuestions 
+                : await apiCall('/questions?module=' + MODULE_ID + '&limit=500');
+            
+            if (!allQuestions) allQuestions = [];
+            
+            var filtered = [];
+            if (gameState.currentTopic === 'mixed') {
+                filtered = allQuestions.slice();
+            } else {
+                allQuestions.forEach(function(q) {
+                    if (mapTopic(q.topic) === gameState.currentTopic) {
+                        filtered.push(q);
+                    }
+                });
+            }
+            
+            // Shuffle
+            for (var i = filtered.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = filtered[i];
+                filtered[i] = filtered[j];
+                filtered[j] = temp;
+            }
+            
+            gameState.allQuestions = filtered;
+            gameState.questions = filtered.slice();
+        }
+        
+        function renderQuestionSelector() {
+            var html = '';
+            gameState.questions.forEach(function(q, i) {
+                var cls = 'question-selector-item';
+                if (i === gameState.currentIndex) cls += ' current';
+                if (gameState.answered[i]) cls += ' completed';
+                html += '<div class="' + cls + '" onclick="loadQuestion(' + i + ')">' + (i + 1) + '</div>';
+            });
+            document.getElementById('question-selector').innerHTML = html;
+        }
+        
+        function loadQuestion(index) {
+            if (index < 0 || index >= gameState.questions.length) return;
+            
+            gameState.currentIndex = index;
+            gameState.currentQuestion = gameState.questions[index];
+            gameState.selectedAnswer = null;
+            gameState.answeredCorrectly = false;
+            
+            var q = gameState.currentQuestion;
+            
+            document.getElementById('question-number').textContent = 'Oppgave ' + (index + 1) + ' av ' + gameState.questions.length;
+            document.getElementById('question-title').textContent = q.title || 'Oppgave ' + (index + 1);
+            document.getElementById('question-text').innerHTML = q.question || q.description || '';
+            
+            // Badges
+            var badgeHtml = '';
+            if (q.topic) badgeHtml += '<span class="badge badge-topic">' + q.topic + '</span>';
+            if (q.type) badgeHtml += '<span class="badge badge-type">' + formatType(q.type) + '</span>';
+            if (q.difficulty) badgeHtml += '<span class="badge badge-diff">' + q.difficulty + '</span>';
+            document.getElementById('question-badges').innerHTML = badgeHtml;
+            
+            renderAnswerArea(q);
+            renderVariables(q);
+            updateProgress();
+            renderQuestionSelector();
+            
+            // Reset UI
+            document.getElementById('feedback-area').classList.remove('visible', 'correct', 'incorrect');
+            document.getElementById('btn-check').style.display = 'inline-flex';
+            document.getElementById('btn-check').disabled = false;
+            document.getElementById('btn-next').style.display = 'none';
+            
+            // Show graph button for analysis questions
+            var graphBtn = document.getElementById('btn-show-graph');
+            graphBtn.style.display = (q.function || q.topic === 'analyse' || q.topic === 'derivasjon') ? 'inline-flex' : 'none';
+        }
+        
+        function formatType(type) {
+            var types = {
+                'multiple_choice': 'Flervalg', 'mc': 'Flervalg',
+                'calculation': 'Beregning', 'excel_grid': 'Regneark',
+                'true_false': 'Sant/Usant', 'tf': 'Sant/Usant',
+                'drag_drop': 'Dra og slipp', 'dnd': 'Dra og slipp'
+            };
+            return types[type] || type;
+        }
+        
+        function renderAnswerArea(q) {
+            var container = document.getElementById('answer-area');
+            var excelSection = document.getElementById('excel-grid-section');
+            var type = q.type || 'multiple_choice';
+            
+            excelSection.style.display = 'none';
+            
+            if (type === 'multiple_choice' || type === 'mc') {
+                renderMultipleChoice(q, container);
+            } else if (type === 'calculation' || type === 'excel_grid') {
+                container.innerHTML = '';
+                excelSection.style.display = 'block';
+                renderExcelGrid(q);
+            } else {
+                renderMultipleChoice(q, container);
+            }
+        }
+        
+        function renderMultipleChoice(q, container) {
+            var options = q.options || [];
+            var html = '<div class="options-container">';
+            
+            options.forEach(function(opt, i) {
+                var letter = String.fromCharCode(65 + i);
+                var text = typeof opt === 'string' ? opt : (opt.text || opt.label || '');
+                var id = opt.id || letter;
+                
+                html += '<div class="option-item" data-id="' + id + '" onclick="selectOption(\'' + id + '\')">';
+                html += '<span class="option-letter">' + letter + '</span>';
+                html += '<span class="option-text">' + text + '</span>';
+                html += '</div>';
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        function renderExcelGrid(q) {
+            var data = q.data || {};
+            var headers = ['Parameter', 'Verdi'];
+            var gridRows = [];
+            
+            Object.keys(data).forEach(function(key) {
+                var val = data[key];
+                if (typeof val !== 'object') {
+                    gridRows.push([
+                        { value: formatLabel(key), readonly: true },
+                        { value: val, readonly: true }
+                    ]);
+                }
+            });
+            
+            // Add answer fields
+            var answerFields = q.input_fields || [];
+            if (answerFields.length === 0 && q.solution) {
+                Object.keys(q.solution).forEach(function(key) {
+                    if (key !== 'tolerance') {
+                        answerFields.push({ id: key, label: formatLabel(key), answer: q.solution[key] });
+                    }
+                });
+            }
+            if (answerFields.length === 0 && q.answer !== undefined) {
+                answerFields = [{ id: 'answer', label: 'Svar', answer: q.answer }];
+            }
+            
+            answerFields.forEach(function(field) {
+                gridRows.push([
+                    { value: field.label || formatLabel(field.id), readonly: true },
+                    { value: '', readonly: false, answer: field.answer }
+                ]);
+            });
+            
+            // Simple grid render
+            var container = document.getElementById('excel-grid-component');
+            var html = '<div class="excel-grid-wrapper"><table class="excel-table">';
+            html += '<thead><tr><th>#</th><th>Parameter</th><th>Verdi</th></tr></thead><tbody>';
+            
+            gridRows.forEach(function(row, ri) {
+                html += '<tr><td style="background: var(--bg-tertiary); text-align: center; width: 40px;">' + (ri + 1) + '</td>';
+                row.forEach(function(cell, ci) {
+                    if (cell.readonly) {
+                        html += '<td><input class="excel-cell readonly" value="' + (cell.value || '') + '" readonly style="text-align: ' + (ci === 0 ? 'left' : 'right') + '"></td>';
+                    } else {
+                        html += '<td><input class="excel-cell" data-row="' + ri + '" data-col="' + ci + '" data-answer="' + (cell.answer || '') + '" placeholder="Skriv svar..."></td>';
+                    }
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+            
+            currentExcelGrid = { gridRows: gridRows, tolerance: q.tolerance || 0.5 };
+        }
+        
+        function renderVariables(q) {
+            var container = document.getElementById('variable-list');
+            if (!q.data) {
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Ingen data.</p>';
+                return;
+            }
+            
+            var html = '';
+            Object.keys(q.data).forEach(function(k) {
+                var v = q.data[k];
+                if (typeof v !== 'object') {
+                    html += '<div style="background: var(--bg-tertiary); padding: 8px; border-radius: 6px; margin-bottom: 6px;">';
+                    html += '<div style="color: var(--text-secondary); font-size: 0.8em;">' + formatLabel(k) + '</div>';
+                    html += '<div style="color: var(--text-primary); font-family: monospace;">' + v + '</div>';
+                    html += '</div>';
+                }
+            });
+            container.innerHTML = html || '<p style="color: var(--text-secondary);">Ingen data</p>';
+        }
+        
+        function formatLabel(key) {
+            return key.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, function(s) { return s.toUpperCase(); });
+        }
+        
+        // ==================== ANSWER HANDLING ====================
+        function selectOption(id) {
+            if (gameState.answeredCorrectly) return;
+            gameState.selectedAnswer = id;
+            document.querySelectorAll('.option-item').forEach(function(el) {
+                el.classList.toggle('selected', el.dataset.id === id);
+            });
+        }
+        
+        function checkAnswer() {
+            var q = gameState.currentQuestion;
+            document.getElementById('btn-check').disabled = true;
+            
+            var isCorrect = false;
+            var type = q.type || 'multiple_choice';
+            
+            if (type === 'multiple_choice' || type === 'mc') {
+                isCorrect = checkMultipleChoice(q);
+            } else if (type === 'calculation' || type === 'excel_grid') {
+                isCorrect = checkCalculation(q);
+            }
+            
+            showFeedback(isCorrect, q);
+        }
+        
+        function checkMultipleChoice(q) {
+            var selected = gameState.selectedAnswer;
+            if (!selected) return false;
+            
+            var options = q.options || [];
+            var correctOpt = options.find(function(opt) {
+                return opt.is_correct === true || opt.correct === true;
+            });
+            
+            var isCorrect = correctOpt && (correctOpt.id === selected || options.indexOf(correctOpt) === selected.charCodeAt(0) - 65);
+            
+            document.querySelectorAll('.option-item').forEach(function(el) {
+                var optIndex = el.dataset.id.charCodeAt(0) - 65;
+                var opt = options[optIndex];
+                
+                if (opt && (opt.is_correct || opt.correct)) {
+                    el.classList.add('correct');
+                } else if (el.dataset.id === selected && !isCorrect) {
+                    el.classList.add('incorrect');
+                }
+            });
+            
+            return isCorrect;
+        }
+        
+        function checkCalculation(q) {
+            var isCorrect = true;
+            var tolerance = currentExcelGrid ? currentExcelGrid.tolerance : 0.5;
+            
+            document.querySelectorAll('#excel-grid-component .excel-cell:not(.readonly)').forEach(function(cell) {
+                var userVal = parseFloat(cell.value.replace(/\s/g, '').replace(',', '.')) || 0;
+                var correctVal = parseFloat(cell.dataset.answer) || 0;
+                
+                if (correctVal !== 0) {
+                    var percentDiff = Math.abs((userVal - correctVal) / correctVal) * 100;
+                    
+                    if (percentDiff <= tolerance) {
+                        cell.classList.add('correct');
+                    } else {
+                        cell.classList.add('incorrect');
+                        isCorrect = false;
+                    }
+                }
+            });
+            
+            return isCorrect;
+        }
+        
+        function showFeedback(isCorrect, q) {
+            gameState.answeredCorrectly = isCorrect;
+            gameState.answered[gameState.currentIndex] = true;
+            
+            if (isCorrect) {
+                gameState.correctCount++;
+                gameState.score += 10;
+                document.getElementById('nav-correct').textContent = gameState.correctCount;
+                document.getElementById('nav-score').textContent = gameState.score;
+            }
+            
+            var feedbackArea = document.getElementById('feedback-area');
+            feedbackArea.classList.remove('correct', 'incorrect');
+            feedbackArea.classList.add('visible', isCorrect ? 'correct' : 'incorrect');
+            document.getElementById('feedback-title').textContent = isCorrect ? '✓ Riktig!' : '✗ Feil';
+            document.getElementById('feedback-explanation').innerHTML = q.explanation || q.hint || '';
+            
+            document.getElementById('btn-check').style.display = 'none';
+            document.getElementById('btn-next').style.display = 'inline-flex';
+            
+            updateProgress();
+            renderQuestionSelector();
+        }
+        
+        function showHint() {
+            var q = gameState.currentQuestion;
+            if (q.hint) {
+                alert('💡 Hint: ' + q.hint);
+            } else {
+                alert('Ingen hint tilgjengelig.');
+            }
+        }
+        
+        function nextQuestion() {
+            if (gameState.currentIndex < gameState.questions.length - 1) {
+                loadQuestion(gameState.currentIndex + 1);
+            } else {
+                var percent = Math.round((gameState.correctCount / gameState.questions.length) * 100);
+                alert('🎉 Gratulerer!\n\n' + gameState.correctCount + ' av ' + gameState.questions.length + ' riktig (' + percent + '%)');
+            }
+        }
+        
+        function updateProgress() {
+            var answered = gameState.answered.filter(Boolean).length;
+            var total = gameState.questions.length;
+            var percent = total > 0 ? Math.round((answered / total) * 100) : 0;
+            
+            var bar = document.getElementById('progress-bar');
+            bar.style.width = percent + '%';
+            bar.textContent = percent + '%';
+        }
+        
+        function setDifficulty(diff) {
+            gameState.currentDifficulty = diff;
+            document.querySelectorAll('.diff-card').forEach(function(card) {
+                card.style.borderColor = 'var(--border-color)';
+            });
+            event.currentTarget.style.borderColor = 'var(--accent)';
+        }
+        
+        // ==================== CALCULATOR ====================
+        function toggleCalculator() {
+            document.getElementById('calc-panel').classList.toggle('visible');
+        }
+        
+        function calcInput(val) {
+            calcExpression += val;
+            document.getElementById('calc-expression').textContent = calcExpression;
+        }
+        
+        function calcClear() {
+            calcExpression = '';
+            document.getElementById('calc-expression').textContent = '';
+            document.getElementById('calc-result').textContent = '0';
+        }
+        
+        function calcBackspace() {
+            calcExpression = calcExpression.slice(0, -1);
+            document.getElementById('calc-expression').textContent = calcExpression;
+        }
+        
+        function calcAns() {
+            calcExpression += calcLastAnswer;
+            document.getElementById('calc-expression').textContent = calcExpression;
+        }
+        
+        function calcEquals() {
+            try {
+                var result = math.evaluate(calcExpression);
+                document.getElementById('calc-result').textContent = result;
+                calcLastAnswer = result;
+                calcExpression = String(result);
+            } catch (e) {
+                document.getElementById('calc-result').textContent = 'Error';
+                calcExpression = '';
+            }
+        }
+        
+        function calcFunction(fn) {
+            try {
+                var val = calcExpression ? math.evaluate(calcExpression) : 0;
+                var result;
+                
+                switch(fn) {
+                    case 'sin': result = Math.sin(val); break;
+                    case 'cos': result = Math.cos(val); break;
+                    case 'tan': result = Math.tan(val); break;
+                    case 'ln': result = Math.log(val); break;
+                    case 'log': result = Math.log10(val); break;
+                    case 'sqrt': result = Math.sqrt(val); break;
+                    case 'exp': result = Math.exp(val); break;
+                    case 'abs': result = Math.abs(val); break;
+                    case 'factorial': result = math.factorial(val); break;
+                    default: result = val;
+                }
+                
+                document.getElementById('calc-result').textContent = result;
+                calcLastAnswer = result;
+                calcExpression = String(result);
+            } catch (e) {
+                document.getElementById('calc-result').textContent = 'Error';
+            }
+        }
+    </script>
+    
+    <script src="js/theme-manager.js"></script>
+    <script>if (typeof ThemeManager !== 'undefined') ThemeManager.init();</script>
+</body>
+</html>

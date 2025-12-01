@@ -6,6 +6,16 @@
     <title>Innstillinger - AccountingQuest</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
     <meta name="theme-color" content="#0f1419">
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- Avatar Builder (optional - falls back to emoji if not found) -->
+    <link rel="stylesheet" href="css/avatar-builder.css" onerror="this.remove()">
+    <script src="js/avatar-builder.js" onerror="window.AvatarBuilder=null;"></script>
     
     <style>
         /* ========== THEME VARIABLES ========== */
@@ -14,12 +24,10 @@
             --bg-secondary: #1a1f26;
             --bg-tertiary: #2d3748;
             --bg-card: #1e2530;
-            --bg-input: #0f1419;
             --text-primary: #e0e0e0;
             --text-secondary: #9ca3af;
             --text-muted: #6b7280;
             --border-color: #2d3748;
-            --border-light: #374151;
             --accent: #4ade80;
             --accent-hover: #22c55e;
             --accent-glow: rgba(74, 222, 128, 0.3);
@@ -27,10 +35,9 @@
             --warning: #f59e0b;
             --error: #ef4444;
             --info: #3b82f6;
-            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-            --transition-fast: 0.15s ease;
-            --transition-normal: 0.3s ease;
+            --purple: #a855f7;
+            --pink: #ec4899;
+            --gold: #fbbf24;
             --radius-sm: 6px;
             --radius-md: 10px;
             --radius-lg: 15px;
@@ -40,6 +47,7 @@
             --space-md: 15px;
             --space-lg: 20px;
             --space-xl: 30px;
+            --transition-fast: 0.15s ease;
         }
 
         /* Light theme */
@@ -48,14 +56,9 @@
             --bg-secondary: #fafaf8;
             --bg-tertiary: #eaeae5;
             --bg-card: #ffffff;
-            --bg-input: #f5f5f0;
             --text-primary: #1f2937;
             --text-secondary: #4b5563;
-            --text-muted: #9ca3af;
             --border-color: #e5e5e0;
-            --border-light: #d1d1cc;
-            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         [data-theme="cream"] {
@@ -63,11 +66,9 @@
             --bg-secondary: #fffcf7;
             --bg-tertiary: #f0ebe3;
             --bg-card: #fffef9;
-            --bg-input: #f5f2ed;
             --text-primary: #2d2a26;
             --text-secondary: #5c5650;
             --border-color: #e8e4dc;
-            --border-light: #d9d4cb;
         }
 
         [data-theme="dark-blue"] {
@@ -75,11 +76,9 @@
             --bg-secondary: #112240;
             --bg-tertiary: #1d3461;
             --bg-card: #172a46;
-            --bg-input: #0a192f;
             --text-primary: #ccd6f6;
             --text-secondary: #8892b0;
             --border-color: #1d3461;
-            --border-light: #233554;
         }
 
         [data-theme="midnight"] {
@@ -87,11 +86,9 @@
             --bg-secondary: #0a0a0a;
             --bg-tertiary: #171717;
             --bg-card: #0f0f0f;
-            --bg-input: #050505;
             --text-primary: #fafafa;
             --text-secondary: #a3a3a3;
             --border-color: #262626;
-            --border-light: #404040;
         }
 
         [data-theme="charcoal"] {
@@ -102,7 +99,6 @@
             --text-primary: #f0f0f0;
             --text-secondary: #a0a0a0;
             --border-color: #3d3d3d;
-            --border-light: #4a4a4a;
         }
 
         [data-theme="slate"] {
@@ -113,7 +109,6 @@
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --border-color: #334155;
-            --border-light: #475569;
         }
 
         [data-theme="forest"] {
@@ -124,7 +119,6 @@
             --text-primary: #d4e8dc;
             --text-secondary: #8fb89e;
             --border-color: #1f3d2b;
-            --border-light: #2a5038;
         }
 
         [data-theme="purple-night"] {
@@ -135,7 +129,6 @@
             --text-primary: #e8e4f0;
             --text-secondary: #a39bb8;
             --border-color: #2d2640;
-            --border-light: #3d3455;
         }
 
         /* Accent colors */
@@ -150,19 +143,9 @@
         [data-accent="teal"] { --accent: #14b8a6; --accent-hover: #0d9488; --accent-glow: rgba(20, 184, 166, 0.3); }
         [data-accent="indigo"] { --accent: #6366f1; --accent-hover: #4f46e5; --accent-glow: rgba(99, 102, 241, 0.3); }
 
-        /* ========== BASE STYLES ========== */
+        /* ========== BASE ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            transition: background var(--transition-normal), color var(--transition-normal);
-            line-height: 1.6;
-        }
-
-        a { color: var(--accent); text-decoration: none; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
 
         /* ========== HEADER ========== */
         .aq-header {
@@ -179,626 +162,569 @@
             gap: 15px;
         }
 
-        .aq-header-left, .aq-header-right {
+        .aq-header-left, .aq-header-right { display: flex; align-items: center; gap: 15px; }
+
+        /* ========== LAYOUT ========== */
+        .app-layout { display: flex; min-height: calc(100vh - 60px); }
+
+        .sidebar-panel {
+            width: 240px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header { 
+            padding: var(--space-lg); 
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+        }
+        .sidebar-title { 
+            font-weight: 700; 
+            color: var(--accent);
+            font-size: 1.1em;
+        }
+        .sidebar-content { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: var(--space-sm); 
+        }
+
+        .nav-item {
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-
-        .aq-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-
-        .aq-logo-icon { font-size: 1.8em; }
-
-        .aq-logo-text {
-            font-size: 1.4em;
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        .aq-module-name {
-            color: var(--accent);
-            font-weight: 500;
-        }
-
-        /* ========== BUTTONS ========== */
-        .aq-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
+            gap: var(--space-sm);
+            padding: 12px var(--space-md);
             border-radius: var(--radius-md);
-            font-weight: 500;
             cursor: pointer;
             transition: all var(--transition-fast);
-            border: none;
-            font-size: 0.95em;
-            text-decoration: none;
-        }
-
-        .aq-btn-primary {
-            background: var(--accent);
-            color: #000;
-        }
-
-        .aq-btn-primary:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-        }
-
-        .aq-btn-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .aq-btn-secondary:hover {
-            background: var(--border-color);
-        }
-
-        .aq-btn-danger {
-            background: var(--error);
-            color: white;
-        }
-
-        .aq-btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .aq-btn-link {
-            background: transparent;
-            color: var(--accent);
-            padding: 10px 15px;
-        }
-
-        .aq-btn-link:hover {
-            text-decoration: underline;
-        }
-
-        /* ========== BADGES ========== */
-        .aq-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 10px;
-            border-radius: var(--radius-full);
-            font-size: 0.8em;
-            font-weight: 500;
-        }
-
-        .aq-badge-primary { background: var(--accent); color: #000; }
-        .aq-badge-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
-        .aq-badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
-        .aq-badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .aq-badge-info { background: rgba(59, 130, 246, 0.2); color: var(--info); }
-        .aq-badge-error { background: rgba(239, 68, 68, 0.2); color: var(--error); }
-
-        /* ========== PROGRESS ========== */
-        .aq-progress {
-            height: 8px;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-full);
-            overflow: hidden;
-        }
-
-        .aq-progress-bar {
-            height: 100%;
-            background: var(--accent);
-            border-radius: var(--radius-full);
-            transition: width 0.3s ease;
-        }
-
-        /* ========== SETTINGS SPECIFIC ========== */
-        .settings-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-
-        .settings-title {
-            font-size: 2em;
-            margin-bottom: 30px;
-            color: var(--accent);
-        }
-
-        .settings-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 25px;
-            margin-bottom: 20px;
-        }
-
-        .settings-section h3 {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            color: var(--text-primary);
-        }
-
-        .settings-section p {
             color: var(--text-secondary);
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        /* Theme grid */
-        .theme-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .theme-card {
-            background: var(--bg-tertiary);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 10px;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            text-align: center;
-        }
-
-        .theme-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-
-        .theme-card.active {
-            border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-
-        .theme-preview {
-            height: 50px;
-            border-radius: var(--radius-sm);
-            margin-bottom: 8px;
-        }
-
-        .theme-preview-dark { background: linear-gradient(135deg, #0f1419, #1a1f26); }
-        .theme-preview-light { background: linear-gradient(135deg, #f5f5f0, #fafaf8); }
-        .theme-preview-cream { background: linear-gradient(135deg, #f9f6f1, #fffcf7); }
-        .theme-preview-dark-blue { background: linear-gradient(135deg, #0a192f, #112240); }
-        .theme-preview-midnight { background: linear-gradient(135deg, #000000, #0a0a0a); }
-        .theme-preview-charcoal { background: linear-gradient(135deg, #1a1a1a, #242424); }
-        .theme-preview-slate { background: linear-gradient(135deg, #0f172a, #1e293b); }
-        .theme-preview-forest { background: linear-gradient(135deg, #0c1a14, #142b1f); }
-        .theme-preview-purple-night { background: linear-gradient(135deg, #13111c, #1c1829); }
-
-        .theme-name {
-            font-size: 0.85em;
-            color: var(--text-secondary);
-        }
-
-        /* Accent grid */
-        .accent-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .accent-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            position: relative;
-        }
-
-        .accent-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .accent-btn.active {
-            border-color: white;
-            box-shadow: 0 0 15px currentColor;
-            transform: scale(1.1);
-        }
-
-        .accent-btn.active::after {
-            content: '✓';
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3em;
-            color: white;
-            text-shadow: 0 0 3px rgba(0,0,0,0.5);
-        }
-
-        .accent-green { background: #4ade80; }
-        .accent-blue { background: #3b82f6; }
-        .accent-purple { background: #a855f7; }
-        .accent-pink { background: #ec4899; }
-        .accent-orange { background: #f59e0b; }
-        .accent-cyan { background: #06b6d4; }
-        .accent-red { background: #ef4444; }
-        .accent-yellow { background: #eab308; }
-        .accent-teal { background: #14b8a6; }
-        .accent-indigo { background: #6366f1; }
-
-        /* Preview section */
-        .preview-section {
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .preview-section h4 {
-            margin-bottom: 15px;
-            color: var(--text-secondary);
+            margin-bottom: 4px;
             font-size: 0.95em;
         }
+        .nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .nav-item.active { background: var(--accent); color: var(--bg-primary); font-weight: 600; }
+        .nav-item .nav-icon { font-size: 1.2em; width: 28px; text-align: center; }
 
-        .preview-components {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: center;
-        }
-
-        /* Storage info */
-        .storage-info {
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .storage-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-secondary);
-        }
-
-        .storage-item:last-child { border-bottom: none; }
-
-        .storage-item span:last-child {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .data-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .badges-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        /* Account section */
-        .account-info {
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .account-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .account-row:last-child { border-bottom: none; }
-
-        .account-label {
-            color: var(--text-secondary);
-            font-size: 0.9em;
-        }
-
-        .account-value {
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-
-        /* Admin links */
-        .admin-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        /* Delete account section */
-        .danger-zone {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .danger-zone h4 {
-            color: var(--error);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .danger-zone p {
-            color: var(--text-secondary);
-            font-size: 0.9em;
-            margin-bottom: 15px;
-        }
-
-        /* Modal */
-        .modal-overlay {
+        /* Mobile bottom nav */
+        .mobile-nav {
             display: none;
             position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 8px;
+            z-index: 100;
         }
-
-        .modal-overlay.show {
+        .mobile-nav-inner {
             display: flex;
+            justify-content: space-around;
+            max-width: 500px;
+            margin: 0 auto;
         }
-
-        .modal-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            max-width: 450px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalIn 0.2s ease-out;
-        }
-
-        @keyframes modalIn {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
+        .mobile-nav-btn {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-        }
-
-        .modal-header h3 {
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .modal-close {
+            gap: 4px;
+            padding: 8px 12px;
             background: none;
             border: none;
-            color: var(--text-muted);
-            font-size: 1.5em;
+            color: var(--text-secondary);
             cursor: pointer;
-            padding: 5px;
+            border-radius: var(--radius-md);
+            font-size: 0.7em;
+        }
+        .mobile-nav-btn:hover { background: var(--bg-tertiary); }
+        .mobile-nav-btn.active { color: var(--accent); }
+        .mobile-nav-btn .icon { font-size: 1.5em; }
+
+        .workspace { flex: 1; overflow-y: auto; padding: var(--space-xl); background: var(--bg-primary); }
+        .settings-container { max-width: 800px; margin: 0 auto; }
+
+        /* ========== SECTIONS ========== */
+        .settings-view { display: none; }
+        .settings-view.active { display: block; }
+
+        .settings-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+            border: 1px solid var(--border-color);
         }
 
-        .modal-close:hover { color: var(--text-primary); }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .modal-footer {
-            padding: 15px 20px;
-            border-top: 1px solid var(--border-color);
+        .settings-section-title {
+            color: var(--accent);
+            font-size: 1.1em;
+            margin-bottom: var(--space-md);
             display: flex;
-            gap: 10px;
-            justify-content: flex-end;
+            align-items: center;
+            gap: var(--space-sm);
         }
 
-        /* Delete steps */
-        .delete-step {
-            display: none;
-        }
-
-        .delete-step.active {
-            display: block;
-        }
-
-        .step-indicator {
+        .setting-item {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .setting-item:last-child { border-bottom: none; }
+
+        .setting-label { flex: 1; }
+        .setting-label strong { display: block; margin-bottom: 4px; color: var(--text-primary); }
+        .setting-label small { color: var(--text-secondary); font-size: 0.85em; }
+
+        /* ========== BUTTONS ========== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .step-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--border-color);
-        }
-
-        .step-dot.active {
-            background: var(--accent);
-        }
-
-        .step-dot.completed {
-            background: var(--success);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
+            gap: var(--space-sm);
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
             color: var(--text-primary);
-            font-weight: 500;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
         }
+        .btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+        .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--bg-primary); }
+        .btn-danger { background: var(--error); border-color: var(--error); color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 0.85em; }
+        .btn-group { display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-top: var(--space-md); }
 
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            background: var(--bg-input);
+        /* ========== TOGGLE ========== */
+        .toggle {
+            position: relative;
+            width: 54px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        .toggle.active { background: var(--accent); }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        .toggle.active::after { transform: translateX(26px); }
+
+        /* ========== INPUTS ========== */
+        .setting-input, .setting-select {
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             color: var(--text-primary);
             font-size: 1em;
         }
+        .setting-input { width: 200px; }
+        .setting-select { min-width: 150px; cursor: pointer; }
+        .setting-input:focus, .setting-select:focus { outline: none; border-color: var(--accent); }
 
-        .form-group input:focus {
-            outline: none;
+        /* ========== PROFILE CARD ========== */
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            padding: var(--space-lg);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-lg);
+        }
+
+        .profile-avatar-wrapper { position: relative; }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid var(--accent);
+        }
+
+        .avatar-accessory {
+            position: absolute;
+            font-size: 1.5em;
+        }
+        .avatar-accessory.hair { top: -5px; }
+        .avatar-accessory.glasses { top: 30%; }
+        .avatar-accessory.beard { bottom: 10%; }
+
+        .profile-level-badge {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: var(--gold);
+            color: #1a1a1a;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            border: 2px solid var(--bg-tertiary);
+        }
+
+        .profile-info { flex: 1; }
+        .profile-info h2 { color: var(--text-primary); margin-bottom: 4px; }
+        .profile-title { color: var(--gold); font-size: 0.9em; margin-bottom: 8px; }
+        .profile-info p { color: var(--text-secondary); font-size: 0.9em; }
+
+        /* ========== XP BAR ========== */
+        .xp-bar-container { margin-top: var(--space-sm); }
+        .xp-bar-label { display: flex; justify-content: space-between; font-size: 0.8em; color: var(--text-secondary); margin-bottom: 4px; }
+        .xp-bar {
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* ========== STATS GRID ========== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+        .stat-value { font-size: 1.6em; font-weight: bold; color: var(--accent); }
+        .stat-label { color: var(--text-secondary); font-size: 0.8em; margin-top: 4px; }
+
+        /* ========== AVATAR BUILDER ========== */
+        .avatar-builder {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+        }
+
+        .avatar-preview {
+            width: 150px;
+            height: 150px;
+            background: var(--bg-primary);
+            border-radius: 50%;
+            margin: 0 auto var(--space-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            position: relative;
+            border: 4px solid var(--accent);
+        }
+
+        .customization-row {
+            margin-bottom: var(--space-md);
+        }
+        .customization-row label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            margin-bottom: var(--space-xs);
+        }
+
+        .option-grid {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        .option-btn {
+            width: 50px;
+            height: 50px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+        .option-btn:hover { border-color: var(--accent); transform: scale(1.05); }
+        .option-btn.active { border-color: var(--accent); background: rgba(74, 222, 128, 0.2); }
+        .option-btn.locked { opacity: 0.5; cursor: not-allowed; }
+        .option-btn.locked::after {
+            content: '🔒';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            font-size: 0.6em;
+        }
+
+        /* ========== THEME GRID ========== */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .theme-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+        .theme-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .theme-card.active { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+
+        .theme-preview {
+            width: 100%;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-sm);
+        }
+        .theme-card span { font-size: 0.85em; color: var(--text-secondary); }
+
+        /* ========== ACCENT COLORS ========== */
+        .accent-grid { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+        
+        .accent-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .accent-btn:hover { transform: scale(1.15); }
+        .accent-btn.active { border-color: white; box-shadow: 0 0 10px currentColor; }
+
+        /* ========== BACKGROUND GRID ========== */
+        .background-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: var(--space-sm);
+        }
+
+        .bg-option {
+            aspect-ratio: 16/9;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            position: relative;
+        }
+        .bg-option:hover { border-color: var(--accent); }
+        .bg-option.active { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+        .bg-option.locked { opacity: 0.4; }
+        .bg-option.locked::after {
+            content: '🔒';
+            position: absolute;
+            font-size: 0.8em;
+        }
+
+        /* ========== ACHIEVEMENTS ========== */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .achievement-card {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            text-align: center;
+            border: 2px solid var(--border-color);
+            transition: all var(--transition-fast);
+        }
+        .achievement-card.unlocked { border-color: var(--gold); }
+        .achievement-card.locked { opacity: 0.5; }
+        .achievement-card .icon { font-size: 2em; margin-bottom: var(--space-sm); }
+        .achievement-card .name { font-weight: 600; font-size: 0.9em; margin-bottom: 4px; }
+        .achievement-card .desc { font-size: 0.75em; color: var(--text-secondary); }
+        .achievement-card .reward { font-size: 0.7em; color: var(--gold); margin-top: var(--space-xs); }
+
+        /* ========== UNLOCKS SHOWCASE ========== */
+        .unlocks-section {
+            margin-top: var(--space-lg);
+        }
+
+        .unlock-category {
+            margin-bottom: var(--space-md);
+        }
+        .unlock-category h4 {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .unlock-items {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        .unlock-item {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm);
+            font-size: 1.5em;
+            opacity: 0.3;
+        }
+        .unlock-item.unlocked {
+            opacity: 1;
             border-color: var(--accent);
         }
 
-        .form-hint {
-            font-size: 0.85em;
-            color: var(--text-muted);
-            margin-top: 5px;
+        /* ========== LEVEL PROGRESS ========== */
+        .level-section {
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-card));
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+            border: 1px solid var(--gold);
         }
 
-        .code-input-container {
+        .level-header {
             display: flex;
-            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .level-display {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .level-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        .level-info h3 { color: var(--text-primary); }
+        .level-info p { color: var(--text-secondary); font-size: 0.9em; }
+
+        .level-rewards {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .next-reward {
+            background: var(--bg-primary);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+        .next-reward .icon { font-size: 1.2em; }
+
+        /* ========== DANGER ZONE ========== */
+        .danger-zone {
+            border: 2px solid var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .danger-zone .settings-section-title { color: var(--error); }
+
+        /* ========== TOAST ========== */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-md);
+            display: none;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+        .toast.show { display: flex; align-items: center; gap: var(--space-sm); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ========== CLASSROOM ========== */
+        .classroom-join {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+        }
+
+        .code-input-group {
+            display: flex;
+            gap: var(--space-sm);
             justify-content: center;
+            margin: var(--space-lg) 0;
         }
 
         .code-digit {
             width: 50px;
             height: 60px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
             text-align: center;
             font-size: 1.5em;
             font-weight: bold;
-            background: var(--bg-input);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            color: var(--text-primary);
-        }
-
-        .code-digit:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .warning-box {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: var(--radius-md);
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .warning-box h4 {
-            color: var(--error);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .warning-box ul {
-            color: var(--text-secondary);
-            font-size: 0.9em;
-            margin-left: 20px;
-        }
-
-        .warning-box li {
-            margin-bottom: 5px;
-        }
-
-        .success-message {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .success-icon {
-            font-size: 4em;
-            margin-bottom: 15px;
-        }
-
-        .countdown-box {
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .countdown-time {
-            font-size: 2em;
-            font-weight: bold;
-            color: var(--warning);
-            font-family: monospace;
-        }
-
-        /* Pending deletion banner */
-        .pending-deletion-banner {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(234, 179, 8, 0.2));
-            border: 1px solid var(--warning);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .pending-deletion-banner h4 {
-            color: var(--warning);
-            margin-bottom: 10px;
-        }
-
-        .pending-deletion-banner p {
-            color: var(--text-secondary);
-            margin-bottom: 15px;
-        }
-
-        /* Legal links */
-        .legal-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .legal-links a {
             color: var(--accent);
-            text-decoration: none;
-            font-size: 0.9em;
         }
+        .code-digit:focus { border-color: var(--accent); outline: none; }
 
-        .legal-links a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            .theme-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            .settings-container {
-                padding: 15px;
-            }
-            .code-digit {
-                width: 40px;
-                height: 50px;
-                font-size: 1.2em;
-            }
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .sidebar-panel { display: none; }
+            .mobile-nav { display: block; }
+            .workspace { padding: var(--space-md); padding-bottom: 100px; }
+            .profile-card { flex-direction: column; text-align: center; }
+            .setting-item { flex-direction: column; align-items: flex-start; gap: var(--space-md); }
+            .setting-input, .setting-select { width: 100%; }
         }
     </style>
 </head>
@@ -806,928 +732,1193 @@
     <!-- Header -->
     <header class="aq-header">
         <div class="aq-header-left">
-            <a href="index.html" class="aq-logo">
-                <span class="aq-logo-icon">📚</span>
-                <span class="aq-logo-text">AccountingQuest</span>
-            </a>
-            <span class="aq-module-name">⚙️ Innstillinger</span>
+            <a href="index.html" class="btn" style="padding: 8px 16px;">← Hjem</a>
+            <span style="color: var(--accent); font-weight: 600;">⚙️ Innstillinger</span>
         </div>
         <div class="aq-header-right">
-            <a href="index.html" class="aq-btn aq-btn-secondary">← Tilbake</a>
+            <span id="auth-status" style="color: var(--text-secondary); font-size: 0.9em;">Laster...</span>
         </div>
     </header>
-    
-    <div class="settings-container">
-        <h1 class="settings-title">⚙️ Innstillinger</h1>
-        
-        <!-- Pending Deletion Banner -->
-        <div id="pending-deletion-banner" class="pending-deletion-banner" style="display: none;">
-            <h4>⚠️ Kontoen din er planlagt for sletting</h4>
-            <p>Kontoen og alle data slettes permanent om <strong id="deletion-countdown">48:00:00</strong></p>
-            <button class="aq-btn aq-btn-primary" onclick="cancelDeletion()">❌ Avbryt sletting</button>
-        </div>
-        
-        <!-- Konto -->
-        <section class="settings-section" id="account-section">
-            <h3>👤 Konto</h3>
-            
-            <div id="auth-loading" style="text-align: center; padding: 30px;">
-                <p>Laster kontoinformasjon...</p>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar-panel">
+            <div class="sidebar-header">
+                <span class="sidebar-title">⚙️ Innstillinger</span>
             </div>
-            
-            <div id="logged-out-view" style="display: none;">
-                <p>Du er ikke logget inn.</p>
-                <a href="auth.html" class="aq-btn aq-btn-primary">Logg inn</a>
-            </div>
-            
-            <div id="logged-in-view" style="display: none;">
-                <div class="account-info">
-                    <div class="account-row">
-                        <span class="account-label">E-post</span>
-                        <span class="account-value" id="user-email">-</span>
-                    </div>
-                    <div class="account-row">
-                        <span class="account-label">Brukernavn</span>
-                        <span class="account-value" id="user-name">-</span>
-                    </div>
-                    <div class="account-row">
-                        <span class="account-label">Rolle</span>
-                        <span class="account-value" id="user-role">-</span>
-                    </div>
-                    <div class="account-row">
-                        <span class="account-label">Medlem siden</span>
-                        <span class="account-value" id="user-created">-</span>
-                    </div>
+            <div class="sidebar-content">
+                <div class="nav-item active" data-section="profile">
+                    <span class="nav-icon">👤</span> Profil & Avatar
                 </div>
+                <div class="nav-item" data-section="progression">
+                    <span class="nav-icon">🎮</span> Progresjon
+                </div>
+                <div class="nav-item" data-section="appearance">
+                    <span class="nav-icon">🎨</span> Utseende
+                </div>
+                <div class="nav-item" data-section="game">
+                    <span class="nav-icon">⚙️</span> Spillinnstillinger
+                </div>
+                <div class="nav-item" data-section="data">
+                    <span class="nav-icon">💾</span> Data & Lagring
+                </div>
+                <div class="nav-item" data-section="account">
+                    <span class="nav-icon">🔐</span> Konto
+                </div>
+            </div>
+        </aside>
+
+        <!-- Workspace -->
+        <main class="workspace">
+            <div class="settings-container">
                 
-                <!-- Admin/Teacher Links -->
-                <div id="admin-links" class="admin-links" style="display: none;">
-                    <a href="admin.html" class="aq-btn aq-btn-primary" id="admin-btn" style="display: none;">
-                        🔧 Admin Dashboard
-                    </a>
-                    <a href="teacher_portal.html" class="aq-btn aq-btn-secondary" id="teacher-btn" style="display: none;">
-                        👨‍🏫 Lærerportal
-                    </a>
-                    <a href="classroom_admin.html" class="aq-btn aq-btn-secondary" id="classroom-btn" style="display: none;">
-                        🏫 Klasserom Admin
-                    </a>
-                </div>
-                
-                <div class="data-actions" style="margin-top: 15px;">
-                    <button class="aq-btn aq-btn-secondary" onclick="signOut()">
-                        🚪 Logg ut
-                    </button>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Tema -->
-        <section class="settings-section">
-            <h3>🎨 Tema</h3>
-            <p>Velg utseendet som passer deg best.</p>
-            
-            <div class="theme-grid" id="theme-grid">
-                <div class="theme-card" data-theme="dark">
-                    <div class="theme-preview theme-preview-dark"></div>
-                    <div class="theme-name">🌙 Mørk</div>
-                </div>
-                <div class="theme-card" data-theme="light">
-                    <div class="theme-preview theme-preview-light"></div>
-                    <div class="theme-name">☀️ Lys</div>
-                </div>
-                <div class="theme-card" data-theme="cream">
-                    <div class="theme-preview theme-preview-cream"></div>
-                    <div class="theme-name">🦪 Krem</div>
-                </div>
-                <div class="theme-card" data-theme="dark-blue">
-                    <div class="theme-preview theme-preview-dark-blue"></div>
-                    <div class="theme-name">🌊 Navy</div>
-                </div>
-                <div class="theme-card" data-theme="midnight">
-                    <div class="theme-preview theme-preview-midnight"></div>
-                    <div class="theme-name">🌑 Svart</div>
-                </div>
-                <div class="theme-card" data-theme="charcoal">
-                    <div class="theme-preview theme-preview-charcoal"></div>
-                    <div class="theme-name">⬛ Kull</div>
-                </div>
-                <div class="theme-card" data-theme="slate">
-                    <div class="theme-preview theme-preview-slate"></div>
-                    <div class="theme-name">🔷 Skifer</div>
-                </div>
-                <div class="theme-card" data-theme="forest">
-                    <div class="theme-preview theme-preview-forest"></div>
-                    <div class="theme-name">🌲 Skog</div>
-                </div>
-                <div class="theme-card" data-theme="purple-night">
-                    <div class="theme-preview theme-preview-purple-night"></div>
-                    <div class="theme-name">🔮 Lilla</div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Accent-farge -->
-        <section class="settings-section">
-            <h3>✨ Accent-farge</h3>
-            <p>Velg din favorittfarge for knapper og uthevinger.</p>
-            
-            <div class="accent-grid" id="accent-grid">
-                <button class="accent-btn accent-green" data-accent="green" title="Grønn"></button>
-                <button class="accent-btn accent-blue" data-accent="blue" title="Blå"></button>
-                <button class="accent-btn accent-purple" data-accent="purple" title="Lilla"></button>
-                <button class="accent-btn accent-pink" data-accent="pink" title="Rosa"></button>
-                <button class="accent-btn accent-orange" data-accent="orange" title="Oransje"></button>
-                <button class="accent-btn accent-cyan" data-accent="cyan" title="Cyan"></button>
-                <button class="accent-btn accent-red" data-accent="red" title="Rød"></button>
-                <button class="accent-btn accent-yellow" data-accent="yellow" title="Gul"></button>
-                <button class="accent-btn accent-teal" data-accent="teal" title="Teal"></button>
-                <button class="accent-btn accent-indigo" data-accent="indigo" title="Indigo"></button>
-            </div>
-            
-            <!-- Preview -->
-            <div class="preview-section">
-                <h4>Forhåndsvisning:</h4>
-                <div class="preview-components">
-                    <button class="aq-btn aq-btn-primary">Primær-knapp</button>
-                    <button class="aq-btn aq-btn-secondary">Sekundær</button>
-                    <span class="aq-badge aq-badge-primary">Badge</span>
-                    <div class="aq-progress" style="width: 150px;">
-                        <div class="aq-progress-bar" style="width: 70%;"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Brukerdata -->
-        <section class="settings-section">
-            <h3>💾 Lokal data</h3>
-            
-            <div class="storage-info">
-                <div class="storage-item">
-                    <span>Bokføring fremgang</span>
-                    <span id="bokforing-count">0 oppgaver</span>
-                </div>
-                <div class="storage-item">
-                    <span>Quiz fremgang</span>
-                    <span id="quiz-count">0 kategorier</span>
-                </div>
-                <div class="storage-item">
-                    <span>Egne quizzer</span>
-                    <span id="custom-quiz-count">0 quizzer</span>
-                </div>
-                <div class="storage-item">
-                    <span>Totalt lagret lokalt</span>
-                    <span id="total-storage">0 KB</span>
-                </div>
-            </div>
-            
-            <div class="data-actions">
-                <button class="aq-btn aq-btn-secondary" onclick="exportData()">
-                    📥 Eksporter data
-                </button>
-                <button class="aq-btn aq-btn-secondary" onclick="document.getElementById('import-file').click()">
-                    📤 Importer data
-                </button>
-                <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
-                <button class="aq-btn aq-btn-danger" onclick="confirmResetData()">
-                    🗑️ Nullstill lokal data
-                </button>
-            </div>
-        </section>
-        
-        <!-- Om -->
-        <section class="settings-section">
-            <h3>ℹ️ Om AccountingQuest</h3>
-            <p>
-                AccountingQuest er en gamifisert læringsplattform for norsk bokføring og regnskap.
-                Plattformen er designet for å gjøre det lettere å lære regnskapsføring gjennom
-                interaktive oppgaver basert på norske lover og standarder.
-            </p>
-            <div class="badges-row">
-                <span class="aq-badge aq-badge-secondary">Versjon 2.1</span>
-                <span class="aq-badge aq-badge-info">Firebase-støtte</span>
-                <span class="aq-badge aq-badge-success">Multiplayer</span>
-            </div>
-            
-            <div class="legal-links">
-                <a href="privacy.html">🔒 Personvernerklæring</a>
-                <a href="terms.html">📜 Vilkår for bruk</a>
-            </div>
-        </section>
-        
-        <!-- Faresone - nederst -->
-        <section class="settings-section danger-zone" id="danger-zone-section" style="display: none;">
-            <h3>⚠️ Faresone</h3>
-            <p>
-                Sletting av kontoen er permanent. All data, fremgang og klasseromstilknytning vil bli fjernet.
-                Du har 48 timer til å angre etter at sletting er igangsatt.
-            </p>
-            <button class="aq-btn aq-btn-danger" onclick="openDeleteModal()">
-                🗑️ Slett kontoen min
-            </button>
-        </section>
-    </div>
-    
-    <!-- Delete Account Modal -->
-    <div class="modal-overlay" id="delete-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🗑️ Slett konto</h3>
-                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
-            </div>
-            
-            <div class="modal-body">
-                <!-- Step Indicator -->
-                <div class="step-indicator">
-                    <div class="step-dot" id="step-dot-1"></div>
-                    <div class="step-dot" id="step-dot-2"></div>
-                    <div class="step-dot" id="step-dot-3"></div>
-                </div>
-                
-                <!-- Step 1: Password -->
-                <div class="delete-step" id="delete-step-1">
-                    <div class="warning-box">
-                        <h4>⚠️ Advarsel</h4>
-                        <ul>
-                            <li>All fremgang og poeng slettes</li>
-                            <li>Klasseromstilknytninger fjernes</li>
-                            <li>Egne quizzer og innhold slettes</li>
-                            <li>Dette kan ikke angres etter 48 timer</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="delete-password">Skriv inn passordet ditt for å bekrefte:</label>
-                        <input type="password" id="delete-password" placeholder="Ditt passord">
-                    </div>
-                    
-                    <p id="password-error" style="color: var(--error); display: none; margin-bottom: 15px;"></p>
-                </div>
-                
-                <!-- Step 2: Email Code -->
-                <div class="delete-step" id="delete-step-2">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <p>Vi har sendt en 6-sifret kode til:</p>
-                        <strong id="code-sent-email"></strong>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label style="text-align: center;">Skriv inn koden:</label>
-                        <div class="code-input-container">
-                            <input type="text" class="code-digit" maxlength="1" data-index="0">
-                            <input type="text" class="code-digit" maxlength="1" data-index="1">
-                            <input type="text" class="code-digit" maxlength="1" data-index="2">
-                            <input type="text" class="code-digit" maxlength="1" data-index="3">
-                            <input type="text" class="code-digit" maxlength="1" data-index="4">
-                            <input type="text" class="code-digit" maxlength="1" data-index="5">
+                <!-- ==================== PROFILE SECTION ==================== -->
+                <div id="section-profile" class="settings-view active">
+                    <!-- Profile Card -->
+                    <div class="profile-card">
+                        <div class="profile-avatar-wrapper">
+                            <div class="profile-avatar" id="profile-avatar">
+                                <span id="avatar-face">😊</span>
+                                <span class="avatar-accessory hair" id="avatar-hair"></span>
+                                <span class="avatar-accessory glasses" id="avatar-glasses"></span>
+                                <span class="avatar-accessory beard" id="avatar-beard"></span>
+                            </div>
+                            <div class="profile-level-badge" id="profile-level">1</div>
                         </div>
-                        <p class="form-hint" style="text-align: center; margin-top: 10px;">
-                            Koden er gyldig i 15 minutter
+                        <div class="profile-info">
+                            <h2 id="profile-name">Gjest</h2>
+                            <p class="profile-title" id="profile-title-display">🌱 Nybegynner</p>
+                            <p id="profile-email">Ikke logget inn</p>
+                            <div class="xp-bar-container">
+                                <div class="xp-bar-label">
+                                    <span><span id="current-xp">0</span> XP</span>
+                                    <span><span id="next-level-xp">100</span> XP til neste level</span>
+                                </div>
+                                <div class="xp-bar">
+                                    <div class="xp-bar-fill" id="xp-bar-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Username -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">✏️ Brukernavn</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Ditt navn</strong>
+                                <small>Vises på leaderboards og i klasserom</small>
+                            </div>
+                            <input type="text" class="setting-input" id="username" placeholder="Skriv navn..." onchange="saveProfile()">
+                        </div>
+                    </div>
+
+                    <!-- Avatar Builder -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🎭 Avatar Builder</h3>
+                        
+                        <div class="avatar-builder" id="avatar-builder-container">
+                            <!-- Rendered by AvatarBuilder.renderBuilder() or fallback emoji system -->
+                        </div>
+                        
+                        <!-- Fallback emoji-based builder if images not available -->
+                        <div class="avatar-builder-fallback" id="avatar-builder-fallback" style="display:none;">
+                            <div class="avatar-preview" id="avatar-preview">
+                                <span id="preview-face">😊</span>
+                            </div>
+
+                            <!-- Face -->
+                            <div class="customization-row">
+                                <label>Ansikt</label>
+                                <div class="option-grid" id="face-options">
+                                    <button class="option-btn active" data-type="face" data-value="😊">😊</button>
+                                    <button class="option-btn" data-type="face" data-value="😎">😎</button>
+                                    <button class="option-btn" data-type="face" data-value="🤓">🤓</button>
+                                    <button class="option-btn" data-type="face" data-value="😄">😄</button>
+                                    <button class="option-btn locked" data-type="face" data-value="🦁" data-unlock="level-10">🦁</button>
+                                    <button class="option-btn locked" data-type="face" data-value="🐺" data-unlock="level-20">🐺</button>
+                                    <button class="option-btn locked" data-type="face" data-value="🦊" data-unlock="level-30">🦊</button>
+                                    <button class="option-btn locked" data-type="face" data-value="🐲" data-unlock="level-50">🐲</button>
+                                </div>
+                            </div>
+
+                            <!-- Hair -->
+                            <div class="customization-row">
+                                <label>Hodeplagg</label>
+                                <div class="option-grid" id="hair-options">
+                                    <button class="option-btn active" data-type="hair" data-value="">❌</button>
+                                    <button class="option-btn" data-type="hair" data-value="👒">👒</button>
+                                    <button class="option-btn" data-type="hair" data-value="🎩">🎩</button>
+                                    <button class="option-btn" data-type="hair" data-value="🧢">🧢</button>
+                                    <button class="option-btn locked" data-type="hair" data-value="👑" data-unlock="achievement-king">👑</button>
+                                    <button class="option-btn locked" data-type="hair" data-value="🎓" data-unlock="level-25">🎓</button>
+                                </div>
+                            </div>
+
+                            <!-- Accessories -->
+                            <div class="customization-row">
+                                <label>Tilbehør</label>
+                                <div class="option-grid" id="accessory-options">
+                                    <button class="option-btn active" data-type="accessory" data-value="">❌</button>
+                                    <button class="option-btn" data-type="accessory" data-value="👓">👓</button>
+                                    <button class="option-btn" data-type="accessory" data-value="🕶️">🕶️</button>
+                                    <button class="option-btn locked" data-type="accessory" data-value="🧐" data-unlock="level-15">🧐</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p style="color: var(--text-muted); font-size: 0.8em; margin-top: var(--space-md); text-align: center;">
+                            🔒 Lås opp flere ved å levle opp eller fullføre achievements
                         </p>
                     </div>
-                    
-                    <p id="code-error" style="color: var(--error); display: none; text-align: center; margin-bottom: 15px;"></p>
-                    
-                    <div style="text-align: center;">
-                        <button class="aq-btn aq-btn-link" onclick="resendCode()" id="resend-btn">
-                            Ikke mottatt? Send på nytt
-                        </button>
+
+                    <!-- Title Selection -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🏷️ Tittel</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Velg tittel</strong>
+                                <small>Vises under navnet ditt</small>
+                            </div>
+                            <select class="setting-select" id="title-select" onchange="updateTitle()">
+                                <option value="nybegynner">🌱 Nybegynner</option>
+                                <option value="laerling">📚 Lærling</option>
+                                <option value="student" disabled>🎓 Student (Level 10)</option>
+                                <option value="regnskapsforer" disabled>📊 Regnskapsfører (Level 25)</option>
+                                <option value="revisor" disabled>🔍 Revisor (Level 40)</option>
+                                <option value="okonom" disabled>💼 Økonom (Level 60)</option>
+                                <option value="cfo" disabled>🏆 CFO (Level 80)</option>
+                                <option value="mester" disabled>👑 Mester (Level 100)</option>
+                                <option value="perfectionist" disabled>⭐ Perfeksjonist (Achievement)</option>
+                                <option value="speedrunner" disabled>⚡ Speedrunner (Achievement)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Step 3: Confirmation -->
-                <div class="delete-step" id="delete-step-3">
-                    <div class="success-message">
-                        <div class="success-icon">✅</div>
-                        <h3 style="color: var(--text-primary); margin-bottom: 10px;">Sletting igangsatt</h3>
-                        <p style="color: var(--text-secondary);">
-                            Din konto og alle data vil bli permanent slettet om 48 timer.
+
+                <!-- ==================== PROGRESSION SECTION ==================== -->
+                <div id="section-progression" class="settings-view">
+                    <!-- Level Display -->
+                    <div class="level-section">
+                        <div class="level-header">
+                            <div class="level-display">
+                                <div class="level-number" id="big-level">1</div>
+                                <div class="level-info">
+                                    <h3>Level <span id="level-text">1</span> av 100</h3>
+                                    <p><span id="total-xp">0</span> total XP</p>
+                                </div>
+                            </div>
+                            <div class="level-rewards">
+                                <div class="next-reward">
+                                    <span class="icon">🎁</span>
+                                    <span>Level 5: Ny bakgrunn</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="xp-bar" style="height: 12px;">
+                            <div class="xp-bar-fill" id="big-xp-bar" style="width: 0%"></div>
+                        </div>
+                        <p style="text-align: center; margin-top: var(--space-sm); color: var(--text-secondary); font-size: 0.9em;">
+                            <span id="xp-to-next">100</span> XP til level <span id="next-level-num">2</span>
                         </p>
                     </div>
-                    
-                    <div class="countdown-box">
-                        <p style="color: var(--text-secondary); margin-bottom: 5px;">Tid til sletting:</p>
-                        <div class="countdown-time" id="modal-countdown">48:00:00</div>
+
+                    <!-- Stats -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">📊 Statistikk</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-completed">0</div>
+                                <div class="stat-label">Oppgaver fullført</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-correct">0%</div>
+                                <div class="stat-label">Riktig</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-streak">0</div>
+                                <div class="stat-label">🔥 Streak</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-time">0h</div>
+                                <div class="stat-label">Spilletid</div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <p style="text-align: center; color: var(--text-muted); font-size: 0.9em;">
-                        Du vil motta en e-post når slettingen er fullført.<br>
-                        Logg inn igjen for å avbryte slettingen.
-                    </p>
+
+                    <!-- Achievements -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🏆 Achievements</h3>
+                        <div class="achievements-grid" id="achievements-grid">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Unlocks Showcase -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🎁 Opplåste belønninger</h3>
+                        <div class="unlocks-section">
+                            <div class="unlock-category">
+                                <h4>Ansikter (4/8)</h4>
+                                <div class="unlock-items" id="unlock-faces">
+                                    <div class="unlock-item unlocked">😊</div>
+                                    <div class="unlock-item unlocked">😎</div>
+                                    <div class="unlock-item unlocked">🤓</div>
+                                    <div class="unlock-item unlocked">😄</div>
+                                    <div class="unlock-item">🦁</div>
+                                    <div class="unlock-item">🐺</div>
+                                    <div class="unlock-item">🦊</div>
+                                    <div class="unlock-item">🐲</div>
+                                </div>
+                            </div>
+                            <div class="unlock-category">
+                                <h4>Hodeplagg (3/5)</h4>
+                                <div class="unlock-items" id="unlock-hats">
+                                    <div class="unlock-item unlocked">👒</div>
+                                    <div class="unlock-item unlocked">🎩</div>
+                                    <div class="unlock-item unlocked">🧢</div>
+                                    <div class="unlock-item">👑</div>
+                                    <div class="unlock-item">🎓</div>
+                                </div>
+                            </div>
+                            <div class="unlock-category">
+                                <h4>Titler (2/10)</h4>
+                                <div class="unlock-items" id="unlock-titles">
+                                    <div class="unlock-item unlocked">🌱</div>
+                                    <div class="unlock-item unlocked">📚</div>
+                                    <div class="unlock-item">🎓</div>
+                                    <div class="unlock-item">📊</div>
+                                    <div class="unlock-item">🔍</div>
+                                    <div class="unlock-item">💼</div>
+                                    <div class="unlock-item">🏆</div>
+                                    <div class="unlock-item">👑</div>
+                                </div>
+                            </div>
+                            <div class="unlock-category">
+                                <h4>Bakgrunner (1/6)</h4>
+                                <div class="unlock-items" id="unlock-backgrounds">
+                                    <div class="unlock-item unlocked">🌙</div>
+                                    <div class="unlock-item">🌅</div>
+                                    <div class="unlock-item">🌊</div>
+                                    <div class="unlock-item">🌲</div>
+                                    <div class="unlock-item">🏔️</div>
+                                    <div class="unlock-item">🌌</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- ==================== APPEARANCE SECTION ==================== -->
+                <div id="section-appearance" class="settings-view">
+                    <!-- Theme -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🎨 Tema</h3>
+                        <div class="theme-grid">
+                            <div class="theme-card" data-theme="dark">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #0f1419, #1a1f26);"></div>
+                                <span>🌙 Mørk</span>
+                            </div>
+                            <div class="theme-card" data-theme="light">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #f5f5f0, #fafaf8);"></div>
+                                <span>☀️ Lys</span>
+                            </div>
+                            <div class="theme-card" data-theme="cream">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #f9f6f1, #fffcf7);"></div>
+                                <span>🍦 Krem</span>
+                            </div>
+                            <div class="theme-card" data-theme="dark-blue">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #0a192f, #112240);"></div>
+                                <span>🌊 Navy</span>
+                            </div>
+                            <div class="theme-card" data-theme="midnight">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #000000, #0a0a0a);"></div>
+                                <span>🌑 Midnight</span>
+                            </div>
+                            <div class="theme-card" data-theme="charcoal">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #1a1a1a, #242424);"></div>
+                                <span>⬛ Charcoal</span>
+                            </div>
+                            <div class="theme-card" data-theme="slate">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #0f172a, #1e293b);"></div>
+                                <span>🪨 Slate</span>
+                            </div>
+                            <div class="theme-card" data-theme="forest">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #0c1a14, #142b1f);"></div>
+                                <span>🌲 Forest</span>
+                            </div>
+                            <div class="theme-card" data-theme="purple-night">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #13111c, #1c1829);"></div>
+                                <span>💜 Purple</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accent Color -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">✨ Aksentfarge</h3>
+                        <div class="accent-grid">
+                            <button class="accent-btn" data-accent="green" style="background: #4ade80;"></button>
+                            <button class="accent-btn" data-accent="blue" style="background: #3b82f6;"></button>
+                            <button class="accent-btn" data-accent="purple" style="background: #a855f7;"></button>
+                            <button class="accent-btn" data-accent="pink" style="background: #ec4899;"></button>
+                            <button class="accent-btn" data-accent="orange" style="background: #f59e0b;"></button>
+                            <button class="accent-btn" data-accent="cyan" style="background: #06b6d4;"></button>
+                            <button class="accent-btn" data-accent="red" style="background: #ef4444;"></button>
+                            <button class="accent-btn" data-accent="yellow" style="background: #eab308;"></button>
+                            <button class="accent-btn" data-accent="teal" style="background: #14b8a6;"></button>
+                            <button class="accent-btn" data-accent="indigo" style="background: #6366f1;"></button>
+                        </div>
+                    </div>
+
+                    <!-- Background -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🖼️ Bakgrunn</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9em; margin-bottom: var(--space-md);">
+                            Lås opp flere bakgrunner ved å levle opp eller fullføre achievements!
+                        </p>
+                        <div class="background-grid" id="background-grid">
+                            <div class="bg-option active" data-bg="default" style="background: var(--bg-primary);">
+                                <span>🌙</span>
+                            </div>
+                            <div class="bg-option locked" data-bg="gradient1" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                <span>🔒</span>
+                            </div>
+                            <div class="bg-option locked" data-bg="gradient2" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                <span>🔒</span>
+                            </div>
+                            <div class="bg-option locked" data-bg="gradient3" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                                <span>🔒</span>
+                            </div>
+                            <div class="bg-option locked" data-bg="gradient4" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                                <span>🔒</span>
+                            </div>
+                            <div class="bg-option locked" data-bg="stars" style="background: #0a0a0a;">
+                                <span>🔒</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Font Size -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🔤 Tekststørrelse</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Skriftstørrelse</strong>
+                                <small>Juster for bedre lesbarhet</small>
+                            </div>
+                            <select class="setting-select" id="fontsize" onchange="changeFontSize(this.value)">
+                                <option value="small">Liten</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Stor</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== GAME SETTINGS SECTION ==================== -->
+                <div id="section-game" class="settings-view">
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🔊 Lyd</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Lydeffekter</strong>
+                                <small>Lyd ved riktig/feil svar</small>
+                            </div>
+                            <div class="toggle" id="toggle-sounds" onclick="toggleSetting('sounds')"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Bakgrunnsmusikk</strong>
+                                <small>Avslappende musikk under spill</small>
+                            </div>
+                            <div class="toggle" id="toggle-music" onclick="toggleSetting('music')"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Volum</strong>
+                            </div>
+                            <input type="range" min="0" max="100" value="50" id="volume" style="width: 150px;" onchange="updateVolume(this.value)">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">💡 Hjelpemidler</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Vis hints</strong>
+                                <small>Tillat bruk av hint-knappen</small>
+                            </div>
+                            <div class="toggle active" id="toggle-hints" onclick="toggleSetting('hints')"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Vis forklaringer</strong>
+                                <small>Detaljert forklaring etter hvert svar</small>
+                            </div>
+                            <div class="toggle active" id="toggle-explanations" onclick="toggleSetting('explanations')"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Animasjoner</strong>
+                                <small>Visuelle effekter og overganger</small>
+                            </div>
+                            <div class="toggle active" id="toggle-animations" onclick="toggleSetting('animations')"></div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">⏱️ Timer & Vanskelighet</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Standard tidsbegrensning</strong>
+                                <small>Sekunder per spørsmål (0 = ubegrenset)</small>
+                            </div>
+                            <select class="setting-select" id="quiz-timer" onchange="updateSetting('quizTimer', this.value)">
+                                <option value="0">Ingen</option>
+                                <option value="15">15 sek</option>
+                                <option value="30" selected>30 sek</option>
+                                <option value="60">60 sek</option>
+                                <option value="120">2 min</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Standard vanskelighetsgrad</strong>
+                                <small>Påvirker hvilke oppgaver du får</small>
+                            </div>
+                            <select class="setting-select" id="difficulty" onchange="updateSetting('difficulty', this.value)">
+                                <option value="easy">Lett</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="hard">Vanskelig</option>
+                                <option value="expert">Ekspert</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">⌨️ Snarveier</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Tastatursnareveier</strong>
+                                <small>1-4 for svar, Enter for bekreft</small>
+                            </div>
+                            <div class="toggle active" id="toggle-shortcuts" onclick="toggleSetting('shortcuts')"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== DATA SECTION ==================== -->
+                <div id="section-data" class="settings-view">
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">💾 Lagring</h3>
+                        <div class="stats-grid" style="margin-bottom: var(--space-lg);">
+                            <div class="stat-card">
+                                <div class="stat-value" id="storage-size">0 KB</div>
+                                <div class="stat-label">Brukt lagring</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="modules-count">0</div>
+                                <div class="stat-label">Moduler</div>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button class="btn" onclick="exportData()">📤 Eksporter data</button>
+                            <button class="btn" onclick="importData()">📥 Importer data</button>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">☁️ Skylagring</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Synkroniser med sky</strong>
+                                <small>Krever innlogging. Lagrer fremgang på tvers av enheter.</small>
+                            </div>
+                            <div class="toggle" id="toggle-sync" onclick="toggleSetting('sync')"></div>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.85em; margin-top: var(--space-sm);">
+                            Sist synkronisert: <span id="last-sync">Aldri</span>
+                        </p>
+                    </div>
+
+                    <div class="settings-section danger-zone">
+                        <h3 class="settings-section-title">⚠️ Faresone</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Nullstill fremgang</strong>
+                                <small>Slett all lokal fremgangsdata</small>
+                            </div>
+                            <button class="btn btn-danger btn-sm" onclick="resetProgress()">Nullstill</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <strong>Slett all data</strong>
+                                <small>Fjern ALL lokal data permanent</small>
+                            </div>
+                            <button class="btn btn-danger btn-sm" onclick="clearAllData()">Slett alt</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== ACCOUNT SECTION ==================== -->
+                <div id="section-account" class="settings-view">
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🔐 Konto</h3>
+                        <div id="auth-section">
+                            <div id="auth-loading" style="text-align: center; padding: var(--space-lg);">
+                                <p>🔄 Sjekker innloggingsstatus...</p>
+                            </div>
+                            <div id="auth-logged-out" style="display: none;">
+                                <p style="color: var(--text-secondary); margin-bottom: var(--space-lg);">
+                                    Logg inn for å synkronisere fremgang og delta i klasserom.
+                                </p>
+                                <div class="btn-group">
+                                    <a href="auth.html" class="btn btn-primary">🔑 Logg inn</a>
+                                    <a href="auth.html?mode=register" class="btn">📝 Registrer deg</a>
+                                </div>
+                            </div>
+                            <div id="auth-logged-in" style="display: none;">
+                                <div class="setting-item">
+                                    <div class="setting-label">
+                                        <strong>Innlogget som</strong>
+                                        <small id="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="660414130d031426031e070b160a034805090b">[email&#160;protected]</a></small>
+                                    </div>
+                                    <button class="btn btn-sm" onclick="signOut()">Logg ut</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🏫 Klasserom</h3>
+                        <div class="classroom-join">
+                            <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                                Har du en klassekode fra læreren din?
+                            </p>
+                            <div class="code-input-group">
+                                <input type="text" class="code-digit" maxlength="1" inputmode="numeric">
+                                <input type="text" class="code-digit" maxlength="1" inputmode="numeric">
+                                <input type="text" class="code-digit" maxlength="1" inputmode="numeric">
+                                <input type="text" class="code-digit" maxlength="1" inputmode="numeric">
+                                <input type="text" class="code-digit" maxlength="1" inputmode="numeric">
+                                <input type="text" class="code-digit" maxlength="1" inputmode="numeric">
+                            </div>
+                            <p id="code-error" style="color: var(--error); display: none; margin-bottom: var(--space-md);">
+                                Ugyldig kode. Sjekk at du har skrevet riktig.
+                            </p>
+                            <button class="btn btn-primary" onclick="joinClassroom()">Bli med i klasserom</button>
+                        </div>
+
+                        <div id="my-classrooms" style="margin-top: var(--space-lg);">
+                            <h4 style="color: var(--text-secondary); margin-bottom: var(--space-sm);">Mine klasserom</h4>
+                            <p style="color: var(--text-muted); font-size: 0.9em;">Du er ikke med i noen klasserom ennå.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            
-            <div class="modal-footer" id="modal-footer">
-                <button class="aq-btn aq-btn-secondary" onclick="closeDeleteModal()" id="cancel-btn">Avbryt</button>
-                <button class="aq-btn aq-btn-danger" onclick="nextDeleteStep()" id="next-btn">Fortsett</button>
-            </div>
-        </div>
+        </main>
     </div>
-    
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-inner">
+            <button class="mobile-nav-btn active" data-section="profile">
+                <span class="icon">👤</span>
+                <span>Profil</span>
+            </button>
+            <button class="mobile-nav-btn" data-section="progression">
+                <span class="icon">🎮</span>
+                <span>Level</span>
+            </button>
+            <button class="mobile-nav-btn" data-section="appearance">
+                <span class="icon">🎨</span>
+                <span>Tema</span>
+            </button>
+            <button class="mobile-nav-btn" data-section="game">
+                <span class="icon">⚙️</span>
+                <span>Spill</span>
+            </button>
+            <button class="mobile-nav-btn" data-section="account">
+                <span class="icon">🔐</span>
+                <span>Konto</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span id="toast-icon">✅</span>
+        <span id="toast-message">Lagret!</span>
+    </div>
+
+    <!-- Theme Manager -->
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="js/theme-manager.js"></script>
+
     <script>
-        // ========== FIREBASE CONFIG ==========
-        const firebaseConfig = {
-            apiKey: "AIzaSyAPuacYOSf4Hv-h36yA5Hav67SlpIFMIIQ",
-            authDomain: "accountingquest-multiplayer.firebaseapp.com",
-            databaseURL: "https://accountingquest-multiplayer-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "accountingquest-multiplayer",
-            storageBucket: "accountingquest-multiplayer.firebasestorage.app",
-            messagingSenderId: "525417361926",
-            appId: "1:525417361926:web:ec9b737f82af9b21700987"
+        // ==================== STATE ====================
+        var settings = {
+            sounds: false,
+            music: false,
+            hints: true,
+            explanations: true,
+            animations: true,
+            shortcuts: true,
+            sync: false,
+            volume: 50,
+            fontsize: 'medium',
+            quizTimer: 30,
+            difficulty: 'medium'
         };
-        
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
-        
-        let currentUser = null;
-        let userData = null;
-        let deleteStep = 1;
-        let verificationCode = null;
-        let codeExpiry = null;
-        
-        const ROLE_LABELS = {
-            'free': 'Gratis bruker',
-            'student': 'Student',
-            'student_free': 'Student (Gratis)',
-            'student_pro': 'Student Pro',
-            'pro': 'Pro',
-            'ta': 'Teaching Assistant',
-            'teacher_lite': 'Lærer Lite',
-            'teacher': 'Lærer',
-            'teacher_pro': 'Lærer Pro',
-            'admin': 'Administrator'
+
+        var playerData = {
+            level: 1,
+            xp: 0,
+            totalXp: 0,
+            username: '',
+            avatar: { face: '😊', hair: '', accessory: '' },
+            title: 'nybegynner',
+            unlockedItems: {
+                faces: ['😊', '😎', '🤓', '😄'],
+                hairs: ['', '👒', '🎩'],
+                accessories: [''],
+                titles: ['nybegynner', 'laerling'],
+                backgrounds: ['default']
+            },
+            achievements: []
         };
-        
-        // Admin UID
-        const ADMIN_UID = '4fmvu6yn2UVB7rxM4L5pJUWnme72';
-        
-        // ========== THEME MANAGER ==========
-        var ThemeManager = (function() {
-            var themes = ['dark', 'light', 'cream', 'dark-blue', 'midnight', 'charcoal', 'slate', 'forest', 'purple-night'];
-            var accents = ['green', 'blue', 'purple', 'pink', 'orange', 'cyan', 'red', 'yellow', 'teal', 'indigo'];
-            var THEME_KEY = 'aq_theme';
-            var ACCENT_KEY = 'aq_accent';
 
-            function init() {
-                var savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
-                var savedAccent = localStorage.getItem(ACCENT_KEY) || 'green';
-                setTheme(savedTheme);
-                setAccent(savedAccent);
-            }
+        // XP required per level (level 1-100)
+        var XP_PER_LEVEL = 100;
+        var MAX_LEVEL = 100;
 
-            function setTheme(theme) {
-                if (!themes.includes(theme)) theme = 'dark';
-                document.documentElement.setAttribute('data-theme', theme);
-                localStorage.setItem(THEME_KEY, theme);
-            }
+        // ==================== ACHIEVEMENTS ====================
+        var ACHIEVEMENTS = [
+            { id: 'first_question', name: 'Første steg', desc: 'Fullfør din første oppgave', icon: '🎯', reward: '50 XP', xpReward: 50 },
+            { id: 'streak_7', name: 'Uke-streak', desc: '7 dager på rad', icon: '🔥', reward: 'Tilbehør: 😈', unlock: 'accessory-devil' },
+            { id: 'streak_30', name: 'Måned-streak', desc: '30 dager på rad', icon: '💪', reward: '500 XP', xpReward: 500 },
+            { id: 'perfect_10', name: 'Perfeksjonist', desc: '10 oppgaver på rad uten feil', icon: '⭐', reward: 'Tittel: Perfeksjonist', unlock: 'title-perfectionist' },
+            { id: 'speed_demon', name: 'Speedrunner', desc: 'Fullfør 5 oppgaver under 10 sek hver', icon: '⚡', reward: 'Tittel: Speedrunner', unlock: 'title-speedrunner' },
+            { id: 'bokforing_master', name: 'Bokføringsmester', desc: 'Fullfør alle bokføringsoppgaver', icon: '📚', reward: '300 XP', xpReward: 300 },
+            { id: 'finance_guru', name: 'Finansguru', desc: 'Fullfør alle corporate finance oppgaver', icon: '📊', reward: 'Ansikt: 🦁', unlock: 'face-lion' },
+            { id: 'completionist', name: 'Kompletist', desc: 'Fullfør alle oppgaver i spillet', icon: '👑', reward: 'Hodeplagg: 👑', unlock: 'hat-crown' },
+            { id: 'early_bird', name: 'Morgenfugl', desc: 'Spill før kl. 07:00', icon: '🌅', reward: 'Bakgrunn', unlock: 'bg-sunrise' },
+            { id: 'night_owl', name: 'Nattugla', desc: 'Spill etter kl. 23:00', icon: '🦉', reward: 'Bakgrunn', unlock: 'bg-stars' }
+        ];
 
-            function setAccent(accent) {
-                if (!accents.includes(accent)) accent = 'green';
-                document.documentElement.setAttribute('data-accent', accent);
-                localStorage.setItem(ACCENT_KEY, accent);
-            }
-
-            function getTheme() {
-                return document.documentElement.getAttribute('data-theme') || 'dark';
-            }
-
-            function getAccent() {
-                return document.documentElement.getAttribute('data-accent') || 'green';
-            }
-
-            init();
-
-            return { setTheme: setTheme, setAccent: setAccent, getTheme: getTheme, getAccent: getAccent };
-        })();
-
-        // ========== AUTH STATE ==========
-        console.log('Setting up auth state listener...');
-        
-        // Check if Firebase is properly initialized
-        if (typeof firebase === 'undefined' || !firebase.auth) {
-            console.error('Firebase not loaded!');
-            document.getElementById('auth-loading').innerHTML = '<p style="color: var(--error);">Firebase ikke lastet. Sjekk internettforbindelsen.</p>';
-        } else {
-            console.log('Firebase loaded, setting up auth listener...');
-            
-            auth.onAuthStateChanged(async (user) => {
-                console.log('Auth state changed:', user ? 'User logged in' : 'No user');
-                document.getElementById('auth-loading').style.display = 'none';
-                
-                if (user) {
-                    currentUser = user;
-                    document.getElementById('logged-out-view').style.display = 'none';
-                    document.getElementById('logged-in-view').style.display = 'block';
-                    document.getElementById('danger-zone-section').style.display = 'block';
-                    
-                    document.getElementById('user-email').textContent = user.email || '-';
-                    
-                    // Fetch user data from database
-                    try {
-                        const snapshot = await db.ref('users/' + user.uid).once('value');
-                        userData = snapshot.val() || {};
-                        
-                        console.log('User UID:', user.uid);
-                        console.log('Admin UID:', ADMIN_UID);
-                        console.log('Is match:', user.uid === ADMIN_UID);
-                        console.log('Database role:', userData.role);
-                        
-                        document.getElementById('user-name').textContent = userData.username || user.displayName || 'Ikke satt';
-                        
-                        // Check if user is admin by UID first, then by role in database
-                        let role = userData.role || 'free';
-                        if (user.uid === ADMIN_UID) {
-                            role = 'admin';
-                            console.log('Setting role to admin based on UID match');
-                        }
-                        document.getElementById('user-role').textContent = ROLE_LABELS[role] || role;
-                        
-                        const createdAt = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('no-NO') : 
-                                         (user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('no-NO') : '-');
-                        document.getElementById('user-created').textContent = createdAt;
-                        
-                        // Show admin/teacher links based on role
-                        showAdminLinks(user.uid, role);
-                        
-                        // Check for pending deletion
-                        checkPendingDeletion();
-                        
-                    } catch (error) {
-                        console.error('Error fetching user data:', error);
-                        // Check if admin by UID even if database fails
-                        if (user.uid === ADMIN_UID) {
-                            document.getElementById('user-role').textContent = 'Administrator';
-                            showAdminLinks(user.uid, 'admin');
-                        } else {
-                            document.getElementById('user-role').textContent = 'Bruker';
-                            showAdminLinks(user.uid, 'free');
-                        }
-                    }
-                } else {
-                    document.getElementById('logged-out-view').style.display = 'block';
-                    document.getElementById('logged-in-view').style.display = 'none';
-                    document.getElementById('danger-zone-section').style.display = 'none';
-                }
-            });
-        }
-        
-        // ========== SHOW ADMIN LINKS ==========
-        function showAdminLinks(uid, role) {
-            const adminLinksContainer = document.getElementById('admin-links');
-            const isAdmin = uid === ADMIN_UID || role === 'admin';
-            const isTeacher = ['teacher', 'teacher_lite', 'teacher_pro', 'ta'].includes(role);
-            
-            if (isAdmin || isTeacher) {
-                adminLinksContainer.style.display = 'flex';
-            }
-            
-            // Admin gets all links
-            if (isAdmin) {
-                document.getElementById('admin-btn').style.display = 'inline-flex';
-                document.getElementById('teacher-btn').style.display = 'inline-flex';
-                document.getElementById('classroom-btn').style.display = 'inline-flex';
-            } 
-            // Teachers get teacher-specific links
-            else if (isTeacher) {
-                document.getElementById('teacher-btn').style.display = 'inline-flex';
-                document.getElementById('classroom-btn').style.display = 'inline-flex';
-            }
-        }
-        
-        // ========== CHECK PENDING DELETION ==========
-        async function checkPendingDeletion() {
-            if (!currentUser) return;
-            
-            try {
-                const snapshot = await db.ref('users/' + currentUser.uid + '/pendingDeletion').once('value');
-                const pendingDeletion = snapshot.val();
-                
-                if (pendingDeletion && pendingDeletion.scheduledAt) {
-                    const deleteTime = new Date(pendingDeletion.scheduledAt);
-                    const now = new Date();
-                    
-                    if (deleteTime > now) {
-                        document.getElementById('pending-deletion-banner').style.display = 'block';
-                        startDeletionCountdown(deleteTime);
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking pending deletion:', error);
-            }
-        }
-        
-        // ========== DELETION COUNTDOWN ==========
-        let countdownInterval = null;
-        
-        function startDeletionCountdown(deleteTime) {
-            if (countdownInterval) clearInterval(countdownInterval);
-            
-            countdownInterval = setInterval(() => {
-                const now = new Date();
-                const diff = deleteTime - now;
-                
-                if (diff <= 0) {
-                    clearInterval(countdownInterval);
-                    document.getElementById('deletion-countdown').textContent = '00:00:00';
-                    return;
-                }
-                
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                
-                const formatted = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                document.getElementById('deletion-countdown').textContent = formatted;
-                
-                const modalCountdown = document.getElementById('modal-countdown');
-                if (modalCountdown) {
-                    modalCountdown.textContent = formatted;
-                }
-            }, 1000);
-        }
-        
-        // ========== CANCEL DELETION ==========
-        async function cancelDeletion() {
-            if (!currentUser) return;
-            
-            try {
-                await db.ref('users/' + currentUser.uid + '/pendingDeletion').remove();
-                document.getElementById('pending-deletion-banner').style.display = 'none';
-                if (countdownInterval) clearInterval(countdownInterval);
-                alert('✅ Sletting avbrutt. Kontoen din er trygg.');
-            } catch (error) {
-                console.error('Error canceling deletion:', error);
-                alert('Det oppsto en feil. Prøv igjen.');
-            }
-        }
-        
-        // ========== DELETE MODAL ==========
-        function openDeleteModal() {
-            deleteStep = 1;
-            updateDeleteStep();
-            document.getElementById('delete-modal').classList.add('show');
-            document.getElementById('delete-password').value = '';
-            document.getElementById('password-error').style.display = 'none';
-            
-            document.querySelectorAll('.code-digit').forEach(input => {
-                input.value = '';
-            });
-        }
-        
-        function closeDeleteModal() {
-            document.getElementById('delete-modal').classList.remove('show');
-            deleteStep = 1;
-        }
-        
-        function updateDeleteStep() {
-            document.querySelectorAll('.delete-step').forEach(step => {
-                step.classList.remove('active');
-            });
-            
-            document.getElementById('delete-step-' + deleteStep).classList.add('active');
-            
-            for (let i = 1; i <= 3; i++) {
-                const dot = document.getElementById('step-dot-' + i);
-                dot.classList.remove('active', 'completed');
-                if (i === deleteStep) {
-                    dot.classList.add('active');
-                } else if (i < deleteStep) {
-                    dot.classList.add('completed');
-                }
-            }
-            
-            const nextBtn = document.getElementById('next-btn');
-            const cancelBtn = document.getElementById('cancel-btn');
-            
-            if (deleteStep === 3) {
-                nextBtn.textContent = 'Lukk';
-                nextBtn.className = 'aq-btn aq-btn-secondary';
-                cancelBtn.style.display = 'none';
-            } else if (deleteStep === 2) {
-                nextBtn.textContent = 'Bekreft sletting';
-            } else {
-                nextBtn.textContent = 'Fortsett';
-                nextBtn.className = 'aq-btn aq-btn-danger';
-                cancelBtn.style.display = 'inline-block';
-            }
-        }
-        
-        async function nextDeleteStep() {
-            if (deleteStep === 1) {
-                const password = document.getElementById('delete-password').value;
-                
-                if (!password) {
-                    document.getElementById('password-error').textContent = 'Vennligst skriv inn passordet ditt.';
-                    document.getElementById('password-error').style.display = 'block';
-                    return;
-                }
-                
-                try {
-                    const credential = firebase.auth.EmailAuthProvider.credential(
-                        currentUser.email,
-                        password
-                    );
-                    await currentUser.reauthenticateWithCredential(credential);
-                    
-                    await sendVerificationCode();
-                    
-                    deleteStep = 2;
-                    updateDeleteStep();
-                    document.getElementById('code-sent-email').textContent = currentUser.email;
-                    
-                } catch (error) {
-                    console.error('Auth error:', error);
-                    document.getElementById('password-error').textContent = 'Feil passord. Prøv igjen.';
-                    document.getElementById('password-error').style.display = 'block';
-                }
-                
-            } else if (deleteStep === 2) {
-                const codeInputs = document.querySelectorAll('.code-digit');
-                let enteredCode = '';
-                codeInputs.forEach(input => {
-                    enteredCode += input.value;
-                });
-                
-                if (enteredCode.length !== 6) {
-                    document.getElementById('code-error').textContent = 'Vennligst skriv inn hele koden.';
-                    document.getElementById('code-error').style.display = 'block';
-                    return;
-                }
-                
-                const now = new Date();
-                if (!verificationCode || now > codeExpiry) {
-                    document.getElementById('code-error').textContent = 'Koden har utløpt. Send en ny kode.';
-                    document.getElementById('code-error').style.display = 'block';
-                    return;
-                }
-                
-                if (enteredCode !== verificationCode) {
-                    document.getElementById('code-error').textContent = 'Feil kode. Prøv igjen.';
-                    document.getElementById('code-error').style.display = 'block';
-                    return;
-                }
-                
-                await scheduleDeletion();
-                
-                deleteStep = 3;
-                updateDeleteStep();
-                
-            } else if (deleteStep === 3) {
-                closeDeleteModal();
-                document.getElementById('pending-deletion-banner').style.display = 'block';
-            }
-        }
-        
-        // ========== VERIFICATION CODE ==========
-        async function sendVerificationCode() {
-            verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-            codeExpiry = new Date(Date.now() + 15 * 60 * 1000);
-            
-            await db.ref('deletionCodes/' + currentUser.uid).set({
-                code: verificationCode,
-                expiresAt: codeExpiry.getTime(),
-                createdAt: Date.now()
-            });
-            
-            console.log('🔐 Verification code:', verificationCode);
-            
-            // For production: Use Firebase Cloud Functions to send email
-            alert('📧 Bekreftelseskode sendt!\n\n(For testing: Koden er ' + verificationCode + ')');
-        }
-        
-        async function resendCode() {
-            const btn = document.getElementById('resend-btn');
-            btn.disabled = true;
-            btn.textContent = 'Sender...';
-            
-            await sendVerificationCode();
-            
-            btn.disabled = false;
-            btn.textContent = 'Ikke mottatt? Send på nytt';
-        }
-        
-        // ========== SCHEDULE DELETION ==========
-        async function scheduleDeletion() {
-            const deleteTime = new Date(Date.now() + 48 * 60 * 60 * 1000);
-            
-            await db.ref('users/' + currentUser.uid + '/pendingDeletion').set({
-                scheduledAt: deleteTime.getTime(),
-                initiatedAt: Date.now(),
-                email: currentUser.email
-            });
-            
-            await db.ref('deletionCodes/' + currentUser.uid).remove();
-            
-            startDeletionCountdown(deleteTime);
-        }
-        
-        // ========== CODE INPUT HANDLING ==========
-        document.querySelectorAll('.code-digit').forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                const value = e.target.value;
-                e.target.value = value.replace(/[^0-9]/g, '');
-                
-                if (value && index < 5) {
-                    document.querySelectorAll('.code-digit')[index + 1].focus();
-                }
-                
-                document.getElementById('code-error').style.display = 'none';
-            });
-            
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                    document.querySelectorAll('.code-digit')[index - 1].focus();
-                }
-            });
-            
-            input.addEventListener('paste', (e) => {
-                e.preventDefault();
-                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-                
-                document.querySelectorAll('.code-digit').forEach((inp, i) => {
-                    inp.value = pastedData[i] || '';
-                });
-            });
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            loadPlayerData();
+            initUI();
+            initTheme();
+            initAuth();
+            initAvatarBuilder();
+            setupEventListeners();
+            renderAchievements();
+            calculateStorage();
         });
+
+        // ==================== AVATAR BUILDER ====================
+        function initAvatarBuilder() {
+            // Check if AvatarBuilder with images is available
+            if (typeof AvatarBuilder !== 'undefined' && AvatarBuilder !== null) {
+                try {
+                    AvatarBuilder.init({
+                        basePath: 'assets/avatar/',
+                        level: playerData.level,
+                        achievements: playerData.achievements
+                    });
+                    
+                    AvatarBuilder.renderBuilder('avatar-builder-container', {
+                        previewId: 'avatar-live-preview',
+                        onSelect: function(result) {
+                            if (result.locked) {
+                                showToast('🔒 ' + result.unlockText, '🔒');
+                            } else {
+                                updateProfileAvatar();
+                                showToast('Avatar oppdatert!');
+                            }
+                        }
+                    });
+                    
+                    console.log('[Settings] AvatarBuilder initialized with images');
+                    return;
+                } catch (e) {
+                    console.warn('[Settings] AvatarBuilder failed, using emoji fallback:', e);
+                }
+            }
+            
+            // Fallback to emoji system
+            document.getElementById('avatar-builder-container').style.display = 'none';
+            document.getElementById('avatar-builder-fallback').style.display = 'block';
+            console.log('[Settings] Using emoji avatar fallback');
+        }
         
-        // ========== SIGN OUT ==========
-        function signOut() {
-            auth.signOut().then(() => {
-                window.location.href = 'index.html';
-            });
+        function updateProfileAvatar() {
+            // Update profile card avatar
+            if (typeof AvatarBuilder !== 'undefined' && AvatarBuilder !== null) {
+                AvatarBuilder.render('profile-avatar', 100);
+            }
         }
 
-        // ========== UI INITIALIZATION ==========
-        function initUI() {
-            var currentTheme = ThemeManager.getTheme();
-            var currentAccent = ThemeManager.getAccent();
+        function loadSettings() {
+            var saved = localStorage.getItem('aq_settings');
+            if (saved) {
+                settings = Object.assign(settings, JSON.parse(saved));
+            }
+        }
 
+        function loadPlayerData() {
+            var saved = localStorage.getItem('aq_player');
+            if (saved) {
+                playerData = Object.assign(playerData, JSON.parse(saved));
+            }
+            // Also load username from legacy storage
+            playerData.username = playerData.username || localStorage.getItem('aq_username') || '';
+        }
+
+        function saveSettings() {
+            localStorage.setItem('aq_settings', JSON.stringify(settings));
+            showToast('Lagret!');
+        }
+
+        function savePlayerData() {
+            localStorage.setItem('aq_player', JSON.stringify(playerData));
+        }
+
+        // ==================== UI ====================
+        function initUI() {
+            // Apply settings to toggles
+            ['sounds', 'music', 'hints', 'explanations', 'animations', 'shortcuts', 'sync'].forEach(function(key) {
+                var toggle = document.getElementById('toggle-' + key);
+                if (toggle) toggle.classList.toggle('active', settings[key]);
+            });
+
+            // Apply selects
+            document.getElementById('username').value = playerData.username;
+            document.getElementById('volume').value = settings.volume;
+            document.getElementById('fontsize').value = settings.fontsize;
+            document.getElementById('quiz-timer').value = settings.quizTimer;
+            document.getElementById('difficulty').value = settings.difficulty;
+
+            // Update profile display
+            updateProfileDisplay();
+            updateLevelDisplay();
+            updateAvatarPreview();
+            loadStats();
+        }
+
+        function initTheme() {
+            var currentTheme = localStorage.getItem('aq_theme') || 'dark';
+            var currentAccent = localStorage.getItem('aq_accent') || 'green';
+
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            document.documentElement.setAttribute('data-accent', currentAccent);
+
+            // Mark active theme/accent
             document.querySelectorAll('.theme-card').forEach(function(card) {
                 card.classList.toggle('active', card.dataset.theme === currentTheme);
             });
-
             document.querySelectorAll('.accent-btn').forEach(function(btn) {
                 btn.classList.toggle('active', btn.dataset.accent === currentAccent);
             });
         }
 
-        function setupThemeListeners() {
-            console.log('Setting up theme listeners...');
-            var themeCards = document.querySelectorAll('.theme-card');
-            console.log('Found theme cards:', themeCards.length);
-            
-            themeCards.forEach(function(card) {
-                card.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Theme clicked:', this.dataset.theme);
-                    ThemeManager.setTheme(this.dataset.theme);
-                    initUI();
+        function setupEventListeners() {
+            // Theme cards
+            document.querySelectorAll('.theme-card').forEach(function(card) {
+                card.addEventListener('click', function() {
+                    var theme = this.dataset.theme;
+                    document.documentElement.setAttribute('data-theme', theme);
+                    localStorage.setItem('aq_theme', theme);
+                    document.querySelectorAll('.theme-card').forEach(function(c) { c.classList.remove('active'); });
+                    this.classList.add('active');
+                    showToast('Tema endret!');
                 });
             });
 
-            var accentBtns = document.querySelectorAll('.accent-btn');
-            console.log('Found accent buttons:', accentBtns.length);
-            
-            accentBtns.forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Accent clicked:', this.dataset.accent);
-                    ThemeManager.setAccent(this.dataset.accent);
-                    initUI();
+            // Accent buttons
+            document.querySelectorAll('.accent-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var accent = this.dataset.accent;
+                    document.documentElement.setAttribute('data-accent', accent);
+                    localStorage.setItem('aq_accent', accent);
+                    document.querySelectorAll('.accent-btn').forEach(function(b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+                    showToast('Farge endret!');
                 });
             });
+
+            // Avatar options
+            document.querySelectorAll('.option-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    if (this.classList.contains('locked')) {
+                        showToast('🔒 Lås opp ved ' + (this.dataset.unlock || 'å levle opp'), '🔒');
+                        return;
+                    }
+                    var type = this.dataset.type;
+                    var value = this.dataset.value;
+                    
+                    // Update selection
+                    this.parentElement.querySelectorAll('.option-btn').forEach(function(b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+                    
+                    // Update avatar
+                    playerData.avatar[type] = value;
+                    savePlayerData();
+                    updateAvatarPreview();
+                    updateProfileDisplay();
+                });
+            });
+
+            // Sidebar nav
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    showSection(this.dataset.section);
+                });
+            });
+
+            // Mobile nav
+            document.querySelectorAll('.mobile-nav-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    showSection(this.dataset.section);
+                });
+            });
+
+            // Code input
+            document.querySelectorAll('.code-digit').forEach(function(input, index) {
+                input.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    if (this.value && index < 5) {
+                        document.querySelectorAll('.code-digit')[index + 1].focus();
+                    }
+                });
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !this.value && index > 0) {
+                        document.querySelectorAll('.code-digit')[index - 1].focus();
+                    }
+                });
+            });
+        }
+
+        // ==================== SECTIONS ====================
+        function showSection(section) {
+            // Update sidebar
+            document.querySelectorAll('.nav-item').forEach(function(n) { 
+                n.classList.toggle('active', n.dataset.section === section);
+            });
+
+            // Update mobile nav
+            document.querySelectorAll('.mobile-nav-btn').forEach(function(b) { 
+                b.classList.toggle('active', b.dataset.section === section);
+            });
+
+            // Show section
+            document.querySelectorAll('.settings-view').forEach(function(v) { v.classList.remove('active'); });
+            var sectionEl = document.getElementById('section-' + section);
+            if (sectionEl) sectionEl.classList.add('active');
+        }
+
+        // ==================== PROFILE ====================
+        function updateProfileDisplay() {
+            document.getElementById('profile-name').textContent = playerData.username || 'Gjest';
+            document.getElementById('profile-level').textContent = playerData.level;
             
-            console.log('Theme listeners setup complete');
+            var titles = {
+                'nybegynner': '🌱 Nybegynner',
+                'laerling': '📚 Lærling',
+                'student': '🎓 Student',
+                'regnskapsforer': '📊 Regnskapsfører',
+                'revisor': '🔍 Revisor',
+                'okonom': '💼 Økonom',
+                'cfo': '🏆 CFO',
+                'mester': '👑 Mester'
+            };
+            document.getElementById('profile-title-display').textContent = titles[playerData.title] || titles.nybegynner;
         }
 
-        // ========== STORAGE INFO ==========
-        function updateStorageInfo() {
-            try {
-                var bokforing = JSON.parse(localStorage.getItem('bokforingProgress') || '{}');
-                document.getElementById('bokforing-count').textContent = Object.keys(bokforing).length + ' oppgaver';
-            } catch(e) {
-                document.getElementById('bokforing-count').textContent = '0 oppgaver';
-            }
-
-            try {
-                var quiz = JSON.parse(localStorage.getItem('quizProgress') || '{}');
-                document.getElementById('quiz-count').textContent = Object.keys(quiz).length + ' kategorier';
-            } catch(e) {
-                document.getElementById('quiz-count').textContent = '0 kategorier';
-            }
-
-            try {
-                var custom = JSON.parse(localStorage.getItem('aq_my_quizzes') || '[]');
-                document.getElementById('custom-quiz-count').textContent = custom.length + ' quizzer';
-            } catch(e) {
-                document.getElementById('custom-quiz-count').textContent = '0 quizzer';
-            }
-
-            var total = 0;
-            for (var key in localStorage) {
-                if (localStorage.hasOwnProperty(key)) {
-                    total += (localStorage.getItem(key) || '').length;
-                }
-            }
-            document.getElementById('total-storage').textContent = (total / 1024).toFixed(1) + ' KB';
+        function updateAvatarPreview() {
+            var face = playerData.avatar.face || '😊';
+            document.getElementById('avatar-face').textContent = face;
+            document.getElementById('preview-face').textContent = face;
+            document.getElementById('avatar-hair').textContent = playerData.avatar.hair || '';
+            document.getElementById('avatar-glasses').textContent = playerData.avatar.accessory || '';
         }
 
-        // ========== DATA FUNCTIONS ==========
-        function exportData() {
-            var data = {
-                exportDate: new Date().toISOString(),
-                version: '2.1',
-                theme: ThemeManager.getTheme(),
-                accent: ThemeManager.getAccent(),
-                progress: {}
+        function saveProfile() {
+            var username = document.getElementById('username').value.trim();
+            if (username) {
+                playerData.username = username;
+                localStorage.setItem('aq_username', username);
+                savePlayerData();
+                updateProfileDisplay();
+                showToast('Profil lagret!');
+            }
+        }
+
+        function updateTitle() {
+            var title = document.getElementById('title-select').value;
+            playerData.title = title;
+            savePlayerData();
+            updateProfileDisplay();
+        }
+
+        // ==================== LEVEL SYSTEM ====================
+        function updateLevelDisplay() {
+            var level = playerData.level;
+            var xpInLevel = playerData.xp;
+            var xpNeeded = getXpForLevel(level);
+            var percent = Math.min(100, (xpInLevel / xpNeeded) * 100);
+
+            document.getElementById('profile-level').textContent = level;
+            document.getElementById('big-level').textContent = level;
+            document.getElementById('level-text').textContent = level;
+            document.getElementById('current-xp').textContent = xpInLevel;
+            document.getElementById('total-xp').textContent = playerData.totalXp;
+            document.getElementById('next-level-xp').textContent = xpNeeded - xpInLevel;
+            document.getElementById('xp-to-next').textContent = xpNeeded - xpInLevel;
+            document.getElementById('next-level-num').textContent = Math.min(level + 1, MAX_LEVEL);
+
+            document.getElementById('xp-bar-fill').style.width = percent + '%';
+            document.getElementById('big-xp-bar').style.width = percent + '%';
+        }
+
+        function getXpForLevel(level) {
+            // Progressive XP: 100, 150, 200, 250... per level
+            return 100 + (level - 1) * 50;
+        }
+
+        function addXp(amount) {
+            playerData.xp += amount;
+            playerData.totalXp += amount;
+
+            // Check for level up
+            while (playerData.xp >= getXpForLevel(playerData.level) && playerData.level < MAX_LEVEL) {
+                playerData.xp -= getXpForLevel(playerData.level);
+                playerData.level++;
+                onLevelUp(playerData.level);
+            }
+
+            savePlayerData();
+            updateLevelDisplay();
+        }
+
+        function onLevelUp(newLevel) {
+            showToast('🎉 Level ' + newLevel + '!', '🎉');
+            
+            // Unlock rewards
+            var rewards = {
+                5: { type: 'background', item: 'gradient1' },
+                10: { type: 'face', item: '🦁' },
+                15: { type: 'accessory', item: '🧐' },
+                20: { type: 'face', item: '🐺' },
+                25: { type: 'title', item: 'student' },
+                30: { type: 'face', item: '🦊' },
+                40: { type: 'title', item: 'revisor' },
+                50: { type: 'face', item: '🐲' },
+                60: { type: 'title', item: 'okonom' },
+                80: { type: 'title', item: 'cfo' },
+                100: { type: 'title', item: 'mester' }
             };
 
-            var keysToExport = ['bokforingProgress', 'quizProgress', 'analyseProgress', 'caseProgress', 'hjernetrimProgress', 'aq_my_quizzes'];
-            keysToExport.forEach(function(key) {
-                var value = localStorage.getItem(key);
-                if (value) {
-                    try { data.progress[key] = JSON.parse(value); }
-                    catch(e) { data.progress[key] = value; }
+            if (rewards[newLevel]) {
+                unlockItem(rewards[newLevel].type, rewards[newLevel].item);
+            }
+        }
+
+        function unlockItem(type, item) {
+            var key = type + 's'; // faces, hairs, etc.
+            if (playerData.unlockedItems[key] && !playerData.unlockedItems[key].includes(item)) {
+                playerData.unlockedItems[key].push(item);
+                savePlayerData();
+                showToast('🎁 Ny ' + type + ' låst opp: ' + item, '🎁');
+            }
+        }
+
+        // ==================== ACHIEVEMENTS ====================
+        function renderAchievements() {
+            var grid = document.getElementById('achievements-grid');
+            grid.innerHTML = ACHIEVEMENTS.map(function(ach) {
+                var unlocked = playerData.achievements.includes(ach.id);
+                return '<div class="achievement-card ' + (unlocked ? 'unlocked' : 'locked') + '">' +
+                    '<div class="icon">' + ach.icon + '</div>' +
+                    '<div class="name">' + ach.name + '</div>' +
+                    '<div class="desc">' + ach.desc + '</div>' +
+                    '<div class="reward">' + ach.reward + '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        // ==================== SETTINGS ====================
+        function toggleSetting(key) {
+            settings[key] = !settings[key];
+            var toggle = document.getElementById('toggle-' + key);
+            if (toggle) toggle.classList.toggle('active', settings[key]);
+            saveSettings();
+        }
+
+        function updateSetting(key, value) {
+            settings[key] = value;
+            saveSettings();
+        }
+
+        function updateVolume(value) {
+            settings.volume = parseInt(value);
+            saveSettings();
+        }
+
+        function changeFontSize(size) {
+            settings.fontsize = size;
+            document.documentElement.style.fontSize = { 'small': '14px', 'medium': '16px', 'large': '18px' }[size];
+            saveSettings();
+        }
+
+        // ==================== STATS ====================
+        function loadStats() {
+            var totalCompleted = 0;
+            var totalCorrect = 0;
+            var totalAttempts = 0;
+
+            ['grunnleggende', 'corporate_finance', 'matte_okonomi'].forEach(function(module) {
+                var progress = localStorage.getItem('aq_progress_' + module);
+                if (progress) {
+                    var data = JSON.parse(progress);
+                    totalCompleted += data.completed || 0;
+                    totalCorrect += data.correct || 0;
+                    totalAttempts += data.attempts || 0;
                 }
             });
 
+            document.getElementById('stat-completed').textContent = totalCompleted;
+            document.getElementById('stat-correct').textContent = totalAttempts > 0 ? Math.round(totalCorrect / totalAttempts * 100) + '%' : '0%';
+            document.getElementById('stat-streak').textContent = localStorage.getItem('aq_streak') || 0;
+            document.getElementById('stat-time').textContent = Math.round((parseInt(localStorage.getItem('aq_playtime') || 0)) / 3600) + 'h';
+        }
+
+        function calculateStorage() {
+            var total = 0;
+            var moduleCount = 0;
+            for (var key in localStorage) {
+                if (key.startsWith('aq_')) {
+                    total += (localStorage[key] || '').length * 2;
+                    if (key.includes('progress_')) moduleCount++;
+                }
+            }
+            document.getElementById('storage-size').textContent = (total / 1024).toFixed(1) + ' KB';
+            document.getElementById('modules-count').textContent = moduleCount;
+        }
+
+        // ==================== DATA ====================
+        function exportData() {
+            var data = { settings: settings, player: playerData };
+            for (var key in localStorage) {
+                if (key.startsWith('aq_')) data[key] = localStorage[key];
+            }
             var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
             a.download = 'accountingquest-backup-' + new Date().toISOString().split('T')[0] + '.json';
             a.click();
-            URL.revokeObjectURL(url);
+            showToast('Data eksportert!');
         }
 
-        function importData(event) {
-            var file = event.target.files[0];
-            if (!file) return;
-
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    var data = JSON.parse(e.target.result);
-                    if (!data.progress) { alert('Ugyldig backup-fil'); return; }
-
-                    Object.keys(data.progress).forEach(function(key) {
-                        var value = data.progress[key];
-                        localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
-                    });
-
-                    if (data.theme) ThemeManager.setTheme(data.theme);
-                    if (data.accent) ThemeManager.setAccent(data.accent);
-
-                    alert('Data importert!');
-                    updateStorageInfo();
-                    initUI();
-                } catch(err) {
-                    alert('Feil ved import: ' + err.message);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        function confirmResetData() {
-            if (confirm('⚠️ Er du sikker på at du vil slette ALL lokal fremgang?\n\nDette påvirker ikke data lagret i skyen.')) {
-                if (confirm('Siste sjanse! Klikk OK for å slette lokal data.')) {
-                    var keysToDelete = [];
-                    for (var key in localStorage) {
-                        if (key.startsWith('aq_') || key.includes('Progress') || key.includes('quiz')) {
-                            keysToDelete.push(key);
-                        }
+        function importData() {
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                var file = e.target.files[0];
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        var data = JSON.parse(event.target.result);
+                        Object.keys(data).forEach(function(key) {
+                            if (key.startsWith('aq_')) localStorage.setItem(key, data[key]);
+                        });
+                        if (data.settings) settings = data.settings;
+                        if (data.player) playerData = data.player;
+                        saveSettings();
+                        savePlayerData();
+                        showToast('Data importert!');
+                        location.reload();
+                    } catch (err) {
+                        alert('Kunne ikke lese filen: ' + err.message);
                     }
-                    keysToDelete.forEach(function(key) { localStorage.removeItem(key); });
-                    alert('Lokal data er slettet.');
-                    updateStorageInfo();
-                }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function resetProgress() {
+            if (!confirm('Er du sikker? All fremgang vil bli slettet.')) return;
+            ['grunnleggende', 'corporate_finance', 'matte_okonomi', 'quiz'].forEach(function(m) {
+                localStorage.removeItem('aq_progress_' + m);
+            });
+            localStorage.removeItem('aq_streak');
+            localStorage.removeItem('aq_xp');
+            showToast('Fremgang nullstilt');
+            loadStats();
+        }
+
+        function clearAllData() {
+            if (!confirm('ADVARSEL: All data vil bli permanent slettet!')) return;
+            if (!confirm('Er du HELT sikker?')) return;
+            Object.keys(localStorage).filter(function(k) { return k.startsWith('aq_'); }).forEach(function(k) {
+                localStorage.removeItem(k);
+            });
+            showToast('All data slettet');
+            location.reload();
+        }
+
+        // ==================== AUTH ====================
+        function initAuth() {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().onAuthStateChanged(function(user) {
+                    document.getElementById('auth-loading').style.display = 'none';
+                    if (user) {
+                        document.getElementById('auth-logged-in').style.display = 'block';
+                        document.getElementById('auth-logged-out').style.display = 'none';
+                        document.getElementById('user-email').textContent = user.email;
+                        document.getElementById('profile-email').textContent = user.email;
+                        document.getElementById('auth-status').textContent = '✓ Innlogget';
+                    } else {
+                        document.getElementById('auth-logged-in').style.display = 'none';
+                        document.getElementById('auth-logged-out').style.display = 'block';
+                        document.getElementById('auth-status').textContent = 'Ikke innlogget';
+                    }
+                });
+            } else {
+                document.getElementById('auth-loading').innerHTML = '<p style="color: var(--warning);">Firebase ikke tilgjengelig</p>';
             }
         }
 
-        // ========== INIT ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            setupThemeListeners();
-            initUI();
-            updateStorageInfo();
-            
-            // Timeout fallback hvis Firebase ikke responderer innen 5 sekunder
-            setTimeout(function() {
-                var authLoading = document.getElementById('auth-loading');
-                if (authLoading && authLoading.style.display !== 'none') {
-                    console.log('Auth timeout - showing logged out view');
-                    authLoading.innerHTML = '<p style="color: var(--warning);">⚠️ Kunne ikke koble til. <a href="auth.html">Logg inn</a> eller prøv å laste siden på nytt.</p>';
-                }
-            }, 5000);
-        });
-    </script>
-</body>
-</html>
+        function signOut() {
+            if (firebase && firebase.auth) {
+                firebase.auth().signOut().then(function() {
+                    showToast('Logget ut');
+                    location.reload();
+                });
+            }
+        }
+
+        function joinClassroom() {
+            var code = Array.from(document.querySelectorAll('.code-digit')).map(function(i) { return i.value; }).join('');
+            if (code.length !== 6) {
+                document.getElementById('code-error').style.display = 'block';
+                document.getElementById('code-error').textContent = 'Koden må være 6 siffer';
+                return;
+            }
+            // API call would go here
+            showToast('Kobler til klasserom...', '🔄');
+        }
+
+        // ==================== TOAST ====================
+        function showToast(message, icon) {
+            var toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+         

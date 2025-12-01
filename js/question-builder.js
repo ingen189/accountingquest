@@ -776,11 +776,11 @@ var QuestionBuilder = (function() {
             icon: '🧠',
             topics: ['mental_math', 'logikk', 'patterns', 'memory', 'speed']
         },
-        matte_okonomer: {
-            id: 'matte_okonomer',
+        matte_okonomi: {
+            id: 'matte_okonomi',
             name: 'Matte for Økonomer',
-            icon: '🔢',
-            topics: ['derivasjon', 'integrasjon', 'optimering', 'matriser', 'sannsynlighet', 'statistikk', 'renter', 'annuiteter']
+            icon: '📐',
+            topics: ['linear', 'derivasjon', 'analyse', 'integrasjon', 'flervariabel', 'finans']
         },
         revisor: {
             id: 'revisor',
