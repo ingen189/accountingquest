@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
     <style>
         :root {
             --bg-primary: #0f1419;
@@ -120,6 +122,18 @@
         .subq-letter { background: var(--accent-secondary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
         .subq-type { width: auto; min-width: 100px; }
         .subq-points { width: 50px; text-align: center; }
+        .subq-solution { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+        .subq-solution label { color: var(--text-secondary); font-size: 0.85em; }
+        .subq-solution input[type="text"] { flex: 1; min-width: 150px; }
+        .subq-solution .tolerance { width: 60px; }
+        
+        /* MC Options Editor */
+        .mc-options-editor { margin-top: 12px; }
+        .mc-options-editor > label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85em; }
+        .mc-option-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+        .mc-option-row input[type="radio"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+        .mc-option-row input[type="text"] { flex: 1; }
+        .mc-options-editor .btn { margin-top: 8px; }
         
         .preview-question { background: var(--bg-card); border-radius: 10px; padding: 15px; margin-bottom: 12px; }
         .preview-title { color: var(--accent); font-size: 1em; margin-bottom: 8px; }
@@ -1347,6 +1361,9 @@
                 QuestionBuilder.showToast('Kopiert til utklippstavle: ' + text);
             }
         }
+        
+        // Eksporter renderEditor til window for bruk fra question-builder.js
+        window.renderEditor = renderEditor;
     </script>
 </body>
 </html>

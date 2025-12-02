@@ -1345,11 +1345,53 @@ var QuestionBuilder = (function() {
         renderSubquestionEditor: function(subq, index, questionIndex) {
             var letter = this.letters[index] || String.fromCharCode(97 + index);
             
+            // Bygg løsnings-seksjon basert på type
+            var solutionHtml = '';
+            if (subq.type === 'mc') {
+                // Flervalg - vis alternativer
+                var options = subq.options || ['', '', '', ''];
+                var correctIndex = subq.correctIndex || 0;
+                solutionHtml = '\
+                    <div class="mc-options-editor">\
+                        <label>Alternativer:</label>\
+                        ' + options.map(function(opt, i) {
+                            return '<div class="mc-option-row">\
+                                <input type="radio" name="mc-correct-' + questionIndex + '-' + index + '" value="' + i + '" ' + (i === correctIndex ? 'checked' : '') + '\
+                                       onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'correctIndex\', ' + i + ')">\
+                                <input type="text" value="' + escapeHtml(opt) + '" placeholder="Alternativ ' + String.fromCharCode(65 + i) + '"\
+                                       onchange="QuestionBuilder.updateSubquestionOption(' + questionIndex + ', ' + index + ', ' + i + ', this.value)">\
+                            </div>';
+                        }).join('') + '\
+                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addSubquestionOption(' + questionIndex + ', ' + index + ')">+ Alternativ</button>\
+                    </div>';
+            } else if (subq.type === 'text') {
+                // Tekst - kun fasit-felt, ingen toleranse
+                solutionHtml = '\
+                    <div class="subq-solution">\
+                        <label>Forventet svar (valgfritt):</label>\
+                        <input type="text" value="' + escapeHtml(subq.solution || '') + '"\
+                               placeholder="Stikkord eller fullstendig svar"\
+                               onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'solution\', this.value)">\
+                    </div>';
+            } else {
+                // Beregning/Grid - numerisk fasit med toleranse
+                solutionHtml = '\
+                    <div class="subq-solution">\
+                        <label>Fasit:</label>\
+                        <input type="text" value="' + escapeHtml(subq.solution || '') + '"\
+                               placeholder="Riktig svar"\
+                               onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'solution\', this.value)">\
+                        <label>Toleranse ±</label>\
+                        <input type="number" class="tolerance" value="' + (subq.tolerance || 0.5) + '" step="0.1"\
+                               onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'tolerance\', parseFloat(this.value))">\
+                    </div>';
+            }
+            
             return '\
                 <div class="subquestion-editor" data-subq-index="' + index + '">\
                     <div class="subquestion-header">\
                         <span class="subq-letter">' + letter + ')</span>\
-                        <select class="subq-type" onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'type\', this.value)">\
+                        <select class="subq-type" onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'type\', this.value); QuestionBuilder.rerenderSubquestions(' + questionIndex + ');">\
                             <option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>🔢 Beregning</option>\
                             <option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>✅ Flervalg</option>\
                             <option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>📝 Tekst</option>\
@@ -1358,20 +1400,12 @@ var QuestionBuilder = (function() {
                         <input type="number" class="subq-points" value="' + (subq.points || 5) + '" min="1" max="50"\
                                onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'points\', parseInt(this.value))">\
                         <span class="points-label">poeng</span>\
-                        <button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteSubquestion(' + questionIndex + ', ' + index + ')">Ã—</button>\
+                        <button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteSubquestion(' + questionIndex + ', ' + index + ')">×</button>\
                     </div>\
                     <div class="subquestion-body">\
-                        <textarea placeholder="DelspÃ¸rsmÃ¥l ' + letter + ')..."\
+                        <textarea placeholder="Skriv delspørsmål ' + letter + ')..."\
                                   onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'question\', this.value)">' + escapeHtml(subq.question) + '</textarea>\
-                        <div class="subq-solution">\
-                            <label>Fasit:</label>\
-                            <input type="text" value="' + (subq.solution || '') + '"\
-                                   placeholder="Riktig svar"\
-                                   onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'solution\', this.value)">\
-                            <label>Â±</label>\
-                            <input type="number" class="tolerance" value="' + (subq.tolerance || 0.5) + '" step="0.1"\
-                                   onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'tolerance\', parseFloat(this.value))">\
-                        </div>\
+                        ' + solutionHtml + '\
                     </div>\
                 </div>\
             ';
@@ -2059,6 +2093,53 @@ var QuestionBuilder = (function() {
         saveToStorage();
     }
     
+    function updateSubquestionOption(questionIndex, subqIndex, optionIndex, value) {
+        var set = state.sets[state.currentSetIndex];
+        if (!set || !set.questions[questionIndex]) return;
+        
+        var question = set.questions[questionIndex];
+        if (!question.subquestions || !question.subquestions[subqIndex]) return;
+        
+        var subq = question.subquestions[subqIndex];
+        if (!subq.options) subq.options = ['', '', '', ''];
+        
+        subq.options[optionIndex] = value;
+        state.unsavedChanges = true;
+        
+        saveToStorage();
+    }
+    
+    function addSubquestionOption(questionIndex, subqIndex) {
+        var set = state.sets[state.currentSetIndex];
+        if (!set || !set.questions[questionIndex]) return;
+        
+        var question = set.questions[questionIndex];
+        if (!question.subquestions || !question.subquestions[subqIndex]) return;
+        
+        var subq = question.subquestions[subqIndex];
+        if (!subq.options) subq.options = ['', '', '', ''];
+        
+        if (subq.options.length < 8) {
+            subq.options.push('');
+            state.unsavedChanges = true;
+            saveToStorage();
+            
+            // Trigger re-render of subquestions
+            if (typeof window.renderEditor === 'function') {
+                window.renderEditor();
+            }
+        } else {
+            showToast('Maks 8 alternativer', 'warning');
+        }
+    }
+    
+    function rerenderSubquestions(questionIndex) {
+        // Trigger full re-render to update MC fields
+        if (typeof window.renderEditor === 'function') {
+            window.renderEditor();
+        }
+    }
+    
     // ============================================
     // INFO TABLE MANAGEMENT
     // ============================================
@@ -2699,6 +2780,9 @@ var QuestionBuilder = (function() {
         addSubquestion: addSubquestion,
         updateSubquestion: updateSubquestion,
         deleteSubquestion: deleteSubquestion,
+        updateSubquestionOption: updateSubquestionOption,
+        addSubquestionOption: addSubquestionOption,
+        rerenderSubquestions: rerenderSubquestions,
         
         // Info Table management
         addInfoTable: addInfoTable,
