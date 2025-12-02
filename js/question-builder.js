@@ -868,6 +868,142 @@ var QuestionBuilder = (function() {
             icon: '⚡',
             description: 'Velg sant eller usant',
             subtypes: ['single', 'multiple']
+        },
+        function_graph: {
+            id: 'function_graph',
+            name: 'Graf/Funksjon',
+            icon: '📈',
+            description: 'Analyser funksjoner med interaktiv graf',
+            subtypes: ['analyze', 'derivative', 'integral', 'extrema', 'zeros', 'sketch']
+        }
+    };
+    
+    // ============================================
+    // GRAPH SYSTEM (Funksjonsgrafer)
+    // ============================================
+    
+    var GraphSystem = {
+        /**
+         * Standard farger for grafer
+         */
+        colors: {
+            primary: '#4ade80',      // Grønn - hovedfunksjon
+            secondary: '#3b82f6',    // Blå - derivert
+            tertiary: '#f59e0b',     // Oransje - integral
+            danger: '#ef4444',       // Rød - kostnad
+            purple: '#8b5cf6',       // Lilla - alternativ
+            grid: 'rgba(255,255,255,0.1)',
+            axis: 'rgba(255,255,255,0.3)'
+        },
+        
+        /**
+         * Standard graf-innstillinger
+         */
+        defaultSettings: {
+            xMin: -10,
+            xMax: 10,
+            yMin: -10,
+            yMax: 10,
+            step: 0.1,
+            showGrid: true,
+            showAxis: true,
+            showDerivative: false,
+            showZeros: false,
+            showExtrema: false,
+            showIntersection: false,
+            showElasticity: false,
+            interactive: true
+        },
+        
+        /**
+         * Lag graf-konfigurasjon for en spørsmål
+         */
+        createGraphConfig: function(functionExpr, label, settings) {
+            return {
+                function: functionExpr,
+                functionLabel: label || 'f(x)',
+                variableLabel: settings && settings.variableLabel ? settings.variableLabel : 'x',
+                settings: Object.assign({}, this.defaultSettings, settings || {}),
+                color: settings && settings.color ? settings.color : this.colors.primary
+            };
+        },
+        
+        /**
+         * Vanlige funksjonstyper for økonomi
+         */
+        economicFunctions: {
+            revenue: {
+                name: 'Inntektsfunksjon',
+                template: 'a*x^2 + b*x',
+                description: 'I(x) = ax² + bx (typisk a < 0)',
+                defaultVars: { a: -2, b: 100 }
+            },
+            cost: {
+                name: 'Kostnadsfunksjon',
+                template: 'a*x^3 - b*x^2 + c*x + d',
+                description: 'K(x) = ax³ - bx² + cx + d',
+                defaultVars: { a: 0.01, b: 2, c: 100, d: 5000 }
+            },
+            linear_cost: {
+                name: 'Lineær kostnad',
+                template: 'a + b*x',
+                description: 'K(x) = a + bx (faste + variable)',
+                defaultVars: { a: 5000, b: 50 }
+            },
+            demand: {
+                name: 'Etterspørselsfunksjon',
+                template: 'a - b*x',
+                description: 'p(x) = a - bx eller x(p) = c - dp',
+                defaultVars: { a: 100, b: 2 }
+            },
+            supply: {
+                name: 'Tilbudsfunksjon',
+                template: 'a + b*x',
+                description: 'p(x) = a + bx',
+                defaultVars: { a: 10, b: 1 }
+            },
+            profit: {
+                name: 'Fortjenestefunksjon',
+                template: '-a*x^2 + b*x - c',
+                description: 'F(x) = I(x) - K(x)',
+                defaultVars: { a: 2, b: 80, c: 200 }
+            }
+        },
+        
+        /**
+         * Spørsmålstyper for graf-oppgaver
+         */
+        questionSubtypes: {
+            analyze: {
+                name: 'Full analyse',
+                description: 'Finn nullpunkter, ekstremalpunkter, definisjonsmengde',
+                requiredAnswers: ['zeros', 'extrema', 'domain']
+            },
+            derivative: {
+                name: 'Derivasjon',
+                description: 'Finn derivert og tolkning',
+                requiredAnswers: ['derivative', 'derivativeValue']
+            },
+            extrema: {
+                name: 'Ekstremalpunkter',
+                description: 'Finn topp- og bunnpunkter',
+                requiredAnswers: ['extremaX', 'extremaY', 'extremaType']
+            },
+            zeros: {
+                name: 'Nullpunkter',
+                description: 'Finn hvor funksjonen er null',
+                requiredAnswers: ['zeros']
+            },
+            sketch: {
+                name: 'Skisser graf',
+                description: 'Tegn grafen basert på egenskaper',
+                requiredAnswers: ['sketch']
+            },
+            intersection: {
+                name: 'Skjæringspunkt',
+                description: 'Finn hvor funksjoner krysser',
+                requiredAnswers: ['intersectionX', 'intersectionY']
+            }
         }
     };
     
@@ -1475,6 +1611,159 @@ var QuestionBuilder = (function() {
                     'f\'(x) = {calc:3*a}x² + {calc:2*b}x - {c}',
                     'Sett inn x = {x}'
                 ]
+            }
+        },
+        
+        // ============================================
+        // GRAF-TEMPLATES
+        // ============================================
+        
+        graf_andregradsfunksjon: {
+            name: 'Andregradsfunksjon - Graf',
+            module: 'matte_okonomer',
+            topic: 'funksjonsanalyse',
+            type: 'function_graph',
+            template: {
+                title: 'Analyser andregradsfunksjonen',
+                question: 'Gitt inntektsfunksjonen $I(p) = {var:a:-5,-4,-3,-2}p^2 + {var:b:40,50,60,80}p$ der p er pris.\n\na) Finn nullpunktene\nb) Finn toppunktet\nc) For hvilke verdier av p gir funksjonen positiv inntekt?',
+                function: '{a}*x^2 + {b}*x',
+                functionLabel: 'I(p)',
+                variableLabel: 'p',
+                graphSettings: {
+                    xMin: -5,
+                    xMax: 30,
+                    yMin: -100,
+                    yMax: 500,
+                    showDerivative: true,
+                    showZeros: true,
+                    showExtrema: true
+                },
+                solution: {
+                    zeros: [0, '{calc:-b/a}'],
+                    extrema: { x: '{calc:-b/(2*a)}', y: '{calc:-b*b/(4*a)}', type: 'max' },
+                    positiveInterval: '[0, {calc:-b/a}]'
+                },
+                hints: [
+                    'Sett I(p) = 0 og løs likningen',
+                    'Symmetrilinjen er p = -b/(2a)',
+                    'Funksjonen er positiv mellom nullpunktene'
+                ],
+                explanation: 'Nullpunkter: p = 0 og p = {calc:-b/a}\nToppunkt: ({calc:-b/(2*a)}, {calc:-b*b/(4*a)})\nPositiv inntekt når 0 < p < {calc:-b/a}'
+            }
+        },
+        
+        graf_kostnad_inntekt: {
+            name: 'Kostnad og Inntekt',
+            module: 'matte_okonomer',
+            topic: 'funksjonsanalyse',
+            type: 'function_graph',
+            template: {
+                title: 'Kostnad- og inntektsanalyse',
+                question: 'En bedrift har:\n- Inntektsfunksjon: $I(x) = {var:pris:80,100,120}x$\n- Kostnadsfunksjon: $K(x) = {var:fast:5000,8000,10000} + {var:variabel:30,40,50}x$\n\nFinn nullpunktet (break-even) og maksimal fortjeneste hvis kapasiteten er {var:kapasitet:100,150,200} enheter.',
+                functions: [
+                    { expr: '{pris}*x', label: 'I(x)', color: '#4ade80' },
+                    { expr: '{fast} + {variabel}*x', label: 'K(x)', color: '#ef4444' },
+                    { expr: '{pris}*x - ({fast} + {variabel}*x)', label: 'F(x)', color: '#3b82f6' }
+                ],
+                graphSettings: {
+                    xMin: 0,
+                    xMax: 250,
+                    yMin: -5000,
+                    yMax: 25000,
+                    showIntersection: true
+                },
+                solution: {
+                    breakeven: '{calc:fast/(pris-variabel)}',
+                    maxProfit: '{calc:(pris-variabel)*kapasitet - fast}'
+                },
+                hints: [
+                    'Break-even: I(x) = K(x)',
+                    'Fortjeneste F(x) = I(x) - K(x)',
+                    'Maksimal fortjeneste ved x = kapasitet'
+                ]
+            }
+        },
+        
+        graf_derivasjon_tolkning: {
+            name: 'Derivasjon med graf',
+            module: 'matte_okonomer',
+            topic: 'derivasjon',
+            type: 'function_graph',
+            template: {
+                title: 'Tolkning av derivert',
+                question: 'Produksjonskostnaden for x enheter er gitt ved:\n$K(x) = {var:a:0.01,0.02,0.05}x^3 - {var:b:2,3,4}x^2 + {var:c:100,150,200}x + {var:d:1000,2000,5000}$\n\na) Finn grensekostnaden K\'(x)\nb) For hvilken x er grensekostnaden lavest?\nc) Beregn grensekostnaden når x = {var:x:50,60,80}',
+                function: '{a}*x^3 - {b}*x^2 + {c}*x + {d}',
+                functionLabel: 'K(x)',
+                graphSettings: {
+                    xMin: 0,
+                    xMax: 150,
+                    yMin: 0,
+                    yMax: 50000,
+                    showDerivative: true,
+                    showExtrema: true
+                },
+                solution: {
+                    derivative: '3*{a}*x^2 - 2*{b}*x + {c}',
+                    minDerivativeAt: '{calc:b/(3*a)}',
+                    derivativeAtX: '{calc:3*a*x*x - 2*b*x + c}'
+                }
+            }
+        },
+        
+        graf_tilbud_ettersporsel: {
+            name: 'Tilbud og Etterspørsel',
+            module: 'matte_okonomer',
+            topic: 'funksjonsanalyse',
+            type: 'function_graph',
+            template: {
+                title: 'Markedslikevekt',
+                question: 'I et marked er:\n- Etterspørselsfunksjon: $x_D = {var:a:200,300,400} - {var:b:2,3,4}p$\n- Tilbudsfunksjon: $x_S = {var:c:20,40,50} + {var:d:3,4,5}p$\n\nFinn likevektspris og likevektskvantum. Tegn grafene.',
+                functions: [
+                    { expr: '({a} - x)/{b}', label: 'Etterspørsel (p)', color: '#3b82f6' },
+                    { expr: '(x - {c})/{d}', label: 'Tilbud (p)', color: '#4ade80' }
+                ],
+                graphSettings: {
+                    xLabel: 'Kvantum (x)',
+                    yLabel: 'Pris (p)',
+                    xMin: 0,
+                    xMax: 250,
+                    yMin: 0,
+                    yMax: 100,
+                    showIntersection: true
+                },
+                solution: {
+                    equilibriumPrice: '{calc:(a-c)/(b+d)}',
+                    equilibriumQuantity: '{calc:c + d*((a-c)/(b+d))}'
+                },
+                hints: [
+                    'Likevekt: x_D = x_S',
+                    'Sett uttrykkene lik hverandre og løs for p',
+                    'Sett p inn i én av funksjonene for å finne x'
+                ]
+            }
+        },
+        
+        graf_elastisitet: {
+            name: 'Priselastisitet',
+            module: 'matte_okonomer',
+            topic: 'elastisitet',
+            type: 'function_graph',
+            template: {
+                title: 'Beregn priselastisitet',
+                question: 'Etterspørselsfunksjonen er gitt ved:\n$x(p) = {var:a:1000,2000,5000} - {var:b:10,20,50}p$\n\na) Finn priselastisiteten som funksjon av p\nb) Beregn elastisiteten når p = {var:p:20,30,40}\nc) Er etterspørselen elastisk eller uelastisk ved denne prisen?',
+                function: '{a} - {b}*x',
+                functionLabel: 'x(p)',
+                graphSettings: {
+                    xMin: 0,
+                    xMax: 100,
+                    yMin: 0,
+                    yMax: 6000,
+                    showElasticity: true
+                },
+                solution: {
+                    elasticityFormula: 'E_p = (dx/dp) * (p/x) = -{b} * p / ({a} - {b}p)',
+                    elasticityAtP: '{calc:-b * p / (a - b*p)}'
+                }
             }
         }
     };
@@ -2382,6 +2671,7 @@ var QuestionBuilder = (function() {
         ScoringSystem: ScoringSystem,
         LawReferenceSystem: LawReferenceSystem,
         KontoplanSystem: KontoplanSystem,
+        GraphSystem: GraphSystem,
         
         // Hint management
         addHint: addHint,

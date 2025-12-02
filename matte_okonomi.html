@@ -546,6 +546,93 @@
             font-family: 'Consolas', monospace;
         }
         
+        /* Function Graph Answer Section */
+        .function-graph-section {
+            margin-top: var(--space-md);
+        }
+        
+        .graph-answer-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-top: var(--space-md);
+        }
+        
+        .graph-answer-title {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            font-size: 0.95em;
+        }
+        
+        .graph-answer-fields {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        
+        .graph-answer-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+        }
+        
+        .graph-answer-row label {
+            min-width: 150px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .graph-answer-row input {
+            flex: 1;
+            padding: var(--space-sm);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+        }
+        
+        .graph-answer-row input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .graph-answer-row input.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .graph-answer-row input.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .graph-auto-display {
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .graph-inline-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+        
+        .graph-inline-canvas {
+            width: 100%;
+            height: 300px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+        }
+        
         /* Options Container */
         .options-container {
             display: flex;
@@ -2141,9 +2228,10 @@
             document.getElementById('btn-check').disabled = false;
             document.getElementById('btn-next').style.display = 'none';
             
-            // Show graph button for analysis questions
+            // Show graph button for analysis questions (hide for function_graph since it's inline)
             var graphBtn = document.getElementById('btn-show-graph');
-            graphBtn.style.display = (q.function || q.topic === 'analyse' || q.topic === 'derivasjon') ? 'inline-flex' : 'none';
+            var showGraphBtn = (q.function || q.topic === 'analyse' || q.topic === 'derivasjon' || q.topic === 'funksjonsanalyse') && q.type !== 'function_graph';
+            graphBtn.style.display = showGraphBtn ? 'inline-flex' : 'none';
         }
         
         function formatType(type) {
@@ -2151,7 +2239,8 @@
                 'multiple_choice': 'Flervalg', 'mc': 'Flervalg',
                 'calculation': 'Beregning', 'excel_grid': 'Regneark',
                 'true_false': 'Sant/Usant', 'tf': 'Sant/Usant',
-                'drag_drop': 'Dra og slipp', 'dnd': 'Dra og slipp'
+                'drag_drop': 'Dra og slipp', 'dnd': 'Dra og slipp',
+                'function_graph': 'Graf-analyse'
             };
             return types[type] || type;
         }
@@ -2169,9 +2258,270 @@
                 container.innerHTML = '';
                 excelSection.style.display = 'block';
                 renderExcelGrid(q);
+            } else if (type === 'function_graph') {
+                renderFunctionGraph(q, container);
             } else {
                 renderMultipleChoice(q, container);
             }
+        }
+        
+        // ==================== FUNCTION GRAPH ====================
+        function renderFunctionGraph(q, container) {
+            var html = '<div class="function-graph-section">';
+            
+            // Inline graf-visning
+            html += '<div class="graph-inline-container">';
+            html += '<canvas id="inline-graph-canvas" class="graph-inline-canvas"></canvas>';
+            html += '</div>';
+            
+            // Svarfelter
+            html += '<div class="graph-answer-container">';
+            html += '<div class="graph-answer-title">📝 Dine svar</div>';
+            html += '<div class="graph-answer-fields">';
+            
+            // Bestem hvilke felter som skal vises basert på solution
+            var solution = q.solution || {};
+            var graphSettings = q.graphSettings || {};
+            
+            // Nullpunkter
+            if (solution.zeros !== undefined || graphSettings.showZeros) {
+                html += '<div class="graph-answer-row">';
+                html += '<label>Nullpunkter (x-verdier):</label>';
+                html += '<input type="text" id="graph-answer-zeros" placeholder="f.eks: 0, 20" data-field="zeros">';
+                html += '</div>';
+            }
+            
+            // Ekstremalpunkt X
+            if (solution.extrema !== undefined || solution.extremaX !== undefined || graphSettings.showExtrema) {
+                html += '<div class="graph-answer-row">';
+                html += '<label>Ekstremalpunkt x:</label>';
+                html += '<input type="text" id="graph-answer-extrema-x" placeholder="x-verdi" data-field="extremaX">';
+                html += '</div>';
+                
+                html += '<div class="graph-answer-row">';
+                html += '<label>Ekstremalpunkt y:</label>';
+                html += '<input type="text" id="graph-answer-extrema-y" placeholder="y-verdi" data-field="extremaY">';
+                html += '</div>';
+            }
+            
+            // Break-even / Skjæringspunkt
+            if (solution.breakeven !== undefined || graphSettings.showIntersection) {
+                html += '<div class="graph-answer-row">';
+                html += '<label>Break-even / Skjæring:</label>';
+                html += '<input type="text" id="graph-answer-breakeven" placeholder="x-verdi" data-field="breakeven">';
+                html += '</div>';
+            }
+            
+            // Likevektspris
+            if (solution.equilibriumPrice !== undefined) {
+                html += '<div class="graph-answer-row">';
+                html += '<label>Likevektspris:</label>';
+                html += '<input type="text" id="graph-answer-eq-price" placeholder="pris" data-field="equilibriumPrice">';
+                html += '</div>';
+            }
+            
+            // Likevektskvantum
+            if (solution.equilibriumQuantity !== undefined) {
+                html += '<div class="graph-answer-row">';
+                html += '<label>Likevektskvantum:</label>';
+                html += '<input type="text" id="graph-answer-eq-qty" placeholder="mengde" data-field="equilibriumQuantity">';
+                html += '</div>';
+            }
+            
+            // Derivert verdi
+            if (solution.derivativeAtX !== undefined) {
+                html += '<div class="graph-answer-row">';
+                html += '<label>Derivert verdi:</label>';
+                html += '<input type="text" id="graph-answer-derivative" placeholder="verdi" data-field="derivativeAtX">';
+                html += '</div>';
+            }
+            
+            // Elastisitet
+            if (solution.elasticityAtP !== undefined) {
+                html += '<div class="graph-answer-row">';
+                html += '<label>Elastisitet:</label>';
+                html += '<input type="text" id="graph-answer-elasticity" placeholder="verdi" data-field="elasticityAtP">';
+                html += '</div>';
+            }
+            
+            // Maks fortjeneste
+            if (solution.maxProfit !== undefined) {
+                html += '<div class="graph-answer-row">';
+                html += '<label>Maks fortjeneste:</label>';
+                html += '<input type="text" id="graph-answer-profit" placeholder="verdi" data-field="maxProfit">';
+                html += '</div>';
+            }
+            
+            html += '</div></div></div>';
+            
+            container.innerHTML = html;
+            
+            // Tegn grafen automatisk
+            setTimeout(function() {
+                renderInlineGraph(q);
+            }, 100);
+        }
+        
+        function renderInlineGraph(q) {
+            var canvas = document.getElementById('inline-graph-canvas');
+            if (!canvas) return;
+            
+            var settings = q.graphSettings || {};
+            var xMin = settings.xMin !== undefined ? settings.xMin : -10;
+            var xMax = settings.xMax !== undefined ? settings.xMax : 30;
+            var yMin = settings.yMin !== undefined ? settings.yMin : -100;
+            var yMax = settings.yMax !== undefined ? settings.yMax : 500;
+            
+            try {
+                var datasets = [];
+                
+                // Hovedfunksjon
+                if (q.function) {
+                    var expr = substituteVariables(q.function, q.data || {});
+                    var compiled = math.compile(expr);
+                    var data = generateGraphData(compiled, xMin, xMax);
+                    
+                    datasets.push({
+                        label: q.functionLabel || 'f(x)',
+                        data: data,
+                        borderColor: '#4ade80',
+                        backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                        fill: false,
+                        pointRadius: 0,
+                        borderWidth: 2
+                    });
+                    
+                    // Derivert hvis aktivert
+                    if (settings.showDerivative) {
+                        try {
+                            var derivative = math.derivative(expr, 'x').toString();
+                            var derivCompiled = math.compile(derivative);
+                            var derivData = generateGraphData(derivCompiled, xMin, xMax);
+                            
+                            datasets.push({
+                                label: "f'(x) = " + derivative,
+                                data: derivData,
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                fill: false,
+                                pointRadius: 0,
+                                borderWidth: 2,
+                                borderDash: [5, 5]
+                            });
+                        } catch (e) {
+                            console.error('Derivasjon feilet:', e);
+                        }
+                    }
+                }
+                
+                // Flere funksjoner (kostnad/inntekt, tilbud/etterspørsel)
+                if (q.functions && Array.isArray(q.functions)) {
+                    var colors = ['#4ade80', '#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6'];
+                    q.functions.forEach(function(fn, i) {
+                        try {
+                            var expr = substituteVariables(fn.expr, q.data || {});
+                            var compiled = math.compile(expr);
+                            var data = generateGraphData(compiled, xMin, xMax);
+                            
+                            datasets.push({
+                                label: fn.label || 'f' + (i+1) + '(x)',
+                                data: data,
+                                borderColor: fn.color || colors[i % colors.length],
+                                fill: false,
+                                pointRadius: 0,
+                                borderWidth: 2,
+                                borderDash: fn.dashed ? [5, 5] : []
+                            });
+                        } catch (e) {
+                            console.error('Funksjon ' + i + ' feilet:', e);
+                        }
+                    });
+                }
+                
+                // Lag chart
+                if (window.inlineGraphChart) {
+                    window.inlineGraphChart.destroy();
+                }
+                
+                window.inlineGraphChart = new Chart(canvas, {
+                    type: 'line',
+                    data: { datasets: datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'center',
+                                min: xMin,
+                                max: xMax,
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#9ca3af' },
+                                title: {
+                                    display: true,
+                                    text: settings.xLabel || (q.variableLabel || 'x'),
+                                    color: '#9ca3af'
+                                }
+                            },
+                            y: {
+                                type: 'linear',
+                                position: 'center',
+                                min: yMin,
+                                max: yMax,
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#9ca3af' },
+                                title: {
+                                    display: true,
+                                    text: settings.yLabel || (q.functionLabel || 'y'),
+                                    color: '#9ca3af'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { 
+                                display: true, 
+                                labels: { color: '#e0e0e0' },
+                                position: 'top'
+                            }
+                        }
+                    }
+                });
+                
+            } catch (e) {
+                console.error('Graf-rendering feilet:', e);
+                canvas.parentElement.innerHTML = '<p style="color: var(--error); padding: 20px;">Kunne ikke tegne graf: ' + e.message + '</p>';
+            }
+        }
+        
+        function generateGraphData(compiled, xMin, xMax) {
+            var data = [];
+            var step = (xMax - xMin) / 300;
+            
+            for (var x = xMin; x <= xMax; x += step) {
+                try {
+                    var y = compiled.evaluate({ x: x });
+                    if (isFinite(y) && Math.abs(y) < 100000) {
+                        data.push({ x: x, y: y });
+                    }
+                } catch (e) {}
+            }
+            
+            return data;
+        }
+        
+        function substituteVariables(expr, data) {
+            if (!expr || !data) return expr;
+            
+            var result = expr;
+            Object.keys(data).forEach(function(key) {
+                var value = data[key];
+                if (typeof value === 'number' || !isNaN(parseFloat(value))) {
+                    // Erstatt {variabel} med verdi
+                    result = result.replace(new RegExp('\\{' + key + '\\}', 'g'), '(' + value + ')');
+                }
+            });
+            
+            return result;
         }
         
         function renderMultipleChoice(q, container) {
@@ -2295,9 +2645,153 @@
                 isCorrect = checkMultipleChoice(q);
             } else if (type === 'calculation' || type === 'excel_grid') {
                 isCorrect = checkCalculation(q);
+            } else if (type === 'function_graph') {
+                isCorrect = checkFunctionGraph(q);
             }
             
             showFeedback(isCorrect, q);
+        }
+        
+        function checkFunctionGraph(q) {
+            var solution = q.solution || {};
+            var data = q.data || {};
+            var tolerance = q.tolerance || 2; // Prosent toleranse
+            var allCorrect = true;
+            var fieldsChecked = 0;
+            
+            // Sjekk alle svarfelter
+            document.querySelectorAll('.graph-answer-row input').forEach(function(input) {
+                var field = input.dataset.field;
+                var expectedValue = solution[field];
+                
+                if (expectedValue === undefined) return;
+                
+                fieldsChecked++;
+                var userValue = input.value.trim();
+                
+                // Substituer variabler i forventet verdi
+                var expected = substituteAndEvaluate(expectedValue, data);
+                
+                // Sjekk svaret
+                var isFieldCorrect = false;
+                
+                if (field === 'zeros') {
+                    // Nullpunkter kan være flere verdier
+                    isFieldCorrect = checkMultipleValues(userValue, expected, tolerance);
+                } else {
+                    // Enkeltverdi
+                    isFieldCorrect = checkSingleValue(userValue, expected, tolerance);
+                }
+                
+                if (isFieldCorrect) {
+                    input.classList.add('correct');
+                    input.classList.remove('incorrect');
+                } else {
+                    input.classList.add('incorrect');
+                    input.classList.remove('correct');
+                    allCorrect = false;
+                }
+            });
+            
+            return fieldsChecked > 0 ? allCorrect : false;
+        }
+        
+        function substituteAndEvaluate(value, data) {
+            if (value === undefined || value === null) return null;
+            
+            // Hvis det er en array
+            if (Array.isArray(value)) {
+                return value.map(function(v) {
+                    return substituteAndEvaluate(v, data);
+                });
+            }
+            
+            // Hvis det er et objekt (f.eks. extrema)
+            if (typeof value === 'object') {
+                var result = {};
+                Object.keys(value).forEach(function(key) {
+                    result[key] = substituteAndEvaluate(value[key], data);
+                });
+                return result;
+            }
+            
+            // Hvis det er en string med {calc:...}
+            var str = String(value);
+            if (str.indexOf('{calc:') !== -1) {
+                var calcMatch = str.match(/\{calc:([^}]+)\}/);
+                if (calcMatch) {
+                    try {
+                        var expr = calcMatch[1];
+                        // Erstatt variabelnavn med verdier
+                        Object.keys(data).forEach(function(key) {
+                            expr = expr.replace(new RegExp('\\b' + key + '\\b', 'g'), '(' + data[key] + ')');
+                        });
+                        return math.evaluate(expr);
+                    } catch (e) {
+                        console.error('Calc error:', e);
+                        return parseFloat(str) || 0;
+                    }
+                }
+            }
+            
+            // Hvis det er en variabel-referanse
+            if (str.indexOf('{') !== -1) {
+                Object.keys(data).forEach(function(key) {
+                    str = str.replace(new RegExp('\\{' + key + '\\}', 'g'), data[key]);
+                });
+                try {
+                    return math.evaluate(str);
+                } catch (e) {
+                    return parseFloat(str) || str;
+                }
+            }
+            
+            // Ellers returner som tall
+            return parseFloat(str) || str;
+        }
+        
+        function checkSingleValue(userStr, expected, tolerance) {
+            if (!userStr) return false;
+            
+            var userVal = parseFloat(userStr.replace(/\s/g, '').replace(',', '.'));
+            var expectedVal = parseFloat(expected);
+            
+            if (isNaN(userVal) || isNaN(expectedVal)) return false;
+            if (expectedVal === 0) return Math.abs(userVal) < 0.01;
+            
+            var percentDiff = Math.abs((userVal - expectedVal) / expectedVal) * 100;
+            return percentDiff <= tolerance;
+        }
+        
+        function checkMultipleValues(userStr, expected, tolerance) {
+            if (!userStr) return false;
+            
+            // Parse brukerens svar (kommaseparert)
+            var userValues = userStr.split(/[,;]/).map(function(v) {
+                return parseFloat(v.trim().replace(',', '.'));
+            }).filter(function(v) { return !isNaN(v); });
+            
+            // Forventede verdier
+            var expectedValues = Array.isArray(expected) ? expected : [expected];
+            expectedValues = expectedValues.map(function(v) {
+                return parseFloat(v);
+            }).filter(function(v) { return !isNaN(v); });
+            
+            // Sjekk at alle forventede verdier er funnet
+            if (userValues.length !== expectedValues.length) return false;
+            
+            // Sorter begge arrays
+            userValues.sort(function(a, b) { return a - b; });
+            expectedValues.sort(function(a, b) { return a - b; });
+            
+            // Sammenlign
+            for (var i = 0; i < expectedValues.length; i++) {
+                if (!checkSingleValue(String(userValues[i]), expectedValues[i], tolerance)) {
+                    return false;
+                }
+            }
+            
+            return true;
         }
         
         function checkMultipleChoice(q) {

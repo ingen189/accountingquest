@@ -13,6 +13,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- Chart.js for grafer -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Math.js for funksjonsberegninger -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
     <style>
         :root {
             --bg-primary: #0f1419;
@@ -278,6 +284,7 @@
                         <button class="toolbar-btn" onclick="openFormulaModal()" title="Sett inn formel">📐 Formel</button>
                         <button class="toolbar-btn" onclick="openKontoplanModal()" title="Søk i kontoplan">📋 Kontoplan</button>
                         <button class="toolbar-btn" onclick="openLawModal()" title="Lovhenvisning">⚖️ Lov</button>
+                        <button class="toolbar-btn" onclick="openGraphTemplateModal()" title="Graf-mal">📈 Graf</button>
                         <div class="toolbar-divider"></div>
                         <button class="toolbar-btn" onclick="openTimerModal()" title="Tidsbegrensning">⏱️ Timer</button>
                         <button class="toolbar-btn" onclick="openScoringModal()" title="Poenginnstillinger">🎯 Poeng</button>
@@ -497,6 +504,65 @@
         </div>
     </div>
     
+    <!-- Graph Template Modal -->
+    <div class="modal-overlay" id="graphModal">
+        <div class="modal" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>📈 Graf-maler</h3>
+                <button class="modal-close" onclick="closeModal('graphModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">Velg en mal for graf-oppgave:</p>
+                
+                <div class="formula-grid" id="graphTemplateGrid">
+                    <div class="formula-card" onclick="useGraphTemplate('quadratic')">
+                        <div class="name">📊 Andregradsfunksjon</div>
+                        <div class="latex">f(x) = ax² + bx + c</div>
+                        <div class="desc">Finn nullpunkter, toppunkt, bunnpunkt</div>
+                    </div>
+                    <div class="formula-card" onclick="useGraphTemplate('revenue')">
+                        <div class="name">💰 Inntektsfunksjon</div>
+                        <div class="latex">I(p) = -ap² + bp</div>
+                        <div class="desc">Maksimer inntekt, finn optimal pris</div>
+                    </div>
+                    <div class="formula-card" onclick="useGraphTemplate('cost_revenue')">
+                        <div class="name">📉 Kostnad/Inntekt</div>
+                        <div class="latex">I(x) vs K(x)</div>
+                        <div class="desc">Finn break-even, maksimal fortjeneste</div>
+                    </div>
+                    <div class="formula-card" onclick="useGraphTemplate('supply_demand')">
+                        <div class="name">⚖️ Tilbud/Etterspørsel</div>
+                        <div class="latex">xD = a - bp, xS = c + dp</div>
+                        <div class="desc">Finn markedslikevekt</div>
+                    </div>
+                    <div class="formula-card" onclick="useGraphTemplate('derivative')">
+                        <div class="name">📐 Derivasjon</div>
+                        <div class="latex">f(x) og f'(x)</div>
+                        <div class="desc">Tolkning av derivert, grensefunksjoner</div>
+                    </div>
+                    <div class="formula-card" onclick="useGraphTemplate('elasticity')">
+                        <div class="name">📏 Elastisitet</div>
+                        <div class="latex">E = (dx/dp) · (p/x)</div>
+                        <div class="desc">Beregn priselastisitet</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: var(--bg-tertiary); border-radius: 8px;">
+                    <h4 style="color: var(--accent); margin-bottom: 10px;">💡 Tips for graf-oppgaver:</h4>
+                    <ul style="color: var(--text-secondary); font-size: 0.85em; margin: 0; padding-left: 20px;">
+                        <li>Bruk variabler: <code>{var:a:2-5}</code> for randomiserte tall</li>
+                        <li>Funksjoner skrives som: <code>-3*x^2 + 60*x</code></li>
+                        <li>Studenten ser interaktiv graf med mulighet til å zoome</li>
+                        <li>Kan vise derivert, nullpunkter og ekstremalpunkter automatisk</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('graphModal')">Lukk</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- 
         BRUK:
         Plasser question_builder.html i rotmappen
@@ -644,6 +710,7 @@
             else if (q.type === 'calculation') typeHtml = renderCalculationBuilder(q, index);
             else if (q.type === 'case_study') typeHtml = renderCaseStudyBuilder(q, index);
             else if (q.type === 'inline_input') typeHtml = renderInlineInputBuilder(q, index);
+            else if (q.type === 'function_graph') typeHtml = renderGraphBuilder(q, index);
             
             // Info tables for all types except case_study (which has documents)
             var infoTablesHtml = '';
@@ -677,6 +744,208 @@
         
         function renderCalculationBuilder(q, index) {
             return '<div class="form-row" style="margin-top:12px;"><div class="form-group"><label>Fasit</label><input type="text" value="' + (q.solution || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'solution\', this.value);"></div><div class="form-group"><label>Toleranse (±)</label><input type="number" step="0.1" value="' + (q.tolerance || 0.5) + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'tolerance\', parseFloat(this.value));"></div></div>';
+        }
+        
+        function renderGraphBuilder(q, index) {
+            var graphConfig = q.graphConfig || {};
+            var functions = q.functions || [];
+            var mainFunction = q.function || '';
+            var settings = graphConfig.settings || {};
+            
+            // Funksjons-input
+            var functionsHtml = '<div class="form-group"><label>📈 Hovedfunksjon</label><input type="text" value="' + escapeHtml(mainFunction) + '" placeholder="f.eks: -3*x^2 + 60*x" onchange="updateGraphFunction(' + index + ', this.value)"></div>';
+            
+            // Funksjonsetikett
+            functionsHtml += '<div class="form-row"><div class="form-group"><label>Funksjonsnavn</label><input type="text" value="' + escapeHtml(q.functionLabel || 'f(x)') + '" placeholder="f(x)" onchange="QuestionBuilder.updateQuestion(' + index + ', \'functionLabel\', this.value);"></div>';
+            functionsHtml += '<div class="form-group"><label>Variabelnavn</label><input type="text" value="' + escapeHtml(q.variableLabel || 'x') + '" placeholder="x" onchange="QuestionBuilder.updateQuestion(' + index + ', \'variableLabel\', this.value);"></div></div>';
+            
+            // Multi-funksjoner for sammenligning
+            if (functions.length > 0) {
+                functionsHtml += '<div style="margin-top:12px;"><label>Flere funksjoner</label>';
+                functions.forEach(function(fn, fi) {
+                    functionsHtml += '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">' +
+                        '<input type="text" value="' + escapeHtml(fn.expr) + '" placeholder="Uttrykk" style="flex:2;" onchange="updateGraphMultiFunc(' + index + ', ' + fi + ', \'expr\', this.value)">' +
+                        '<input type="text" value="' + escapeHtml(fn.label) + '" placeholder="Etikett" style="width:80px;" onchange="updateGraphMultiFunc(' + index + ', ' + fi + ', \'label\', this.value)">' +
+                        '<input type="color" value="' + (fn.color || '#4ade80') + '" style="width:40px;height:30px;" onchange="updateGraphMultiFunc(' + index + ', ' + fi + ', \'color\', this.value)">' +
+                        '<button class="btn btn-sm btn-danger" onclick="removeGraphFunction(' + index + ', ' + fi + ')">×</button>' +
+                        '</div>';
+                });
+                functionsHtml += '</div>';
+            }
+            functionsHtml += '<button class="btn btn-sm btn-secondary" onclick="addGraphFunction(' + index + ')">+ Legg til funksjon</button>';
+            
+            // Graf-innstillinger
+            var settingsHtml = '<div class="collapsible-header" onclick="toggleSection(this)"><span>⚙️ Graf-innstillinger</span><span>▼</span></div>' +
+                '<div class="collapsible-content">' +
+                '<div class="form-row">' +
+                '<div class="form-group"><label>X min</label><input type="number" value="' + (settings.xMin || -10) + '" onchange="updateGraphSettings(' + index + ', \'xMin\', parseFloat(this.value))"></div>' +
+                '<div class="form-group"><label>X max</label><input type="number" value="' + (settings.xMax || 10) + '" onchange="updateGraphSettings(' + index + ', \'xMax\', parseFloat(this.value))"></div>' +
+                '<div class="form-group"><label>Y min</label><input type="number" value="' + (settings.yMin || -10) + '" onchange="updateGraphSettings(' + index + ', \'yMin\', parseFloat(this.value))"></div>' +
+                '<div class="form-group"><label>Y max</label><input type="number" value="' + (settings.yMax || 10) + '" onchange="updateGraphSettings(' + index + ', \'yMax\', parseFloat(this.value))"></div>' +
+                '</div>' +
+                '<div style="display:flex;gap:15px;flex-wrap:wrap;margin-top:10px;">' +
+                '<label><input type="checkbox" ' + (settings.showDerivative ? 'checked' : '') + ' onchange="updateGraphSettings(' + index + ', \'showDerivative\', this.checked)"> Vis derivert</label>' +
+                '<label><input type="checkbox" ' + (settings.showZeros ? 'checked' : '') + ' onchange="updateGraphSettings(' + index + ', \'showZeros\', this.checked)"> Vis nullpunkter</label>' +
+                '<label><input type="checkbox" ' + (settings.showExtrema ? 'checked' : '') + ' onchange="updateGraphSettings(' + index + ', \'showExtrema\', this.checked)"> Vis ekstremalpunkter</label>' +
+                '<label><input type="checkbox" ' + (settings.showIntersection ? 'checked' : '') + ' onchange="updateGraphSettings(' + index + ', \'showIntersection\', this.checked)"> Vis skjæringspunkt</label>' +
+                '</div></div>';
+            
+            // Svarfelter
+            var solutionHtml = '<div style="margin-top:12px;background:var(--bg-tertiary);padding:12px;border-radius:8px;">' +
+                '<h4 style="color:var(--accent);font-size:0.9em;margin-bottom:10px;">🎯 Forventede svar</h4>' +
+                '<div class="form-row">' +
+                '<div class="form-group"><label>Nullpunkter (kommaseparert)</label><input type="text" value="' + escapeHtml((q.solution && q.solution.zeros) || '') + '" placeholder="0, 20" onchange="updateGraphSolution(' + index + ', \'zeros\', this.value)"></div>' +
+                '<div class="form-group"><label>Ekstremalpunkt X</label><input type="text" value="' + escapeHtml((q.solution && q.solution.extremaX) || '') + '" placeholder="10" onchange="updateGraphSolution(' + index + ', \'extremaX\', this.value)"></div>' +
+                '</div>' +
+                '<div class="form-row">' +
+                '<div class="form-group"><label>Ekstremalpunkt Y</label><input type="text" value="' + escapeHtml((q.solution && q.solution.extremaY) || '') + '" placeholder="300" onchange="updateGraphSolution(' + index + ', \'extremaY\', this.value)"></div>' +
+                '<div class="form-group"><label>Type (max/min)</label><select onchange="updateGraphSolution(' + index + ', \'extremaType\', this.value)"><option value="max" ' + ((q.solution && q.solution.extremaType === 'max') ? 'selected' : '') + '>Maksimum</option><option value="min" ' + ((q.solution && q.solution.extremaType === 'min') ? 'selected' : '') + '>Minimum</option></select></div>' +
+                '</div>' +
+                '<div class="form-group"><label>Toleranse (±)</label><input type="number" step="0.1" value="' + (q.tolerance || 0.5) + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'tolerance\', parseFloat(this.value));"></div>' +
+                '</div>';
+            
+            // Forhåndsvisning-knapp
+            var previewBtn = '<button class="btn btn-secondary" style="margin-top:12px;" onclick="previewGraph(' + index + ')">👁️ Forhåndsvis graf</button>';
+            
+            return '<div class="graph-builder" style="margin-top:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:15px;">' +
+                '<h4 style="color:var(--accent);margin-bottom:12px;">📈 Graf-konfigurasjon</h4>' +
+                functionsHtml + settingsHtml + solutionHtml + previewBtn +
+                '<div id="graph-preview-' + index + '" style="margin-top:15px;display:none;"><canvas id="graph-canvas-' + index + '" height="300"></canvas></div>' +
+                '</div>';
+        }
+        
+        // Graf-hjelpefunksjoner
+        function updateGraphFunction(qIndex, value) {
+            QuestionBuilder.updateQuestion(qIndex, 'function', value);
+            updatePreview();
+        }
+        
+        function updateGraphSettings(qIndex, key, value) {
+            var s = QuestionBuilder.getState();
+            var q = s.sets[s.currentSetIndex].questions[qIndex];
+            if (!q.graphConfig) q.graphConfig = {};
+            if (!q.graphConfig.settings) q.graphConfig.settings = {};
+            q.graphConfig.settings[key] = value;
+            QuestionBuilder.saveToStorage();
+            updatePreview();
+        }
+        
+        function updateGraphSolution(qIndex, key, value) {
+            var s = QuestionBuilder.getState();
+            var q = s.sets[s.currentSetIndex].questions[qIndex];
+            if (!q.solution) q.solution = {};
+            q.solution[key] = value;
+            QuestionBuilder.saveToStorage();
+            updatePreview();
+        }
+        
+        function addGraphFunction(qIndex) {
+            var s = QuestionBuilder.getState();
+            var q = s.sets[s.currentSetIndex].questions[qIndex];
+            if (!q.functions) q.functions = [];
+            var colors = ['#4ade80', '#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6'];
+            q.functions.push({
+                expr: '',
+                label: 'g' + (q.functions.length + 1) + '(x)',
+                color: colors[q.functions.length % colors.length]
+            });
+            QuestionBuilder.saveToStorage();
+            renderEditor();
+        }
+        
+        function updateGraphMultiFunc(qIndex, fIndex, key, value) {
+            var s = QuestionBuilder.getState();
+            s.sets[s.currentSetIndex].questions[qIndex].functions[fIndex][key] = value;
+            QuestionBuilder.saveToStorage();
+            updatePreview();
+        }
+        
+        function removeGraphFunction(qIndex, fIndex) {
+            var s = QuestionBuilder.getState();
+            s.sets[s.currentSetIndex].questions[qIndex].functions.splice(fIndex, 1);
+            QuestionBuilder.saveToStorage();
+            renderEditor();
+        }
+        
+        function previewGraph(qIndex) {
+            var s = QuestionBuilder.getState();
+            var q = s.sets[s.currentSetIndex].questions[qIndex];
+            var container = document.getElementById('graph-preview-' + qIndex);
+            var canvas = document.getElementById('graph-canvas-' + qIndex);
+            
+            container.style.display = 'block';
+            
+            var settings = (q.graphConfig && q.graphConfig.settings) || {};
+            var xMin = settings.xMin || -10;
+            var xMax = settings.xMax || 30;
+            
+            try {
+                // Parse function
+                var expr = q.function || '0';
+                var compiled = math.compile(expr);
+                
+                // Generate data
+                var data = [];
+                var step = (xMax - xMin) / 200;
+                for (var x = xMin; x <= xMax; x += step) {
+                    try {
+                        var y = compiled.evaluate({ x: x });
+                        if (isFinite(y) && Math.abs(y) < 10000) {
+                            data.push({ x: x, y: y });
+                        }
+                    } catch (e) {}
+                }
+                
+                // Create chart
+                if (window.graphPreviewCharts && window.graphPreviewCharts[qIndex]) {
+                    window.graphPreviewCharts[qIndex].destroy();
+                }
+                if (!window.graphPreviewCharts) window.graphPreviewCharts = {};
+                
+                window.graphPreviewCharts[qIndex] = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: q.functionLabel || 'f(x)',
+                            data: data,
+                            borderColor: '#4ade80',
+                            backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                            fill: false,
+                            pointRadius: 0,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'center',
+                                min: xMin,
+                                max: xMax,
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#9ca3af' }
+                            },
+                            y: {
+                                type: 'linear',
+                                position: 'center',
+                                min: settings.yMin || -100,
+                                max: settings.yMax || 500,
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#9ca3af' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true, labels: { color: '#e0e0e0' } }
+                        }
+                    }
+                });
+                
+            } catch (e) {
+                console.error('Graf-feil:', e);
+                container.innerHTML = '<p style="color:var(--danger);">Feil i funksjonen: ' + e.message + '</p>';
+            }
         }
         
         function renderInfoTablesSection(q, index) {
@@ -1127,6 +1396,132 @@
                 navigator.clipboard.writeText(text);
                 QuestionBuilder.showToast('Kopiert til utklippstavle: ' + text);
             }
+        }
+        
+        // ==================== GRAPH TEMPLATES ====================
+        function openGraphTemplateModal() {
+            var state = QuestionBuilder.getState();
+            if (state.currentSetIndex < 0) {
+                QuestionBuilder.showToast('Velg et sett først', 'error');
+                return;
+            }
+            openModal('graphModal');
+        }
+        
+        var graphTemplates = {
+            quadratic: {
+                title: 'Analyser andregradsfunksjonen',
+                question: 'Gitt funksjonen $f(x) = {var:a:-4,-3,-2}x^2 + {var:b:20,40,60}x$\n\na) Finn nullpunktene\nb) Finn toppunktet/bunnpunktet\nc) Skisser grafen',
+                type: 'function_graph',
+                function: '{a}*x^2 + {b}*x',
+                functionLabel: 'f(x)',
+                variableLabel: 'x',
+                graphConfig: {
+                    settings: { xMin: -5, xMax: 25, yMin: -50, yMax: 400, showZeros: true, showExtrema: true }
+                },
+                solution: { zeros: '0, {calc:-b/a}', extremaX: '{calc:-b/(2*a)}', extremaY: '{calc:-b*b/(4*a)}', extremaType: 'max' },
+                hints: ['Sett f(x) = 0 og faktoriser', 'Symmetrilinjen er x = -b/(2a)', 'Sett symmetrilinje-verdien inn i f(x)'],
+                explanation: 'Nullpunkter: x = 0 og x = {calc:-b/a}\nToppunkt: ({calc:-b/(2*a)}, {calc:-b*b/(4*a)})'
+            },
+            revenue: {
+                title: 'Maksimer inntekten',
+                question: 'En bedrift har inntektsfunksjonen $I(p) = -{var:a:2,3,4}p^2 + {var:b:40,60,80}p$ der p er prisen per enhet.\n\na) For hvilke priser er inntekten positiv?\nb) Finn prisen som maksimerer inntekten\nc) Hva er maksimal inntekt?',
+                type: 'function_graph',
+                function: '-{a}*x^2 + {b}*x',
+                functionLabel: 'I(p)',
+                variableLabel: 'p',
+                graphConfig: {
+                    settings: { xMin: -2, xMax: 25, yMin: -50, yMax: 500, showZeros: true, showExtrema: true }
+                },
+                solution: { zeros: '0, {calc:b/a}', extremaX: '{calc:b/(2*a)}', extremaY: '{calc:b*b/(4*a)}', extremaType: 'max' },
+                hints: ['Inntekten er positiv mellom nullpunktene', 'Toppunktet finnes ved p = -b/(2a)', 'Husk at a er negativ i formelen'],
+                explanation: 'Positiv inntekt for 0 < p < {calc:b/a}\nOptimal pris: p = {calc:b/(2*a)}\nMaksimal inntekt: {calc:b*b/(4*a)}'
+            },
+            cost_revenue: {
+                title: 'Kostnad og inntektsanalyse',
+                question: 'En bedrift har:\n- Inntektsfunksjon: $I(x) = {var:pris:80,100,120}x$\n- Kostnadsfunksjon: $K(x) = {var:fast:5000,8000,10000} + {var:variabel:30,40,50}x$\n\na) Finn nullpunktet (break-even)\nb) Beregn fortjenesten ved x = {var:mengde:100,150,200}',
+                type: 'function_graph',
+                function: '{pris}*x',
+                functions: [
+                    { expr: '{pris}*x', label: 'I(x)', color: '#4ade80' },
+                    { expr: '{fast} + {variabel}*x', label: 'K(x)', color: '#ef4444' }
+                ],
+                functionLabel: 'I(x), K(x)',
+                variableLabel: 'x',
+                graphConfig: {
+                    settings: { xMin: 0, xMax: 250, yMin: 0, yMax: 25000, showIntersection: true }
+                },
+                solution: { breakeven: '{calc:fast/(pris-variabel)}', profit: '{calc:(pris-variabel)*mengde - fast}' },
+                hints: ['Break-even: I(x) = K(x)', 'Fortjeneste F(x) = I(x) - K(x)'],
+                explanation: 'Break-even ved x = {calc:fast/(pris-variabel)} enheter\nFortjeneste ved x = {mengde}: {calc:(pris-variabel)*mengde - fast}'
+            },
+            supply_demand: {
+                title: 'Markedslikevekt',
+                question: 'I et marked er:\n- Etterspørselsfunksjon: $x_D = {var:a:200,300,400} - {var:b:2,3,4}p$\n- Tilbudsfunksjon: $x_S = {var:c:20,40,60} + {var:d:3,4,5}p$\n\nFinn likevektspris og likevektskvantum.',
+                type: 'function_graph',
+                function: '{a} - {b}*x',
+                functions: [
+                    { expr: '({a} - x)/{b}', label: 'Etterspørsel (p)', color: '#3b82f6' },
+                    { expr: '(x - {c})/{d}', label: 'Tilbud (p)', color: '#4ade80' }
+                ],
+                functionLabel: 'p(x)',
+                variableLabel: 'x',
+                graphConfig: {
+                    settings: { xMin: 0, xMax: 300, yMin: 0, yMax: 100, showIntersection: true }
+                },
+                solution: { equilibriumPrice: '{calc:(a-c)/(b+d)}', equilibriumQuantity: '{calc:c + d*((a-c)/(b+d))}' },
+                hints: ['Likevekt: x_D = x_S', 'Løs likningen for p først', 'Sett p inn for å finne x']
+            },
+            derivative: {
+                title: 'Derivasjon og tolkning',
+                question: 'Produksjonskostnaden er gitt ved:\n$K(x) = {var:a:0.01,0.02,0.05}x^3 - {var:b:2,3,4}x^2 + {var:c:100,150,200}x + {var:d:1000,2000,5000}$\n\na) Finn grensekostnaden K\'(x)\nb) For hvilken x er grensekostnaden lavest?',
+                type: 'function_graph',
+                function: '{a}*x^3 - {b}*x^2 + {c}*x + {d}',
+                functionLabel: 'K(x)',
+                variableLabel: 'x',
+                graphConfig: {
+                    settings: { xMin: 0, xMax: 150, yMin: 0, yMax: 50000, showDerivative: true, showExtrema: true }
+                },
+                solution: { derivative: '3*{a}*x^2 - 2*{b}*x + {c}', minDerivativeAt: '{calc:b/(3*a)}' },
+                hints: ['Bruk potensregelen for derivasjon', 'Grensekostnaden er lavest når K\'\'(x) = 0']
+            },
+            elasticity: {
+                title: 'Priselastisitet',
+                question: 'Etterspørselsfunksjonen er:\n$x(p) = {var:a:1000,2000,5000} - {var:b:10,20,50}p$\n\na) Finn priselastisiteten som funksjon av p\nb) Beregn elastisiteten når p = {var:p:20,30,40}\nc) Er etterspørselen elastisk eller uelastisk?',
+                type: 'function_graph',
+                function: '{a} - {b}*x',
+                functionLabel: 'x(p)',
+                variableLabel: 'p',
+                graphConfig: {
+                    settings: { xMin: 0, xMax: 100, yMin: 0, yMax: 6000, showElasticity: true }
+                },
+                solution: { elasticityFormula: '-{b} * p / ({a} - {b}*p)', elasticityAtP: '{calc:-b * p / (a - b*p)}' },
+                hints: ['E_p = (dx/dp) * (p/x)', 'dx/dp = -{b}', 'Elastisk hvis |E| > 1']
+            }
+        };
+        
+        function useGraphTemplate(templateKey) {
+            var template = graphTemplates[templateKey];
+            if (!template) return;
+            
+            var state = QuestionBuilder.getState();
+            if (state.currentSetIndex < 0) {
+                QuestionBuilder.showToast('Velg et sett først', 'error');
+                return;
+            }
+            
+            // Legg til nytt spørsmål basert på malen
+            var question = JSON.parse(JSON.stringify(template));
+            question.id = 'q_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
+            
+            state.sets[state.currentSetIndex].questions.push(question);
+            QuestionBuilder.saveToStorage();
+            
+            closeModal('graphModal');
+            renderEditor();
+            updatePreview();
+            
+            QuestionBuilder.showToast('Graf-oppgave lagt til!', 'success');
         }
     </script>
 </body>
