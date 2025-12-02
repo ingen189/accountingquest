@@ -653,6 +653,10 @@
                 return '<option value="' + key + '" ' + (q.type === key ? 'selected' : '') + '>' + types[key].icon + ' ' + types[key].name + '</option>';
             }).join('');
             
+            var difficultyOptions = '<option value="easy" ' + (q.difficulty === 'easy' ? 'selected' : '') + '>🟢 Lett</option>' +
+                '<option value="medium" ' + (q.difficulty === 'medium' || !q.difficulty ? 'selected' : '') + '>🟡 Middels</option>' +
+                '<option value="hard" ' + (q.difficulty === 'hard' ? 'selected' : '') + '>🔴 Vanskelig</option>';
+            
             var typeHtml = '';
             if (q.type === 'excel_grid') typeHtml = renderGridBuilder(q, index);
             else if (q.type === 'mc') typeHtml = renderMCBuilder(q, index);
@@ -673,7 +677,7 @@
                 subqSection = renderSubquestionsSection(q, index);
             }
             
-            return '<div class="form-row"><div class="form-group"><label>Tittel</label><input type="text" value="' + escapeHtml(q.title || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'title\', this.value); updatePreview();"></div><div class="form-group"><label>Type</label><select onchange="QuestionBuilder.updateQuestion(' + index + ', \'type\', this.value); renderEditor(); updatePreview();">' + typeOptions + '</select></div></div><div class="form-group"><label>Spørsmålstekst <small style="color:var(--purple);">Bruk {var:navn:min-max} for randomisering, [___felt:type___] for inline input</small></label><textarea onchange="QuestionBuilder.updateQuestion(' + index + ', \'question\', this.value); updatePreview();">' + escapeHtml(q.question || '') + '</textarea></div>' + infoTablesHtml + typeHtml + subqSection + renderHintsSection(q, index) + renderExplanationSection(q, index);
+            return '<div class="form-row"><div class="form-group"><label>Tittel</label><input type="text" value="' + escapeHtml(q.title || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'title\', this.value); updatePreview();"></div><div class="form-group" style="width:120px;"><label>Type</label><select onchange="QuestionBuilder.updateQuestion(' + index + ', \'type\', this.value); renderEditor(); updatePreview();">' + typeOptions + '</select></div><div class="form-group" style="width:120px;"><label>Vanskelighet</label><select onchange="QuestionBuilder.updateQuestion(' + index + ', \'difficulty\', this.value); updatePreview();">' + difficultyOptions + '</select></div></div><div class="form-group"><label>Spørsmålstekst <small style="color:var(--purple);">Bruk {var:navn:min-max} for randomisering, [___felt:type___] for inline input</small></label><textarea onchange="QuestionBuilder.updateQuestion(' + index + ', \'question\', this.value); updatePreview();">' + escapeHtml(q.question || '') + '</textarea></div>' + infoTablesHtml + typeHtml + subqSection + renderHintsSection(q, index) + renderExplanationSection(q, index);
         }
         
         function renderGridBuilder(q, index) {
