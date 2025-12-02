@@ -934,49 +934,49 @@ var QuestionBuilder = (function() {
         grunnleggende: {
             id: 'grunnleggende',
             name: 'Grunnleggende Regnskap',
-            icon: 'ðŸ“š',
+            icon: '📚',
             topics: ['bokforing', 'bilag', 'kontoplan', 'arsavslutning', 'mva', 'lonn', 'skatt', 'avskrivning', 'varelager', 'kundefordringer']
         },
         corporate_finance: {
             id: 'corporate_finance',
             name: 'Corporate Finance',
-            icon: 'ðŸ“Š',
+            icon: '📊',
             topics: ['npv', 'irr', 'wacc', 'capm', 'obligasjoner', 'aksjer', 'dividender', 'kapitalstruktur', 'portefolje', 'risiko', 'opsjoner', 'valuta', 'hedging']
         },
         hjernetrim: {
             id: 'hjernetrim',
             name: 'Hjernetrim',
-            icon: 'ðŸ§ ',
+            icon: '🧠',
             topics: ['mental_math', 'logikk', 'patterns', 'memory', 'speed']
         },
         matte_okonomer: {
             id: 'matte_okonomer',
             name: 'Matte for Ã˜konomer',
-            icon: 'ðŸ”¢',
+            icon: '🔢',
             topics: ['derivasjon', 'integrasjon', 'optimering', 'matriser', 'sannsynlighet', 'statistikk', 'renter', 'annuiteter']
         },
         revisor: {
             id: 'revisor',
             name: 'Revisjon',
-            icon: 'ðŸ”',
+            icon: '🔍',
             topics: ['intern_kontroll', 'risikovurdering', 'vesentlighet', 'revisjonsbevis', 'rapportering', 'etikk', 'standarder', 'isa']
         },
         skatt_avgift: {
             id: 'skatt_avgift',
             name: 'Skatt & Avgift',
-            icon: 'ðŸ›ï¸',
+            icon: '🏛️',
             topics: ['personskatt', 'selskapsskatt', 'mva', 'arbeidsgiveravgift', 'formuesskatt', 'gevinstbeskatning', 'skattemelding']
         },
         juss: {
             id: 'juss',
             name: 'Forretningsjuss',
-            icon: 'âš–ï¸',
+            icon: '⚖️',
             topics: ['selskapsrett', 'avtalerett', 'arbeidsrett', 'konkurs', 'pant', 'regnskapsloven', 'aksjeloven']
         },
         excel_skills: {
             id: 'excel_skills',
             name: 'Excel Ferdigheter',
-            icon: 'ðŸ“—',
+            icon: '📗',
             topics: ['formler', 'funksjoner', 'pivot', 'makroer', 'datavalidering', 'formatering', 'diagrammer']
         }
     };
@@ -989,56 +989,56 @@ var QuestionBuilder = (function() {
         excel_grid: {
             id: 'excel_grid',
             name: 'Excel Grid',
-            icon: 'ðŸ“Š',
+            icon: '📊',
             description: 'Regneark med formler og beregninger',
             subtypes: ['tkonto', 'parameter', 'cashflow', 'budget', 'custom']
         },
         mc: {
             id: 'mc',
             name: 'Flervalg',
-            icon: 'âœ…',
+            icon: '✅',
             description: 'Velg ett riktig alternativ',
             subtypes: ['single', 'multi']
         },
         drag_drop: {
             id: 'drag_drop',
             name: 'Drag & Drop',
-            icon: 'ðŸŽ¯',
+            icon: '🎯',
             description: 'Dra elementer til riktig kategori',
             subtypes: ['categorize', 'order', 'match', 'formula']
         },
         calculation: {
             id: 'calculation',
             name: 'Beregning',
-            icon: 'ðŸ”¢',
+            icon: '🔢',
             description: 'Skriv inn numerisk svar',
             subtypes: ['single', 'multiple', 'formula']
         },
         inline_input: {
             id: 'inline_input',
             name: 'Inline Input',
-            icon: 'âœï¸',
+            icon: '✏️',
             description: 'Tekstfelt direkte i oppgaveteksten',
             subtypes: ['text', 'number', 'account', 'mixed']
         },
         case_study: {
             id: 'case_study',
             name: 'Case Study',
-            icon: 'ðŸ“',
+            icon: '🔍',
             description: 'Kompleks oppgave med flere dokumenter og delspÃ¸rsmÃ¥l',
             subtypes: ['standard', 'exam', 'practical']
         },
         paragraph: {
             id: 'paragraph',
             name: 'Paragraf/Lov',
-            icon: 'ðŸ“œ',
+            icon: '📜',
             description: 'Finn riktig lovhenvisning',
             subtypes: ['single', 'multiple']
         },
         tf: {
             id: 'tf',
             name: 'Sant/Usant',
-            icon: 'âš¡',
+            icon: '⚡',
             description: 'Velg sant eller usant',
             subtypes: ['single', 'multiple']
         },
@@ -1263,19 +1263,19 @@ var QuestionBuilder = (function() {
     
     var DocumentSystem = {
         types: {
-            bilag: { icon: 'ðŸ§¾', name: 'Bilag' },
-            faktura: { icon: 'ðŸ“„', name: 'Faktura' },
-            balanse: { icon: 'ðŸ“Š', name: 'Balanse' },
-            resultat: { icon: 'ðŸ“ˆ', name: 'Resultatregnskap' },
-            noter: { icon: 'ðŸ“', name: 'Noter' },
-            kontoplan: { icon: 'ðŸ“‹', name: 'Kontoplan' },
-            kontoutskrift: { icon: 'ðŸ¦', name: 'Kontoutskrift' },
-            kontrakt: { icon: 'ðŸ“ƒ', name: 'Kontrakt' },
-            brev: { icon: 'âœ‰ï¸', name: 'Brev' },
-            rapport: { icon: 'ðŸ“‘', name: 'Rapport' },
-            kalkyle: { icon: 'ðŸ”¢', name: 'Kalkyle' },
-            skattemelding: { icon: 'ðŸ›ï¸', name: 'Skattemelding' },
-            arsmelding: { icon: 'ðŸ“š', name: 'Ã…rsmelding' }
+            bilag: { icon: '🧾', name: 'Bilag' },
+            faktura: { icon: '📄', name: 'Faktura' },
+            balanse: { icon: '📊', name: 'Balanse' },
+            resultat: { icon: '📈', name: 'Resultatregnskap' },
+            noter: { icon: '📝', name: 'Noter' },
+            kontoplan: { icon: '📋', name: 'Kontoplan' },
+            kontoutskrift: { icon: '🏦', name: 'Kontoutskrift' },
+            kontrakt: { icon: '📃', name: 'Kontrakt' },
+            brev: { icon: '✉️', name: 'Brev' },
+            rapport: { icon: '📒', name: 'Rapport' },
+            kalkyle: { icon: '🔢', name: 'Kalkyle' },
+            skattemelding: { icon: '🏛️', name: 'Skattemelding' },
+            arsmelding: { icon: '📚', name: 'Årsmelding' }
         },
         
         createDocument: function(type, title, content) {
@@ -1313,8 +1313,8 @@ var QuestionBuilder = (function() {
                                   onchange="QuestionBuilder.updateDocument(' + questionIndex + ', ' + index + ', \'content\', this.value)">' + escapeHtml(doc.content) + '</textarea>\
                     </div>\
                     <div class="document-actions">\
-                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addGridToDocument(' + questionIndex + ', ' + index + ')">ðŸ“Š Legg til tabell</button>\
-                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.uploadImageToDocument(' + questionIndex + ', ' + index + ')">ðŸ–¼ï¸ Last opp bilde</button>\
+                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addGridToDocument(' + questionIndex + ', ' + index + ')">📊 Legg til tabell</button>\
+                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.uploadImageToDocument(' + questionIndex + ', ' + index + ')">🖼️ Last opp bilde</button>\
                     </div>\
                 </div>\
             ';
@@ -1350,10 +1350,10 @@ var QuestionBuilder = (function() {
                     <div class="subquestion-header">\
                         <span class="subq-letter">' + letter + ')</span>\
                         <select class="subq-type" onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'type\', this.value)">\
-                            <option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>ðŸ”¢ Beregning</option>\
-                            <option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>âœ… Flervalg</option>\
-                            <option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>ðŸ“ Tekst</option>\
-                            <option value="excel_grid" ' + (subq.type === 'excel_grid' ? 'selected' : '') + '>ðŸ“Š Grid</option>\
+                            <option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>🔢 Beregning</option>\
+                            <option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>✅ Flervalg</option>\
+                            <option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>📝 Tekst</option>\
+                            <option value="excel_grid" ' + (subq.type === 'excel_grid' ? 'selected' : '') + '>📊 Grid</option>\
                         </select>\
                         <input type="number" class="subq-points" value="' + (subq.points || 5) + '" min="1" max="50"\
                                onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'points\', parseInt(this.value))">\
@@ -1512,7 +1512,7 @@ var QuestionBuilder = (function() {
                     type: 'parameter',
                     columns: ['Parameter', 'Verdi'],
                     rows: [
-                        { cells: [{ value: 'Investering (Iâ‚€)', editable: false }, { value: '-{invest}', editable: false }] },
+                        { cells: [{ value: 'Investering (I₀)', editable: false }, { value: '-{invest}', editable: false }] },
                         { cells: [{ value: 'Ã…rlig CF', editable: false }, { value: '{cf}', editable: false }] },
                         { cells: [{ value: 'Perioder (n)', editable: false }, { value: '{n}', editable: false }] },
                         { cells: [{ value: 'Rente (r)', editable: false }, { value: '{r}%', editable: false }] },
