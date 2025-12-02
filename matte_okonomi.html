@@ -1337,7 +1337,7 @@
     <div class="app-layout">
         <!-- Icon Menu -->
         <div class="icon-menu">
-            <button class="icon-btn active" id="btn-topics" onclick="showSidebarView('topics')" title="Eksamenstemaer">
+            <button class="icon-btn active" id="btn-topics" onclick="showSidebarView('topics')" title="Tema">
                 📚
             </button>
             <button class="icon-btn" id="btn-difficulty" onclick="showSidebarView('difficulty')" title="Vanskelighetsgrad">
@@ -1359,7 +1359,7 @@
         <!-- Sidebar Panel -->
         <div class="sidebar-panel mobile-visible" id="sidebar-panel">
             <div class="sidebar-header">
-                <span class="sidebar-title" id="sidebar-title">Eksamenstemaer</span>
+                <span class="sidebar-title" id="sidebar-title">Tema</span>
             </div>
             <div class="sidebar-content">
                 <!-- Topics View -->
@@ -1426,7 +1426,7 @@
                 <!-- Welcome Screen -->
                 <div class="welcome-screen" id="welcome-screen">
                     <h1>📐 Matte for Økonomer</h1>
-                    <p>Øv på eksamensforberedende matematikk. Temaene er basert på typisk eksamensoppgave-struktur.</p>
+                    <p>Øv på matematikk for økonomer. Velg et tema for å starte.</p>
                     
                     <div class="exam-overview">
                         <h3>📋 Eksamensstruktur (100 poeng)</h3>
@@ -1617,15 +1617,15 @@
             }
         }
         
-        // ==================== EXAM-BASED TOPICS ====================
+        // ==================== TOPIC-BASED CATEGORIES ====================
         var topics = [
-            { id: 'linear', name: 'Oppg 1: Lineære funksjoner', icon: '📏', points: 10, subtopics: ['Stigningstall', 'Skjæringspunkt', 'Likningssett'] },
-            { id: 'derivasjon', name: 'Oppg 2: Derivasjon', icon: '📈', points: 12, subtopics: ['Potensregel', 'Produktregel', 'Kjerneregel'] },
-            { id: 'analyse', name: 'Oppg 3: Økonomisk analyse', icon: '💹', points: 30, subtopics: ['Stasjonære pkt', 'Vendepunkt', 'Elastisitet', 'Profitt'] },
-            { id: 'integrasjon', name: 'Oppg 4: Integrasjon', icon: '∫', points: 8, subtopics: ['Ubestemt', 'Bestemt', 'Areal'] },
-            { id: 'flervariabel', name: 'Oppg 5: To variabler', icon: '🎯', points: 20, subtopics: ['Partiell derivasjon', 'Stasjonære pkt', 'Lagrange'] },
-            { id: 'finans', name: 'Oppg 6: Finansmatematikk', icon: '💰', points: 20, subtopics: ['Annuitet', 'Nåverdi', 'Geometrisk rekke'] },
-            { id: 'mixed', name: 'Blandet eksamensquiz', icon: '🎲', points: 100, subtopics: [] }
+            { id: 'linear', name: 'Lineære funksjoner', icon: '📏', subtopics: ['Stigningstall', 'Skjæringspunkt', 'Likningssett'] },
+            { id: 'derivasjon', name: 'Derivasjon', icon: '📈', subtopics: ['Potensregel', 'Produktregel', 'Kjerneregel'] },
+            { id: 'analyse', name: 'Økonomisk analyse', icon: '💹', subtopics: ['Stasjonære pkt', 'Vendepunkt', 'Elastisitet', 'Profitt'] },
+            { id: 'integrasjon', name: 'Integrasjon', icon: '∫', subtopics: ['Ubestemt', 'Bestemt', 'Areal'] },
+            { id: 'flervariabel', name: 'To variabler', icon: '🎯', subtopics: ['Partiell derivasjon', 'Stasjonære pkt', 'Lagrange'] },
+            { id: 'finans', name: 'Finansmatematikk', icon: '💰', subtopics: ['Annuitet', 'Nåverdi', 'Geometrisk rekke'] },
+            { id: 'mixed', name: 'Blandet quiz', icon: '🎲', subtopics: [] }
         ];
         
         // ==================== COMPREHENSIVE FORMULA LIBRARY ====================
@@ -1902,7 +1902,7 @@
             if (activeView) activeView.classList.add('active');
             
             var titles = {
-                topics: 'Eksamenstemaer',
+                topics: 'Tema',
                 difficulty: 'Vanskelighetsgrad',
                 formulas: 'Formelsamling',
                 data: 'Oppgavedata'
@@ -1919,7 +1919,6 @@
                 html += '<div class="topic-item-info">';
                 html += '<div class="topic-item-name">' + topic.name + '</div>';
                 html += '<div class="topic-item-count" id="count-' + topic.id + '">Laster...</div>';
-                html += '<div class="topic-item-points">📊 ' + topic.points + ' poeng på eksamen</div>';
                 html += '</div>';
                 html += '</div>';
             });

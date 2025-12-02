@@ -953,7 +953,7 @@ var QuestionBuilder = (function() {
             id: 'matte_okonomer',
             name: 'Matte for Økonomer',
             icon: '🔢',
-            topics: ['derivasjon', 'integrasjon', 'optimering', 'matriser', 'sannsynlighet', 'statistikk', 'renter', 'annuiteter']
+            topics: ['linear', 'derivasjon', 'analyse', 'integrasjon', 'flervariabel', 'finans']
         },
         revisor: {
             id: 'revisor',
@@ -979,6 +979,45 @@ var QuestionBuilder = (function() {
             icon: '📗',
             topics: ['formler', 'funksjoner', 'pivot', 'makroer', 'datavalidering', 'formatering', 'diagrammer']
         }
+    };
+    
+    // ============================================
+    // TOPIC LABELS (user-friendly names)
+    // ============================================
+    
+    var TOPIC_LABELS = {
+        // Matte for Økonomer
+        'linear': 'Lineære funksjoner',
+        'derivasjon': 'Derivasjon',
+        'analyse': 'Økonomisk analyse',
+        'integrasjon': 'Integrasjon',
+        'flervariabel': 'To variabler',
+        'finans': 'Finansmatematikk',
+        // Grunnleggende Regnskap
+        'bokforing': 'Bokføring',
+        'bilag': 'Bilag',
+        'kontoplan': 'Kontoplan',
+        'arsavslutning': 'Årsavslutning',
+        'mva': 'MVA',
+        'lonn': 'Lønn',
+        'skatt': 'Skatt',
+        'avskrivning': 'Avskrivning',
+        'varelager': 'Varelager',
+        'kundefordringer': 'Kundefordringer',
+        // Corporate Finance
+        'npv': 'Nåverdi (NPV)',
+        'irr': 'Internrente (IRR)',
+        'wacc': 'WACC',
+        'capm': 'CAPM',
+        'obligasjoner': 'Obligasjoner',
+        'aksjer': 'Aksjer',
+        'dividender': 'Dividender',
+        'kapitalstruktur': 'Kapitalstruktur',
+        'portefolje': 'Portefølje',
+        'risiko': 'Risiko',
+        'opsjoner': 'Opsjoner',
+        'valuta': 'Valuta',
+        'hedging': 'Hedging'
     };
     
     // ============================================
@@ -2735,6 +2774,8 @@ var QuestionBuilder = (function() {
         init: init,
         getState: function() { return state; },
         getModules: function() { return MODULES; },
+        getTopicLabels: function() { return TOPIC_LABELS; },
+        getTopicLabel: function(topic) { return TOPIC_LABELS[topic] || topic; },
         getQuestionTypes: function() { return QUESTION_TYPES; },
         getTemplates: function() { return TEMPLATES; },
         
