@@ -2202,6 +2202,7 @@
             gameState.currentIndex = index;
             gameState.currentQuestion = gameState.questions[index];
             gameState.selectedAnswer = null;
+            gameState.subquestionAnswers = {};
             gameState.answeredCorrectly = false;
             
             var q = gameState.currentQuestion;
@@ -2352,14 +2353,143 @@
                 html += '</div>';
             }
             
-            html += '</div></div></div>';
+            html += '</div></div>';
+            
+            // Render subquestions (a, b, c, d)
+            if (q.subquestions && q.subquestions.length > 0) {
+                html += '<div class="subquestions-section" style="margin-top:20px;">';
+                html += '<div class="subquestions-title" style="font-weight:bold;color:var(--accent);margin-bottom:12px;">📝 Delspørsmål</div>';
+                
+                q.subquestions.forEach(function(subq, si) {
+                    var letter = String.fromCharCode(97 + si);
+                    html += '<div class="subquestion-item" style="background:var(--bg-secondary);border-radius:8px;padding:12px;margin-bottom:10px;">';
+                    html += '<div class="subq-header" style="display:flex;justify-content:space-between;margin-bottom:8px;">';
+                    html += '<span style="font-weight:bold;color:var(--accent);">' + letter + ') ' + (subq.question || '') + '</span>';
+                    html += '<span style="color:var(--text-muted);font-size:0.85em;">' + (subq.points || 0) + ' poeng</span>';
+                    html += '</div>';
+                    
+                    if (subq.type === 'graph_mc' && subq.graphOptions) {
+                        // Graf-flervalg: vis 4 grafer å velge mellom
+                        html += '<div class="graph-mc-options" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+                        subq.graphOptions.forEach(function(opt, oi) {
+                            if (!opt.func) return;
+                            html += '<div class="graph-mc-option" style="background:var(--bg-tertiary);border-radius:8px;padding:10px;cursor:pointer;border:2px solid transparent;" onclick="selectGraphMCOption(' + si + ', ' + oi + ')" data-subq="' + si + '" data-opt="' + oi + '">';
+                            html += '<div style="font-weight:bold;margin-bottom:5px;">' + String.fromCharCode(65 + oi) + ')</div>';
+                            html += '<canvas id="graph-mc-student-' + si + '-' + oi + '" style="width:100%;height:120px;"></canvas>';
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                    } else if (subq.type === 'mc' && subq.options) {
+                        // Vanlig tekst-flervalg
+                        html += '<div class="mc-options">';
+                        subq.options.forEach(function(opt, oi) {
+                            html += '<div class="mc-option" onclick="selectSubqMCOption(' + si + ', ' + oi + ')" data-subq="' + si + '" data-opt="' + oi + '" style="padding:8px 12px;margin:4px 0;background:var(--bg-tertiary);border-radius:6px;cursor:pointer;border:2px solid transparent;">';
+                            html += '<span style="font-weight:bold;margin-right:8px;">' + String.fromCharCode(65 + oi) + ')</span>' + opt;
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                    } else if (subq.type === 'text') {
+                        html += '<textarea id="subq-answer-' + si + '" placeholder="Skriv ditt svar..." style="width:100%;min-height:60px;resize:vertical;"></textarea>';
+                    } else {
+                        // Beregning
+                        html += '<input type="text" id="subq-answer-' + si + '" placeholder="Ditt svar" style="width:100%;">';
+                    }
+                    
+                    html += '</div>';
+                });
+                
+                html += '</div>';
+            }
+            
+            html += '</div>';
             
             container.innerHTML = html;
             
             // Tegn grafen automatisk
             setTimeout(function() {
                 renderInlineGraph(q);
+                
+                // Tegn graph_mc alternativer
+                if (q.subquestions) {
+                    q.subquestions.forEach(function(subq, si) {
+                        if (subq.type === 'graph_mc' && subq.graphOptions) {
+                            renderGraphMCOptions(q, subq, si);
+                        }
+                    });
+                }
             }, 100);
+        }
+        
+        function renderGraphMCOptions(q, subq, subqIndex) {
+            var varName = q.variableLabel || 'x';
+            var settings = q.graphSettings || {};
+            var xMin = settings.xMin !== undefined ? settings.xMin : -10;
+            var xMax = settings.xMax !== undefined ? settings.xMax : 30;
+            var yMin = settings.yMin !== undefined ? settings.yMin : -100;
+            var yMax = settings.yMax !== undefined ? settings.yMax : 500;
+            
+            subq.graphOptions.forEach(function(opt, oi) {
+                if (!opt.func) return;
+                
+                var canvas = document.getElementById('graph-mc-student-' + subqIndex + '-' + oi);
+                if (!canvas) return;
+                
+                try {
+                    var compiled = math.compile(opt.func);
+                    var data = generateGraphDataWithVar(compiled, varName, xMin, xMax);
+                    
+                    new Chart(canvas, {
+                        type: 'line',
+                        data: {
+                            datasets: [{
+                                data: data,
+                                borderColor: '#3b82f6',
+                                borderWidth: 2,
+                                fill: false,
+                                pointRadius: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { type: 'linear', position: 'center', min: xMin, max: xMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { font: { size: 8 }, color: '#9ca3af' } },
+                                y: { type: 'linear', position: 'center', min: yMin, max: yMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { font: { size: 8 }, color: '#9ca3af' } }
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error('Graf-rendering feilet:', e);
+                }
+            });
+        }
+        
+        function selectGraphMCOption(subqIndex, optIndex) {
+            // Fjern valgt fra alle i denne subquestion
+            document.querySelectorAll('.graph-mc-option[data-subq="' + subqIndex + '"]').forEach(function(el) {
+                el.style.borderColor = 'transparent';
+            });
+            // Marker valgt
+            var selected = document.querySelector('.graph-mc-option[data-subq="' + subqIndex + '"][data-opt="' + optIndex + '"]');
+            if (selected) {
+                selected.style.borderColor = 'var(--accent)';
+            }
+            // Lagre valg
+            if (!gameState.subquestionAnswers) gameState.subquestionAnswers = {};
+            gameState.subquestionAnswers[subqIndex] = optIndex;
+        }
+        
+        function selectSubqMCOption(subqIndex, optIndex) {
+            document.querySelectorAll('.mc-option[data-subq="' + subqIndex + '"]').forEach(function(el) {
+                el.style.borderColor = 'transparent';
+            });
+            var selected = document.querySelector('.mc-option[data-subq="' + subqIndex + '"][data-opt="' + optIndex + '"]');
+            if (selected) {
+                selected.style.borderColor = 'var(--accent)';
+            }
+            if (!gameState.subquestionAnswers) gameState.subquestionAnswers = {};
+            gameState.subquestionAnswers[subqIndex] = optIndex;
         }
         
         function renderInlineGraph(q) {
@@ -2702,6 +2832,56 @@
                     allCorrect = false;
                 }
             });
+            
+            // Sjekk subquestions
+            if (q.subquestions && q.subquestions.length > 0) {
+                q.subquestions.forEach(function(subq, si) {
+                    fieldsChecked++;
+                    var isCorrect = false;
+                    
+                    if (subq.type === 'graph_mc' || subq.type === 'mc') {
+                        // Flervalg - sjekk om riktig alternativ er valgt
+                        var userAnswer = gameState.subquestionAnswers ? gameState.subquestionAnswers[si] : undefined;
+                        var correctIndex = subq.correctIndex !== undefined ? subq.correctIndex : 0;
+                        isCorrect = (userAnswer === correctIndex);
+                        
+                        // Marker visuelt
+                        var optClass = subq.type === 'graph_mc' ? '.graph-mc-option' : '.mc-option';
+                        document.querySelectorAll(optClass + '[data-subq="' + si + '"]').forEach(function(el, oi) {
+                            if (oi === correctIndex) {
+                                el.style.borderColor = '#4ade80'; // Grønn for riktig
+                            } else if (oi === userAnswer && userAnswer !== correctIndex) {
+                                el.style.borderColor = '#ef4444'; // Rød for feil valg
+                            }
+                        });
+                    } else if (subq.type === 'text') {
+                        // Tekst - sjekk om stikkord matcher (hvis fasit er satt)
+                        var textInput = document.getElementById('subq-answer-' + si);
+                        if (textInput && subq.solution) {
+                            var userText = textInput.value.trim().toLowerCase();
+                            var expectedText = subq.solution.toLowerCase();
+                            isCorrect = userText.includes(expectedText) || expectedText.includes(userText);
+                            textInput.classList.toggle('correct', isCorrect);
+                            textInput.classList.toggle('incorrect', !isCorrect);
+                        } else {
+                            isCorrect = true; // Ingen fasit = godkjent
+                        }
+                    } else {
+                        // Beregning
+                        var calcInput = document.getElementById('subq-answer-' + si);
+                        if (calcInput && subq.solution !== undefined) {
+                            var userVal = parseFloat(calcInput.value.replace(',', '.'));
+                            var expectedVal = substituteAndEvaluate(subq.solution, data);
+                            var subTolerance = subq.tolerance || 0.5;
+                            isCorrect = !isNaN(userVal) && Math.abs(userVal - expectedVal) <= subTolerance;
+                            calcInput.classList.toggle('correct', isCorrect);
+                            calcInput.classList.toggle('incorrect', !isCorrect);
+                        }
+                    }
+                    
+                    if (!isCorrect) allCorrect = false;
+                });
+            }
             
             return fieldsChecked > 0 ? allCorrect : false;
         }

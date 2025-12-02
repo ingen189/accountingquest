@@ -977,23 +977,86 @@
         function renderSubquestionsSection(q, index) {
             var subqHtml = (q.subquestions || []).map(function(subq, si) {
                 var letter = String.fromCharCode(97 + si);
+                
+                // Bygg løsnings-seksjon basert på type
+                var solutionHtml = '';
+                if (subq.type === 'mc') {
+                    // Flervalg - vis alternativer
+                    var options = subq.options || ['', '', '', ''];
+                    var correctIndex = subq.correctIndex !== undefined ? subq.correctIndex : 0;
+                    var optionsHtml = options.map(function(opt, oi) {
+                        return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
+                            '<input type="radio" name="mc-' + index + '-' + si + '" ' + (oi === correctIndex ? 'checked' : '') + 
+                            ' onchange="setSubqCorrectOption(' + index + ', ' + si + ', ' + oi + ')" style="width:18px;height:18px;accent-color:var(--accent);">' +
+                            '<span style="color:var(--text-muted);font-weight:bold;">' + String.fromCharCode(65 + oi) + ')</span>' +
+                            '<input type="text" value="' + escapeHtml(opt) + '" placeholder="Alternativ ' + String.fromCharCode(65 + oi) + '" ' +
+                            'onchange="updateSubqOption(' + index + ', ' + si + ', ' + oi + ', this.value)" style="flex:1;">' +
+                            (options.length > 2 ? '<button class="btn btn-sm btn-danger" onclick="deleteSubqOption(' + index + ', ' + si + ', ' + oi + ')">×</button>' : '') +
+                        '</div>';
+                    }).join('');
+                    
+                    solutionHtml = '<div style="margin-top:10px;">' +
+                        '<label style="font-size:0.8em;color:var(--text-muted);display:block;margin-bottom:6px;">Alternativer (velg riktig svar):</label>' +
+                        optionsHtml +
+                        '<button class="btn btn-sm btn-secondary" onclick="addSubqOption(' + index + ', ' + si + ')" style="margin-top:6px;">+ Alternativ</button>' +
+                    '</div>';
+                } else if (subq.type === 'graph_mc') {
+                    // Graf-flervalg - 4 funksjoner som vises som grafer
+                    var graphOptions = subq.graphOptions || [
+                        { func: '', label: 'A' },
+                        { func: '', label: 'B' },
+                        { func: '', label: 'C' },
+                        { func: '', label: 'D' }
+                    ];
+                    var correctIndex = subq.correctIndex !== undefined ? subq.correctIndex : 0;
+                    var varName = q.variableLabel || 'x';
+                    
+                    var graphInputsHtml = graphOptions.map(function(opt, oi) {
+                        return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
+                            '<input type="radio" name="graphmc-' + index + '-' + si + '" ' + (oi === correctIndex ? 'checked' : '') + 
+                            ' onchange="setSubqCorrectOption(' + index + ', ' + si + ', ' + oi + ')" style="width:18px;height:18px;accent-color:var(--accent);">' +
+                            '<span style="color:var(--text-muted);font-weight:bold;width:25px;">' + String.fromCharCode(65 + oi) + ')</span>' +
+                            '<input type="text" value="' + escapeHtml(opt.func || '') + '" placeholder="f(' + varName + ') = ..." ' +
+                            'onchange="updateSubqGraphOption(' + index + ', ' + si + ', ' + oi + ', this.value)" style="flex:1;">' +
+                        '</div>';
+                    }).join('');
+                    
+                    solutionHtml = '<div style="margin-top:10px;">' +
+                        '<label style="font-size:0.8em;color:var(--text-muted);display:block;margin-bottom:6px;">📈 Funksjoner (velg riktig graf):</label>' +
+                        '<p style="font-size:0.75em;color:var(--text-muted);margin-bottom:8px;">Bruk * for multiplikasjon. Variabel: ' + varName + '</p>' +
+                        graphInputsHtml +
+                        '<button class="btn btn-sm btn-secondary" onclick="previewGraphMC(' + index + ', ' + si + ')" style="margin-top:8px;">👁 Forhåndsvis grafer</button>' +
+                        '<div id="graph-mc-preview-' + index + '-' + si + '" style="display:none;margin-top:12px;"></div>' +
+                    '</div>';
+                } else if (subq.type === 'text') {
+                    // Tekst - valgfritt fasit
+                    solutionHtml = '<div style="margin-top:8px;">' +
+                        '<label style="font-size:0.8em;color:var(--text-muted);">Stikkord/fasit (valgfritt)</label>' +
+                        '<input type="text" value="' + escapeHtml(subq.solution || '') + '" placeholder="Forventet svar eller stikkord" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'solution\', this.value)">' +
+                    '</div>';
+                } else {
+                    // Beregning - numerisk fasit med toleranse
+                    solutionHtml = '<div style="display:flex;gap:10px;margin-top:8px;">' +
+                        '<div style="flex:1;"><label style="font-size:0.8em;color:var(--text-muted);">Fasit</label><input type="text" value="' + escapeHtml(subq.solution || '') + '" placeholder="Riktig svar" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'solution\', this.value)"></div>' +
+                        '<div style="width:80px;"><label style="font-size:0.8em;color:var(--text-muted);">Toleranse ±</label><input type="number" step="0.1" value="' + (subq.tolerance || 0.5) + '" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'tolerance\', parseFloat(this.value))"></div>' +
+                    '</div>';
+                }
+                
                 return '<div class="subquestion-editor" style="background:var(--bg-tertiary);border-radius:8px;padding:12px;margin-bottom:10px;">' +
                     '<div class="subquestion-header" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
                         '<span class="subq-letter" style="font-weight:bold;color:var(--accent);font-size:1.1em;">' + letter + ')</span>' +
-                        '<select class="subq-type" style="flex:1;" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'type\', this.value)">' +
+                        '<select class="subq-type" style="flex:1;" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'type\', this.value); renderEditor();">' +
                             '<option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>🔢 Beregning</option>' +
                             '<option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>📝 Tekst</option>' +
                             '<option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>✅ Flervalg</option>' +
+                            '<option value="graph_mc" ' + (subq.type === 'graph_mc' ? 'selected' : '') + '>📈 Velg riktig graf</option>' +
                         '</select>' +
                         '<input type="number" class="subq-points" value="' + (subq.points || 2.5) + '" step="0.5" min="0" style="width:60px;" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'points\', parseFloat(this.value))">' +
                         '<span style="color:var(--text-muted);font-size:0.85em;">poeng</span>' +
                         '<button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteSubquestion(' + index + ', ' + si + '); renderEditor();">×</button>' +
                     '</div>' +
                     '<textarea placeholder="Skriv delspørsmål ' + letter + ')..." style="min-height:60px;" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'question\', this.value)">' + escapeHtml(subq.question || '') + '</textarea>' +
-                    '<div style="display:flex;gap:10px;margin-top:8px;">' +
-                        '<div style="flex:1;"><label style="font-size:0.8em;color:var(--text-muted);">Fasit</label><input type="text" value="' + escapeHtml(subq.solution || '') + '" placeholder="Riktig svar" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'solution\', this.value)"></div>' +
-                        '<div style="width:80px;"><label style="font-size:0.8em;color:var(--text-muted);">Toleranse ±</label><input type="number" step="0.1" value="' + (subq.tolerance || 0.5) + '" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'tolerance\', parseFloat(this.value))"></div>' +
-                    '</div>' +
+                    solutionHtml +
                 '</div>';
             }).join('');
             
@@ -1002,6 +1065,148 @@
                    '<button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addSubquestion(' + index + '); renderEditor();">+ Legg til delspørsmål</button>' +
                    '<p style="font-size:0.75em;color:var(--text-muted);margin-top:8px;">Bruk delspørsmål for oppgaver med a), b), c), d) deler. Hvert delspørsmål kan ha egne poeng og fasit.</p>' +
                    '</div>';
+        }
+        
+        // MC hjelpefunksjoner for subquestions
+        function updateSubqOption(qIndex, subqIndex, optIndex, value) {
+            var s = QuestionBuilder.getState();
+            var subq = s.sets[s.currentSetIndex].questions[qIndex].subquestions[subqIndex];
+            if (!subq.options) subq.options = ['', '', '', ''];
+            subq.options[optIndex] = value;
+            QuestionBuilder.saveToStorage();
+        }
+        
+        function setSubqCorrectOption(qIndex, subqIndex, optIndex) {
+            var s = QuestionBuilder.getState();
+            var subq = s.sets[s.currentSetIndex].questions[qIndex].subquestions[subqIndex];
+            subq.correctIndex = optIndex;
+            QuestionBuilder.saveToStorage();
+        }
+        
+        function addSubqOption(qIndex, subqIndex) {
+            var s = QuestionBuilder.getState();
+            var subq = s.sets[s.currentSetIndex].questions[qIndex].subquestions[subqIndex];
+            if (!subq.options) subq.options = ['', '', '', ''];
+            if (subq.options.length < 8) {
+                subq.options.push('');
+                QuestionBuilder.saveToStorage();
+                renderEditor();
+            } else {
+                QuestionBuilder.showToast('Maks 8 alternativer', 'warning');
+            }
+        }
+        
+        function deleteSubqOption(qIndex, subqIndex, optIndex) {
+            var s = QuestionBuilder.getState();
+            var subq = s.sets[s.currentSetIndex].questions[qIndex].subquestions[subqIndex];
+            if (subq.options && subq.options.length > 2) {
+                subq.options.splice(optIndex, 1);
+                if (subq.correctIndex >= optIndex && subq.correctIndex > 0) {
+                    subq.correctIndex--;
+                }
+                QuestionBuilder.saveToStorage();
+                renderEditor();
+            }
+        }
+        
+        // Graph MC hjelpefunksjoner
+        function updateSubqGraphOption(qIndex, subqIndex, optIndex, value) {
+            var s = QuestionBuilder.getState();
+            var subq = s.sets[s.currentSetIndex].questions[qIndex].subquestions[subqIndex];
+            if (!subq.graphOptions) {
+                subq.graphOptions = [
+                    { func: '', label: 'A' },
+                    { func: '', label: 'B' },
+                    { func: '', label: 'C' },
+                    { func: '', label: 'D' }
+                ];
+            }
+            subq.graphOptions[optIndex].func = value;
+            QuestionBuilder.saveToStorage();
+        }
+        
+        function previewGraphMC(qIndex, subqIndex) {
+            var s = QuestionBuilder.getState();
+            var q = s.sets[s.currentSetIndex].questions[qIndex];
+            var subq = q.subquestions[subqIndex];
+            var container = document.getElementById('graph-mc-preview-' + qIndex + '-' + subqIndex);
+            
+            if (!subq.graphOptions || !subq.graphOptions.some(function(o) { return o.func; })) {
+                alert('Fyll inn minst én funksjon først!');
+                return;
+            }
+            
+            var varName = q.variableLabel || 'x';
+            var settings = q.graphSettings || {};
+            var xMin = settings.xMin !== undefined ? settings.xMin : -10;
+            var xMax = settings.xMax !== undefined ? settings.xMax : 30;
+            var yMin = settings.yMin !== undefined ? settings.yMin : -100;
+            var yMax = settings.yMax !== undefined ? settings.yMax : 500;
+            
+            // Vis container
+            container.style.display = 'block';
+            container.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+                subq.graphOptions.map(function(opt, i) {
+                    return '<div style="background:var(--bg-primary);border-radius:8px;padding:10px;' + 
+                           (i === subq.correctIndex ? 'border:2px solid var(--accent);' : 'border:1px solid var(--border);') + '">' +
+                        '<div style="font-weight:bold;margin-bottom:5px;color:' + (i === subq.correctIndex ? 'var(--accent)' : 'var(--text-secondary)') + ';">' + 
+                        String.fromCharCode(65 + i) + ') ' + (opt.func || '(tom)') + '</div>' +
+                        '<canvas id="graph-mc-canvas-' + qIndex + '-' + subqIndex + '-' + i + '" style="width:100%;height:150px;"></canvas>' +
+                    '</div>';
+                }).join('') +
+            '</div>';
+            
+            // Tegn hver graf
+            setTimeout(function() {
+                subq.graphOptions.forEach(function(opt, i) {
+                    if (!opt.func) return;
+                    
+                    var canvas = document.getElementById('graph-mc-canvas-' + qIndex + '-' + subqIndex + '-' + i);
+                    if (!canvas) return;
+                    
+                    try {
+                        var compiled = math.compile(opt.func);
+                        var data = [];
+                        var step = (xMax - xMin) / 100;
+                        
+                        for (var val = xMin; val <= xMax; val += step) {
+                            try {
+                                var scope = {};
+                                scope[varName] = val;
+                                var y = compiled.evaluate(scope);
+                                if (isFinite(y) && Math.abs(y) < 100000) {
+                                    data.push({ x: val, y: y });
+                                }
+                            } catch (e) {}
+                        }
+                        
+                        new Chart(canvas, {
+                            type: 'line',
+                            data: {
+                                datasets: [{
+                                    label: String.fromCharCode(65 + i),
+                                    data: data,
+                                    borderColor: i === subq.correctIndex ? '#4ade80' : '#3b82f6',
+                                    borderWidth: 2,
+                                    fill: false,
+                                    pointRadius: 0
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    x: { type: 'linear', position: 'center', min: xMin, max: xMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af', font: { size: 9 } } },
+                                    y: { type: 'linear', position: 'center', min: yMin, max: yMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af', font: { size: 9 } } }
+                                }
+                            }
+                        });
+                    } catch (e) {
+                        canvas.parentElement.innerHTML += '<p style="color:var(--error);font-size:0.8em;">Feil: ' + e.message + '</p>';
+                    }
+                });
+            }, 100);
         }
         
         function addMCOption(qIndex) { var s = QuestionBuilder.getState(); var q = s.sets[s.currentSetIndex].questions[qIndex]; if (!q.options) q.options = []; q.options.push({ text: '', correct: false }); QuestionBuilder.saveToStorage(); renderEditor(); }
