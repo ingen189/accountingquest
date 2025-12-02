@@ -624,13 +624,71 @@
             border-radius: var(--radius-md);
             padding: var(--space-md);
             margin-bottom: var(--space-md);
+            max-width: 100%;
         }
         
         .graph-inline-canvas {
             width: 100%;
             height: 300px;
+            max-height: 300px;
             background: var(--bg-primary);
             border-radius: var(--radius-sm);
+        }
+        
+        /* Graph MC for subquestions */
+        .graph-mc-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            max-width: 100%;
+        }
+        
+        .graph-mc-option {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        
+        .graph-mc-option:hover {
+            border-color: var(--border-color);
+        }
+        
+        .graph-mc-canvas-wrapper {
+            width: 100%;
+            height: 120px;
+            overflow: hidden;
+        }
+        
+        .graph-mc-canvas-wrapper canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 120px;
+        }
+        
+        .subquestions-section {
+            margin-top: 20px;
+        }
+        
+        .subquestion-item {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .subquestion-item input.correct,
+        .subquestion-item textarea.correct {
+            border-color: #4ade80 !important;
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .subquestion-item input.incorrect,
+        .subquestion-item textarea.incorrect {
+            border-color: #ef4444 !important;
+            background: rgba(239, 68, 68, 0.1);
         }
         
         /* Options Container */
@@ -2357,12 +2415,12 @@
             
             // Render subquestions (a, b, c, d)
             if (q.subquestions && q.subquestions.length > 0) {
-                html += '<div class="subquestions-section" style="margin-top:20px;">';
+                html += '<div class="subquestions-section">';
                 html += '<div class="subquestions-title" style="font-weight:bold;color:var(--accent);margin-bottom:12px;">📝 Delspørsmål</div>';
                 
                 q.subquestions.forEach(function(subq, si) {
                     var letter = String.fromCharCode(97 + si);
-                    html += '<div class="subquestion-item" style="background:var(--bg-secondary);border-radius:8px;padding:12px;margin-bottom:10px;">';
+                    html += '<div class="subquestion-item">';
                     html += '<div class="subq-header" style="display:flex;justify-content:space-between;margin-bottom:8px;">';
                     html += '<span style="font-weight:bold;color:var(--accent);">' + letter + ') ' + (subq.question || '') + '</span>';
                     html += '<span style="color:var(--text-muted);font-size:0.85em;">' + (subq.points || 0) + ' poeng</span>';
@@ -2370,12 +2428,12 @@
                     
                     if (subq.type === 'graph_mc' && subq.graphOptions) {
                         // Graf-flervalg: vis 4 grafer å velge mellom
-                        html += '<div class="graph-mc-options" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+                        html += '<div class="graph-mc-options">';
                         subq.graphOptions.forEach(function(opt, oi) {
                             if (!opt.func) return;
-                            html += '<div class="graph-mc-option" style="background:var(--bg-tertiary);border-radius:8px;padding:10px;cursor:pointer;border:2px solid transparent;" onclick="selectGraphMCOption(' + si + ', ' + oi + ')" data-subq="' + si + '" data-opt="' + oi + '">';
+                            html += '<div class="graph-mc-option" onclick="selectGraphMCOption(' + si + ', ' + oi + ')" data-subq="' + si + '" data-opt="' + oi + '">';
                             html += '<div style="font-weight:bold;margin-bottom:5px;">' + String.fromCharCode(65 + oi) + ')</div>';
-                            html += '<canvas id="graph-mc-student-' + si + '-' + oi + '" style="width:100%;height:120px;"></canvas>';
+                            html += '<div class="graph-mc-canvas-wrapper"><canvas id="graph-mc-student-' + si + '-' + oi + '" width="200" height="120"></canvas></div>';
                             html += '</div>';
                         });
                         html += '</div>';
@@ -2450,7 +2508,7 @@
                             }]
                         },
                         options: {
-                            responsive: true,
+                            responsive: false,
                             maintainAspectRatio: false,
                             plugins: { legend: { display: false } },
                             scales: {

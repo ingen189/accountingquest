@@ -758,7 +758,7 @@
                     '<button class="btn btn-secondary" onclick="previewGraph(' + index + ')">👁 Forhåndsvis graf</button>' +
                 '</div>' +
                 '<div id="graph-preview-container-' + index + '" style="margin-top:12px;display:none;">' +
-                    '<canvas id="graph-preview-' + index + '" style="width:100%;height:250px;background:var(--bg-primary);border-radius:8px;"></canvas>' +
+                    '<div style="overflow:hidden;height:250px;background:var(--bg-primary);border-radius:8px;"><canvas id="graph-preview-' + index + '" width="500" height="250"></canvas></div>' +
                 '</div>' +
             '</div>';
         }
@@ -824,7 +824,7 @@
                         }]
                     },
                     options: {
-                        responsive: true,
+                        responsive: false,
                         maintainAspectRatio: false,
                         scales: {
                             x: { type: 'linear', position: 'center', min: xMin, max: xMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } },
@@ -1145,13 +1145,13 @@
             
             // Vis container
             container.style.display = 'block';
-            container.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+            container.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:600px;">' +
                 subq.graphOptions.map(function(opt, i) {
                     return '<div style="background:var(--bg-primary);border-radius:8px;padding:10px;' + 
                            (i === subq.correctIndex ? 'border:2px solid var(--accent);' : 'border:1px solid var(--border);') + '">' +
                         '<div style="font-weight:bold;margin-bottom:5px;color:' + (i === subq.correctIndex ? 'var(--accent)' : 'var(--text-secondary)') + ';">' + 
                         String.fromCharCode(65 + i) + ') ' + (opt.func || '(tom)') + '</div>' +
-                        '<canvas id="graph-mc-canvas-' + qIndex + '-' + subqIndex + '-' + i + '" style="width:100%;height:150px;"></canvas>' +
+                        '<div style="overflow:hidden;height:150px;"><canvas id="graph-mc-canvas-' + qIndex + '-' + subqIndex + '-' + i + '" width="250" height="150"></canvas></div>' +
                     '</div>';
                 }).join('') +
             '</div>';
@@ -1193,7 +1193,7 @@
                                 }]
                             },
                             options: {
-                                responsive: true,
+                                responsive: false,
                                 maintainAspectRatio: false,
                                 plugins: { legend: { display: false } },
                                 scales: {
