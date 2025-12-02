@@ -114,179 +114,6 @@ var QuestionBuilder = (function() {
     };
     
     // ============================================
-    // GRAPH SYSTEM (Funksjonsgrafer)
-    // ============================================
-    
-    var GraphSystem = {
-        /**
-         * Standard farger for grafer
-         */
-        colors: {
-            primary: '#4ade80',      // Grønn - hovedfunksjon
-            secondary: '#3b82f6',    // Blå - derivert
-            tertiary: '#f59e0b',     // Oransje - integral
-            danger: '#ef4444',       // Rød - kostnad
-            purple: '#8b5cf6',       // Lilla - alternativ
-            grid: 'rgba(255,255,255,0.1)',
-            axis: 'rgba(255,255,255,0.3)'
-        },
-        
-        /**
-         * Standard graf-innstillinger
-         */
-        defaultSettings: {
-            xMin: -10,
-            xMax: 10,
-            yMin: -10,
-            yMax: 10,
-            step: 0.1,
-            showGrid: true,
-            showAxis: true,
-            showDerivative: false,
-            showZeros: false,
-            showExtrema: false,
-            showIntersection: false,
-            showElasticity: false,
-            interactive: true
-        },
-        
-        /**
-         * Lag graf-konfigurasjon for en spørsmål
-         */
-        createGraphConfig: function(functionExpr, label, settings) {
-            return {
-                function: functionExpr,
-                functionLabel: label || 'f(x)',
-                variableLabel: settings?.variableLabel || 'x',
-                settings: Object.assign({}, this.defaultSettings, settings || {}),
-                color: settings?.color || this.colors.primary
-            };
-        },
-        
-        /**
-         * Lag multi-funksjon konfigurasjon
-         */
-        createMultiFunctionConfig: function(functions, settings) {
-            var self = this;
-            var colorKeys = ['primary', 'danger', 'secondary', 'tertiary', 'purple'];
-            
-            return {
-                functions: functions.map(function(f, i) {
-                    return {
-                        expr: f.expr,
-                        label: f.label || 'f' + (i + 1) + '(x)',
-                        color: f.color || self.colors[colorKeys[i % colorKeys.length]],
-                        dashed: f.dashed || false
-                    };
-                }),
-                settings: Object.assign({}, this.defaultSettings, settings || {})
-            };
-        },
-        
-        /**
-         * Vanlige funksjonstyper for økonomi
-         */
-        economicFunctions: {
-            revenue: {
-                name: 'Inntektsfunksjon',
-                template: 'a*x^2 + b*x',
-                description: 'I(x) = ax² + bx (typisk a < 0)',
-                defaultVars: { a: -2, b: 100 }
-            },
-            cost: {
-                name: 'Kostnadsfunksjon',
-                template: 'a*x^3 - b*x^2 + c*x + d',
-                description: 'K(x) = ax³ - bx² + cx + d',
-                defaultVars: { a: 0.01, b: 2, c: 100, d: 5000 }
-            },
-            linear_cost: {
-                name: 'Lineær kostnad',
-                template: 'a + b*x',
-                description: 'K(x) = a + bx (faste + variable)',
-                defaultVars: { a: 5000, b: 50 }
-            },
-            demand: {
-                name: 'Etterspørselsfunksjon',
-                template: 'a - b*x',
-                description: 'p(x) = a - bx eller x(p) = c - dp',
-                defaultVars: { a: 100, b: 2 }
-            },
-            supply: {
-                name: 'Tilbudsfunksjon',
-                template: 'a + b*x',
-                description: 'p(x) = a + bx',
-                defaultVars: { a: 10, b: 1 }
-            },
-            profit: {
-                name: 'Fortjenestefunksjon',
-                template: '-a*x^2 + b*x - c',
-                description: 'F(x) = I(x) - K(x)',
-                defaultVars: { a: 2, b: 80, c: 200 }
-            },
-            marginal: {
-                name: 'Grensefunksjon',
-                template: '3*a*x^2 - 2*b*x + c',
-                description: 'K\'(x), I\'(x), etc.',
-                defaultVars: { a: 0.01, b: 2, c: 100 }
-            }
-        },
-        
-        /**
-         * Generer standard analysepunkter
-         */
-        getAnalysisPoints: function(type) {
-            var points = {
-                zeros: { name: 'Nullpunkter', description: 'Hvor f(x) = 0' },
-                extrema: { name: 'Ekstremalpunkter', description: 'Topp- og bunnpunkter' },
-                inflection: { name: 'Vendepunkter', description: 'Hvor f\'\'(x) = 0' },
-                intercepts: { name: 'Akseknisningspunkter', description: 'Hvor grafen krysser aksene' },
-                derivative: { name: 'Derivert', description: 'f\'(x) - stigningstall' },
-                integral: { name: 'Integral', description: 'Areal under kurven' },
-                intersection: { name: 'Skjæringspunkt', description: 'Hvor to funksjoner møtes' },
-                elasticity: { name: 'Elastisitet', description: 'Prosentvis endring' }
-            };
-            
-            return type ? points[type] : points;
-        },
-        
-        /**
-         * Spørsmålstyper for graf-oppgaver
-         */
-        questionSubtypes: {
-            analyze: {
-                name: 'Full analyse',
-                description: 'Finn nullpunkter, ekstremalpunkter, definisjonsmengde',
-                requiredAnswers: ['zeros', 'extrema', 'domain']
-            },
-            derivative: {
-                name: 'Derivasjon',
-                description: 'Finn derivert og tolkning',
-                requiredAnswers: ['derivative', 'derivativeValue']
-            },
-            extrema: {
-                name: 'Ekstremalpunkter',
-                description: 'Finn topp- og bunnpunkter',
-                requiredAnswers: ['extremaX', 'extremaY', 'extremaType']
-            },
-            zeros: {
-                name: 'Nullpunkter',
-                description: 'Finn hvor funksjonen er null',
-                requiredAnswers: ['zeros']
-            },
-            sketch: {
-                name: 'Skisser graf',
-                description: 'Tegn grafen basert på egenskaper',
-                requiredAnswers: ['sketch']
-            },
-            intersection: {
-                name: 'Skjæringspunkt',
-                description: 'Finn hvor funksjoner krysser',
-                requiredAnswers: ['intersectionX', 'intersectionY']
-            }
-        }
-    };
-    
-    // ============================================
     // TIMER SYSTEM
     // ============================================
     
@@ -953,7 +780,7 @@ var QuestionBuilder = (function() {
             id: 'matte_okonomer',
             name: 'Matte for Økonomer',
             icon: '🔢',
-            topics: ['linear', 'derivasjon', 'analyse', 'integrasjon', 'flervariabel', 'finans']
+            topics: ['derivasjon', 'integrasjon', 'optimering', 'matriser', 'sannsynlighet', 'statistikk', 'renter', 'annuiteter']
         },
         revisor: {
             id: 'revisor',
@@ -979,45 +806,6 @@ var QuestionBuilder = (function() {
             icon: '📗',
             topics: ['formler', 'funksjoner', 'pivot', 'makroer', 'datavalidering', 'formatering', 'diagrammer']
         }
-    };
-    
-    // ============================================
-    // TOPIC LABELS (user-friendly names)
-    // ============================================
-    
-    var TOPIC_LABELS = {
-        // Matte for Økonomer
-        'linear': 'Lineære funksjoner',
-        'derivasjon': 'Derivasjon',
-        'analyse': 'Økonomisk analyse',
-        'integrasjon': 'Integrasjon',
-        'flervariabel': 'To variabler',
-        'finans': 'Finansmatematikk',
-        // Grunnleggende Regnskap
-        'bokforing': 'Bokføring',
-        'bilag': 'Bilag',
-        'kontoplan': 'Kontoplan',
-        'arsavslutning': 'Årsavslutning',
-        'mva': 'MVA',
-        'lonn': 'Lønn',
-        'skatt': 'Skatt',
-        'avskrivning': 'Avskrivning',
-        'varelager': 'Varelager',
-        'kundefordringer': 'Kundefordringer',
-        // Corporate Finance
-        'npv': 'Nåverdi (NPV)',
-        'irr': 'Internrente (IRR)',
-        'wacc': 'WACC',
-        'capm': 'CAPM',
-        'obligasjoner': 'Obligasjoner',
-        'aksjer': 'Aksjer',
-        'dividender': 'Dividender',
-        'kapitalstruktur': 'Kapitalstruktur',
-        'portefolje': 'Portefølje',
-        'risiko': 'Risiko',
-        'opsjoner': 'Opsjoner',
-        'valuta': 'Valuta',
-        'hedging': 'Hedging'
     };
     
     // ============================================
@@ -1063,7 +851,7 @@ var QuestionBuilder = (function() {
         case_study: {
             id: 'case_study',
             name: 'Case Study',
-            icon: '🔍',
+            icon: '📁',
             description: 'Kompleks oppgave med flere dokumenter og delspørsmål',
             subtypes: ['standard', 'exam', 'practical']
         },
@@ -1077,16 +865,9 @@ var QuestionBuilder = (function() {
         tf: {
             id: 'tf',
             name: 'Sant/Usant',
-            icon: '⚡',
+            icon: 'âš¡',
             description: 'Velg sant eller usant',
             subtypes: ['single', 'multiple']
-        },
-        function_graph: {
-            id: 'function_graph',
-            name: 'Graf/Funksjon',
-            icon: '📈',
-            description: 'Analyser funksjoner med interaktiv graf',
-            subtypes: ['analyze', 'derivative', 'integral', 'extrema', 'zeros', 'sketch']
         }
     };
     
@@ -1311,7 +1092,7 @@ var QuestionBuilder = (function() {
             kontoutskrift: { icon: '🏦', name: 'Kontoutskrift' },
             kontrakt: { icon: '📃', name: 'Kontrakt' },
             brev: { icon: '✉️', name: 'Brev' },
-            rapport: { icon: '📒', name: 'Rapport' },
+            rapport: { icon: '📑', name: 'Rapport' },
             kalkyle: { icon: '🔢', name: 'Kalkyle' },
             skattemelding: { icon: '🏛️', name: 'Skattemelding' },
             arsmelding: { icon: '📚', name: 'Årsmelding' }
@@ -1384,53 +1165,11 @@ var QuestionBuilder = (function() {
         renderSubquestionEditor: function(subq, index, questionIndex) {
             var letter = this.letters[index] || String.fromCharCode(97 + index);
             
-            // Bygg løsnings-seksjon basert på type
-            var solutionHtml = '';
-            if (subq.type === 'mc') {
-                // Flervalg - vis alternativer
-                var options = subq.options || ['', '', '', ''];
-                var correctIndex = subq.correctIndex || 0;
-                solutionHtml = '\
-                    <div class="mc-options-editor">\
-                        <label>Alternativer:</label>\
-                        ' + options.map(function(opt, i) {
-                            return '<div class="mc-option-row">\
-                                <input type="radio" name="mc-correct-' + questionIndex + '-' + index + '" value="' + i + '" ' + (i === correctIndex ? 'checked' : '') + '\
-                                       onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'correctIndex\', ' + i + ')">\
-                                <input type="text" value="' + escapeHtml(opt) + '" placeholder="Alternativ ' + String.fromCharCode(65 + i) + '"\
-                                       onchange="QuestionBuilder.updateSubquestionOption(' + questionIndex + ', ' + index + ', ' + i + ', this.value)">\
-                            </div>';
-                        }).join('') + '\
-                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addSubquestionOption(' + questionIndex + ', ' + index + ')">+ Alternativ</button>\
-                    </div>';
-            } else if (subq.type === 'text') {
-                // Tekst - kun fasit-felt, ingen toleranse
-                solutionHtml = '\
-                    <div class="subq-solution">\
-                        <label>Forventet svar (valgfritt):</label>\
-                        <input type="text" value="' + escapeHtml(subq.solution || '') + '"\
-                               placeholder="Stikkord eller fullstendig svar"\
-                               onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'solution\', this.value)">\
-                    </div>';
-            } else {
-                // Beregning/Grid - numerisk fasit med toleranse
-                solutionHtml = '\
-                    <div class="subq-solution">\
-                        <label>Fasit:</label>\
-                        <input type="text" value="' + escapeHtml(subq.solution || '') + '"\
-                               placeholder="Riktig svar"\
-                               onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'solution\', this.value)">\
-                        <label>Toleranse ±</label>\
-                        <input type="number" class="tolerance" value="' + (subq.tolerance || 0.5) + '" step="0.1"\
-                               onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'tolerance\', parseFloat(this.value))">\
-                    </div>';
-            }
-            
             return '\
                 <div class="subquestion-editor" data-subq-index="' + index + '">\
                     <div class="subquestion-header">\
                         <span class="subq-letter">' + letter + ')</span>\
-                        <select class="subq-type" onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'type\', this.value); QuestionBuilder.rerenderSubquestions(' + questionIndex + ');">\
+                        <select class="subq-type" onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'type\', this.value)">\
                             <option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>🔢 Beregning</option>\
                             <option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>✅ Flervalg</option>\
                             <option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>📝 Tekst</option>\
@@ -1442,9 +1181,17 @@ var QuestionBuilder = (function() {
                         <button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteSubquestion(' + questionIndex + ', ' + index + ')">×</button>\
                     </div>\
                     <div class="subquestion-body">\
-                        <textarea placeholder="Skriv delspørsmål ' + letter + ')..."\
+                        <textarea placeholder="Delspørsmål ' + letter + ')..."\
                                   onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'question\', this.value)">' + escapeHtml(subq.question) + '</textarea>\
-                        ' + solutionHtml + '\
+                        <div class="subq-solution">\
+                            <label>Fasit:</label>\
+                            <input type="text" value="' + (subq.solution || '') + '"\
+                                   placeholder="Riktig svar"\
+                                   onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'solution\', this.value)">\
+                            <label>±</label>\
+                            <input type="number" class="tolerance" value="' + (subq.tolerance || 0.5) + '" step="0.1"\
+                                   onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'tolerance\', parseFloat(this.value))">\
+                        </div>\
                     </div>\
                 </div>\
             ';
@@ -1722,7 +1469,7 @@ var QuestionBuilder = (function() {
             type: 'calculation',
             template: {
                 title: 'Deriver funksjonen',
-                question: 'Gitt f(x) = {var:a:2-5}xÂ³ + {var:b:3-8}x² - {var:c:1-10}x. Finn f\'(x) når x = {var:x:1-5}.',
+                question: 'Gitt f(x) = {var:a:2-5}x³ + {var:b:3-8}x² - {var:c:1-10}x. Finn f\'(x) når x = {var:x:1-5}.',
                 solution: '{calc:3*a*Math.pow(x,2) + 2*b*x - c}',
                 hints: [
                     'f\'(x) = {calc:3*a}x² + {calc:2*b}x - {c}',
@@ -1731,158 +1478,136 @@ var QuestionBuilder = (function() {
             }
         },
         
-        // Graf-templates
-        graf_andregradsfunksjon: {
-            name: 'Andregradsfunksjon - Graf',
-            module: 'matte_okonomer',
-            topic: 'funksjonsanalyse',
-            type: 'function_graph',
+        // Case Study - Stor oppgave med flere deler
+        maxsport_import: {
+            name: 'MaxSport A/S - Import og salg',
+            module: 'grunnleggende',
+            topic: 'arsavslutning',
+            type: 'case_study',
             template: {
-                title: 'Analyser andregradsfunksjonen',
-                question: 'Gitt inntektsfunksjonen $I(p) = {var:a:-5,-4,-3,-2}p^2 + {var:b:40,50,60,80}p$ der p er pris.\n\na) Finn nullpunktene\nb) Finn toppunktet\nc) For hvilke verdier av p gir funksjonen positiv inntekt?',
-                function: '{a}*p^2 + {b}*p',
-                functionLabel: 'I(p)',
-                variableLabel: 'p',
-                graphSettings: {
-                    xMin: -5,
-                    xMax: 30,
-                    yMin: -100,
-                    yMax: 500,
-                    showDerivative: true,
-                    showZeros: true,
-                    showExtrema: true
-                },
-                solution: {
-                    zeros: [0, '{calc:-b/a}'],
-                    extrema: { x: '{calc:-b/(2*a)}', y: '{calc:-b*b/(4*a)}', type: 'max' },
-                    positiveInterval: '[0, {calc:-b/a}]'
-                },
-                hints: [
-                    'Sett I(p) = 0 og løs likningen',
-                    'Symmetrilinjen er p = -b/(2a)',
-                    'Funksjonen er positiv mellom nullpunktene'
+                title: 'Årsoppgjør for MaxSport A/S',
+                scenario: 'Du er regnskapsfører for MaxSport A/S, en norsk sportsutstyrforhandler.',
+                question: 'MaxSport A/S importerte spesialutstyr fra USA for ${var:import_usd:300000-400000:10000} USD. Kursen var {var:kurs:10.5-11.5:0.1} NOK/USD. Tollsatsen er {var:toll_prosent:5,8,10,12}% og MVA er 25%.\n\nMens varene var underveis (4 uker), solgte de fra eksisterende lager:\n- Uke 1: kr {var:salg1:40000-60000:5000}\n- Uke 2: kr {var:salg2:65000-85000:5000}\n- Uke 3: kr {var:salg3:20000-35000:5000}\n- Uke 4: kr {var:salg4:90000-120000:5000}\n\nAlle beløp er inkl. MVA 25%.\n\nBetalingsfordeling:\n- {var:andel_kort:55,60,65}% betalt med bankkort\n- kr {var:kontant:6000-9000:500} betalt kontant\n- Resten på kreditt\n\nEtter 30 dager er kr {var:tap:3000-5000:500} av kreditt fortsatt ubetalt.\n\nSelskapet donerer kr {var:donasjon:25000-35000:5000} til lokale idrettslag.',
+                documents: [
+                    {
+                        type: 'faktura',
+                        title: 'Importfaktura - US Sports Equipment Inc.',
+                        content: 'INVOICE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nFrom: US Sports Equipment Inc.\nTo: MaxSport A/S, Norway\n\nAmount: USD {import_usd}\nExchange rate: {kurs} NOK/USD\nNOK Amount: {calc:import_usd * kurs}'
+                    },
+                    {
+                        type: 'tolldeklarasjon',
+                        title: 'Tolldeklarasjon',
+                        content: 'TOLLDEKLARASJON\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nVareverdi (CIF): kr {calc:import_usd * kurs}\nTollsats: {toll_prosent}%\nToll: kr {calc:Math.round(import_usd * kurs * toll_prosent / 100)}\n\nGrunnlag MVA: kr {calc:Math.round(import_usd * kurs * (1 + toll_prosent/100))}\nMVA 25%: kr {calc:Math.round(import_usd * kurs * (1 + toll_prosent/100) * 0.25)}'
+                    }
                 ],
-                explanation: 'Nullpunkter: p = 0 og p = {calc:-b/a}\nToppunkt: ({calc:-b/(2*a)}, {calc:-b*b/(4*a)})\nPositiv inntekt når 0 < p < {calc:-b/a}'
-            }
-        },
-        
-        graf_kostnad_inntekt: {
-            name: 'Kostnad og Inntekt',
-            module: 'matte_okonomer',
-            topic: 'funksjonsanalyse',
-            type: 'function_graph',
-            template: {
-                title: 'Kostnad- og inntektsanalyse',
-                question: 'En bedrift har:\n- Inntektsfunksjon: $I(x) = {var:pris:80,100,120}x$\n- Kostnadsfunksjon: $K(x) = {var:fast:5000,8000,10000} + {var:variabel:30,40,50}x$\n\nFinn nullpunktet (break-even) og maksimal fortjeneste hvis kapasiteten er {var:kapasitet:100,150,200} enheter.',
-                variableLabel: 'x',
-                functions: [
-                    { expr: '{pris}*x', label: 'I(x)', color: '#4ade80' },
-                    { expr: '{fast} + {variabel}*x', label: 'K(x)', color: '#ef4444' },
-                    { expr: '{pris}*x - ({fast} + {variabel}*x)', label: 'F(x)', color: '#3b82f6' }
+                subquestions: [
+                    {
+                        letter: 'a',
+                        question: 'Beregn total importkostnad i NOK (varekost + toll, UTEN mva):',
+                        type: 'calculation',
+                        points: 8,
+                        solution: '{calc:Math.round(import_usd * kurs * (1 + toll_prosent/100))}',
+                        tolerance: 100
+                    },
+                    {
+                        letter: 'b',
+                        question: 'Bokfør importen fra USA (varekjøp med toll og MVA):',
+                        type: 'excel_grid',
+                        points: 15,
+                        grid: {
+                            type: 'tkonto',
+                            columns: ['Konto', 'Kontonavn', 'Debet', 'Kredit'],
+                            rows: [
+                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] },
+                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] },
+                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] }
+                            ]
+                        }
+                    },
+                    {
+                        letter: 'c',
+                        question: 'Beregn totalt salg ekskl. MVA:',
+                        type: 'calculation',
+                        points: 5,
+                        solution: '{calc:Math.round((salg1+salg2+salg3+salg4)/1.25)}',
+                        tolerance: 100
+                    },
+                    {
+                        letter: 'd',
+                        question: 'Bokfør tap på kundefordringer:',
+                        type: 'excel_grid',
+                        points: 10,
+                        grid: {
+                            type: 'tkonto',
+                            columns: ['Konto', 'Kontonavn', 'Debet', 'Kredit'],
+                            rows: [
+                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] },
+                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] }
+                            ]
+                        }
+                    },
+                    {
+                        letter: 'e',
+                        question: 'Bokfør donasjonen til lokale idrettslag:',
+                        type: 'excel_grid',
+                        points: 8,
+                        grid: {
+                            type: 'tkonto',
+                            columns: ['Konto', 'Kontonavn', 'Debet', 'Kredit'],
+                            rows: [
+                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] },
+                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] }
+                            ]
+                        }
+                    },
+                    {
+                        letter: 'f',
+                        question: 'Beregn MVA-oppgjør (netto skyldig/tilgode):',
+                        type: 'calculation',
+                        points: 10,
+                        solution: '{calc:Math.round((salg1+salg2+salg3+salg4)/1.25*0.25 - import_usd * kurs * (1 + toll_prosent/100) * 0.25)}',
+                        tolerance: 100
+                    }
                 ],
-                graphSettings: {
-                    xMin: 0,
-                    xMax: 250,
-                    yMin: -5000,
-                    yMax: 25000,
-                    showIntersection: true
-                },
-                solution: {
-                    breakeven: '{calc:fast/(pris-variabel)}',
-                    maxProfit: '{calc:(pris-variabel)*kapasitet - fast}'
-                },
                 hints: [
-                    'Break-even: I(x) = K(x)',
-                    'Fortjeneste F(x) = I(x) - K(x)',
-                    'Maksimal fortjeneste ved x = kapasitet'
+                    'Husk at alle salgsbeløp oppgis INKL. MVA - del på 1,25 for å finne eks. MVA',
+                    'Toll beregnes av vareverdien i NOK, MVA beregnes av vareverdi + toll',
+                    'Tap på fordringer føres som kostnad (debet) mot kundefordringer (kredit)'
+                ],
+                explanation: 'Denne oppgaven dekker import med toll og MVA, salgsbokføring, tap på fordringer, og donasjoner.',
+                lawReferences: [
+                    { law: 'merverdiavgiftsloven', section: '§ 4-11', topic: 'Innførsel av varer' },
+                    { law: 'skatteloven', section: '§ 6-50', topic: 'Gaver til frivillige organisasjoner' }
                 ]
             }
         },
         
-        graf_derivasjon_tolkning: {
-            name: 'Derivasjon med graf',
-            module: 'matte_okonomer',
-            topic: 'derivasjon',
-            type: 'function_graph',
+        // Enkel varekjøp kontant
+        varekjop_kontant: {
+            name: 'Varekjøp kontant',
+            module: 'grunnleggende',
+            topic: 'bokforing',
+            type: 'excel_grid',
             template: {
-                title: 'Tolkning av derivert',
-                question: 'Produksjonskostnaden for x enheter er gitt ved:\n$K(x) = {var:a:0.01,0.02,0.05}x^3 - {var:b:2,3,4}x^2 + {var:c:100,150,200}x + {var:d:1000,2000,5000}$\n\na) Finn grensekostnaden K\'(x)\nb) For hvilken x er grensekostnaden lavest?\nc) Beregn grensekostnaden når x = {var:x:50,60,80}',
-                function: '{a}*x^3 - {b}*x^2 + {c}*x + {d}',
-                functionLabel: 'K(x)',
-                variableLabel: 'x',
-                graphSettings: {
-                    xMin: 0,
-                    xMax: 150,
-                    yMin: 0,
-                    yMax: 50000,
-                    showDerivative: true,
-                    showExtrema: true
+                title: 'Bokfør transaksjonen',
+                question: 'Bedriften kjøper varer for kr {var:belop:5000-50000:1000} kontant. Bokfør transaksjonen.',
+                grid: {
+                    type: 'tkonto',
+                    columns: ['Konto', 'Debet', 'Kredit'],
+                    rows: [
+                        { cells: [{ editable: true, type: 'account' }, { editable: true }, { editable: true }] },
+                        { cells: [{ editable: true, type: 'account' }, { editable: true }, { editable: true }] }
+                    ]
                 },
-                solution: {
-                    derivative: '3*{a}*x^2 - 2*{b}*x + {c}',
-                    minDerivativeAt: '{calc:b/(3*a)}',
-                    derivativeAtX: '{calc:3*a*x*x - 2*b*x + c}'
-                }
-            }
-        },
-        
-        graf_tilbud_ettersporsel: {
-            name: 'Tilbud og Etterspørsel',
-            module: 'matte_okonomer',
-            topic: 'funksjonsanalyse',
-            type: 'function_graph',
-            template: {
-                title: 'Markedslikevekt',
-                question: 'I et marked er:\n- Etterspørselsfunksjonen: $x_D = {var:a:200,300,400} - {var:b:2,3,4}p$\n- Tilbudsfunksjonen: $x_S = {var:c:20,40,50} + {var:d:3,4,5}p$\n\nFinn likevektspris og likevektskvantum. Tegn grafene.',
-                variableLabel: 'p',
-                functions: [
-                    { expr: '{a} - {b}*p', label: 'Etterspørsel x_D(p)', color: '#3b82f6' },
-                    { expr: '{c} + {d}*p', label: 'Tilbud x_S(p)', color: '#4ade80' }
+                solution: [
+                    { account: '4300', debet: '{belop}', kredit: 0 },
+                    { account: '1920', debet: 0, kredit: '{belop}' }
                 ],
-                graphSettings: {
-                    xLabel: 'Pris (p)',
-                    yLabel: 'Kvantum (x)',
-                    xMin: 0,
-                    xMax: 100,
-                    yMin: 0,
-                    yMax: 500,
-                    showIntersection: true
-                },
-                solution: {
-                    equilibriumPrice: '{calc:(a-c)/(b+d)}',
-                    equilibriumQuantity: '{calc:c + d*((a-c)/(b+d))}'
-                },
                 hints: [
-                    'Likevekt: x_D = x_S',
-                    'Sett uttrykkene lik hverandre og løs for p',
-                    'Sett p inn i én av funksjonene for å finne x'
+                    'Varekjøp er en kostnad - hvilken side øker kostnader?',
+                    'Bank er en eiendel som reduseres',
+                    'Konto 4300 = Varekostnad, Konto 1920 = Bank'
                 ]
-            }
-        },
-        
-        graf_elastisitet: {
-            name: 'Priselastisitet',
-            module: 'matte_okonomer',
-            topic: 'elastisitet',
-            type: 'function_graph',
-            template: {
-                title: 'Beregn priselastisitet',
-                question: 'Etterspørselsfunksjonen er gitt ved:\n$x(p) = {var:a:1000,2000,5000} - {var:b:10,20,50}p$\n\na) Finn priselastisiteten som funksjon av p\nb) Beregn elastisiteten når p = {var:p:20,30,40}\nc) Er etterspørselen elastisk eller uelastisk ved denne prisen?',
-                function: '{a} - {b}*p',
-                functionLabel: 'x(p)',
-                variableLabel: 'p',
-                graphSettings: {
-                    xMin: 0,
-                    xMax: '{calc:a/b + 10}',
-                    yMin: 0,
-                    yMax: '{calc:a + 100}',
-                    showElasticity: true
-                },
-                solution: {
-                    elasticityFormula: 'E_p = (dx/dp) * (p/x) = -{b} * p / ({a} - {b}p)',
-                    elasticityAtP: '{calc:-b * p / (a - b*p)}',
-                    interpretation: '{calc:Math.abs(-b * p / (a - b*p)) > 1 ? "elastisk" : "uelastisk"}'
-                }
             }
         }
     };
@@ -2130,53 +1855,6 @@ var QuestionBuilder = (function() {
         state.unsavedChanges = true;
         
         saveToStorage();
-    }
-    
-    function updateSubquestionOption(questionIndex, subqIndex, optionIndex, value) {
-        var set = state.sets[state.currentSetIndex];
-        if (!set || !set.questions[questionIndex]) return;
-        
-        var question = set.questions[questionIndex];
-        if (!question.subquestions || !question.subquestions[subqIndex]) return;
-        
-        var subq = question.subquestions[subqIndex];
-        if (!subq.options) subq.options = ['', '', '', ''];
-        
-        subq.options[optionIndex] = value;
-        state.unsavedChanges = true;
-        
-        saveToStorage();
-    }
-    
-    function addSubquestionOption(questionIndex, subqIndex) {
-        var set = state.sets[state.currentSetIndex];
-        if (!set || !set.questions[questionIndex]) return;
-        
-        var question = set.questions[questionIndex];
-        if (!question.subquestions || !question.subquestions[subqIndex]) return;
-        
-        var subq = question.subquestions[subqIndex];
-        if (!subq.options) subq.options = ['', '', '', ''];
-        
-        if (subq.options.length < 8) {
-            subq.options.push('');
-            state.unsavedChanges = true;
-            saveToStorage();
-            
-            // Trigger re-render of subquestions
-            if (typeof window.renderEditor === 'function') {
-                window.renderEditor();
-            }
-        } else {
-            showToast('Maks 8 alternativer', 'warning');
-        }
-    }
-    
-    function rerenderSubquestions(questionIndex) {
-        // Trigger full re-render to update MC fields
-        if (typeof window.renderEditor === 'function') {
-            window.renderEditor();
-        }
     }
     
     // ============================================
@@ -2774,8 +2452,6 @@ var QuestionBuilder = (function() {
         init: init,
         getState: function() { return state; },
         getModules: function() { return MODULES; },
-        getTopicLabels: function() { return TOPIC_LABELS; },
-        getTopicLabel: function(topic) { return TOPIC_LABELS[topic] || topic; },
         getQuestionTypes: function() { return QUESTION_TYPES; },
         getTemplates: function() { return TEMPLATES; },
         
@@ -2821,9 +2497,6 @@ var QuestionBuilder = (function() {
         addSubquestion: addSubquestion,
         updateSubquestion: updateSubquestion,
         deleteSubquestion: deleteSubquestion,
-        updateSubquestionOption: updateSubquestionOption,
-        addSubquestionOption: addSubquestionOption,
-        rerenderSubquestions: rerenderSubquestions,
         
         // Info Table management
         addInfoTable: addInfoTable,
@@ -2842,7 +2515,6 @@ var QuestionBuilder = (function() {
         ScoringSystem: ScoringSystem,
         LawReferenceSystem: LawReferenceSystem,
         KontoplanSystem: KontoplanSystem,
-        GraphSystem: GraphSystem,
         
         // Hint management
         addHint: addHint,
