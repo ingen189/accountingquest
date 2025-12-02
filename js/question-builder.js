@@ -1,10 +1,10 @@
 /**
  * AccountingQuest - Advanced Question Builder
- * Kraftig verktøy for å lage komplekse oppgavesett
+ * Kraftig verktÃ¸y for Ã¥ lage komplekse oppgavesett
  * 
  * Features:
  * - Randomisering av tall med variabler
- * - Flere moduler (Bokføring, Corporate Finance, Hjernetrim, Matte, Revisor)
+ * - Flere moduler (BokfÃ¸ring, Corporate Finance, Hjernetrim, Matte, Revisor)
  * - Komplekse oppgaver med flere ark/dokumenter
  * - Deloppgaver (a, b, c, d)
  * - Progressive hints
@@ -41,20 +41,20 @@ var QuestionBuilder = (function() {
          */
         formulas: {
             // Finance
-            npv: { name: 'NPV', latex: 'NPV = \\sum_{t=0}^{n} \\frac{CF_t}{(1+r)^t}', description: 'Netto nåverdi' },
+            npv: { name: 'NPV', latex: 'NPV = \\sum_{t=0}^{n} \\frac{CF_t}{(1+r)^t}', description: 'Netto nÃ¥verdi' },
             irr: { name: 'IRR', latex: 'NPV = \\sum_{t=0}^{n} \\frac{CF_t}{(1+IRR)^t} = 0', description: 'Internrente' },
             wacc: { name: 'WACC', latex: 'WACC = \\frac{E}{V} \\cdot R_e + \\frac{D}{V} \\cdot R_d \\cdot (1-T_c)', description: 'Vektet kapitalkostnad' },
             capm: { name: 'CAPM', latex: 'E(R_i) = R_f + \\beta_i (E(R_m) - R_f)', description: 'Kapitalprisingsmodellen' },
-            pv: { name: 'PV', latex: 'PV = \\frac{FV}{(1+r)^n}', description: 'Nåverdi' },
+            pv: { name: 'PV', latex: 'PV = \\frac{FV}{(1+r)^n}', description: 'NÃ¥verdi' },
             fv: { name: 'FV', latex: 'FV = PV \\cdot (1+r)^n', description: 'Fremtidig verdi' },
-            annuity: { name: 'Annuitet', latex: 'PV = PMT \\cdot \\frac{1-(1+r)^{-n}}{r}', description: 'Nåverdi av annuitet' },
-            perpetuity: { name: 'Evigvarende', latex: 'PV = \\frac{C}{r}', description: 'Nåverdi av evigvarende kontantstrøm' },
+            annuity: { name: 'Annuitet', latex: 'PV = PMT \\cdot \\frac{1-(1+r)^{-n}}{r}', description: 'NÃ¥verdi av annuitet' },
+            perpetuity: { name: 'Evigvarende', latex: 'PV = \\frac{C}{r}', description: 'NÃ¥verdi av evigvarende kontantstrÃ¸m' },
             gordon: { name: 'Gordon Growth', latex: 'P_0 = \\frac{D_1}{r-g}', description: 'Gordons vekstmodell' },
             ev_ebitda: { name: 'EV/EBITDA', latex: 'EV = \\text{Market Cap} + \\text{Debt} - \\text{Cash}', description: 'Enterprise Value' },
             
             // Accounting ratios
-            current_ratio: { name: 'Likviditetsgrad 1', latex: 'LG1 = \\frac{\\text{Omløpsmidler}}{\\text{Kortsiktig gjeld}}', description: 'Current ratio' },
-            quick_ratio: { name: 'Likviditetsgrad 2', latex: 'LG2 = \\frac{\\text{Omløpsmidler} - \\text{Varelager}}{\\text{Kortsiktig gjeld}}', description: 'Quick ratio' },
+            current_ratio: { name: 'Likviditetsgrad 1', latex: 'LG1 = \\frac{\\text{OmlÃ¸psmidler}}{\\text{Kortsiktig gjeld}}', description: 'Current ratio' },
+            quick_ratio: { name: 'Likviditetsgrad 2', latex: 'LG2 = \\frac{\\text{OmlÃ¸psmidler} - \\text{Varelager}}{\\text{Kortsiktig gjeld}}', description: 'Quick ratio' },
             debt_ratio: { name: 'Gjeldsgrad', latex: 'Gjeldsgrad = \\frac{\\text{Gjeld}}{\\text{Egenkapital}}', description: 'Debt to equity' },
             roe: { name: 'ROE', latex: 'ROE = \\frac{\\text{Resultat}}{\\text{Egenkapital}} \\cdot 100\\%', description: 'Egenkapitalrentabilitet' },
             roa: { name: 'ROA', latex: 'ROA = \\frac{\\text{Resultat}}{\\text{Totalkapital}} \\cdot 100\\%', description: 'Totalkapitalrentabilitet' },
@@ -64,7 +64,7 @@ var QuestionBuilder = (function() {
             derivative_power: { name: 'Derivasjon potens', latex: '\\frac{d}{dx}x^n = nx^{n-1}', description: 'Potensregelen' },
             derivative_chain: { name: 'Kjerneregelen', latex: '\\frac{d}{dx}f(g(x)) = f\'(g(x)) \\cdot g\'(x)', description: 'Chain rule' },
             integral_power: { name: 'Integral potens', latex: '\\int x^n dx = \\frac{x^{n+1}}{n+1} + C', description: 'Potensregelen for integrasjon' },
-            quadratic: { name: 'Andregradsformel', latex: 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}', description: 'Løsning av ax² + bx + c = 0' },
+            quadratic: { name: 'Andregradsformel', latex: 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}', description: 'LÃ¸sning av axÂ² + bx + c = 0' },
             
             // Statistics
             mean: { name: 'Gjennomsnitt', latex: '\\bar{x} = \\frac{1}{n}\\sum_{i=1}^{n}x_i', description: 'Aritmetisk gjennomsnitt' },
@@ -74,7 +74,7 @@ var QuestionBuilder = (function() {
             // Tax/MVA
             mva_inkl: { name: 'MVA inkl.', latex: 'Pris_{inkl} = Pris_{ekskl} \\cdot (1 + MVA\\%)', description: 'Pris inkludert MVA' },
             mva_ekskl: { name: 'MVA ekskl.', latex: 'Pris_{ekskl} = \\frac{Pris_{inkl}}{1 + MVA\\%}', description: 'Pris ekskludert MVA' },
-            depreciation_linear: { name: 'Lineær avskr.', latex: 'Avskrivning = \\frac{Kostpris - Restverdi}{Levetid}', description: 'Lineær avskrivning' },
+            depreciation_linear: { name: 'LineÃ¦r avskr.', latex: 'Avskrivning = \\frac{Kostpris - Restverdi}{Levetid}', description: 'LineÃ¦r avskrivning' },
             depreciation_declining: { name: 'Saldoavskr.', latex: 'Avskrivning_t = Saldo_{t-1} \\cdot Sats\\%', description: 'Saldoavskrivning' }
         },
         
@@ -110,6 +110,179 @@ var QuestionBuilder = (function() {
             var keys = categories[category] || [];
             var self = this;
             return keys.map(function(k) { return { key: k, ...self.formulas[k] }; });
+        }
+    };
+    
+    // ============================================
+    // GRAPH SYSTEM (Funksjonsgrafer)
+    // ============================================
+    
+    var GraphSystem = {
+        /**
+         * Standard farger for grafer
+         */
+        colors: {
+            primary: '#4ade80',      // Grønn - hovedfunksjon
+            secondary: '#3b82f6',    // Blå - derivert
+            tertiary: '#f59e0b',     // Oransje - integral
+            danger: '#ef4444',       // Rød - kostnad
+            purple: '#8b5cf6',       // Lilla - alternativ
+            grid: 'rgba(255,255,255,0.1)',
+            axis: 'rgba(255,255,255,0.3)'
+        },
+        
+        /**
+         * Standard graf-innstillinger
+         */
+        defaultSettings: {
+            xMin: -10,
+            xMax: 10,
+            yMin: -10,
+            yMax: 10,
+            step: 0.1,
+            showGrid: true,
+            showAxis: true,
+            showDerivative: false,
+            showZeros: false,
+            showExtrema: false,
+            showIntersection: false,
+            showElasticity: false,
+            interactive: true
+        },
+        
+        /**
+         * Lag graf-konfigurasjon for en spørsmål
+         */
+        createGraphConfig: function(functionExpr, label, settings) {
+            return {
+                function: functionExpr,
+                functionLabel: label || 'f(x)',
+                variableLabel: settings?.variableLabel || 'x',
+                settings: Object.assign({}, this.defaultSettings, settings || {}),
+                color: settings?.color || this.colors.primary
+            };
+        },
+        
+        /**
+         * Lag multi-funksjon konfigurasjon
+         */
+        createMultiFunctionConfig: function(functions, settings) {
+            var self = this;
+            var colorKeys = ['primary', 'danger', 'secondary', 'tertiary', 'purple'];
+            
+            return {
+                functions: functions.map(function(f, i) {
+                    return {
+                        expr: f.expr,
+                        label: f.label || 'f' + (i + 1) + '(x)',
+                        color: f.color || self.colors[colorKeys[i % colorKeys.length]],
+                        dashed: f.dashed || false
+                    };
+                }),
+                settings: Object.assign({}, this.defaultSettings, settings || {})
+            };
+        },
+        
+        /**
+         * Vanlige funksjonstyper for økonomi
+         */
+        economicFunctions: {
+            revenue: {
+                name: 'Inntektsfunksjon',
+                template: 'a*x^2 + b*x',
+                description: 'I(x) = ax² + bx (typisk a < 0)',
+                defaultVars: { a: -2, b: 100 }
+            },
+            cost: {
+                name: 'Kostnadsfunksjon',
+                template: 'a*x^3 - b*x^2 + c*x + d',
+                description: 'K(x) = ax³ - bx² + cx + d',
+                defaultVars: { a: 0.01, b: 2, c: 100, d: 5000 }
+            },
+            linear_cost: {
+                name: 'Lineær kostnad',
+                template: 'a + b*x',
+                description: 'K(x) = a + bx (faste + variable)',
+                defaultVars: { a: 5000, b: 50 }
+            },
+            demand: {
+                name: 'Etterspørselsfunksjon',
+                template: 'a - b*x',
+                description: 'p(x) = a - bx eller x(p) = c - dp',
+                defaultVars: { a: 100, b: 2 }
+            },
+            supply: {
+                name: 'Tilbudsfunksjon',
+                template: 'a + b*x',
+                description: 'p(x) = a + bx',
+                defaultVars: { a: 10, b: 1 }
+            },
+            profit: {
+                name: 'Fortjenestefunksjon',
+                template: '-a*x^2 + b*x - c',
+                description: 'F(x) = I(x) - K(x)',
+                defaultVars: { a: 2, b: 80, c: 200 }
+            },
+            marginal: {
+                name: 'Grensefunksjon',
+                template: '3*a*x^2 - 2*b*x + c',
+                description: 'K\'(x), I\'(x), etc.',
+                defaultVars: { a: 0.01, b: 2, c: 100 }
+            }
+        },
+        
+        /**
+         * Generer standard analysepunkter
+         */
+        getAnalysisPoints: function(type) {
+            var points = {
+                zeros: { name: 'Nullpunkter', description: 'Hvor f(x) = 0' },
+                extrema: { name: 'Ekstremalpunkter', description: 'Topp- og bunnpunkter' },
+                inflection: { name: 'Vendepunkter', description: 'Hvor f\'\'(x) = 0' },
+                intercepts: { name: 'Akseknisningspunkter', description: 'Hvor grafen krysser aksene' },
+                derivative: { name: 'Derivert', description: 'f\'(x) - stigningstall' },
+                integral: { name: 'Integral', description: 'Areal under kurven' },
+                intersection: { name: 'Skjæringspunkt', description: 'Hvor to funksjoner møtes' },
+                elasticity: { name: 'Elastisitet', description: 'Prosentvis endring' }
+            };
+            
+            return type ? points[type] : points;
+        },
+        
+        /**
+         * Spørsmålstyper for graf-oppgaver
+         */
+        questionSubtypes: {
+            analyze: {
+                name: 'Full analyse',
+                description: 'Finn nullpunkter, ekstremalpunkter, definisjonsmengde',
+                requiredAnswers: ['zeros', 'extrema', 'domain']
+            },
+            derivative: {
+                name: 'Derivasjon',
+                description: 'Finn derivert og tolkning',
+                requiredAnswers: ['derivative', 'derivativeValue']
+            },
+            extrema: {
+                name: 'Ekstremalpunkter',
+                description: 'Finn topp- og bunnpunkter',
+                requiredAnswers: ['extremaX', 'extremaY', 'extremaType']
+            },
+            zeros: {
+                name: 'Nullpunkter',
+                description: 'Finn hvor funksjonen er null',
+                requiredAnswers: ['zeros']
+            },
+            sketch: {
+                name: 'Skisser graf',
+                description: 'Tegn grafen basert på egenskaper',
+                requiredAnswers: ['sketch']
+            },
+            intersection: {
+                name: 'Skjæringspunkt',
+                description: 'Finn hvor funksjoner krysser',
+                requiredAnswers: ['intersectionX', 'intersectionY']
+            }
         }
     };
     
@@ -201,9 +374,9 @@ var QuestionBuilder = (function() {
             A: { min: 0.9, label: 'Fremragende' },
             B: { min: 0.8, label: 'Meget godt' },
             C: { min: 0.6, label: 'Godt' },
-            D: { min: 0.5, label: 'Nokså godt' },
+            D: { min: 0.5, label: 'NoksÃ¥ godt' },
             E: { min: 0.4, label: 'Tilstrekkelig' },
-            F: { min: 0, label: 'Ikke bestått' }
+            F: { min: 0, label: 'Ikke bestÃ¥tt' }
         },
         
         getGrade: function(percentage) {
@@ -212,7 +385,7 @@ var QuestionBuilder = (function() {
                     return { grade: grade, label: this.grades[grade].label };
                 }
             }
-            return { grade: 'F', label: 'Ikke bestått' };
+            return { grade: 'F', label: 'Ikke bestÃ¥tt' };
         }
     };
     
@@ -227,40 +400,40 @@ var QuestionBuilder = (function() {
         laws: {
             RSKL: {
                 name: 'Regnskapsloven',
-                fullName: 'Lov om årsregnskap m.v.',
+                fullName: 'Lov om Ã¥rsregnskap m.v.',
                 shortCode: 'RSKL',
                 year: 1998,
                 url: 'https://lovdata.no/dokument/NL/lov/1998-07-17-56',
                 sections: {
-                    '§3-1': 'Årsregnskap og årsberetning',
-                    '§3-2': 'Plikt til å utarbeide konsernregnskap',
-                    '§3-2a': 'Unntak fra plikten til å utarbeide konsernregnskap',
-                    '§4-1': 'Grunnleggende regnskapsprinsipper',
-                    '§5-1': 'Vurdering av eiendeler og gjeld',
-                    '§5-2': 'Anskaffelseskost',
-                    '§5-3': 'Virkelig verdi',
-                    '§5-4': 'Nedskrivning av anleggsmidler',
-                    '§5-5': 'Varelager og oppdrag under utførelse',
-                    '§6-1': 'Resultatregnskap',
-                    '§6-2': 'Balanse',
-                    '§7-1': 'Noter'
+                    'Â§3-1': 'Ã…rsregnskap og Ã¥rsberetning',
+                    'Â§3-2': 'Plikt til Ã¥ utarbeide konsernregnskap',
+                    'Â§3-2a': 'Unntak fra plikten til Ã¥ utarbeide konsernregnskap',
+                    'Â§4-1': 'Grunnleggende regnskapsprinsipper',
+                    'Â§5-1': 'Vurdering av eiendeler og gjeld',
+                    'Â§5-2': 'Anskaffelseskost',
+                    'Â§5-3': 'Virkelig verdi',
+                    'Â§5-4': 'Nedskrivning av anleggsmidler',
+                    'Â§5-5': 'Varelager og oppdrag under utfÃ¸relse',
+                    'Â§6-1': 'Resultatregnskap',
+                    'Â§6-2': 'Balanse',
+                    'Â§7-1': 'Noter'
                 }
             },
             BOKL: {
-                name: 'Bokføringsloven',
-                fullName: 'Lov om bokføring',
+                name: 'BokfÃ¸ringsloven',
+                fullName: 'Lov om bokfÃ¸ring',
                 shortCode: 'BOKL',
                 year: 2004,
                 url: 'https://lovdata.no/dokument/NL/lov/2004-11-19-73',
                 sections: {
-                    '§3': 'Bokføringspliktige',
-                    '§4': 'Grunnleggende bokføringsprinsipper',
-                    '§5': 'Regnskapssystem',
-                    '§6': 'Bokføring og dokumentasjon',
-                    '§7': 'Dokumentasjon av balansen',
-                    '§8': 'Spesifikasjoner av pliktig regnskapsrapportering',
-                    '§10': 'Oppbevaring',
-                    '§13': 'Oppbevaringstid'
+                    'Â§3': 'BokfÃ¸ringspliktige',
+                    'Â§4': 'Grunnleggende bokfÃ¸ringsprinsipper',
+                    'Â§5': 'Regnskapssystem',
+                    'Â§6': 'BokfÃ¸ring og dokumentasjon',
+                    'Â§7': 'Dokumentasjon av balansen',
+                    'Â§8': 'Spesifikasjoner av pliktig regnskapsrapportering',
+                    'Â§10': 'Oppbevaring',
+                    'Â§13': 'Oppbevaringstid'
                 }
             },
             SKTL: {
@@ -270,16 +443,16 @@ var QuestionBuilder = (function() {
                 year: 1999,
                 url: 'https://lovdata.no/dokument/NL/lov/1999-03-26-14',
                 sections: {
-                    '§5-1': 'Hovedregel om inntekt',
-                    '§5-20': 'Fordel vunnet ved arbeid',
-                    '§5-30': 'Fordel vunnet ved kapital',
-                    '§6-1': 'Hovedregel om fradrag',
-                    '§6-10': 'Minstefradrag',
-                    '§6-40': 'Rentekostnader',
-                    '§10-30': 'Gevinst og tap på aksjer mv.',
-                    '§14-40': 'Tidfesting av inntekt',
-                    '§14-41': 'Saldoavskrivning',
-                    '§14-43': 'Avskrivningssatser'
+                    'Â§5-1': 'Hovedregel om inntekt',
+                    'Â§5-20': 'Fordel vunnet ved arbeid',
+                    'Â§5-30': 'Fordel vunnet ved kapital',
+                    'Â§6-1': 'Hovedregel om fradrag',
+                    'Â§6-10': 'Minstefradrag',
+                    'Â§6-40': 'Rentekostnader',
+                    'Â§10-30': 'Gevinst og tap pÃ¥ aksjer mv.',
+                    'Â§14-40': 'Tidfesting av inntekt',
+                    'Â§14-41': 'Saldoavskrivning',
+                    'Â§14-43': 'Avskrivningssatser'
                 }
             },
             MVAL: {
@@ -289,16 +462,16 @@ var QuestionBuilder = (function() {
                 year: 2009,
                 url: 'https://lovdata.no/dokument/NL/lov/2009-06-19-58',
                 sections: {
-                    '§1-1': 'Saklig virkeområde',
-                    '§2-1': 'Registreringsplikt',
-                    '§3-1': 'Avgiftsplikten',
-                    '§4-1': 'Hovedregel om beregningsgrunnlag',
-                    '§5-1': 'Alminnelig sats (25%)',
-                    '§5-2': 'Redusert sats (15%)',
-                    '§5-3': 'Lav sats (12%)',
-                    '§6-1': 'Fritak for eksport',
-                    '§8-1': 'Fradragsrett',
-                    '§8-3': 'Avskåret fradragsrett'
+                    'Â§1-1': 'Saklig virkeomrÃ¥de',
+                    'Â§2-1': 'Registreringsplikt',
+                    'Â§3-1': 'Avgiftsplikten',
+                    'Â§4-1': 'Hovedregel om beregningsgrunnlag',
+                    'Â§5-1': 'Alminnelig sats (25%)',
+                    'Â§5-2': 'Redusert sats (15%)',
+                    'Â§5-3': 'Lav sats (12%)',
+                    'Â§6-1': 'Fritak for eksport',
+                    'Â§8-1': 'Fradragsrett',
+                    'Â§8-3': 'AvskÃ¥ret fradragsrett'
                 }
             },
             ASAL: {
@@ -308,10 +481,10 @@ var QuestionBuilder = (function() {
                 year: 1997,
                 url: 'https://lovdata.no/dokument/NL/lov/1997-06-13-45',
                 sections: {
-                    '§3-1': 'Krav til aksjekapital',
-                    '§8-1': 'Utbytte',
-                    '§3-4': 'Krav til forsvarlig egenkapital',
-                    '§3-5': 'Handleplikt ved tap av egenkapital'
+                    'Â§3-1': 'Krav til aksjekapital',
+                    'Â§8-1': 'Utbytte',
+                    'Â§3-4': 'Krav til forsvarlig egenkapital',
+                    'Â§3-5': 'Handleplikt ved tap av egenkapital'
                 }
             },
             ASL: {
@@ -321,11 +494,11 @@ var QuestionBuilder = (function() {
                 year: 1997,
                 url: 'https://lovdata.no/dokument/NL/lov/1997-06-13-44',
                 sections: {
-                    '§3-1': 'Krav til aksjekapital (30 000)',
-                    '§3-4': 'Krav til forsvarlig egenkapital',
-                    '§3-5': 'Handleplikt ved tap av egenkapital',
-                    '§8-1': 'Hva kan deles ut som utbytte',
-                    '§8-2': 'Beregning av utbytte'
+                    'Â§3-1': 'Krav til aksjekapital (30 000)',
+                    'Â§3-4': 'Krav til forsvarlig egenkapital',
+                    'Â§3-5': 'Handleplikt ved tap av egenkapital',
+                    'Â§8-1': 'Hva kan deles ut som utbytte',
+                    'Â§8-2': 'Beregning av utbytte'
                 }
             }
         },
@@ -348,7 +521,7 @@ var QuestionBuilder = (function() {
             var law = this.laws[lawCode];
             if (!law) return '';
             
-            var sectionNum = section.replace('§', '').replace('-', '/');
+            var sectionNum = section.replace('Â§', '').replace('-', '/');
             return law.url + '/' + sectionNum;
         },
         
@@ -409,10 +582,10 @@ var QuestionBuilder = (function() {
             '1500': { name: 'Kundefordringer', class: 1, type: 'asset' },
             '1530': { name: 'Opptjent, ikke fakturert', class: 1, type: 'asset' },
             '1570': { name: 'Andre fordringer', class: 1, type: 'asset' },
-            '1580': { name: 'Avsetning tap på fordringer', class: 1, type: 'asset' },
+            '1580': { name: 'Avsetning tap pÃ¥ fordringer', class: 1, type: 'asset' },
             '1700': { name: 'Forskuddsbetalt kostnad', class: 1, type: 'asset' },
-            '1750': { name: 'Påløpt inntekt', class: 1, type: 'asset' },
-            '1800': { name: 'Aksjer og andeler (omløp)', class: 1, type: 'asset' },
+            '1750': { name: 'PÃ¥lÃ¸pt inntekt', class: 1, type: 'asset' },
+            '1800': { name: 'Aksjer og andeler (omlÃ¸p)', class: 1, type: 'asset' },
             '1880': { name: 'Markedsbaserte verdipapirer', class: 1, type: 'asset' },
             '1900': { name: 'Kontanter', class: 1, type: 'asset' },
             '1920': { name: 'Bankinnskudd', class: 1, type: 'asset' },
@@ -429,28 +602,28 @@ var QuestionBuilder = (function() {
             '2200': { name: 'Pensjonsforpliktelser', class: 2, type: 'liability' },
             '2220': { name: 'Utsatt skatt', class: 2, type: 'liability' },
             '2250': { name: 'Andre avsetninger', class: 2, type: 'liability' },
-            '2300': { name: 'Konvertible lån', class: 2, type: 'liability' },
-            '2320': { name: 'Obligasjonslån', class: 2, type: 'liability' },
+            '2300': { name: 'Konvertible lÃ¥n', class: 2, type: 'liability' },
+            '2320': { name: 'ObligasjonslÃ¥n', class: 2, type: 'liability' },
             '2350': { name: 'Gjeld til kredittinstitusjoner', class: 2, type: 'liability' },
             '2380': { name: 'Pantegjeld', class: 2, type: 'liability' },
-            '2400': { name: 'Leverandørgjeld', class: 2, type: 'liability' },
+            '2400': { name: 'LeverandÃ¸rgjeld', class: 2, type: 'liability' },
             '2500': { name: 'Betalbar skatt', class: 2, type: 'liability' },
             '2600': { name: 'Skattetrekk', class: 2, type: 'liability' },
-            '2700': { name: 'Utgående merverdiavgift', class: 2, type: 'liability' },
-            '2710': { name: 'Inngående merverdiavgift', class: 2, type: 'liability' },
-            '2740': { name: 'Oppgjørskonto merverdiavgift', class: 2, type: 'liability' },
+            '2700': { name: 'UtgÃ¥ende merverdiavgift', class: 2, type: 'liability' },
+            '2710': { name: 'InngÃ¥ende merverdiavgift', class: 2, type: 'liability' },
+            '2740': { name: 'OppgjÃ¸rskonto merverdiavgift', class: 2, type: 'liability' },
             '2770': { name: 'Skyldig arbeidsgiveravgift', class: 2, type: 'liability' },
-            '2780': { name: 'Påløpt arbeidsgiveravgift', class: 2, type: 'liability' },
+            '2780': { name: 'PÃ¥lÃ¸pt arbeidsgiveravgift', class: 2, type: 'liability' },
             '2800': { name: 'Utbytte', class: 2, type: 'liability' },
             '2900': { name: 'Annen kortsiktig gjeld', class: 2, type: 'liability' },
             '2910': { name: 'Gjeld til ansatte', class: 2, type: 'liability' },
-            '2960': { name: 'Påløpte kostnader', class: 2, type: 'liability' },
+            '2960': { name: 'PÃ¥lÃ¸pte kostnader', class: 2, type: 'liability' },
             '2990': { name: 'Annen kortsiktig gjeld', class: 2, type: 'liability' },
             
             // Klasse 3: Driftsinntekter
             '3000': { name: 'Salgsinntekt, avgiftspliktig', class: 3, type: 'revenue' },
             '3100': { name: 'Salgsinntekt, avgiftsfri', class: 3, type: 'revenue' },
-            '3200': { name: 'Salgsinntekt, utenfor avgiftsområdet', class: 3, type: 'revenue' },
+            '3200': { name: 'Salgsinntekt, utenfor avgiftsomrÃ¥det', class: 3, type: 'revenue' },
             '3400': { name: 'Offentlig tilskudd', class: 3, type: 'revenue' },
             '3600': { name: 'Leieinntekt', class: 3, type: 'revenue' },
             '3700': { name: 'Provisjonsinntekt', class: 3, type: 'revenue' },
@@ -458,26 +631,26 @@ var QuestionBuilder = (function() {
             
             // Klasse 4: Varekostnad
             '4000': { name: 'Varekostnad', class: 4, type: 'expense' },
-            '4100': { name: 'Innkjøp av råvarer', class: 4, type: 'expense' },
-            '4200': { name: 'Innkjøp av handelsvarer', class: 4, type: 'expense' },
-            '4300': { name: 'Innkjøp av varer for videresalg', class: 4, type: 'expense' },
+            '4100': { name: 'InnkjÃ¸p av rÃ¥varer', class: 4, type: 'expense' },
+            '4200': { name: 'InnkjÃ¸p av handelsvarer', class: 4, type: 'expense' },
+            '4300': { name: 'InnkjÃ¸p av varer for videresalg', class: 4, type: 'expense' },
             '4500': { name: 'Fremmedytelser', class: 4, type: 'expense' },
             '4600': { name: 'Frakt og transport', class: 4, type: 'expense' },
             '4700': { name: 'Beholdningsendring', class: 4, type: 'expense' },
             
-            // Klasse 5: Lønnskostnader
-            '5000': { name: 'Lønn til ansatte', class: 5, type: 'expense' },
+            // Klasse 5: LÃ¸nnskostnader
+            '5000': { name: 'LÃ¸nn til ansatte', class: 5, type: 'expense' },
             '5010': { name: 'Feriepenger', class: 5, type: 'expense' },
-            '5020': { name: 'Påløpte feriepenger', class: 5, type: 'expense' },
-            '5090': { name: 'Annen lønn', class: 5, type: 'expense' },
-            '5190': { name: 'Påløpt arbeidsgiveravgift', class: 5, type: 'expense' },
+            '5020': { name: 'PÃ¥lÃ¸pte feriepenger', class: 5, type: 'expense' },
+            '5090': { name: 'Annen lÃ¸nn', class: 5, type: 'expense' },
+            '5190': { name: 'PÃ¥lÃ¸pt arbeidsgiveravgift', class: 5, type: 'expense' },
             '5200': { name: 'Fri bil', class: 5, type: 'expense' },
             '5210': { name: 'Fri telefon', class: 5, type: 'expense' },
             '5290': { name: 'Motkonto naturalytelser', class: 5, type: 'expense' },
-            '5300': { name: 'Annen godtgjørelse', class: 5, type: 'expense' },
+            '5300': { name: 'Annen godtgjÃ¸relse', class: 5, type: 'expense' },
             '5400': { name: 'Arbeidsgiveravgift', class: 5, type: 'expense' },
             '5420': { name: 'Innberetningspliktig pensjonskostnad', class: 5, type: 'expense' },
-            '5500': { name: 'Annen kostnadsgodtgjørelse', class: 5, type: 'expense' },
+            '5500': { name: 'Annen kostnadsgodtgjÃ¸relse', class: 5, type: 'expense' },
             '5900': { name: 'Annen personalkostnad', class: 5, type: 'expense' },
             
             // Klasse 6: Andre driftskostnader
@@ -491,7 +664,7 @@ var QuestionBuilder = (function() {
             '6300': { name: 'Leie lokaler', class: 6, type: 'expense' },
             '6340': { name: 'Lys og varme', class: 6, type: 'expense' },
             '6400': { name: 'Leie maskiner', class: 6, type: 'expense' },
-            '6500': { name: 'Verktøy inventar', class: 6, type: 'expense' },
+            '6500': { name: 'VerktÃ¸y inventar', class: 6, type: 'expense' },
             '6540': { name: 'Inventar', class: 6, type: 'expense' },
             '6600': { name: 'Reparasjon og vedlikehold', class: 6, type: 'expense' },
             '6700': { name: 'Revisjon', class: 6, type: 'expense' },
@@ -499,7 +672,7 @@ var QuestionBuilder = (function() {
             '6790': { name: 'Annen fremmed tjeneste', class: 6, type: 'expense' },
             '6800': { name: 'Kontorrekvisita', class: 6, type: 'expense' },
             '6840': { name: 'Aviser, tidsskrifter', class: 6, type: 'expense' },
-            '6860': { name: 'Møte, kurs, oppdatering', class: 6, type: 'expense' },
+            '6860': { name: 'MÃ¸te, kurs, oppdatering', class: 6, type: 'expense' },
             '6900': { name: 'Telefon', class: 6, type: 'expense' },
             '6940': { name: 'Porto', class: 6, type: 'expense' },
             
@@ -507,10 +680,10 @@ var QuestionBuilder = (function() {
             '7000': { name: 'Drivstoff bil', class: 7, type: 'expense' },
             '7020': { name: 'Vedlikehold bil', class: 7, type: 'expense' },
             '7040': { name: 'Forsikring bil', class: 7, type: 'expense' },
-            '7100': { name: 'Bilgodtgjørelse', class: 7, type: 'expense' },
+            '7100': { name: 'BilgodtgjÃ¸relse', class: 7, type: 'expense' },
             '7130': { name: 'Reisekostnad', class: 7, type: 'expense' },
             '7140': { name: 'Diettkostnad', class: 7, type: 'expense' },
-            '7300': { name: 'Markedsføring', class: 7, type: 'expense' },
+            '7300': { name: 'MarkedsfÃ¸ring', class: 7, type: 'expense' },
             '7320': { name: 'Reklame', class: 7, type: 'expense' },
             '7350': { name: 'Representasjon', class: 7, type: 'expense' },
             '7400': { name: 'Kontingent', class: 7, type: 'expense' },
@@ -519,8 +692,8 @@ var QuestionBuilder = (function() {
             '7700': { name: 'Annen kostnad', class: 7, type: 'expense' },
             '7770': { name: 'Bank og kortgebyr', class: 7, type: 'expense' },
             '7790': { name: 'Annen kostnad', class: 7, type: 'expense' },
-            '7800': { name: 'Tap på fordringer', class: 7, type: 'expense' },
-            '7830': { name: 'Innkommet på tidligere tap', class: 7, type: 'expense' },
+            '7800': { name: 'Tap pÃ¥ fordringer', class: 7, type: 'expense' },
+            '7830': { name: 'Innkommet pÃ¥ tidligere tap', class: 7, type: 'expense' },
             
             // Klasse 8: Finansposter og skatt
             '8000': { name: 'Finansinntekt', class: 8, type: 'financial' },
@@ -534,11 +707,11 @@ var QuestionBuilder = (function() {
             '8150': { name: 'Annen finanskostnad', class: 8, type: 'financial' },
             '8160': { name: 'Valutatap', class: 8, type: 'financial' },
             '8170': { name: 'Tap ved salg av aksjer', class: 8, type: 'financial' },
-            '8300': { name: 'Skattekostnad på ordinært resultat', class: 8, type: 'tax' },
+            '8300': { name: 'Skattekostnad pÃ¥ ordinÃ¦rt resultat', class: 8, type: 'tax' },
             '8320': { name: 'Endring utsatt skatt', class: 8, type: 'tax' },
-            '8800': { name: 'Årsresultat', class: 8, type: 'result' },
-            '8900': { name: 'Overføringer og disponeringer', class: 8, type: 'result' },
-            '8960': { name: 'Overført til/fra annen EK', class: 8, type: 'result' }
+            '8800': { name: 'Ã…rsresultat', class: 8, type: 'result' },
+            '8900': { name: 'OverfÃ¸ringer og disponeringer', class: 8, type: 'result' },
+            '8960': { name: 'OverfÃ¸rt til/fra annen EK', class: 8, type: 'result' }
         },
         
         /**
@@ -549,7 +722,7 @@ var QuestionBuilder = (function() {
             2: { name: 'Egenkapital og gjeld', type: 'balance', side: 'credit' },
             3: { name: 'Salgs- og driftsinntekter', type: 'result', side: 'credit' },
             4: { name: 'Varekostnad', type: 'result', side: 'debit' },
-            5: { name: 'Lønnskostnad', type: 'result', side: 'debit' },
+            5: { name: 'LÃ¸nnskostnad', type: 'result', side: 'debit' },
             6: { name: 'Avskrivninger og andre driftskostnader', type: 'result', side: 'debit' },
             7: { name: 'Andre driftskostnader', type: 'result', side: 'debit' },
             8: { name: 'Finansposter og skatt', type: 'result', side: 'varies' }
@@ -761,49 +934,49 @@ var QuestionBuilder = (function() {
         grunnleggende: {
             id: 'grunnleggende',
             name: 'Grunnleggende Regnskap',
-            icon: '📚',
+            icon: 'ðŸ“š',
             topics: ['bokforing', 'bilag', 'kontoplan', 'arsavslutning', 'mva', 'lonn', 'skatt', 'avskrivning', 'varelager', 'kundefordringer']
         },
         corporate_finance: {
             id: 'corporate_finance',
             name: 'Corporate Finance',
-            icon: '📊',
+            icon: 'ðŸ“Š',
             topics: ['npv', 'irr', 'wacc', 'capm', 'obligasjoner', 'aksjer', 'dividender', 'kapitalstruktur', 'portefolje', 'risiko', 'opsjoner', 'valuta', 'hedging']
         },
         hjernetrim: {
             id: 'hjernetrim',
             name: 'Hjernetrim',
-            icon: '🧠',
+            icon: 'ðŸ§ ',
             topics: ['mental_math', 'logikk', 'patterns', 'memory', 'speed']
         },
-        matte_okonomi: {
-            id: 'matte_okonomi',
-            name: 'Matte for Økonomer',
-            icon: '📐',
-            topics: ['linear', 'derivasjon', 'analyse', 'integrasjon', 'flervariabel', 'finans']
+        matte_okonomer: {
+            id: 'matte_okonomer',
+            name: 'Matte for Ã˜konomer',
+            icon: 'ðŸ”¢',
+            topics: ['derivasjon', 'integrasjon', 'optimering', 'matriser', 'sannsynlighet', 'statistikk', 'renter', 'annuiteter']
         },
         revisor: {
             id: 'revisor',
             name: 'Revisjon',
-            icon: '🔍',
+            icon: 'ðŸ”',
             topics: ['intern_kontroll', 'risikovurdering', 'vesentlighet', 'revisjonsbevis', 'rapportering', 'etikk', 'standarder', 'isa']
         },
         skatt_avgift: {
             id: 'skatt_avgift',
             name: 'Skatt & Avgift',
-            icon: '🏛️',
+            icon: 'ðŸ›ï¸',
             topics: ['personskatt', 'selskapsskatt', 'mva', 'arbeidsgiveravgift', 'formuesskatt', 'gevinstbeskatning', 'skattemelding']
         },
         juss: {
             id: 'juss',
             name: 'Forretningsjuss',
-            icon: '⚖️',
+            icon: 'âš–ï¸',
             topics: ['selskapsrett', 'avtalerett', 'arbeidsrett', 'konkurs', 'pant', 'regnskapsloven', 'aksjeloven']
         },
         excel_skills: {
             id: 'excel_skills',
             name: 'Excel Ferdigheter',
-            icon: '📗',
+            icon: 'ðŸ“—',
             topics: ['formler', 'funksjoner', 'pivot', 'makroer', 'datavalidering', 'formatering', 'diagrammer']
         }
     };
@@ -816,56 +989,56 @@ var QuestionBuilder = (function() {
         excel_grid: {
             id: 'excel_grid',
             name: 'Excel Grid',
-            icon: '📊',
+            icon: 'ðŸ“Š',
             description: 'Regneark med formler og beregninger',
             subtypes: ['tkonto', 'parameter', 'cashflow', 'budget', 'custom']
         },
         mc: {
             id: 'mc',
             name: 'Flervalg',
-            icon: '✅',
+            icon: 'âœ…',
             description: 'Velg ett riktig alternativ',
             subtypes: ['single', 'multi']
         },
         drag_drop: {
             id: 'drag_drop',
             name: 'Drag & Drop',
-            icon: '🎯',
+            icon: 'ðŸŽ¯',
             description: 'Dra elementer til riktig kategori',
             subtypes: ['categorize', 'order', 'match', 'formula']
         },
         calculation: {
             id: 'calculation',
             name: 'Beregning',
-            icon: '🔢',
+            icon: 'ðŸ”¢',
             description: 'Skriv inn numerisk svar',
             subtypes: ['single', 'multiple', 'formula']
         },
         inline_input: {
             id: 'inline_input',
             name: 'Inline Input',
-            icon: '✏️',
+            icon: 'âœï¸',
             description: 'Tekstfelt direkte i oppgaveteksten',
             subtypes: ['text', 'number', 'account', 'mixed']
         },
         case_study: {
             id: 'case_study',
             name: 'Case Study',
-            icon: '📁',
-            description: 'Kompleks oppgave med flere dokumenter og delspørsmål',
+            icon: 'ðŸ“',
+            description: 'Kompleks oppgave med flere dokumenter og delspÃ¸rsmÃ¥l',
             subtypes: ['standard', 'exam', 'practical']
         },
         paragraph: {
             id: 'paragraph',
             name: 'Paragraf/Lov',
-            icon: '📜',
+            icon: 'ðŸ“œ',
             description: 'Finn riktig lovhenvisning',
             subtypes: ['single', 'multiple']
         },
         tf: {
             id: 'tf',
             name: 'Sant/Usant',
-            icon: '⚡',
+            icon: 'âš¡',
             description: 'Velg sant eller usant',
             subtypes: ['single', 'multiple']
         },
@@ -875,135 +1048,6 @@ var QuestionBuilder = (function() {
             icon: '📈',
             description: 'Analyser funksjoner med interaktiv graf',
             subtypes: ['analyze', 'derivative', 'integral', 'extrema', 'zeros', 'sketch']
-        }
-    };
-    
-    // ============================================
-    // GRAPH SYSTEM (Funksjonsgrafer)
-    // ============================================
-    
-    var GraphSystem = {
-        /**
-         * Standard farger for grafer
-         */
-        colors: {
-            primary: '#4ade80',      // Grønn - hovedfunksjon
-            secondary: '#3b82f6',    // Blå - derivert
-            tertiary: '#f59e0b',     // Oransje - integral
-            danger: '#ef4444',       // Rød - kostnad
-            purple: '#8b5cf6',       // Lilla - alternativ
-            grid: 'rgba(255,255,255,0.1)',
-            axis: 'rgba(255,255,255,0.3)'
-        },
-        
-        /**
-         * Standard graf-innstillinger
-         */
-        defaultSettings: {
-            xMin: -10,
-            xMax: 10,
-            yMin: -10,
-            yMax: 10,
-            step: 0.1,
-            showGrid: true,
-            showAxis: true,
-            showDerivative: false,
-            showZeros: false,
-            showExtrema: false,
-            showIntersection: false,
-            showElasticity: false,
-            interactive: true
-        },
-        
-        /**
-         * Lag graf-konfigurasjon for en spørsmål
-         */
-        createGraphConfig: function(functionExpr, label, settings) {
-            return {
-                function: functionExpr,
-                functionLabel: label || 'f(x)',
-                variableLabel: settings && settings.variableLabel ? settings.variableLabel : 'x',
-                settings: Object.assign({}, this.defaultSettings, settings || {}),
-                color: settings && settings.color ? settings.color : this.colors.primary
-            };
-        },
-        
-        /**
-         * Vanlige funksjonstyper for økonomi
-         */
-        economicFunctions: {
-            revenue: {
-                name: 'Inntektsfunksjon',
-                template: 'a*x^2 + b*x',
-                description: 'I(x) = ax² + bx (typisk a < 0)',
-                defaultVars: { a: -2, b: 100 }
-            },
-            cost: {
-                name: 'Kostnadsfunksjon',
-                template: 'a*x^3 - b*x^2 + c*x + d',
-                description: 'K(x) = ax³ - bx² + cx + d',
-                defaultVars: { a: 0.01, b: 2, c: 100, d: 5000 }
-            },
-            linear_cost: {
-                name: 'Lineær kostnad',
-                template: 'a + b*x',
-                description: 'K(x) = a + bx (faste + variable)',
-                defaultVars: { a: 5000, b: 50 }
-            },
-            demand: {
-                name: 'Etterspørselsfunksjon',
-                template: 'a - b*x',
-                description: 'p(x) = a - bx eller x(p) = c - dp',
-                defaultVars: { a: 100, b: 2 }
-            },
-            supply: {
-                name: 'Tilbudsfunksjon',
-                template: 'a + b*x',
-                description: 'p(x) = a + bx',
-                defaultVars: { a: 10, b: 1 }
-            },
-            profit: {
-                name: 'Fortjenestefunksjon',
-                template: '-a*x^2 + b*x - c',
-                description: 'F(x) = I(x) - K(x)',
-                defaultVars: { a: 2, b: 80, c: 200 }
-            }
-        },
-        
-        /**
-         * Spørsmålstyper for graf-oppgaver
-         */
-        questionSubtypes: {
-            analyze: {
-                name: 'Full analyse',
-                description: 'Finn nullpunkter, ekstremalpunkter, definisjonsmengde',
-                requiredAnswers: ['zeros', 'extrema', 'domain']
-            },
-            derivative: {
-                name: 'Derivasjon',
-                description: 'Finn derivert og tolkning',
-                requiredAnswers: ['derivative', 'derivativeValue']
-            },
-            extrema: {
-                name: 'Ekstremalpunkter',
-                description: 'Finn topp- og bunnpunkter',
-                requiredAnswers: ['extremaX', 'extremaY', 'extremaType']
-            },
-            zeros: {
-                name: 'Nullpunkter',
-                description: 'Finn hvor funksjonen er null',
-                requiredAnswers: ['zeros']
-            },
-            sketch: {
-                name: 'Skisser graf',
-                description: 'Tegn grafen basert på egenskaper',
-                requiredAnswers: ['sketch']
-            },
-            intersection: {
-                name: 'Skjæringspunkt',
-                description: 'Finn hvor funksjoner krysser',
-                requiredAnswers: ['intersectionX', 'intersectionY']
-            }
         }
     };
     
@@ -1124,7 +1168,7 @@ var QuestionBuilder = (function() {
          * Prosesser en hel oppgave med variabler
          */
         processQuestion: function(question) {
-            // Parse variabler fra spørsmålsteksten
+            // Parse variabler fra spÃ¸rsmÃ¥lsteksten
             var variables = this.parseVariables(question.question || '');
             
             // Generer verdier
@@ -1174,7 +1218,7 @@ var QuestionBuilder = (function() {
                 });
             }
             
-            // Prosesser løsning
+            // Prosesser lÃ¸sning
             if (processed.solution) {
                 if (Array.isArray(processed.solution)) {
                     processed.solution = processed.solution.map(function(sol) {
@@ -1219,19 +1263,19 @@ var QuestionBuilder = (function() {
     
     var DocumentSystem = {
         types: {
-            bilag: { icon: '🧾', name: 'Bilag' },
-            faktura: { icon: '📄', name: 'Faktura' },
-            balanse: { icon: '📊', name: 'Balanse' },
-            resultat: { icon: '📈', name: 'Resultatregnskap' },
-            noter: { icon: '📝', name: 'Noter' },
-            kontoplan: { icon: '📋', name: 'Kontoplan' },
-            kontoutskrift: { icon: '🏦', name: 'Kontoutskrift' },
-            kontrakt: { icon: '📃', name: 'Kontrakt' },
-            brev: { icon: '✉️', name: 'Brev' },
-            rapport: { icon: '📑', name: 'Rapport' },
-            kalkyle: { icon: '🔢', name: 'Kalkyle' },
-            skattemelding: { icon: '🏛️', name: 'Skattemelding' },
-            arsmelding: { icon: '📚', name: 'Årsmelding' }
+            bilag: { icon: 'ðŸ§¾', name: 'Bilag' },
+            faktura: { icon: 'ðŸ“„', name: 'Faktura' },
+            balanse: { icon: 'ðŸ“Š', name: 'Balanse' },
+            resultat: { icon: 'ðŸ“ˆ', name: 'Resultatregnskap' },
+            noter: { icon: 'ðŸ“', name: 'Noter' },
+            kontoplan: { icon: 'ðŸ“‹', name: 'Kontoplan' },
+            kontoutskrift: { icon: 'ðŸ¦', name: 'Kontoutskrift' },
+            kontrakt: { icon: 'ðŸ“ƒ', name: 'Kontrakt' },
+            brev: { icon: 'âœ‰ï¸', name: 'Brev' },
+            rapport: { icon: 'ðŸ“‘', name: 'Rapport' },
+            kalkyle: { icon: 'ðŸ”¢', name: 'Kalkyle' },
+            skattemelding: { icon: 'ðŸ›ï¸', name: 'Skattemelding' },
+            arsmelding: { icon: 'ðŸ“š', name: 'Ã…rsmelding' }
         },
         
         createDocument: function(type, title, content) {
@@ -1262,15 +1306,15 @@ var QuestionBuilder = (function() {
                         <input type="text" class="doc-title" value="' + escapeHtml(doc.title) + '" \
                                placeholder="Dokumenttittel"\
                                onchange="QuestionBuilder.updateDocument(' + questionIndex + ', ' + index + ', \'title\', this.value)">\
-                        <button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteDocument(' + questionIndex + ', ' + index + ')">×</button>\
+                        <button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteDocument(' + questionIndex + ', ' + index + ')">Ã—</button>\
                     </div>\
                     <div class="document-content">\
                         <textarea placeholder="Dokumentinnhold... Bruk variabler som {bruttolonn} eller {var:belop:10000-50000}"\
                                   onchange="QuestionBuilder.updateDocument(' + questionIndex + ', ' + index + ', \'content\', this.value)">' + escapeHtml(doc.content) + '</textarea>\
                     </div>\
                     <div class="document-actions">\
-                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addGridToDocument(' + questionIndex + ', ' + index + ')">📊 Legg til tabell</button>\
-                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.uploadImageToDocument(' + questionIndex + ', ' + index + ')">🖼️ Last opp bilde</button>\
+                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addGridToDocument(' + questionIndex + ', ' + index + ')">ðŸ“Š Legg til tabell</button>\
+                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.uploadImageToDocument(' + questionIndex + ', ' + index + ')">ðŸ–¼ï¸ Last opp bilde</button>\
                     </div>\
                 </div>\
             ';
@@ -1306,25 +1350,25 @@ var QuestionBuilder = (function() {
                     <div class="subquestion-header">\
                         <span class="subq-letter">' + letter + ')</span>\
                         <select class="subq-type" onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'type\', this.value)">\
-                            <option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>🔢 Beregning</option>\
-                            <option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>✅ Flervalg</option>\
-                            <option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>📝 Tekst</option>\
-                            <option value="excel_grid" ' + (subq.type === 'excel_grid' ? 'selected' : '') + '>📊 Grid</option>\
+                            <option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>ðŸ”¢ Beregning</option>\
+                            <option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>âœ… Flervalg</option>\
+                            <option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>ðŸ“ Tekst</option>\
+                            <option value="excel_grid" ' + (subq.type === 'excel_grid' ? 'selected' : '') + '>ðŸ“Š Grid</option>\
                         </select>\
                         <input type="number" class="subq-points" value="' + (subq.points || 5) + '" min="1" max="50"\
                                onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'points\', parseInt(this.value))">\
                         <span class="points-label">poeng</span>\
-                        <button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteSubquestion(' + questionIndex + ', ' + index + ')">×</button>\
+                        <button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteSubquestion(' + questionIndex + ', ' + index + ')">Ã—</button>\
                     </div>\
                     <div class="subquestion-body">\
-                        <textarea placeholder="Delspørsmål ' + letter + ')..."\
+                        <textarea placeholder="DelspÃ¸rsmÃ¥l ' + letter + ')..."\
                                   onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'question\', this.value)">' + escapeHtml(subq.question) + '</textarea>\
                         <div class="subq-solution">\
                             <label>Fasit:</label>\
                             <input type="text" value="' + (subq.solution || '') + '"\
                                    placeholder="Riktig svar"\
                                    onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'solution\', this.value)">\
-                            <label>±</label>\
+                            <label>Â±</label>\
                             <input type="number" class="tolerance" value="' + (subq.tolerance || 0.5) + '" step="0.1"\
                                    onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'tolerance\', parseFloat(this.value))">\
                         </div>\
@@ -1339,15 +1383,15 @@ var QuestionBuilder = (function() {
     // ============================================
     
     var TEMPLATES = {
-        // Bokføring templates
+        // BokfÃ¸ring templates
         bokforing_enkel: {
-            name: 'Enkel bokføring',
+            name: 'Enkel bokfÃ¸ring',
             module: 'grunnleggende',
             topic: 'bokforing',
             type: 'excel_grid',
             template: {
-                title: 'Bokfør transaksjonen',
-                question: 'Bedriften kjøper varer for kr {var:belop:5000-50000:1000} kontant. Bokfør transaksjonen.',
+                title: 'BokfÃ¸r transaksjonen',
+                question: 'Bedriften kjÃ¸per varer for kr {var:belop:5000-50000:1000} kontant. BokfÃ¸r transaksjonen.',
                 grid: {
                     type: 'tkonto',
                     columns: ['Konto', 'Debet', 'Kredit'],
@@ -1361,22 +1405,22 @@ var QuestionBuilder = (function() {
                     { account: '1920', debet: 0, kredit: '{belop}' }
                 ],
                 hints: [
-                    'Varekjøp er en kostnad - hvilken side øker kostnader?',
+                    'VarekjÃ¸p er en kostnad - hvilken side Ã¸ker kostnader?',
                     'Bank er en eiendel som reduseres',
                     'Konto 4300 = Varekostnad, Konto 1920 = Bank'
                 ],
-                explanation: 'Ved kontant varekjøp debiteres konto 4300 (Varekostnad) med {belop} fordi kostnader øker på debet. Bank (1920) krediteres med {belop} fordi vi betaler ut penger.'
+                explanation: 'Ved kontant varekjÃ¸p debiteres konto 4300 (Varekostnad) med {belop} fordi kostnader Ã¸ker pÃ¥ debet. Bank (1920) krediteres med {belop} fordi vi betaler ut penger.'
             }
         },
         
         bokforing_mva: {
-            name: 'Bokføring med MVA',
+            name: 'BokfÃ¸ring med MVA',
             module: 'grunnleggende',
             topic: 'mva',
             type: 'excel_grid',
             template: {
-                title: 'Varekjøp med mva',
-                question: 'Bedriften kjøper varer på kreditt for kr {var:netto:10000-100000:5000} + mva 25%. Bokfør transaksjonen.',
+                title: 'VarekjÃ¸p med mva',
+                question: 'Bedriften kjÃ¸per varer pÃ¥ kreditt for kr {var:netto:10000-100000:5000} + mva 25%. BokfÃ¸r transaksjonen.',
                 grid: {
                     type: 'tkonto',
                     columns: ['Konto', 'Debet', 'Kredit'],
@@ -1392,21 +1436,21 @@ var QuestionBuilder = (function() {
                     { account: '2400', debet: 0, kredit: '{calc:netto*1.25}' }
                 ],
                 hints: [
-                    'Varekjøp føres ekskl. mva på konto 4300',
-                    'Inngående mva (2710) gir oss fradrag - det er et krav',
-                    'Leverandørgjeld = netto + mva = {calc:netto*1.25}'
+                    'VarekjÃ¸p fÃ¸res ekskl. mva pÃ¥ konto 4300',
+                    'InngÃ¥ende mva (2710) gir oss fradrag - det er et krav',
+                    'LeverandÃ¸rgjeld = netto + mva = {calc:netto*1.25}'
                 ]
             }
         },
         
         lonn_enkel: {
-            name: 'Lønnsutbetaling',
+            name: 'LÃ¸nnsutbetaling',
             module: 'grunnleggende',
             topic: 'lonn',
             type: 'excel_grid',
             template: {
-                title: 'Bokfør lønnsutbetaling',
-                question: 'Bedriften utbetaler lønn: Bruttolønn kr {var:brutto:30000-60000:5000}, skattetrekk {var:skatteprosent:25,30,35}%. Bokfør lønnsutbetalingen.',
+                title: 'BokfÃ¸r lÃ¸nnsutbetaling',
+                question: 'Bedriften utbetaler lÃ¸nn: BruttolÃ¸nn kr {var:brutto:30000-60000:5000}, skattetrekk {var:skatteprosent:25,30,35}%. BokfÃ¸r lÃ¸nnsutbetalingen.',
                 grid: {
                     type: 'tkonto',
                     columns: ['Konto', 'Debet', 'Kredit'],
@@ -1432,7 +1476,7 @@ var QuestionBuilder = (function() {
             type: 'excel_grid',
             template: {
                 title: 'Beregn WACC',
-                question: 'Et selskap har egenkapital på {var:ek:40-80:10} MNOK og gjeld på {var:gjeld:20-60:10} MNOK. Avkastningskrav EK er {var:re:10-15}%, gjeldskostnad er {var:rd:4-8}%, skattesats er {var:skatt:20,22,25}%. Beregn WACC.',
+                question: 'Et selskap har egenkapital pÃ¥ {var:ek:40-80:10} MNOK og gjeld pÃ¥ {var:gjeld:20-60:10} MNOK. Avkastningskrav EK er {var:re:10-15}%, gjeldskostnad er {var:rd:4-8}%, skattesats er {var:skatt:20,22,25}%. Beregn WACC.',
                 grid: {
                     type: 'parameter',
                     columns: ['Parameter', 'Verdi'],
@@ -1463,13 +1507,13 @@ var QuestionBuilder = (function() {
             type: 'excel_grid',
             template: {
                 title: 'Beregn NPV',
-                question: 'Et prosjekt krever investering på kr {var:invest:100000-500000:50000} og gir årlige kontantstrømmer på kr {var:cf:20000-100000:10000} i {var:n:3,4,5} år. Avkastningskrav er {var:r:8,10,12}%. Beregn NPV.',
+                question: 'Et prosjekt krever investering pÃ¥ kr {var:invest:100000-500000:50000} og gir Ã¥rlige kontantstrÃ¸mmer pÃ¥ kr {var:cf:20000-100000:10000} i {var:n:3,4,5} Ã¥r. Avkastningskrav er {var:r:8,10,12}%. Beregn NPV.',
                 grid: {
                     type: 'parameter',
                     columns: ['Parameter', 'Verdi'],
                     rows: [
-                        { cells: [{ value: 'Investering (I₀)', editable: false }, { value: '-{invest}', editable: false }] },
-                        { cells: [{ value: 'Årlig CF', editable: false }, { value: '{cf}', editable: false }] },
+                        { cells: [{ value: 'Investering (Iâ‚€)', editable: false }, { value: '-{invest}', editable: false }] },
+                        { cells: [{ value: 'Ã…rlig CF', editable: false }, { value: '{cf}', editable: false }] },
                         { cells: [{ value: 'Perioder (n)', editable: false }, { value: '{n}', editable: false }] },
                         { cells: [{ value: 'Rente (r)', editable: false }, { value: '{r}%', editable: false }] },
                         { cells: [{ value: 'NPV', editable: false }, { value: '', editable: true }] }
@@ -1481,13 +1525,13 @@ var QuestionBuilder = (function() {
         
         // Case Study template
         case_arsoppgjor: {
-            name: 'Årsoppgjør Case',
+            name: 'Ã…rsoppgjÃ¸r Case',
             module: 'grunnleggende',
             topic: 'arsavslutning',
             type: 'case_study',
             template: {
-                title: 'Årsoppgjør for Eksempel AS',
-                question: 'Du er regnskapsfører for Eksempel AS og skal gjennomføre årsoppgjøret. Se vedlagte dokumenter og svar på delspørsmålene.',
+                title: 'Ã…rsoppgjÃ¸r for Eksempel AS',
+                question: 'Du er regnskapsfÃ¸rer for Eksempel AS og skal gjennomfÃ¸re Ã¥rsoppgjÃ¸ret. Se vedlagte dokumenter og svar pÃ¥ delspÃ¸rsmÃ¥lene.',
                 documents: [
                     {
                         type: 'balanse',
@@ -1497,19 +1541,19 @@ var QuestionBuilder = (function() {
                     {
                         type: 'bilag',
                         title: 'Bilag - Ubetalt faktura',
-                        content: 'Faktura til kunde Ola Hansen\nBeløp: {var:utestaaende:15000-50000:5000}\nForfalt: Ja, over 90 dager'
+                        content: 'Faktura til kunde Ola Hansen\nBelÃ¸p: {var:utestaaende:15000-50000:5000}\nForfalt: Ja, over 90 dager'
                     }
                 ],
                 subquestions: [
                     {
                         letter: 'a',
-                        question: 'Bør kundefordringen på {utestaaende} avskrives? Begrunn svaret.',
+                        question: 'BÃ¸r kundefordringen pÃ¥ {utestaaende} avskrives? Begrunn svaret.',
                         type: 'text',
                         points: 5
                     },
                     {
                         letter: 'b',
-                        question: 'Hvis ja, bokfør avskrivningen.',
+                        question: 'Hvis ja, bokfÃ¸r avskrivningen.',
                         type: 'excel_grid',
                         points: 10,
                         grid: {
@@ -1533,7 +1577,7 @@ var QuestionBuilder = (function() {
             type: 'excel_grid',
             template: {
                 title: 'Beregn WACC',
-                question: 'Gitt følgende informasjon om selskapets kapitalstruktur, beregn WACC. Avkastningskrav på EK er {var:re:10-15}%, gjeldskostnad er {var:rd:4-8}%, og skattesats er {var:skatt:22}%.',
+                question: 'Gitt fÃ¸lgende informasjon om selskapets kapitalstruktur, beregn WACC. Avkastningskrav pÃ¥ EK er {var:re:10-15}%, gjeldskostnad er {var:rd:4-8}%, og skattesats er {var:skatt:22}%.',
                 infoTables: [
                     {
                         title: 'Kapitalstruktur',
@@ -1555,11 +1599,11 @@ var QuestionBuilder = (function() {
                     ]
                 },
                 hints: [
-                    'WACC = (E/V) × Re + (D/V) × Rd × (1-T)',
+                    'WACC = (E/V) Ã— Re + (D/V) Ã— Rd Ã— (1-T)',
                     'E/V = EK / (EK + Gjeld)',
-                    'Husk å justere gjeldskostnaden for skatt'
+                    'Husk Ã¥ justere gjeldskostnaden for skatt'
                 ],
-                explanation: 'WACC beregnes ved å vekte kostnadene for egenkapital og gjeld etter deres andel av total kapital.'
+                explanation: 'WACC beregnes ved Ã¥ vekte kostnadene for egenkapital og gjeld etter deres andel av total kapital.'
             }
         },
         
@@ -1571,14 +1615,14 @@ var QuestionBuilder = (function() {
             type: 'inline_input',
             template: {
                 title: 'Beregn bruttofortjeneste',
-                question: 'Salgspris er kr {var:salg:500-2000:100} inkl. mva (25%). Innkjøpspris er kr {var:innkjop:200-800:50} ekskl. mva.\n\nSalgspris ekskl. mva: [___salgeksmva:currency___]\nBruttofortjeneste: [___bruttofortjeneste:currency___]',
+                question: 'Salgspris er kr {var:salg:500-2000:100} inkl. mva (25%). InnkjÃ¸pspris er kr {var:innkjop:200-800:50} ekskl. mva.\n\nSalgspris ekskl. mva: [___salgeksmva:currency___]\nBruttofortjeneste: [___bruttofortjeneste:currency___]',
                 fieldAnswers: {
                     salgeksmva: '{calc:salg/1.25}',
                     bruttofortjeneste: '{calc:salg/1.25 - innkjop}'
                 },
                 hints: [
                     'Salgspris ekskl. mva = Salgspris inkl. / 1.25',
-                    'Bruttofortjeneste = Salgspris ekskl. - Innkjøpspris'
+                    'Bruttofortjeneste = Salgspris ekskl. - InnkjÃ¸pspris'
                 ]
             }
         },
@@ -1591,7 +1635,7 @@ var QuestionBuilder = (function() {
             type: 'calculation',
             template: {
                 title: 'Rask regning',
-                question: 'Regn ut: {var:a:10-99} × {var:b:2-9} + {var:c:10-50}',
+                question: 'Regn ut: {var:a:10-99} Ã— {var:b:2-9} + {var:c:10-50}',
                 solution: '{calc:a*b+c}',
                 timeLimit: 30
             }
@@ -1605,19 +1649,16 @@ var QuestionBuilder = (function() {
             type: 'calculation',
             template: {
                 title: 'Deriver funksjonen',
-                question: 'Gitt f(x) = {var:a:2-5}x³ + {var:b:3-8}x² - {var:c:1-10}x. Finn f\'(x) når x = {var:x:1-5}.',
+                question: 'Gitt f(x) = {var:a:2-5}xÂ³ + {var:b:3-8}xÂ² - {var:c:1-10}x. Finn f\'(x) nÃ¥r x = {var:x:1-5}.',
                 solution: '{calc:3*a*Math.pow(x,2) + 2*b*x - c}',
                 hints: [
-                    'f\'(x) = {calc:3*a}x² + {calc:2*b}x - {c}',
+                    'f\'(x) = {calc:3*a}xÂ² + {calc:2*b}x - {c}',
                     'Sett inn x = {x}'
                 ]
             }
         },
         
-        // ============================================
-        // GRAF-TEMPLATES
-        // ============================================
-        
+        // Graf-templates
         graf_andregradsfunksjon: {
             name: 'Andregradsfunksjon - Graf',
             module: 'matte_okonomer',
@@ -1626,7 +1667,7 @@ var QuestionBuilder = (function() {
             template: {
                 title: 'Analyser andregradsfunksjonen',
                 question: 'Gitt inntektsfunksjonen $I(p) = {var:a:-5,-4,-3,-2}p^2 + {var:b:40,50,60,80}p$ der p er pris.\n\na) Finn nullpunktene\nb) Finn toppunktet\nc) For hvilke verdier av p gir funksjonen positiv inntekt?',
-                function: '{a}*x^2 + {b}*x',
+                function: '{a}*p^2 + {b}*p',
                 functionLabel: 'I(p)',
                 variableLabel: 'p',
                 graphSettings: {
@@ -1660,6 +1701,7 @@ var QuestionBuilder = (function() {
             template: {
                 title: 'Kostnad- og inntektsanalyse',
                 question: 'En bedrift har:\n- Inntektsfunksjon: $I(x) = {var:pris:80,100,120}x$\n- Kostnadsfunksjon: $K(x) = {var:fast:5000,8000,10000} + {var:variabel:30,40,50}x$\n\nFinn nullpunktet (break-even) og maksimal fortjeneste hvis kapasiteten er {var:kapasitet:100,150,200} enheter.',
+                variableLabel: 'x',
                 functions: [
                     { expr: '{pris}*x', label: 'I(x)', color: '#4ade80' },
                     { expr: '{fast} + {variabel}*x', label: 'K(x)', color: '#ef4444' },
@@ -1694,6 +1736,7 @@ var QuestionBuilder = (function() {
                 question: 'Produksjonskostnaden for x enheter er gitt ved:\n$K(x) = {var:a:0.01,0.02,0.05}x^3 - {var:b:2,3,4}x^2 + {var:c:100,150,200}x + {var:d:1000,2000,5000}$\n\na) Finn grensekostnaden K\'(x)\nb) For hvilken x er grensekostnaden lavest?\nc) Beregn grensekostnaden når x = {var:x:50,60,80}',
                 function: '{a}*x^3 - {b}*x^2 + {c}*x + {d}',
                 functionLabel: 'K(x)',
+                variableLabel: 'x',
                 graphSettings: {
                     xMin: 0,
                     xMax: 150,
@@ -1717,18 +1760,19 @@ var QuestionBuilder = (function() {
             type: 'function_graph',
             template: {
                 title: 'Markedslikevekt',
-                question: 'I et marked er:\n- Etterspørselsfunksjon: $x_D = {var:a:200,300,400} - {var:b:2,3,4}p$\n- Tilbudsfunksjon: $x_S = {var:c:20,40,50} + {var:d:3,4,5}p$\n\nFinn likevektspris og likevektskvantum. Tegn grafene.',
+                question: 'I et marked er:\n- Etterspørselsfunksjonen: $x_D = {var:a:200,300,400} - {var:b:2,3,4}p$\n- Tilbudsfunksjonen: $x_S = {var:c:20,40,50} + {var:d:3,4,5}p$\n\nFinn likevektspris og likevektskvantum. Tegn grafene.',
+                variableLabel: 'p',
                 functions: [
-                    { expr: '({a} - x)/{b}', label: 'Etterspørsel (p)', color: '#3b82f6' },
-                    { expr: '(x - {c})/{d}', label: 'Tilbud (p)', color: '#4ade80' }
+                    { expr: '{a} - {b}*p', label: 'Etterspørsel x_D(p)', color: '#3b82f6' },
+                    { expr: '{c} + {d}*p', label: 'Tilbud x_S(p)', color: '#4ade80' }
                 ],
                 graphSettings: {
-                    xLabel: 'Kvantum (x)',
-                    yLabel: 'Pris (p)',
+                    xLabel: 'Pris (p)',
+                    yLabel: 'Kvantum (x)',
                     xMin: 0,
-                    xMax: 250,
+                    xMax: 100,
                     yMin: 0,
-                    yMax: 100,
+                    yMax: 500,
                     showIntersection: true
                 },
                 solution: {
@@ -1751,18 +1795,20 @@ var QuestionBuilder = (function() {
             template: {
                 title: 'Beregn priselastisitet',
                 question: 'Etterspørselsfunksjonen er gitt ved:\n$x(p) = {var:a:1000,2000,5000} - {var:b:10,20,50}p$\n\na) Finn priselastisiteten som funksjon av p\nb) Beregn elastisiteten når p = {var:p:20,30,40}\nc) Er etterspørselen elastisk eller uelastisk ved denne prisen?',
-                function: '{a} - {b}*x',
+                function: '{a} - {b}*p',
                 functionLabel: 'x(p)',
+                variableLabel: 'p',
                 graphSettings: {
                     xMin: 0,
-                    xMax: 100,
+                    xMax: '{calc:a/b + 10}',
                     yMin: 0,
-                    yMax: 6000,
+                    yMax: '{calc:a + 100}',
                     showElasticity: true
                 },
                 solution: {
                     elasticityFormula: 'E_p = (dx/dp) * (p/x) = -{b} * p / ({a} - {b}p)',
-                    elasticityAtP: '{calc:-b * p / (a - b*p)}'
+                    elasticityAtP: '{calc:-b * p / (a - b*p)}',
+                    interpretation: '{calc:Math.abs(-b * p / (a - b*p)) > 1 ? "elastisk" : "uelastisk"}'
                 }
             }
         }
@@ -1842,7 +1888,7 @@ var QuestionBuilder = (function() {
     
     function addQuestion(type) {
         if (state.currentSetIndex < 0) {
-            showToast('Opprett et sett først', 'error');
+            showToast('Opprett et sett fÃ¸rst', 'error');
             return null;
         }
         
@@ -1852,7 +1898,7 @@ var QuestionBuilder = (function() {
         var question = {
             id: generateId(),
             type: type || 'calculation',
-            title: 'Nytt spørsmål',
+            title: 'Nytt spÃ¸rsmÃ¥l',
             question: '',
             topic: set.topic,
             difficulty: set.difficulty || 'medium',
@@ -1886,25 +1932,11 @@ var QuestionBuilder = (function() {
             question.items = [];
         } else if (type === 'case_study') {
             question.documents = [];
+            question.subquestions = [];
         } else if (type === 'inline_input') {
             question.question = 'Skriv inn svaret: [___svar:number___]';
             question.fieldAnswers = { svar: '' };
-        } else if (type === 'function_graph') {
-            question.function = '';
-            question.functionLabel = 'f(x)';
-            question.variableLabel = 'x';
-            question.graphSettings = {
-                xMin: -10, xMax: 10,
-                yMin: -10, yMax: 10,
-                showZeros: true,
-                showExtrema: true,
-                showDerivative: false
-            };
-            question.solution = {};
         }
-        
-        // Alle typer kan ha subquestions (delspørsmål a, b, c, d)
-        question.subquestions = [];
         
         set.questions.push(question);
         set.updated = Date.now();
@@ -2349,7 +2381,7 @@ var QuestionBuilder = (function() {
         set.questions.forEach(function(q, i) {
             var id = q.id || set.module + '_' + set.topic + '_' + (i + 1);
             
-            sql += '-- Spørsmål ' + (i + 1) + ': ' + q.title + '\n';
+            sql += '-- SpÃ¸rsmÃ¥l ' + (i + 1) + ': ' + q.title + '\n';
             sql += 'INSERT OR REPLACE INTO questions (id, module_id, type, topic, title, question, difficulty, points) VALUES\n';
             sql += "('" + id + "', '" + set.module + "', '" + q.type + "', '" + (q.topic || set.topic) + "', ";
             sql += "'" + escapeSql(q.title) + "', '" + escapeSql(q.question) + "', '" + (q.difficulty || 'medium') + "', " + (q.points || 10) + ");\n\n";
@@ -2431,7 +2463,7 @@ var QuestionBuilder = (function() {
     function saveToApi() {
         var set = state.sets[state.currentSetIndex];
         if (!set || set.questions.length === 0) {
-            showToast('Ingen spørsmål å lagre', 'error');
+            showToast('Ingen spÃ¸rsmÃ¥l Ã¥ lagre', 'error');
             return Promise.reject('No questions');
         }
         
@@ -2469,7 +2501,7 @@ var QuestionBuilder = (function() {
         })
         .then(function(result) {
             state.unsavedChanges = false;
-            showToast('Lagret ' + (result.imported || questions.length) + ' spørsmål!', 'success');
+            showToast('Lagret ' + (result.imported || questions.length) + ' spÃ¸rsmÃ¥l!', 'success');
             return result;
         })
         .catch(function(err) {
@@ -2492,7 +2524,7 @@ var QuestionBuilder = (function() {
             })
             .then(function(questions) {
                 if (questions.length === 0) {
-                    showToast('Ingen spørsmål funnet', 'warning');
+                    showToast('Ingen spÃ¸rsmÃ¥l funnet', 'warning');
                     return [];
                 }
                 
@@ -2526,7 +2558,7 @@ var QuestionBuilder = (function() {
                 });
                 
                 saveToStorage();
-                showToast('Lastet ' + questions.length + ' spørsmål!', 'success');
+                showToast('Lastet ' + questions.length + ' spÃ¸rsmÃ¥l!', 'success');
                 return questions;
             })
             .catch(function(err) {
