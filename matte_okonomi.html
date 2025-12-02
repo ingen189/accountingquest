@@ -2372,6 +2372,9 @@
             var yMin = settings.yMin !== undefined ? settings.yMin : -100;
             var yMax = settings.yMax !== undefined ? settings.yMax : 500;
             
+            // Bruk variabelnavnet fra oppgaven (p, x, t, etc.)
+            var varName = q.variableLabel || 'x';
+            
             try {
                 var datasets = [];
                 
@@ -2379,10 +2382,10 @@
                 if (q.function) {
                     var expr = substituteVariables(q.function, q.data || {});
                     var compiled = math.compile(expr);
-                    var data = generateGraphData(compiled, xMin, xMax);
+                    var data = generateGraphDataWithVar(compiled, varName, xMin, xMax);
                     
                     datasets.push({
-                        label: q.functionLabel || 'f(x)',
+                        label: q.functionLabel || 'f(' + varName + ')',
                         data: data,
                         borderColor: '#4ade80',
                         backgroundColor: 'rgba(74, 222, 128, 0.1)',
@@ -2394,12 +2397,12 @@
                     // Derivert hvis aktivert
                     if (settings.showDerivative) {
                         try {
-                            var derivative = math.derivative(expr, 'x').toString();
+                            var derivative = math.derivative(expr, varName).toString();
                             var derivCompiled = math.compile(derivative);
-                            var derivData = generateGraphData(derivCompiled, xMin, xMax);
+                            var derivData = generateGraphDataWithVar(derivCompiled, varName, xMin, xMax);
                             
                             datasets.push({
-                                label: "f'(x) = " + derivative,
+                                label: "f'(" + varName + ") = " + derivative,
                                 data: derivData,
                                 borderColor: '#3b82f6',
                                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -2421,10 +2424,10 @@
                         try {
                             var expr = substituteVariables(fn.expr, q.data || {});
                             var compiled = math.compile(expr);
-                            var data = generateGraphData(compiled, xMin, xMax);
+                            var data = generateGraphDataWithVar(compiled, varName, xMin, xMax);
                             
                             datasets.push({
-                                label: fn.label || 'f' + (i+1) + '(x)',
+                                label: fn.label || 'f' + (i+1) + '(' + varName + ')',
                                 data: data,
                                 borderColor: fn.color || colors[i % colors.length],
                                 fill: false,
@@ -2459,7 +2462,7 @@
                                 ticks: { color: '#9ca3af' },
                                 title: {
                                     display: true,
-                                    text: settings.xLabel || (q.variableLabel || 'x'),
+                                    text: settings.xLabel || varName,
                                     color: '#9ca3af'
                                 }
                             },
@@ -2493,20 +2496,27 @@
             }
         }
         
-        function generateGraphData(compiled, xMin, xMax) {
+        function generateGraphDataWithVar(compiled, varName, xMin, xMax) {
             var data = [];
             var step = (xMax - xMin) / 300;
             
-            for (var x = xMin; x <= xMax; x += step) {
+            for (var val = xMin; val <= xMax; val += step) {
                 try {
-                    var y = compiled.evaluate({ x: x });
+                    var scope = {};
+                    scope[varName] = val;
+                    var y = compiled.evaluate(scope);
                     if (isFinite(y) && Math.abs(y) < 100000) {
-                        data.push({ x: x, y: y });
+                        data.push({ x: val, y: y });
                     }
                 } catch (e) {}
             }
             
             return data;
+        }
+        
+        function generateGraphData(compiled, xMin, xMax) {
+            // Fallback for bakoverkompatibilitet
+            return generateGraphDataWithVar(compiled, 'x', xMin, xMax);
         }
         
         function substituteVariables(expr, data) {

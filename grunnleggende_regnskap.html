@@ -3898,19 +3898,22 @@
             var yMin = settings.yMin !== undefined ? settings.yMin : -100;
             var yMax = settings.yMax !== undefined ? settings.yMax : 500;
             
+            // Bruk variabelnavnet fra oppgaven (p, x, t, etc.)
+            var varName = q.variableLabel || 'x';
+            
             try {
                 var datasets = [];
                 if (q.function) {
                     var expr = substituteGraphVariables(q.function, q.data || {});
                     var compiled = math.compile(expr);
-                    datasets.push({ label: q.functionLabel || 'f(x)', data: generateGraphData(compiled, xMin, xMax), borderColor: '#4ade80', fill: false, pointRadius: 0, borderWidth: 2 });
+                    datasets.push({ label: q.functionLabel || 'f(' + varName + ')', data: generateGraphDataWithVar(compiled, varName, xMin, xMax), borderColor: '#4ade80', fill: false, pointRadius: 0, borderWidth: 2 });
                 }
                 if (q.functions && Array.isArray(q.functions)) {
                     var colors = ['#4ade80', '#ef4444', '#3b82f6', '#f59e0b'];
                     q.functions.forEach(function(fn, i) {
                         try {
                             var expr = substituteGraphVariables(fn.expr, q.data || {});
-                            datasets.push({ label: fn.label, data: generateGraphData(math.compile(expr), xMin, xMax), borderColor: fn.color || colors[i % colors.length], fill: false, pointRadius: 0, borderWidth: 2 });
+                            datasets.push({ label: fn.label, data: generateGraphDataWithVar(math.compile(expr), varName, xMin, xMax), borderColor: fn.color || colors[i % colors.length], fill: false, pointRadius: 0, borderWidth: 2 });
                         } catch (e) {}
                     });
                 }
@@ -3918,7 +3921,7 @@
                 window.inlineGraphChart = new Chart(canvas, {
                     type: 'line', data: { datasets: datasets },
                     options: { responsive: true, maintainAspectRatio: false,
-                        scales: { x: { type: 'linear', position: 'center', min: xMin, max: xMax, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        scales: { x: { type: 'linear', position: 'center', min: xMin, max: xMax, grid: { color: 'rgba(255,255,255,0.1)' }, title: { display: true, text: varName, color: '#9ca3af' } },
                                   y: { type: 'linear', position: 'center', min: yMin, max: yMax, grid: { color: 'rgba(255,255,255,0.1)' } } },
                         plugins: { legend: { display: true, labels: { color: '#e0e0e0' } } }
                     }
@@ -3926,12 +3929,16 @@
             } catch (e) { console.error('Graf feilet:', e); }
         }
         
-        function generateGraphData(compiled, xMin, xMax) {
+        function generateGraphDataWithVar(compiled, varName, xMin, xMax) {
             var data = [], step = (xMax - xMin) / 300;
-            for (var x = xMin; x <= xMax; x += step) {
-                try { var y = compiled.evaluate({ x: x }); if (isFinite(y) && Math.abs(y) < 100000) data.push({ x: x, y: y }); } catch (e) {}
+            for (var val = xMin; val <= xMax; val += step) {
+                try { var scope = {}; scope[varName] = val; var y = compiled.evaluate(scope); if (isFinite(y) && Math.abs(y) < 100000) data.push({ x: val, y: y }); } catch (e) {}
             }
             return data;
+        }
+        
+        function generateGraphData(compiled, xMin, xMax) {
+            return generateGraphDataWithVar(compiled, 'x', xMin, xMax);
         }
         
         function substituteGraphVariables(expr, data) {

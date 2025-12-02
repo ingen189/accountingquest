@@ -687,25 +687,28 @@
         }
         
         function renderFunctionGraphBuilder(q, index) {
-            var settings = q.graphSettings || { xMin: -10, xMax: 10, yMin: -10, yMax: 10, showZeros: true, showExtrema: true, showDerivative: false };
+            var settings = q.graphSettings || { xMin: -10, xMax: 30, yMin: -100, yMax: 500, showZeros: true, showExtrema: true, showDerivative: false };
             var solution = q.solution || {};
             
             return '<div class="function-graph-builder" style="margin-top:12px;background:var(--bg-tertiary);border-radius:8px;padding:16px;">' +
-                '<h4 style="margin-bottom:12px;color:var(--accent);">📈 Graf-innstillinger</h4>' +
+                '<h4 style="margin-bottom:12px;color:var(--accent);">📈 Graf-konfigurasjon</h4>' +
                 
-                // Funksjon
+                // Funksjon - nå med hint om å bruke variabelnavnet
                 '<div class="form-group">' +
-                    '<label>Funksjon <small style="color:var(--text-muted);">(bruk x som variabel, f.eks: -3*x^2 + 60*x)</small></label>' +
-                    '<input type="text" value="' + escapeHtml(q.function || '') + '" placeholder="-3*x^2 + 60*x" onchange="updateGraphProperty(' + index + ', \'function\', this.value)">' +
+                    '<label>📐 Hovedfunksjon <small style="color:var(--text-muted);">(bruk variabelnavnet nedenfor, f.eks: -3*p^2 + 60*p)</small></label>' +
+                    '<input type="text" id="graph-func-' + index + '" value="' + escapeHtml(q.function || '') + '" placeholder="-3*p^2 + 60*p" onchange="updateGraphProperty(' + index + ', \'function\', this.value)">' +
                 '</div>' +
                 
                 '<div class="form-row">' +
                     '<div class="form-group"><label>Funksjonsnavn</label><input type="text" value="' + escapeHtml(q.functionLabel || 'f(x)') + '" placeholder="I(p)" onchange="updateGraphProperty(' + index + ', \'functionLabel\', this.value)"></div>' +
-                    '<div class="form-group"><label>Variabelnavn</label><input type="text" value="' + escapeHtml(q.variableLabel || 'x') + '" placeholder="p" onchange="updateGraphProperty(' + index + ', \'variableLabel\', this.value)"></div>' +
+                    '<div class="form-group"><label>Variabelnavn</label><input type="text" id="graph-var-' + index + '" value="' + escapeHtml(q.variableLabel || 'x') + '" placeholder="p" onchange="updateGraphProperty(' + index + ', \'variableLabel\', this.value)"></div>' +
                 '</div>' +
                 
+                // Legg til funksjon
+                '<div style="margin:12px 0;"><button class="btn btn-sm btn-secondary" onclick="addExtraFunction(' + index + ')">+ Legg til funksjon</button></div>' +
+                
                 // Akse-innstillinger
-                '<div class="collapsible-header" onclick="toggleSection(this)" style="margin-top:12px;"><span>⚙️ Akse-innstillinger</span><span>▼</span></div>' +
+                '<div class="collapsible-header" onclick="toggleSection(this)" style="margin-top:12px;"><span>⚙️ Graf-innstillinger</span><span>▼</span></div>' +
                 '<div class="collapsible-content">' +
                     '<div class="form-row">' +
                         '<div class="form-group"><label>X min</label><input type="number" value="' + settings.xMin + '" onchange="updateGraphSettings(' + index + ', \'xMin\', parseFloat(this.value))"></div>' +
@@ -721,18 +724,108 @@
                 '</div>' +
                 
                 // Fasit
-                '<div class="collapsible-header" onclick="toggleSection(this)" style="margin-top:12px;"><span>✅ Fasit (løsninger)</span><span>▼</span></div>' +
-                '<div class="collapsible-content">' +
+                '<div class="collapsible-header" onclick="toggleSection(this)" style="margin-top:12px;"><span>🎯 Forventede svar</span><span>▼</span></div>' +
+                '<div class="collapsible-content open">' +
                     '<div class="form-row">' +
                         '<div class="form-group"><label>Nullpunkter <small>(kommaseparert)</small></label><input type="text" value="' + (Array.isArray(solution.zeros) ? solution.zeros.join(', ') : (solution.zeros || '')) + '" placeholder="0, 20" onchange="updateGraphSolution(' + index + ', \'zeros\', this.value)"></div>' +
                     '</div>' +
                     '<div class="form-row">' +
                         '<div class="form-group"><label>Ekstremalpunkt X</label><input type="text" value="' + (solution.extrema && solution.extrema.x !== undefined ? solution.extrema.x : '') + '" placeholder="10" onchange="updateGraphExtrema(' + index + ', \'x\', this.value)"></div>' +
                         '<div class="form-group"><label>Ekstremalpunkt Y</label><input type="text" value="' + (solution.extrema && solution.extrema.y !== undefined ? solution.extrema.y : '') + '" placeholder="300" onchange="updateGraphExtrema(' + index + ', \'y\', this.value)"></div>' +
-                        '<div class="form-group"><label>Type</label><select onchange="updateGraphExtrema(' + index + ', \'type\', this.value)"><option value="max" ' + (solution.extrema && solution.extrema.type === 'max' ? 'selected' : '') + '>Maksimum</option><option value="min" ' + (solution.extrema && solution.extrema.type === 'min' ? 'selected' : '') + '>Minimum</option></select></div>' +
+                        '<div class="form-group"><label>Type (max/min)</label><select onchange="updateGraphExtrema(' + index + ', \'type\', this.value)"><option value="max" ' + (solution.extrema && solution.extrema.type === 'max' ? 'selected' : '') + '>Maksimum</option><option value="min" ' + (solution.extrema && solution.extrema.type === 'min' ? 'selected' : '') + '>Minimum</option></select></div>' +
+                    '</div>' +
+                    '<div class="form-row">' +
+                        '<div class="form-group"><label>Toleranse (±)</label><input type="number" step="0.1" value="' + (q.tolerance || 0.5) + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'tolerance\', parseFloat(this.value))"></div>' +
                     '</div>' +
                 '</div>' +
+                
+                // Forhåndsvisning
+                '<div style="margin-top:16px;">' +
+                    '<button class="btn btn-secondary" onclick="previewGraph(' + index + ')">👁 Forhåndsvis graf</button>' +
+                '</div>' +
+                '<div id="graph-preview-container-' + index + '" style="margin-top:12px;display:none;">' +
+                    '<canvas id="graph-preview-' + index + '" style="width:100%;height:250px;background:var(--bg-primary);border-radius:8px;"></canvas>' +
+                '</div>' +
             '</div>';
+        }
+        
+        function previewGraph(qIndex) {
+            var s = QuestionBuilder.getState();
+            var q = s.sets[s.currentSetIndex].questions[qIndex];
+            if (!q || !q.function) {
+                alert('Skriv inn en funksjon først!');
+                return;
+            }
+            
+            var container = document.getElementById('graph-preview-container-' + qIndex);
+            var canvas = document.getElementById('graph-preview-' + qIndex);
+            container.style.display = 'block';
+            
+            var settings = q.graphSettings || {};
+            var xMin = settings.xMin !== undefined ? settings.xMin : -10;
+            var xMax = settings.xMax !== undefined ? settings.xMax : 30;
+            var yMin = settings.yMin !== undefined ? settings.yMin : -100;
+            var yMax = settings.yMax !== undefined ? settings.yMax : 500;
+            
+            // Bruk variabelnavnet fra oppgaven (p, x, t, etc.)
+            var varName = q.variableLabel || 'x';
+            
+            try {
+                // Erstatt variabelnavnet med x for Math.js (internt)
+                var expr = q.function;
+                
+                // Kompiler og generer data
+                var compiled = math.compile(expr);
+                var data = [];
+                var step = (xMax - xMin) / 300;
+                
+                for (var val = xMin; val <= xMax; val += step) {
+                    try {
+                        // Evaluer med dynamisk variabelnavn
+                        var scope = {};
+                        scope[varName] = val;
+                        var y = compiled.evaluate(scope);
+                        if (isFinite(y) && Math.abs(y) < 100000) {
+                            data.push({ x: val, y: y });
+                        }
+                    } catch (e) {}
+                }
+                
+                // Destroy eksisterende chart
+                if (window['graphPreviewChart_' + qIndex]) {
+                    window['graphPreviewChart_' + qIndex].destroy();
+                }
+                
+                window['graphPreviewChart_' + qIndex] = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: q.functionLabel || 'f(' + varName + ')',
+                            data: data,
+                            borderColor: '#4ade80',
+                            backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                            fill: false,
+                            pointRadius: 0,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { type: 'linear', position: 'center', min: xMin, max: xMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } },
+                            y: { type: 'linear', position: 'center', min: yMin, max: yMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } }
+                        },
+                        plugins: { legend: { display: true, labels: { color: '#e0e0e0' }, position: 'top' } }
+                    }
+                });
+            } catch (e) {
+                alert('Feil i funksjonen: ' + e.message + '\n\nHusk å bruke * for multiplikasjon, f.eks: -3*p^2 + 60*p');
+            }
+        }
+        
+        function addExtraFunction(qIndex) {
+            alert('Flere funksjoner kommer snart! For nå, bruk én funksjon per oppgave.');
         }
         
         // Graf-hjelpefunksjoner
