@@ -2056,8 +2056,9 @@
                 var response = await fetch(API_URL + '/api' + endpoint);
                 if (!response.ok) throw new Error('API error: ' + response.status);
                 var data = await response.json();
-                console.log('API Response:', data.length || data, 'items');
-                return data;
+                var result = data.questions || data;
+                console.log('API Response:', result.length || Object.keys(result).length, 'items');
+                return result;
             } catch (err) {
                 console.error('API call failed:', err);
                 return [];
