@@ -1886,11 +1886,25 @@ var QuestionBuilder = (function() {
             question.items = [];
         } else if (type === 'case_study') {
             question.documents = [];
-            question.subquestions = [];
         } else if (type === 'inline_input') {
             question.question = 'Skriv inn svaret: [___svar:number___]';
             question.fieldAnswers = { svar: '' };
+        } else if (type === 'function_graph') {
+            question.function = '';
+            question.functionLabel = 'f(x)';
+            question.variableLabel = 'x';
+            question.graphSettings = {
+                xMin: -10, xMax: 10,
+                yMin: -10, yMax: 10,
+                showZeros: true,
+                showExtrema: true,
+                showDerivative: false
+            };
+            question.solution = {};
         }
+        
+        // Alle typer kan ha subquestions (delspørsmål a, b, c, d)
+        question.subquestions = [];
         
         set.questions.push(question);
         set.updated = Date.now();

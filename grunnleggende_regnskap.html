@@ -1562,7 +1562,148 @@
                 display: flex;
             }
         }
+        
+        /* Function Graph Styles */
+        .function-graph-section {
+            margin-top: var(--space-md);
+        }
+        
+        .graph-inline-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+        
+        .graph-inline-canvas {
+            width: 100%;
+            height: 300px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+        }
+        
+        .graph-answer-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-top: var(--space-md);
+        }
+        
+        .graph-answer-title {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .graph-answer-fields {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        
+        .graph-answer-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+        }
+        
+        .graph-answer-row label {
+            min-width: 150px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .graph-answer-row input {
+            flex: 1;
+            padding: var(--space-sm);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+        }
+        
+        .graph-answer-row input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .graph-answer-row input.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .graph-answer-row input.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        /* Subquestions Styles */
+        .subquestions-container {
+            margin-top: var(--space-md);
+            border-top: 1px solid var(--border-color);
+            padding-top: var(--space-md);
+        }
+        
+        .subquestion-item {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .subquestion-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .subquestion-letter {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1.1em;
+            min-width: 30px;
+        }
+        
+        .subquestion-points {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        
+        .subquestion-text {
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .subquestion-answer input {
+            width: 100%;
+            padding: var(--space-sm);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+        }
+        
+        .subquestion-answer input.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .subquestion-answer input.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
     </style>
+    
+    <!-- Chart.js for grafer -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Math.js for funksjonsberegninger -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -3477,6 +3618,8 @@
                         }, 10000);
                     }
                 }
+            } else if (type === 'function_graph') {
+                renderFunctionGraph(q);
             } else {
                 renderCalculation(q);
             }
@@ -3695,6 +3838,165 @@
                 html += '<div class="input-group"><label>' + f.label + '</label><input type="text" id="input-' + f.id + '" placeholder="0"></div>';
             });
             document.getElementById('input-fields').innerHTML = html;
+        }
+        
+        // ==================== FUNCTION GRAPH ====================
+        function renderFunctionGraph(q) {
+            var container = document.getElementById('input-fields');
+            container.style.display = 'block';
+            
+            var html = '<div class="function-graph-section">';
+            html += '<div class="graph-inline-container"><canvas id="inline-graph-canvas" class="graph-inline-canvas"></canvas></div>';
+            html += '<div class="graph-answer-container"><div class="graph-answer-title">📝 Dine svar</div><div class="graph-answer-fields">';
+            
+            var solution = q.solution || {};
+            var graphSettings = q.graphSettings || {};
+            
+            if (solution.zeros !== undefined || graphSettings.showZeros) {
+                html += '<div class="graph-answer-row"><label>Nullpunkter:</label><input type="text" id="graph-answer-zeros" placeholder="f.eks: 0, 20" data-field="zeros"></div>';
+            }
+            if (solution.extrema !== undefined || graphSettings.showExtrema) {
+                html += '<div class="graph-answer-row"><label>Ekstremalpunkt x:</label><input type="text" id="graph-answer-extrema-x" data-field="extremaX"></div>';
+                html += '<div class="graph-answer-row"><label>Ekstremalpunkt y:</label><input type="text" id="graph-answer-extrema-y" data-field="extremaY"></div>';
+            }
+            if (solution.breakeven !== undefined) {
+                html += '<div class="graph-answer-row"><label>Break-even:</label><input type="text" id="graph-answer-breakeven" data-field="breakeven"></div>';
+            }
+            
+            html += '</div></div>';
+            
+            if (q.subquestions && q.subquestions.length > 0) {
+                html += renderSubquestions(q.subquestions);
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+            
+            setTimeout(function() { renderInlineGraph(q); }, 100);
+        }
+        
+        function renderSubquestions(subquestions) {
+            var html = '<div class="subquestions-container"><h4 style="color:var(--accent);margin-bottom:var(--space-sm);">Delspørsmål</h4>';
+            subquestions.forEach(function(subq, i) {
+                var letter = String.fromCharCode(97 + i);
+                html += '<div class="subquestion-item" data-index="' + i + '">';
+                html += '<div class="subquestion-header"><span class="subquestion-letter">' + letter + ')</span><span class="subquestion-points">' + (subq.points || 2.5) + ' poeng</span></div>';
+                html += '<div class="subquestion-text">' + (subq.question || '') + '</div>';
+                html += '<div class="subquestion-answer"><input type="text" id="subq-answer-' + i + '" placeholder="Ditt svar..." data-subq="' + i + '"></div>';
+                html += '</div>';
+            });
+            return html + '</div>';
+        }
+        
+        function renderInlineGraph(q) {
+            var canvas = document.getElementById('inline-graph-canvas');
+            if (!canvas || typeof math === 'undefined') return;
+            
+            var settings = q.graphSettings || {};
+            var xMin = settings.xMin !== undefined ? settings.xMin : -10;
+            var xMax = settings.xMax !== undefined ? settings.xMax : 30;
+            var yMin = settings.yMin !== undefined ? settings.yMin : -100;
+            var yMax = settings.yMax !== undefined ? settings.yMax : 500;
+            
+            try {
+                var datasets = [];
+                if (q.function) {
+                    var expr = substituteGraphVariables(q.function, q.data || {});
+                    var compiled = math.compile(expr);
+                    datasets.push({ label: q.functionLabel || 'f(x)', data: generateGraphData(compiled, xMin, xMax), borderColor: '#4ade80', fill: false, pointRadius: 0, borderWidth: 2 });
+                }
+                if (q.functions && Array.isArray(q.functions)) {
+                    var colors = ['#4ade80', '#ef4444', '#3b82f6', '#f59e0b'];
+                    q.functions.forEach(function(fn, i) {
+                        try {
+                            var expr = substituteGraphVariables(fn.expr, q.data || {});
+                            datasets.push({ label: fn.label, data: generateGraphData(math.compile(expr), xMin, xMax), borderColor: fn.color || colors[i % colors.length], fill: false, pointRadius: 0, borderWidth: 2 });
+                        } catch (e) {}
+                    });
+                }
+                if (window.inlineGraphChart) window.inlineGraphChart.destroy();
+                window.inlineGraphChart = new Chart(canvas, {
+                    type: 'line', data: { datasets: datasets },
+                    options: { responsive: true, maintainAspectRatio: false,
+                        scales: { x: { type: 'linear', position: 'center', min: xMin, max: xMax, grid: { color: 'rgba(255,255,255,0.1)' } },
+                                  y: { type: 'linear', position: 'center', min: yMin, max: yMax, grid: { color: 'rgba(255,255,255,0.1)' } } },
+                        plugins: { legend: { display: true, labels: { color: '#e0e0e0' } } }
+                    }
+                });
+            } catch (e) { console.error('Graf feilet:', e); }
+        }
+        
+        function generateGraphData(compiled, xMin, xMax) {
+            var data = [], step = (xMax - xMin) / 300;
+            for (var x = xMin; x <= xMax; x += step) {
+                try { var y = compiled.evaluate({ x: x }); if (isFinite(y) && Math.abs(y) < 100000) data.push({ x: x, y: y }); } catch (e) {}
+            }
+            return data;
+        }
+        
+        function substituteGraphVariables(expr, data) {
+            if (!expr || !data) return expr;
+            var result = expr;
+            Object.keys(data).forEach(function(key) {
+                if (typeof data[key] === 'number' || !isNaN(parseFloat(data[key]))) {
+                    result = result.replace(new RegExp('\\{' + key + '\\}', 'g'), '(' + data[key] + ')');
+                }
+            });
+            return result;
+        }
+        
+        function checkFunctionGraph(q) {
+            var solution = q.solution || {}, data = q.data || {}, tolerance = q.tolerance || 2, allCorrect = true, fieldsChecked = 0;
+            document.querySelectorAll('.graph-answer-row input').forEach(function(input) {
+                var field = input.dataset.field, expectedValue = solution[field];
+                if (expectedValue === undefined) return;
+                fieldsChecked++;
+                var expected = evaluateGraphSolution(expectedValue, data);
+                var isCorrect = (field === 'zeros') ? checkMultipleGraphValues(input.value.trim(), expected, tolerance) : checkSingleGraphValue(input.value.trim(), expected, tolerance);
+                input.classList.toggle('correct', isCorrect);
+                input.classList.toggle('incorrect', !isCorrect);
+                if (!isCorrect) allCorrect = false;
+            });
+            if (q.subquestions) {
+                q.subquestions.forEach(function(subq, i) {
+                    var input = document.getElementById('subq-answer-' + i);
+                    if (!input || !subq.solution) return;
+                    fieldsChecked++;
+                    var isCorrect = checkSingleGraphValue(input.value.trim(), evaluateGraphSolution(subq.solution, data), subq.tolerance || tolerance);
+                    input.classList.toggle('correct', isCorrect);
+                    input.classList.toggle('incorrect', !isCorrect);
+                    if (!isCorrect) allCorrect = false;
+                });
+            }
+            return fieldsChecked > 0 ? allCorrect : false;
+        }
+        
+        function evaluateGraphSolution(value, data) {
+            if (value === undefined || value === null) return null;
+            if (Array.isArray(value)) return value.map(function(v) { return evaluateGraphSolution(v, data); });
+            var str = String(value);
+            if (str.indexOf('{calc:') !== -1) {
+                var m = str.match(/\{calc:([^}]+)\}/);
+                if (m) { try { var e = m[1]; Object.keys(data).forEach(function(k) { e = e.replace(new RegExp('\\b' + k + '\\b', 'g'), '(' + data[k] + ')'); }); return math.evaluate(e); } catch (err) {} }
+            }
+            return parseFloat(str) || str;
+        }
+        
+        function checkSingleGraphValue(userStr, expected, tolerance) {
+            if (!userStr) return false;
+            var u = parseFloat(userStr.replace(/\s/g, '').replace(',', '.')), e = parseFloat(expected);
+            if (isNaN(u) || isNaN(e)) return false;
+            return e === 0 ? Math.abs(u) < 0.01 : Math.abs((u - e) / e) * 100 <= tolerance;
+        }
+        
+        function checkMultipleGraphValues(userStr, expected, tolerance) {
+            if (!userStr) return false;
+            var uv = userStr.split(/[,;]/).map(function(v) { return parseFloat(v.trim().replace(',', '.')); }).filter(function(v) { return !isNaN(v); });
+            var ev = (Array.isArray(expected) ? expected : [expected]).map(function(v) { return parseFloat(v); }).filter(function(v) { return !isNaN(v); });
+            if (uv.length !== ev.length) return false;
+            uv.sort(function(a, b) { return a - b; }); ev.sort(function(a, b) { return a - b; });
+            for (var i = 0; i < ev.length; i++) { if (!checkSingleGraphValue(String(uv[i]), ev[i], tolerance)) return false; }
+            return true;
         }
         
         function renderExcelGrid(q) {
@@ -3933,6 +4235,13 @@
             document.getElementById('btn-check').disabled = true;
             
             console.log('Checking answer for question:', q.id);
+            
+            // For function_graph, check locally
+            if (q.type === 'function_graph') {
+                var isCorrect = checkFunctionGraph(q);
+                showFeedback(isCorrect, q);
+                return;
+            }
             
             // For excel_grid, we need to fetch solution from API (not stored in client)
             if (q.type === 'excel_grid') {
