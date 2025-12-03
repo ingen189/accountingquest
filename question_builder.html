@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question Builder - AccountingQuest</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
     
     <!-- Felles stilark (kan kobles til om ønskelig) -->
     <!-- <link rel="stylesheet" href="css/main.css"> -->
@@ -246,12 +246,14 @@
 </head>
 <body>
     <header class="header">
-        <h1>🏔️ Question Builder</h1>
+        <h1>🛠️ Question Builder</h1>
         <div class="header-actions">
             <div id="apiStatus" class="api-status"><span class="status-dot"></span><span>Sjekker...</span></div>
             <button class="btn btn-secondary" onclick="loadFromApiDialog()">🔥 Last fra API</button>
             <button class="btn btn-primary" onclick="QuestionBuilder.saveToApi()">💾 Lagre til API</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('jsonFileInput').click()">📥 Importer JSON</button>
             <button class="btn btn-secondary" onclick="QuestionBuilder.downloadJSON()">📄 Eksporter</button>
+            <input type="file" id="jsonFileInput" accept=".json" style="display:none;" onchange="importJSONFile(this)">
         </div>
     </header>
     
@@ -852,6 +854,71 @@
         function copyJSON() { navigator.clipboard.writeText(QuestionBuilder.exportToJSON()); QuestionBuilder.showToast('Kopiert!'); }
         function loadFromApiDialog() { var mod = prompt('Modul?', 'grunnleggende'); if (mod) QuestionBuilder.loadFromApi(mod).then(function() { renderSetsList(); renderEditor(); }); }
         function escapeHtml(str) { return str ? String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : ''; }
+        
+        // Import JSON file function
+        function importJSONFile(input) {
+            var file = input.files[0];
+            if (!file) return;
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = JSON.parse(e.target.result);
+                    
+                    // Validate structure
+                    if (!data.metadata || !data.questions) {
+                        QuestionBuilder.showToast('Ugyldig JSON-format. Må ha metadata og questions.', 'error');
+                        return;
+                    }
+                    
+                    // Create new set from imported data
+                    var state = QuestionBuilder.getState();
+                    var newSet = {
+                        id: 'set_' + Date.now(),
+                        name: data.metadata.name || file.name.replace('.json', ''),
+                        module: data.metadata.module || 'grunnleggende',
+                        topic: data.metadata.topic || 'bokforing',
+                        difficulty: data.metadata.difficulty || 'medium',
+                        created: data.metadata.created || Date.now(),
+                        questions: data.questions.map(function(q) {
+                            return {
+                                id: q.id || ('q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)),
+                                type: q.type || 'excel_grid',
+                                topic: q.topic || data.metadata.topic,
+                                title: q.title || 'Uten tittel',
+                                question: q.question || '',
+                                difficulty: q.difficulty || data.metadata.difficulty || 'medium',
+                                points: q.points || 10,
+                                grid: q.grid || null,
+                                solution: q.solution || null,
+                                options: q.options || null,
+                                fieldAnswers: q.fieldAnswers || null,
+                                tolerance: q.tolerance || 0,
+                                hints: q.hints || [],
+                                explanation: q.explanation || ''
+                            };
+                        })
+                    };
+                    
+                    state.sets.push(newSet);
+                    state.currentSetIndex = state.sets.length - 1;
+                    QuestionBuilder.saveToStorage();
+                    
+                    renderSetsList();
+                    renderEditor();
+                    updatePreview();
+                    
+                    QuestionBuilder.showToast('Importerte "' + newSet.name + '" med ' + newSet.questions.length + ' spørsmål!', 'success');
+                    
+                } catch (err) {
+                    console.error('Import error:', err);
+                    QuestionBuilder.showToast('Feil ved import: ' + err.message, 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+            input.value = ''; // Reset file input
+        }
         
         // ============================================
         // MODAL FUNCTIONS
