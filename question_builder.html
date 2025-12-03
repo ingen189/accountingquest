@@ -653,7 +653,7 @@
                 infoTablesHtml = renderInfoTablesSection(q, index);
             }
             
-            return '<div class="form-row"><div class="form-group"><label>Tittel</label><input type="text" value="' + escapeHtml(q.title || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'title\', this.value); updatePreview();"></div><div class="form-group"><label>Type</label><select onchange="QuestionBuilder.updateQuestion(' + index + ', \'type\', this.value); renderEditor(); updatePreview();">' + typeOptions + '</select></div></div><div class="form-group"><label>Spørsmålstekst <small style="color:var(--purple);">Bruk {var:navn:min-max} for randomisering, [___felt:type___] for inline input</small></label><textarea onchange="QuestionBuilder.updateQuestion(' + index + ', \'question\', this.value); updatePreview();">' + escapeHtml(q.question || '') + '</textarea></div>' + infoTablesHtml + typeHtml + renderHintsSection(q, index) + renderExplanationSection(q, index);
+            return '<div class="form-row"><div class="form-group"><label>Tittel</label><input type="text" value="' + escapeHtml(q.title || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'title\', this.value); updatePreview();"></div><div class="form-group"><label>Type</label><select onchange="QuestionBuilder.updateQuestion(' + index + ', \'type\', this.value); renderEditor(); updatePreview();">' + typeOptions + '</select></div></div><div class="form-group"><label>Spørsmålstekst <small style="color:var(--purple);">Bruk {var:navn:min-max} for randomisering, [___felt:type___] for inline input</small></label><textarea onchange="QuestionBuilder.updateQuestion(' + index + ', \'question\', this.value); updatePreview();">' + escapeHtml(q.question || '') + '</textarea></div>' + infoTablesHtml + typeHtml + renderSubquestionsSection(q, index) + renderHintsSection(q, index) + renderExplanationSection(q, index);
         }
         
         function renderGridBuilder(q, index) {
@@ -698,6 +698,200 @@
             }).join('');
             
             return '<div class="collapsible-header" onclick="toggleSection(this)"><span>📋 Info-tabeller (' + (q.infoTables || []).length + ')</span><span>▼</span></div><div class="collapsible-content">' + tablesHtml + '<button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addInfoTable(' + index + '); renderEditor();">+ Legg til tabell</button><p style="font-size:0.75em;color:var(--text-muted);margin-top:8px;">Info-tabeller vises som les-bare data til studenten. Bruk variabler som {var:belop:1000-5000}</p></div>';
+        }
+        
+        // ============================================
+        // SUBQUESTIONS SECTION - For alle oppgavetyper
+        // ============================================
+        
+        function renderSubquestionsSection(q, index) {
+            var subqHtml = (q.subquestions || []).map(function(subq, si) {
+                var letter = String.fromCharCode(97 + si);
+                return renderSubquestionEditor(subq, si, index, letter);
+            }).join('');
+            
+            var count = (q.subquestions || []).length;
+            var totalPoints = (q.subquestions || []).reduce(function(sum, sq) { return sum + (sq.points || 5); }, 0);
+            
+            return '<div class="collapsible-header" onclick="toggleSection(this)"><span>📝 Deloppgaver (' + count + ') - ' + totalPoints + ' poeng</span><span>▼</span></div><div class="collapsible-content">' + subqHtml + '<button class="btn btn-sm btn-primary" onclick="addSubquestion(' + index + ')">+ Legg til deloppgave</button><p style="font-size:0.75em;color:var(--text-muted);margin-top:8px;">Deloppgaver (a, b, c...) lar deg lage sammensatte oppgaver. Hver deloppgave kan ha egen type og poeng.</p></div>';
+        }
+        
+        function renderSubquestionEditor(subq, subqIndex, questionIndex, letter) {
+            var typeOptions = '<option value="excel_grid" ' + (subq.type === 'excel_grid' ? 'selected' : '') + '>📊 Bokføring</option>' +
+                '<option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>🔢 Beregning</option>' +
+                '<option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>✅ Flervalg</option>' +
+                '<option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>📝 Tekst</option>';
+            
+            var answerHtml = '';
+            
+            if (subq.type === 'excel_grid') {
+                answerHtml = renderSubqGridBuilder(subq, subqIndex, questionIndex);
+            } else if (subq.type === 'mc') {
+                answerHtml = renderSubqMCBuilder(subq, subqIndex, questionIndex);
+            } else if (subq.type === 'calculation') {
+                answerHtml = '<div class="form-row" style="margin-top:8px;"><div class="form-group"><label style="font-size:0.75em;">Fasit</label><input type="text" value="' + escapeHtml(subq.solution || '') + '" placeholder="Riktig svar" onchange="updateSubqProperty(' + questionIndex + ', ' + subqIndex + ', \'solution\', this.value)"></div><div class="form-group"><label style="font-size:0.75em;">Toleranse (±)</label><input type="number" step="0.1" value="' + (subq.tolerance || 0.5) + '" onchange="updateSubqProperty(' + questionIndex + ', ' + subqIndex + ', \'tolerance\', parseFloat(this.value))"></div></div>';
+            } else {
+                answerHtml = '<div class="form-group" style="margin-top:8px;"><label style="font-size:0.75em;">Fasit (tekst)</label><textarea placeholder="Riktig svar..." style="min-height:50px;" onchange="updateSubqProperty(' + questionIndex + ', ' + subqIndex + ', \'solution\', this.value)">' + escapeHtml(subq.solution || '') + '</textarea></div>';
+            }
+            
+            return '<div class="subquestion-editor" style="background:var(--bg-tertiary);border-radius:8px;padding:12px;margin-bottom:10px;border-left:3px solid var(--accent-secondary);">' +
+                '<div class="subquestion-header" style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">' +
+                '<span class="subq-letter" style="background:var(--accent-secondary);color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;">' + letter + '</span>' +
+                '<select class="subq-type" style="width:auto;min-width:120px;" onchange="updateSubqProperty(' + questionIndex + ', ' + subqIndex + ', \'type\', this.value); renderEditor();">' + typeOptions + '</select>' +
+                '<input type="number" class="subq-points" style="width:60px;text-align:center;" value="' + (subq.points || 5) + '" min="1" max="50" onchange="updateSubqProperty(' + questionIndex + ', ' + subqIndex + ', \'points\', parseInt(this.value))">' +
+                '<span style="font-size:0.8em;color:var(--text-secondary);">poeng</span>' +
+                '<button class="btn btn-sm btn-danger" style="margin-left:auto;" onclick="deleteSubquestion(' + questionIndex + ', ' + subqIndex + ')">×</button>' +
+                '</div>' +
+                '<div class="form-group"><label style="font-size:0.75em;">Spørsmålstekst ' + letter + ')</label><textarea placeholder="Delspørsmål ' + letter + ')..." style="min-height:60px;" onchange="updateSubqProperty(' + questionIndex + ', ' + subqIndex + ', \'question\', this.value)">' + escapeHtml(subq.question || '') + '</textarea></div>' +
+                answerHtml +
+                '<div class="form-group" style="margin-top:8px;"><label style="font-size:0.75em;">Forklaring ' + letter + ')</label><textarea placeholder="Forklaring på løsningen..." style="min-height:40px;" onchange="updateSubqProperty(' + questionIndex + ', ' + subqIndex + ', \'explanation\', this.value)">' + escapeHtml(subq.explanation || '') + '</textarea></div>' +
+                '</div>';
+        }
+        
+        function renderSubqGridBuilder(subq, subqIndex, questionIndex) {
+            var grid = subq.grid || { type: 'bokforing', rows: [] };
+            var rowsHtml = (grid.rows || []).map(function(row, ri) {
+                return '<tr>' +
+                    '<td style="width:30px;text-align:center;color:var(--text-secondary);">' + (ri + 1) + '</td>' +
+                    '<td><input type="text" placeholder="Konto" value="' + escapeHtml(row.account || '') + '" onchange="updateSubqGridCell(' + questionIndex + ', ' + subqIndex + ', ' + ri + ', \'account\', this.value)"></td>' +
+                    '<td><input type="number" placeholder="0" value="' + (row.debet || '') + '" onchange="updateSubqGridCell(' + questionIndex + ', ' + subqIndex + ', ' + ri + ', \'debet\', this.value)"></td>' +
+                    '<td><input type="number" placeholder="0" value="' + (row.kredit || '') + '" onchange="updateSubqGridCell(' + questionIndex + ', ' + subqIndex + ', ' + ri + ', \'kredit\', this.value)"></td>' +
+                    '<td style="width:40px;"><button class="btn btn-sm btn-danger" onclick="deleteSubqGridRow(' + questionIndex + ', ' + subqIndex + ', ' + ri + ')">×</button></td>' +
+                    '</tr>';
+            }).join('');
+            
+            if ((grid.rows || []).length === 0) {
+                rowsHtml = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:15px;">Ingen rader. Klikk "+ Rad" for å legge til.</td></tr>';
+            }
+            
+            return '<div class="grid-builder" style="margin-top:8px;background:var(--bg-card);border-radius:6px;padding:10px;">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:0.8em;color:var(--accent);">📊 Bokføringsløsning</span></div>' +
+                '<table class="grid-table" style="font-size:0.85em;"><thead><tr><th>#</th><th>Konto</th><th>Debet</th><th>Kredit</th><th></th></tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
+                '<button class="btn btn-sm btn-secondary" style="margin-top:8px;" onclick="addSubqGridRow(' + questionIndex + ', ' + subqIndex + ')">+ Rad</button>' +
+                '</div>';
+        }
+        
+        function renderSubqMCBuilder(subq, subqIndex, questionIndex) {
+            var optionsHtml = (subq.options || []).map(function(opt, oi) {
+                return '<div class="mc-option' + (opt.correct ? ' correct' : '') + '" style="padding:6px;margin-bottom:4px;">' +
+                    '<input type="radio" name="subq-mc-' + questionIndex + '-' + subqIndex + '" ' + (opt.correct ? 'checked' : '') + ' onchange="setSubqCorrectOption(' + questionIndex + ', ' + subqIndex + ', ' + oi + ')">' +
+                    '<input type="text" value="' + escapeHtml(opt.text) + '" style="flex:1;" onchange="updateSubqMCOption(' + questionIndex + ', ' + subqIndex + ', ' + oi + ', this.value)">' +
+                    '<button class="btn btn-sm btn-danger" onclick="deleteSubqMCOption(' + questionIndex + ', ' + subqIndex + ', ' + oi + ')">×</button>' +
+                    '</div>';
+            }).join('');
+            
+            return '<div style="margin-top:8px;"><label style="font-size:0.75em;">Alternativer</label>' + optionsHtml + 
+                '<button class="btn btn-sm btn-secondary" onclick="addSubqMCOption(' + questionIndex + ', ' + subqIndex + ')">+ Alternativ</button></div>';
+        }
+        
+        // Subquestion helper functions
+        function addSubquestion(questionIndex) {
+            var s = QuestionBuilder.getState();
+            var q = s.sets[s.currentSetIndex].questions[questionIndex];
+            if (!q.subquestions) q.subquestions = [];
+            
+            var letter = String.fromCharCode(97 + q.subquestions.length);
+            q.subquestions.push({
+                id: 'subq_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                letter: letter,
+                type: 'excel_grid',
+                question: '',
+                points: 8,
+                grid: { type: 'bokforing', rows: [{ account: '', debet: null, kredit: null }] },
+                solution: null,
+                tolerance: 0,
+                explanation: ''
+            });
+            
+            QuestionBuilder.saveToStorage();
+            renderEditor();
+            updatePreview();
+        }
+        
+        function deleteSubquestion(questionIndex, subqIndex) {
+            if (!confirm('Slette deloppgave?')) return;
+            var s = QuestionBuilder.getState();
+            s.sets[s.currentSetIndex].questions[questionIndex].subquestions.splice(subqIndex, 1);
+            QuestionBuilder.saveToStorage();
+            renderEditor();
+            updatePreview();
+        }
+        
+        function updateSubqProperty(questionIndex, subqIndex, property, value) {
+            var s = QuestionBuilder.getState();
+            var subq = s.sets[s.currentSetIndex].questions[questionIndex].subquestions[subqIndex];
+            subq[property] = value;
+            
+            // Reset grid when changing to excel_grid type
+            if (property === 'type' && value === 'excel_grid' && !subq.grid) {
+                subq.grid = { type: 'bokforing', rows: [{ account: '', debet: null, kredit: null }] };
+            }
+            if (property === 'type' && value === 'mc' && !subq.options) {
+                subq.options = [{ text: '', correct: false }];
+            }
+            
+            QuestionBuilder.saveToStorage();
+            updatePreview();
+        }
+        
+        function addSubqGridRow(questionIndex, subqIndex) {
+            var s = QuestionBuilder.getState();
+            var subq = s.sets[s.currentSetIndex].questions[questionIndex].subquestions[subqIndex];
+            if (!subq.grid) subq.grid = { type: 'bokforing', rows: [] };
+            subq.grid.rows.push({ account: '', debet: null, kredit: null });
+            QuestionBuilder.saveToStorage();
+            renderEditor();
+        }
+        
+        function deleteSubqGridRow(questionIndex, subqIndex, rowIndex) {
+            var s = QuestionBuilder.getState();
+            s.sets[s.currentSetIndex].questions[questionIndex].subquestions[subqIndex].grid.rows.splice(rowIndex, 1);
+            QuestionBuilder.saveToStorage();
+            renderEditor();
+        }
+        
+        function updateSubqGridCell(questionIndex, subqIndex, rowIndex, field, value) {
+            var s = QuestionBuilder.getState();
+            var row = s.sets[s.currentSetIndex].questions[questionIndex].subquestions[subqIndex].grid.rows[rowIndex];
+            if (field === 'debet' || field === 'kredit') {
+                row[field] = value === '' ? null : parseFloat(value);
+            } else {
+                row[field] = value;
+            }
+            QuestionBuilder.saveToStorage();
+            updatePreview();
+        }
+        
+        function addSubqMCOption(questionIndex, subqIndex) {
+            var s = QuestionBuilder.getState();
+            var subq = s.sets[s.currentSetIndex].questions[questionIndex].subquestions[subqIndex];
+            if (!subq.options) subq.options = [];
+            subq.options.push({ text: '', correct: false });
+            QuestionBuilder.saveToStorage();
+            renderEditor();
+        }
+        
+        function deleteSubqMCOption(questionIndex, subqIndex, optIndex) {
+            var s = QuestionBuilder.getState();
+            s.sets[s.currentSetIndex].questions[questionIndex].subquestions[subqIndex].options.splice(optIndex, 1);
+            QuestionBuilder.saveToStorage();
+            renderEditor();
+        }
+        
+        function updateSubqMCOption(questionIndex, subqIndex, optIndex, value) {
+            var s = QuestionBuilder.getState();
+            s.sets[s.currentSetIndex].questions[questionIndex].subquestions[subqIndex].options[optIndex].text = value;
+            QuestionBuilder.saveToStorage();
+            updatePreview();
+        }
+        
+        function setSubqCorrectOption(questionIndex, subqIndex, optIndex) {
+            var s = QuestionBuilder.getState();
+            var opts = s.sets[s.currentSetIndex].questions[questionIndex].subquestions[subqIndex].options;
+            opts.forEach(function(o, i) { o.correct = (i === optIndex); });
+            QuestionBuilder.saveToStorage();
+            renderEditor();
+        }
         }
         
         function renderInlineInputBuilder(q, index) {
@@ -895,7 +1089,10 @@
                                 fieldAnswers: q.fieldAnswers || null,
                                 tolerance: q.tolerance || 0,
                                 hints: q.hints || [],
-                                explanation: q.explanation || ''
+                                explanation: q.explanation || '',
+                                subquestions: q.subquestions || null,
+                                infoTables: q.infoTables || null,
+                                documents: q.documents || null
                             };
                         })
                     };
