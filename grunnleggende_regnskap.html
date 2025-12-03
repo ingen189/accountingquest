@@ -3522,18 +3522,64 @@
             document.getElementById('nav-progress').textContent = (gameState.currentIndex + 1) + '/' + gameState.questions.length;
         }
         
+        // Parse og erstatt variabler i spørsmålstekst
+        // Syntaks: {var:navn:min-max:step} f.eks. {var:belop:5000-50000:1000}
+        function parseVariables(text, dataObj) {
+            if (!text) return text;
+            
+            var result = text.replace(/\{var:(\w+):(\d+)-(\d+):?(\d+)?\}/g, function(match, name, min, max, step) {
+                min = parseInt(min);
+                max = parseInt(max);
+                step = parseInt(step) || 1;
+                
+                // Generer tilfeldig verdi
+                var range = Math.floor((max - min) / step) + 1;
+                var value = min + (Math.floor(Math.random() * range) * step);
+                
+                // Lagre i data-objektet for senere bruk
+                if (dataObj) {
+                    dataObj[name] = value;
+                }
+                
+                return formatNumber(value);
+            });
+            
+            return result;
+        }
+        
         function loadQuestion(idx) {
             gameState.currentIndex = idx;
-            gameState.currentQuestion = gameState.questions[idx];
+            gameState.currentQuestion = JSON.parse(JSON.stringify(gameState.questions[idx])); // Deep copy
             gameState.selectedAnswer = null;
             gameState.answeredCorrectly = false;
             gameState.hintsUsed = 0;
             
             var q = gameState.currentQuestion;
             
+            // Initialiser data-objekt hvis det ikke finnes
+            if (!q.data) q.data = {};
+            
+            // Parse variabler i spørsmålstekst
+            q.question = parseVariables(q.question || q.description || '', q.data);
+            q.title = parseVariables(q.title || 'Oppgave', q.data);
+            
+            // Auto-generer grid for bokføringsoppgaver som mangler det
+            var topic = (q.topic || '').toLowerCase();
+            var type = (q.type || '').toLowerCase();
+            if ((topic === 'bokforing' || topic === 'bokføring' || type === 'excel_grid' || type === 't-konto') && !q.grid) {
+                q.grid = {
+                    rows: [
+                        { cells: [{ type: 'account', editable: true }, { type: 'number', editable: true }, { type: 'number', editable: true }] },
+                        { cells: [{ type: 'account', editable: true }, { type: 'number', editable: true }, { type: 'number', editable: true }] },
+                        { cells: [{ type: 'account', editable: true }, { type: 'number', editable: true }, { type: 'number', editable: true }] }
+                    ]
+                };
+                console.log('Auto-generated grid for bokforing question');
+            }
+            
             document.getElementById('question-number').textContent = 'Spørsmål ' + (idx + 1) + ' av ' + gameState.questions.length;
-            document.getElementById('question-title').textContent = q.title || 'Oppgave';
-            document.getElementById('question-text').textContent = q.question || q.description || '';
+            document.getElementById('question-title').textContent = q.title;
+            document.getElementById('question-text').textContent = q.question;
             
             var badgesHtml = '<span class="badge badge-topic">' + q.topic + '</span>';
             badgesHtml += '<span class="badge badge-type">' + (q.type || 'calc') + '</span>';
@@ -3842,21 +3888,27 @@
                 topic === 'bilag' ||
                 topic === 't-konto' ||
                 topic === 'tkonto' ||
+                q.type === 'excel_grid' ||
+                q.type === 't-konto' ||
+                q.type === 'tkonto' ||
+                q.type === 'bokforing' ||
                 title.includes('bokfør') ||
                 title.includes('bokfor') ||
                 title.includes('poster') ||
                 title.includes('journalfør') ||
                 title.includes('journalfor') ||
                 title.includes('t-konto') ||
-                question.includes('bokfør transaksjonen') ||
-                question.includes('bokfor transaksjonen') ||
-                question.includes('bokfør kjøpet') ||
-                question.includes('bokfor kjopet') ||
-                question.includes('bokfør salget') ||
-                question.includes('bokfor salget') ||
-                question.includes('før bilag') ||
-                question.includes('for bilag')
+                question.includes('bokfør') ||
+                question.includes('bokfor') ||
+                question.includes('kontant') ||
+                question.includes('kreditt') ||
+                question.includes('transaksjonen')
             );
+            
+            // Force T-konto layout for bokforing topic
+            if (topic === 'bokforing' || topic === 'bokføring') {
+                isTKonto = true;
+            }
             
             console.log('=== renderExcelGrid DEBUG ===');
             console.log('Question ID:', q.id);
@@ -3873,6 +3925,18 @@
                 console.log('Using Parameter/Verdi layout');
                 renderParameterValueGrid(q, grid, thead, tbody);
                 return;
+            }
+            
+            // Auto-generate grid for T-konto if not defined
+            if (isTKonto && (!grid || !grid.rows || grid.rows.length === 0)) {
+                console.log('Auto-generating T-konto grid');
+                grid = {
+                    rows: [
+                        { cells: [{ type: 'account', editable: true }, { type: 'number', editable: true }, { type: 'number', editable: true }] },
+                        { cells: [{ type: 'account', editable: true }, { type: 'number', editable: true }, { type: 'number', editable: true }] },
+                        { cells: [{ type: 'account', editable: true }, { type: 'number', editable: true }, { type: 'number', editable: true }] }
+                    ]
+                };
             }
             
             if (grid && grid.rows && grid.rows.length > 0) {
