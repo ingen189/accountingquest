@@ -1091,7 +1091,7 @@ var QuestionBuilder = (function() {
             kontoplan: { icon: '📋', name: 'Kontoplan' },
             kontoutskrift: { icon: '🏦', name: 'Kontoutskrift' },
             kontrakt: { icon: '📃', name: 'Kontrakt' },
-            brev: { icon: '✏️', name: 'Brev' },
+            brev: { icon: '✏‰️', name: 'Brev' },
             rapport: { icon: '📘', name: 'Rapport' },
             kalkyle: { icon: '🔢', name: 'Kalkyle' },
             skattemelding: { icon: '🏛️', name: 'Skattemelding' },
