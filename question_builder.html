@@ -1955,13 +1955,13 @@
                 return;
             }
             
-            var sets = QuestionBuilder.getSets();
-            if (sets.length === 0) {
+            var state = QuestionBuilder.getState();
+            if (state.sets.length === 0) {
                 QuestionBuilder.showToast('Opprett et sett først!', 'error');
                 return;
             }
             
-            var currentSet = sets[QuestionBuilder.getCurrentSetIndex()];
+            var currentSet = state.sets[state.currentSetIndex];
             if (!currentSet) {
                 QuestionBuilder.showToast('Velg et sett først!', 'error');
                 return;
@@ -1994,7 +1994,7 @@
             var firstQ = importState.parsedData[0];
             var moduleId = firstQ.module || firstQ.module_id || 'grunnleggende';
             
-            var newSet = QuestionBuilder.createSet(moduleId, setName);
+            var newSet = QuestionBuilder.createNewSet(moduleId, setName);
             
             importState.parsedData.forEach(function(q) {
                 var question = convertToInternalFormat(q);
@@ -2037,7 +2037,7 @@
                 return;
             }
             
-            var apiUrl = QuestionBuilder.getApiUrl() || 'https://api.accountingquest.app';
+            var apiUrl = 'https://api.accountingquest.app';
             
             if (!confirm('Vil du seede ' + importState.parsedData.length + ' spørsmål til databasen?\n\nAPI: ' + apiUrl)) {
                 return;
