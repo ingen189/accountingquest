@@ -232,18 +232,18 @@ var QuestionBuilder = (function() {
                 year: 1998,
                 url: 'https://lovdata.no/dokument/NL/lov/1998-07-17-56',
                 sections: {
-                    'Â§3-1': 'Årsregnskap og årsberetning',
-                    'Â§3-2': 'Plikt til å utarbeide konsernregnskap',
-                    'Â§3-2a': 'Unntak fra plikten til å utarbeide konsernregnskap',
-                    'Â§4-1': 'Grunnleggende regnskapsprinsipper',
-                    'Â§5-1': 'Vurdering av eiendeler og gjeld',
-                    'Â§5-2': 'Anskaffelseskost',
-                    'Â§5-3': 'Virkelig verdi',
-                    'Â§5-4': 'Nedskrivning av anleggsmidler',
-                    'Â§5-5': 'Varelager og oppdrag under utførelse',
-                    'Â§6-1': 'Resultatregnskap',
-                    'Â§6-2': 'Balanse',
-                    'Â§7-1': 'Noter'
+                    '§3-1': 'Årsregnskap og årsberetning',
+                    '§3-2': 'Plikt til å utarbeide konsernregnskap',
+                    '§3-2a': 'Unntak fra plikten til å utarbeide konsernregnskap',
+                    '§4-1': 'Grunnleggende regnskapsprinsipper',
+                    '§5-1': 'Vurdering av eiendeler og gjeld',
+                    '§5-2': 'Anskaffelseskost',
+                    '§5-3': 'Virkelig verdi',
+                    '§5-4': 'Nedskrivning av anleggsmidler',
+                    '§5-5': 'Varelager og oppdrag under utførelse',
+                    '§6-1': 'Resultatregnskap',
+                    '§6-2': 'Balanse',
+                    '§7-1': 'Noter'
                 }
             },
             BOKL: {
@@ -253,14 +253,14 @@ var QuestionBuilder = (function() {
                 year: 2004,
                 url: 'https://lovdata.no/dokument/NL/lov/2004-11-19-73',
                 sections: {
-                    'Â§3': 'Bokføringspliktige',
-                    'Â§4': 'Grunnleggende bokføringsprinsipper',
-                    'Â§5': 'Regnskapssystem',
-                    'Â§6': 'Bokføring og dokumentasjon',
-                    'Â§7': 'Dokumentasjon av balansen',
-                    'Â§8': 'Spesifikasjoner av pliktig regnskapsrapportering',
-                    'Â§10': 'Oppbevaring',
-                    'Â§13': 'Oppbevaringstid'
+                    '§3': 'Bokføringspliktige',
+                    '§4': 'Grunnleggende bokføringsprinsipper',
+                    '§5': 'Regnskapssystem',
+                    '§6': 'Bokføring og dokumentasjon',
+                    '§7': 'Dokumentasjon av balansen',
+                    '§8': 'Spesifikasjoner av pliktig regnskapsrapportering',
+                    '§10': 'Oppbevaring',
+                    '§13': 'Oppbevaringstid'
                 }
             },
             SKTL: {
@@ -270,16 +270,16 @@ var QuestionBuilder = (function() {
                 year: 1999,
                 url: 'https://lovdata.no/dokument/NL/lov/1999-03-26-14',
                 sections: {
-                    'Â§5-1': 'Hovedregel om inntekt',
-                    'Â§5-20': 'Fordel vunnet ved arbeid',
-                    'Â§5-30': 'Fordel vunnet ved kapital',
-                    'Â§6-1': 'Hovedregel om fradrag',
-                    'Â§6-10': 'Minstefradrag',
-                    'Â§6-40': 'Rentekostnader',
-                    'Â§10-30': 'Gevinst og tap på aksjer mv.',
-                    'Â§14-40': 'Tidfesting av inntekt',
-                    'Â§14-41': 'Saldoavskrivning',
-                    'Â§14-43': 'Avskrivningssatser'
+                    '§5-1': 'Hovedregel om inntekt',
+                    '§5-20': 'Fordel vunnet ved arbeid',
+                    '§5-30': 'Fordel vunnet ved kapital',
+                    '§6-1': 'Hovedregel om fradrag',
+                    '§6-10': 'Minstefradrag',
+                    '§6-40': 'Rentekostnader',
+                    '§10-30': 'Gevinst og tap på aksjer mv.',
+                    '§14-40': 'Tidfesting av inntekt',
+                    '§14-41': 'Saldoavskrivning',
+                    '§14-43': 'Avskrivningssatser'
                 }
             },
             MVAL: {
@@ -289,16 +289,16 @@ var QuestionBuilder = (function() {
                 year: 2009,
                 url: 'https://lovdata.no/dokument/NL/lov/2009-06-19-58',
                 sections: {
-                    'Â§1-1': 'Saklig virkeområde',
-                    'Â§2-1': 'Registreringsplikt',
-                    'Â§3-1': 'Avgiftsplikten',
-                    'Â§4-1': 'Hovedregel om beregningsgrunnlag',
-                    'Â§5-1': 'Alminnelig sats (25%)',
-                    'Â§5-2': 'Redusert sats (15%)',
-                    'Â§5-3': 'Lav sats (12%)',
-                    'Â§6-1': 'Fritak for eksport',
-                    'Â§8-1': 'Fradragsrett',
-                    'Â§8-3': 'Avskåret fradragsrett'
+                    '§1-1': 'Saklig virkeområde',
+                    '§2-1': 'Registreringsplikt',
+                    '§3-1': 'Avgiftsplikten',
+                    '§4-1': 'Hovedregel om beregningsgrunnlag',
+                    '§5-1': 'Alminnelig sats (25%)',
+                    '§5-2': 'Redusert sats (15%)',
+                    '§5-3': 'Lav sats (12%)',
+                    '§6-1': 'Fritak for eksport',
+                    '§8-1': 'Fradragsrett',
+                    '§8-3': 'Avskåret fradragsrett'
                 }
             },
             ASAL: {
@@ -308,10 +308,10 @@ var QuestionBuilder = (function() {
                 year: 1997,
                 url: 'https://lovdata.no/dokument/NL/lov/1997-06-13-45',
                 sections: {
-                    'Â§3-1': 'Krav til aksjekapital',
-                    'Â§8-1': 'Utbytte',
-                    'Â§3-4': 'Krav til forsvarlig egenkapital',
-                    'Â§3-5': 'Handleplikt ved tap av egenkapital'
+                    '§3-1': 'Krav til aksjekapital',
+                    '§8-1': 'Utbytte',
+                    '§3-4': 'Krav til forsvarlig egenkapital',
+                    '§3-5': 'Handleplikt ved tap av egenkapital'
                 }
             },
             ASL: {
@@ -321,11 +321,11 @@ var QuestionBuilder = (function() {
                 year: 1997,
                 url: 'https://lovdata.no/dokument/NL/lov/1997-06-13-44',
                 sections: {
-                    'Â§3-1': 'Krav til aksjekapital (30 000)',
-                    'Â§3-4': 'Krav til forsvarlig egenkapital',
-                    'Â§3-5': 'Handleplikt ved tap av egenkapital',
-                    'Â§8-1': 'Hva kan deles ut som utbytte',
-                    'Â§8-2': 'Beregning av utbytte'
+                    '§3-1': 'Krav til aksjekapital (30 000)',
+                    '§3-4': 'Krav til forsvarlig egenkapital',
+                    '§3-5': 'Handleplikt ved tap av egenkapital',
+                    '§8-1': 'Hva kan deles ut som utbytte',
+                    '§8-2': 'Beregning av utbytte'
                 }
             }
         },
@@ -348,7 +348,7 @@ var QuestionBuilder = (function() {
             var law = this.laws[lawCode];
             if (!law) return '';
             
-            var sectionNum = section.replace('Â§', '').replace('-', '/');
+            var sectionNum = section.replace('§', '').replace('-', '/');
             return law.url + '/' + sectionNum;
         },
         
@@ -761,49 +761,49 @@ var QuestionBuilder = (function() {
         grunnleggende: {
             id: 'grunnleggende',
             name: 'Grunnleggende Regnskap',
-            icon: 'ðŸ“š',
+            icon: '📚',
             topics: ['bokforing', 'bilag', 'kontoplan', 'arsavslutning', 'mva', 'lonn', 'skatt', 'avskrivning', 'varelager', 'kundefordringer']
         },
         corporate_finance: {
             id: 'corporate_finance',
             name: 'Corporate Finance',
-            icon: 'ðŸ“Š',
+            icon: '📊',
             topics: ['npv', 'irr', 'wacc', 'capm', 'obligasjoner', 'aksjer', 'dividender', 'kapitalstruktur', 'portefolje', 'risiko', 'opsjoner', 'valuta', 'hedging']
         },
         hjernetrim: {
             id: 'hjernetrim',
             name: 'Hjernetrim',
-            icon: 'ðŸ§ ',
+            icon: '🧠',
             topics: ['mental_math', 'logikk', 'patterns', 'memory', 'speed']
         },
         matte_okonomer: {
             id: 'matte_okonomer',
             name: 'Matte for Økonomer',
-            icon: 'ðŸ”¢',
+            icon: '🔢',
             topics: ['derivasjon', 'integrasjon', 'optimering', 'matriser', 'sannsynlighet', 'statistikk', 'renter', 'annuiteter']
         },
         revisor: {
             id: 'revisor',
             name: 'Revisjon',
-            icon: 'ðŸ”',
+            icon: '🔍',
             topics: ['intern_kontroll', 'risikovurdering', 'vesentlighet', 'revisjonsbevis', 'rapportering', 'etikk', 'standarder', 'isa']
         },
         skatt_avgift: {
             id: 'skatt_avgift',
             name: 'Skatt & Avgift',
-            icon: 'ðŸ›ï¸',
+            icon: '🏛️',
             topics: ['personskatt', 'selskapsskatt', 'mva', 'arbeidsgiveravgift', 'formuesskatt', 'gevinstbeskatning', 'skattemelding']
         },
         juss: {
             id: 'juss',
             name: 'Forretningsjuss',
-            icon: 'âš–ï¸',
+            icon: '⚖️',
             topics: ['selskapsrett', 'avtalerett', 'arbeidsrett', 'konkurs', 'pant', 'regnskapsloven', 'aksjeloven']
         },
         excel_skills: {
             id: 'excel_skills',
             name: 'Excel Ferdigheter',
-            icon: 'ðŸ“—',
+            icon: '📔',
             topics: ['formler', 'funksjoner', 'pivot', 'makroer', 'datavalidering', 'formatering', 'diagrammer']
         }
     };
@@ -816,7 +816,7 @@ var QuestionBuilder = (function() {
         excel_grid: {
             id: 'excel_grid',
             name: 'Excel Grid',
-            icon: 'ðŸ“Š',
+            icon: '📊',
             description: 'Regneark med formler og beregninger',
             subtypes: ['tkonto', 'parameter', 'cashflow', 'budget', 'custom']
         },
@@ -830,42 +830,42 @@ var QuestionBuilder = (function() {
         drag_drop: {
             id: 'drag_drop',
             name: 'Drag & Drop',
-            icon: 'ðŸŽ¯',
+            icon: '🎯',
             description: 'Dra elementer til riktig kategori',
             subtypes: ['categorize', 'order', 'match', 'formula']
         },
         calculation: {
             id: 'calculation',
             name: 'Beregning',
-            icon: 'ðŸ”¢',
+            icon: '🔢',
             description: 'Skriv inn numerisk svar',
             subtypes: ['single', 'multiple', 'formula']
         },
         inline_input: {
             id: 'inline_input',
             name: 'Inline Input',
-            icon: 'âœï¸',
+            icon: '✏️',
             description: 'Tekstfelt direkte i oppgaveteksten',
             subtypes: ['text', 'number', 'account', 'mixed']
         },
         case_study: {
             id: 'case_study',
             name: 'Case Study',
-            icon: 'ðŸ“',
+            icon: '📁',
             description: 'Kompleks oppgave med flere dokumenter og delspørsmål',
             subtypes: ['standard', 'exam', 'practical']
         },
         paragraph: {
             id: 'paragraph',
             name: 'Paragraf/Lov',
-            icon: 'ðŸ“œ',
+            icon: '📜',
             description: 'Finn riktig lovhenvisning',
             subtypes: ['single', 'multiple']
         },
         tf: {
             id: 'tf',
             name: 'Sant/Usant',
-            icon: 'âš¡',
+            icon: '⚡',
             description: 'Velg sant eller usant',
             subtypes: ['single', 'multiple']
         }
@@ -1083,19 +1083,19 @@ var QuestionBuilder = (function() {
     
     var DocumentSystem = {
         types: {
-            bilag: { icon: 'ðŸ§¾', name: 'Bilag' },
-            faktura: { icon: 'ðŸ“„', name: 'Faktura' },
-            balanse: { icon: 'ðŸ“Š', name: 'Balanse' },
-            resultat: { icon: 'ðŸ“ˆ', name: 'Resultatregnskap' },
-            noter: { icon: 'ðŸ“', name: 'Noter' },
-            kontoplan: { icon: 'ðŸ“‹', name: 'Kontoplan' },
-            kontoutskrift: { icon: 'ðŸ¦', name: 'Kontoutskrift' },
-            kontrakt: { icon: 'ðŸ“ƒ', name: 'Kontrakt' },
-            brev: { icon: 'âœ‰ï¸', name: 'Brev' },
-            rapport: { icon: 'ðŸ“‘', name: 'Rapport' },
-            kalkyle: { icon: 'ðŸ”¢', name: 'Kalkyle' },
-            skattemelding: { icon: 'ðŸ›ï¸', name: 'Skattemelding' },
-            arsmelding: { icon: 'ðŸ“š', name: 'Årsmelding' }
+            bilag: { icon: '🧾', name: 'Bilag' },
+            faktura: { icon: '📄', name: 'Faktura' },
+            balanse: { icon: '📊', name: 'Balanse' },
+            resultat: { icon: '📈', name: 'Resultatregnskap' },
+            noter: { icon: '📝', name: 'Noter' },
+            kontoplan: { icon: '📋', name: 'Kontoplan' },
+            kontoutskrift: { icon: '🏦', name: 'Kontoutskrift' },
+            kontrakt: { icon: '📃', name: 'Kontrakt' },
+            brev: { icon: '✏️', name: 'Brev' },
+            rapport: { icon: '📘', name: 'Rapport' },
+            kalkyle: { icon: '🔢', name: 'Kalkyle' },
+            skattemelding: { icon: '🏛️', name: 'Skattemelding' },
+            arsmelding: { icon: '📚', name: 'Årsmelding' }
         },
         
         createDocument: function(type, title, content) {
@@ -1133,8 +1133,8 @@ var QuestionBuilder = (function() {
                                   onchange="QuestionBuilder.updateDocument(' + questionIndex + ', ' + index + ', \'content\', this.value)">' + escapeHtml(doc.content) + '</textarea>\
                     </div>\
                     <div class="document-actions">\
-                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addGridToDocument(' + questionIndex + ', ' + index + ')">ðŸ“Š Legg til tabell</button>\
-                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.uploadImageToDocument(' + questionIndex + ', ' + index + ')">ðŸ–¼ï¸ Last opp bilde</button>\
+                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addGridToDocument(' + questionIndex + ', ' + index + ')">📊 Legg til tabell</button>\
+                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.uploadImageToDocument(' + questionIndex + ', ' + index + ')">🖼️ Last opp bilde</button>\
                     </div>\
                 </div>\
             ';
@@ -1170,10 +1170,10 @@ var QuestionBuilder = (function() {
                     <div class="subquestion-header">\
                         <span class="subq-letter">' + letter + ')</span>\
                         <select class="subq-type" onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'type\', this.value)">\
-                            <option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>ðŸ”¢ Beregning</option>\
+                            <option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>🔢 Beregning</option>\
                             <option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>✅ Flervalg</option>\
-                            <option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>ðŸ“ Tekst</option>\
-                            <option value="excel_grid" ' + (subq.type === 'excel_grid' ? 'selected' : '') + '>ðŸ“Š Grid</option>\
+                            <option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>📝 Tekst</option>\
+                            <option value="excel_grid" ' + (subq.type === 'excel_grid' ? 'selected' : '') + '>📊 Grid</option>\
                         </select>\
                         <input type="number" class="subq-points" value="' + (subq.points || 5) + '" min="1" max="50"\
                                onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'points\', parseInt(this.value))">\
@@ -1188,7 +1188,7 @@ var QuestionBuilder = (function() {
                             <input type="text" value="' + (subq.solution || '') + '"\
                                    placeholder="Riktig svar"\
                                    onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'solution\', this.value)">\
-                            <label>Â±</label>\
+                            <label>±</label>\
                             <input type="number" class="tolerance" value="' + (subq.tolerance || 0.5) + '" step="0.1"\
                                    onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'tolerance\', parseFloat(this.value))">\
                         </div>\
