@@ -573,6 +573,153 @@
             color: white;
         }
         
+        /* Subquestions */
+        .subquestions-container {
+            margin-top: var(--space-lg);
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .subquestions-title {
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: var(--space-md);
+            font-size: 1.1em;
+        }
+        
+        .subquestion-item {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .subquestion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .subquestion-letter {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1.05em;
+        }
+        
+        .subquestion-points {
+            color: var(--text-muted);
+            font-size: 0.85em;
+        }
+        
+        .subquestion-text {
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+        
+        .subq-input {
+            width: 100%;
+            padding: 10px var(--space-md);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+        
+        .subq-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .subq-input.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--success);
+        }
+        
+        .subq-input.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--error);
+        }
+        
+        .subq-mc-option {
+            padding: 10px var(--space-md);
+            margin: 4px 0;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .subq-mc-option:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .subq-mc-option.selected {
+            border-color: var(--accent);
+        }
+        
+        .subq-mc-option.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .subq-mc-option.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        /* Subquestion Grid (bokføring) */
+        .subq-grid-container {
+            margin-top: var(--space-sm);
+            overflow-x: auto;
+        }
+        
+        .subq-grid {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        
+        .subq-grid th, .subq-grid td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .subq-grid th {
+            background: var(--bg-tertiary);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .subq-grid input {
+            width: 100%;
+            padding: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+        
+        .subq-grid input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .subq-grid input.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--success);
+        }
+        
+        .subq-grid input.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--error);
+        }
+
         /* Input Fields */
         .input-fields {
             display: grid;
@@ -2162,6 +2309,7 @@
             selectedAnswers: [], // for multi-select
             tfAnswer: null,      // for true/false
             dndState: {},        // for drag & drop
+            subquestionAnswers: {}, // for subquestions
             answeredCorrectly: false,
             hintsUsed: 0,
             score: 0,
@@ -3610,11 +3758,16 @@
             document.getElementById('dnd-container').style.display = 'none';
             document.getElementById('journal-container').style.display = 'none';
             
+            // Remove any existing subquestions container
+            var existingSubq = document.getElementById('subquestions-container');
+            if (existingSubq) existingSubq.remove();
+            
             // Reset state
             gameState.selectedAnswer = null;
             gameState.selectedAnswers = [];
             gameState.tfAnswer = null;
             gameState.dndState = {};
+            gameState.subquestionAnswers = {};
             
             if (q.data) renderDataTable(q.data);
             
@@ -3651,6 +3804,99 @@
             } else {
                 renderCalculation(q);
             }
+            
+            // Render subquestions if present
+            if (q.subquestions && q.subquestions.length > 0) {
+                renderSubquestions(q);
+            }
+        }
+        
+        // ==================== SUBQUESTIONS ====================
+        function renderSubquestions(q) {
+            var container = document.createElement('div');
+            container.id = 'subquestions-container';
+            container.className = 'subquestions-container';
+            
+            var html = '<div class="subquestions-title">📝 Deloppgaver (' + q.subquestions.length + ')</div>';
+            
+            q.subquestions.forEach(function(subq, si) {
+                var letter = String.fromCharCode(97 + si);
+                html += '<div class="subquestion-item" data-subq-index="' + si + '">';
+                html += '<div class="subquestion-header">';
+                html += '<span class="subquestion-letter">' + letter + ') ' + (subq.question || '') + '</span>';
+                html += '<span class="subquestion-points">' + (subq.points || 0) + ' poeng</span>';
+                html += '</div>';
+                
+                // Render based on type
+                if (subq.type === 'excel_grid' || subq.type === 'bokforing') {
+                    html += renderSubqGrid(subq, si);
+                } else if (subq.type === 'mc' && subq.options) {
+                    html += renderSubqMC(subq, si);
+                } else if (subq.type === 'text') {
+                    html += '<textarea class="subq-input" id="subq-answer-' + si + '" placeholder="Skriv ditt svar..."></textarea>';
+                } else {
+                    // Beregning (calculation)
+                    html += '<input type="text" class="subq-input" id="subq-answer-' + si + '" placeholder="Ditt svar">';
+                }
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+            
+            // Insert after the main question content
+            var questionCard = document.querySelector('.question-card');
+            if (questionCard) {
+                questionCard.appendChild(container);
+            }
+        }
+        
+        function renderSubqGrid(subq, si) {
+            var grid = subq.grid || { rows: [] };
+            var numRows = (grid.rows && grid.rows.length > 0) ? grid.rows.length : 3;
+            
+            var html = '<div class="subq-grid-container">';
+            html += '<table class="subq-grid">';
+            html += '<thead><tr><th>#</th><th>Konto</th><th>Debet</th><th>Kredit</th></tr></thead>';
+            html += '<tbody>';
+            
+            for (var ri = 0; ri < numRows; ri++) {
+                html += '<tr>';
+                html += '<td style="text-align:center;color:var(--text-muted);">' + (ri + 1) + '</td>';
+                html += '<td><input type="text" class="subq-grid-cell" data-subq="' + si + '" data-row="' + ri + '" data-col="account" placeholder="Konto"></td>';
+                html += '<td><input type="number" class="subq-grid-cell" data-subq="' + si + '" data-row="' + ri + '" data-col="debet" placeholder="0"></td>';
+                html += '<td><input type="number" class="subq-grid-cell" data-subq="' + si + '" data-row="' + ri + '" data-col="kredit" placeholder="0"></td>';
+                html += '</tr>';
+            }
+            
+            html += '</tbody></table></div>';
+            return html;
+        }
+        
+        function renderSubqMC(subq, si) {
+            var html = '<div class="subq-mc-options">';
+            subq.options.forEach(function(opt, oi) {
+                var optText = typeof opt === 'string' ? opt : (opt.text || opt.option_text || '');
+                html += '<div class="subq-mc-option" data-subq="' + si + '" data-opt="' + oi + '" onclick="selectSubqMCOption(' + si + ', ' + oi + ')">';
+                html += '<span style="font-weight:bold;margin-right:8px;">' + String.fromCharCode(65 + oi) + ')</span>' + optText;
+                html += '</div>';
+            });
+            html += '</div>';
+            return html;
+        }
+        
+        function selectSubqMCOption(subqIndex, optIndex) {
+            // Fjern valgt fra alle i denne subquestion
+            document.querySelectorAll('.subq-mc-option[data-subq="' + subqIndex + '"]').forEach(function(el) {
+                el.classList.remove('selected');
+            });
+            // Marker valgt
+            var selected = document.querySelector('.subq-mc-option[data-subq="' + subqIndex + '"][data-opt="' + optIndex + '"]');
+            if (selected) {
+                selected.classList.add('selected');
+            }
+            // Lagre valg
+            gameState.subquestionAnswers[subqIndex] = optIndex;
         }
         
         function renderDataTable(data) {
@@ -4340,8 +4586,147 @@
                 return;
             }
             
+            // Check subquestions if present
+            if (q.subquestions && q.subquestions.length > 0) {
+                var subqResult = checkSubquestions(q);
+                // Both main question and subquestions must be correct
+                correct = correct && subqResult;
+            }
+            
             if (correct) handleCorrect(); else handleIncorrect();
             document.getElementById('btn-check').disabled = false;
+        }
+        
+        function checkSubquestions(q) {
+            var allCorrect = true;
+            
+            q.subquestions.forEach(function(subq, si) {
+                var isCorrect = false;
+                
+                if (subq.type === 'excel_grid' || subq.type === 'bokforing') {
+                    // Check bokføring grid
+                    isCorrect = checkSubqGrid(subq, si);
+                } else if (subq.type === 'mc') {
+                    // Flervalg
+                    var userAnswer = gameState.subquestionAnswers[si];
+                    var correctIndex = subq.correctIndex;
+                    
+                    // Find correct index from options if not set
+                    if (correctIndex === undefined && subq.options) {
+                        subq.options.forEach(function(opt, oi) {
+                            if (opt.correct === true || opt.is_correct === true) {
+                                correctIndex = oi;
+                            }
+                        });
+                    }
+                    
+                    isCorrect = (userAnswer === correctIndex);
+                    
+                    // Marker visuelt
+                    document.querySelectorAll('.subq-mc-option[data-subq="' + si + '"]').forEach(function(el, oi) {
+                        el.classList.remove('correct', 'incorrect');
+                        if (oi === correctIndex) {
+                            el.classList.add('correct');
+                        } else if (oi === userAnswer && userAnswer !== correctIndex) {
+                            el.classList.add('incorrect');
+                        }
+                    });
+                } else if (subq.type === 'text') {
+                    // Tekst
+                    var textInput = document.getElementById('subq-answer-' + si);
+                    if (textInput && subq.solution) {
+                        var userText = textInput.value.trim().toLowerCase();
+                        var expectedText = String(subq.solution).toLowerCase();
+                        isCorrect = userText.includes(expectedText) || expectedText.includes(userText);
+                        textInput.classList.toggle('correct', isCorrect);
+                        textInput.classList.toggle('incorrect', !isCorrect);
+                    } else {
+                        isCorrect = true; // Ingen fasit = godkjent
+                    }
+                } else {
+                    // Beregning (calculation)
+                    var calcInput = document.getElementById('subq-answer-' + si);
+                    if (calcInput && subq.solution !== undefined) {
+                        var userVal = parseFloat(calcInput.value.replace(/\s/g, '').replace(',', '.'));
+                        var expectedVal = parseFloat(String(subq.solution).replace(/\s/g, '').replace(',', '.'));
+                        var tolerance = subq.tolerance || 0.5;
+                        isCorrect = !isNaN(userVal) && Math.abs(userVal - expectedVal) <= tolerance;
+                        calcInput.classList.toggle('correct', isCorrect);
+                        calcInput.classList.toggle('incorrect', !isCorrect);
+                    }
+                }
+                
+                if (!isCorrect) allCorrect = false;
+            });
+            
+            return allCorrect;
+        }
+        
+        function checkSubqGrid(subq, si) {
+            var grid = subq.grid || { rows: [] };
+            var solution = grid.rows || [];
+            
+            if (solution.length === 0) return true; // Ingen løsning = godkjent
+            
+            var allCorrect = true;
+            var userEntries = [];
+            
+            // Samle brukerens svar
+            document.querySelectorAll('.subq-grid-cell[data-subq="' + si + '"]').forEach(function(input) {
+                var row = parseInt(input.dataset.row);
+                var col = input.dataset.col;
+                
+                if (!userEntries[row]) userEntries[row] = {};
+                
+                if (col === 'account') {
+                    userEntries[row].account = input.value.trim();
+                } else if (col === 'debet') {
+                    userEntries[row].debet = parseFloat(input.value) || 0;
+                } else if (col === 'kredit') {
+                    userEntries[row].kredit = parseFloat(input.value) || 0;
+                }
+                userEntries[row][col + 'El'] = input;
+            });
+            
+            // Sjekk mot løsning
+            solution.forEach(function(solRow, ri) {
+                var userRow = userEntries[ri] || {};
+                
+                // Sjekk konto
+                var accountCorrect = false;
+                if (solRow.account) {
+                    var expectedAccount = String(solRow.account).trim();
+                    var userAccount = String(userRow.account || '').trim();
+                    accountCorrect = userAccount.startsWith(expectedAccount.substring(0, 4)) || 
+                                     userAccount === expectedAccount;
+                }
+                
+                // Sjekk debet
+                var debetCorrect = Math.abs((userRow.debet || 0) - (solRow.debet || 0)) < 1;
+                
+                // Sjekk kredit
+                var kreditCorrect = Math.abs((userRow.kredit || 0) - (solRow.kredit || 0)) < 1;
+                
+                // Marker visuelt
+                if (userRow.accountEl) {
+                    userRow.accountEl.classList.toggle('correct', accountCorrect);
+                    userRow.accountEl.classList.toggle('incorrect', !accountCorrect && userRow.account);
+                }
+                if (userRow.debetEl) {
+                    userRow.debetEl.classList.toggle('correct', debetCorrect && (solRow.debet || 0) > 0);
+                    userRow.debetEl.classList.toggle('incorrect', !debetCorrect && (solRow.debet || 0) > 0);
+                }
+                if (userRow.kreditEl) {
+                    userRow.kreditEl.classList.toggle('correct', kreditCorrect && (solRow.kredit || 0) > 0);
+                    userRow.kreditEl.classList.toggle('incorrect', !kreditCorrect && (solRow.kredit || 0) > 0);
+                }
+                
+                if (!accountCorrect || !debetCorrect || !kreditCorrect) {
+                    allCorrect = false;
+                }
+            });
+            
+            return allCorrect;
         }
         
         function checkTF(solution) {

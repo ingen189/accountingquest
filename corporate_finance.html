@@ -577,6 +577,98 @@
             color: white;
         }
         
+        /* Subquestions */
+        .subquestions-container {
+            margin-top: var(--space-lg);
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .subquestions-title {
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: var(--space-md);
+            font-size: 1.1em;
+        }
+        
+        .subquestion-item {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .subquestion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .subquestion-letter {
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .subquestion-points {
+            color: var(--text-muted);
+            font-size: 0.85em;
+        }
+        
+        .subq-input {
+            width: 100%;
+            padding: 10px var(--space-md);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+        
+        .subq-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .subq-input.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--success);
+        }
+        
+        .subq-input.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--error);
+        }
+        
+        .subq-mc-option {
+            padding: 10px var(--space-md);
+            margin: 4px 0;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .subq-mc-option:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .subq-mc-option.selected {
+            border-color: var(--accent);
+        }
+        
+        .subq-mc-option.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .subq-mc-option.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
         /* Input Fields */
         .input-fields {
             display: grid;
@@ -1621,6 +1713,7 @@
             selectedAnswers: [], // for multi-select
             tfAnswer: null,      // for true/false
             dndState: {},        // for drag & drop
+            subquestionAnswers: {}, // for subquestions
             answeredCorrectly: false,
             hintsUsed: 0,
             score: 0,
@@ -2082,11 +2175,16 @@
             document.getElementById('dnd-container').style.display = 'none';
             document.getElementById('journal-container').style.display = 'none';
             
+            // Remove any existing subquestions container
+            var existingSubq = document.getElementById('subquestions-container');
+            if (existingSubq) existingSubq.remove();
+            
             // Reset state
             gameState.selectedAnswer = null;
             gameState.selectedAnswers = [];
             gameState.tfAnswer = null;
             gameState.dndState = {};
+            gameState.subquestionAnswers = {};
             
             if (q.data) renderDataTable(q.data);
             
@@ -2112,6 +2210,72 @@
             } else {
                 renderCalculation(q);
             }
+            
+            // Render subquestions if present
+            if (q.subquestions && q.subquestions.length > 0) {
+                renderSubquestions(q);
+            }
+        }
+        
+        // ==================== SUBQUESTIONS ====================
+        function renderSubquestions(q) {
+            var container = document.createElement('div');
+            container.id = 'subquestions-container';
+            container.className = 'subquestions-container';
+            
+            var html = '<div class="subquestions-title">📝 Deloppgaver (' + q.subquestions.length + ')</div>';
+            
+            q.subquestions.forEach(function(subq, si) {
+                var letter = String.fromCharCode(97 + si);
+                html += '<div class="subquestion-item" data-subq-index="' + si + '">';
+                html += '<div class="subquestion-header">';
+                html += '<span class="subquestion-letter">' + letter + ') ' + (subq.question || '') + '</span>';
+                html += '<span class="subquestion-points">' + (subq.points || 0) + ' poeng</span>';
+                html += '</div>';
+                
+                // Render based on type
+                if (subq.type === 'mc' && subq.options) {
+                    html += renderSubqMC(subq, si);
+                } else if (subq.type === 'text') {
+                    html += '<textarea class="subq-input" id="subq-answer-' + si + '" placeholder="Skriv ditt svar..."></textarea>';
+                } else {
+                    // Beregning (calculation)
+                    html += '<input type="text" class="subq-input" id="subq-answer-' + si + '" placeholder="Ditt svar">';
+                }
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+            
+            // Insert after the main question content
+            var questionCard = document.querySelector('.question-card');
+            if (questionCard) {
+                questionCard.appendChild(container);
+            }
+        }
+        
+        function renderSubqMC(subq, si) {
+            var html = '<div class="subq-mc-options">';
+            subq.options.forEach(function(opt, oi) {
+                var optText = typeof opt === 'string' ? opt : (opt.text || opt.option_text || '');
+                html += '<div class="subq-mc-option" data-subq="' + si + '" data-opt="' + oi + '" onclick="selectSubqMCOption(' + si + ', ' + oi + ')">';
+                html += '<span style="font-weight:bold;margin-right:8px;">' + String.fromCharCode(65 + oi) + ')</span>' + optText;
+                html += '</div>';
+            });
+            html += '</div>';
+            return html;
+        }
+        
+        function selectSubqMCOption(subqIndex, optIndex) {
+            document.querySelectorAll('.subq-mc-option[data-subq="' + subqIndex + '"]').forEach(function(el) {
+                el.classList.remove('selected');
+            });
+            var selected = document.querySelector('.subq-mc-option[data-subq="' + subqIndex + '"][data-opt="' + optIndex + '"]');
+            if (selected) {
+                selected.classList.add('selected');
+            }
+            gameState.subquestionAnswers[subqIndex] = optIndex;
         }
         
         function renderDataTable(data) {
@@ -2901,8 +3065,71 @@
                 return;
             }
             
+            // Check subquestions if present
+            if (q.subquestions && q.subquestions.length > 0) {
+                var subqResult = checkSubquestions(q);
+                correct = correct && subqResult;
+            }
+            
             if (correct) handleCorrect(); else handleIncorrect();
             document.getElementById('btn-check').disabled = false;
+        }
+        
+        function checkSubquestions(q) {
+            var allCorrect = true;
+            
+            q.subquestions.forEach(function(subq, si) {
+                var isCorrect = false;
+                
+                if (subq.type === 'mc') {
+                    var userAnswer = gameState.subquestionAnswers[si];
+                    var correctIndex = subq.correctIndex;
+                    
+                    if (correctIndex === undefined && subq.options) {
+                        subq.options.forEach(function(opt, oi) {
+                            if (opt.correct === true || opt.is_correct === true) {
+                                correctIndex = oi;
+                            }
+                        });
+                    }
+                    
+                    isCorrect = (userAnswer === correctIndex);
+                    
+                    document.querySelectorAll('.subq-mc-option[data-subq="' + si + '"]').forEach(function(el, oi) {
+                        el.classList.remove('correct', 'incorrect');
+                        if (oi === correctIndex) {
+                            el.classList.add('correct');
+                        } else if (oi === userAnswer && userAnswer !== correctIndex) {
+                            el.classList.add('incorrect');
+                        }
+                    });
+                } else if (subq.type === 'text') {
+                    var textInput = document.getElementById('subq-answer-' + si);
+                    if (textInput && subq.solution) {
+                        var userText = textInput.value.trim().toLowerCase();
+                        var expectedText = String(subq.solution).toLowerCase();
+                        isCorrect = userText.includes(expectedText) || expectedText.includes(userText);
+                        textInput.classList.toggle('correct', isCorrect);
+                        textInput.classList.toggle('incorrect', !isCorrect);
+                    } else {
+                        isCorrect = true;
+                    }
+                } else {
+                    var calcInput = document.getElementById('subq-answer-' + si);
+                    if (calcInput && subq.solution !== undefined) {
+                        var userVal = parseFloat(calcInput.value.replace(/\s/g, '').replace(',', '.'));
+                        var expectedVal = parseFloat(String(subq.solution).replace(/\s/g, '').replace(',', '.'));
+                        var tolerance = subq.tolerance || 0.5;
+                        isCorrect = !isNaN(userVal) && Math.abs(userVal - expectedVal) <= tolerance;
+                        calcInput.classList.toggle('correct', isCorrect);
+                        calcInput.classList.toggle('incorrect', !isCorrect);
+                    }
+                }
+                
+                if (!isCorrect) allCorrect = false;
+            });
+            
+            return allCorrect;
         }
         
         function checkExcelGrid(q, solution) {
