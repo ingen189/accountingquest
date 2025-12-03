@@ -64,7 +64,7 @@ var QuestionBuilder = (function() {
             derivative_power: { name: 'Derivasjon potens', latex: '\\frac{d}{dx}x^n = nx^{n-1}', description: 'Potensregelen' },
             derivative_chain: { name: 'Kjerneregelen', latex: '\\frac{d}{dx}f(g(x)) = f\'(g(x)) \\cdot g\'(x)', description: 'Chain rule' },
             integral_power: { name: 'Integral potens', latex: '\\int x^n dx = \\frac{x^{n+1}}{n+1} + C', description: 'Potensregelen for integrasjon' },
-            quadratic: { name: 'Andregradsformel', latex: 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}', description: 'Løsning av ax² + bx + c = 0' },
+            quadratic: { name: 'Andregradsformel', latex: 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}', description: 'Løsning av axÂ² + bx + c = 0' },
             
             // Statistics
             mean: { name: 'Gjennomsnitt', latex: '\\bar{x} = \\frac{1}{n}\\sum_{i=1}^{n}x_i', description: 'Aritmetisk gjennomsnitt' },
@@ -232,18 +232,18 @@ var QuestionBuilder = (function() {
                 year: 1998,
                 url: 'https://lovdata.no/dokument/NL/lov/1998-07-17-56',
                 sections: {
-                    '§3-1': 'Årsregnskap og årsberetning',
-                    '§3-2': 'Plikt til å utarbeide konsernregnskap',
-                    '§3-2a': 'Unntak fra plikten til å utarbeide konsernregnskap',
-                    '§4-1': 'Grunnleggende regnskapsprinsipper',
-                    '§5-1': 'Vurdering av eiendeler og gjeld',
-                    '§5-2': 'Anskaffelseskost',
-                    '§5-3': 'Virkelig verdi',
-                    '§5-4': 'Nedskrivning av anleggsmidler',
-                    '§5-5': 'Varelager og oppdrag under utførelse',
-                    '§6-1': 'Resultatregnskap',
-                    '§6-2': 'Balanse',
-                    '§7-1': 'Noter'
+                    'Â§3-1': 'Årsregnskap og årsberetning',
+                    'Â§3-2': 'Plikt til å utarbeide konsernregnskap',
+                    'Â§3-2a': 'Unntak fra plikten til å utarbeide konsernregnskap',
+                    'Â§4-1': 'Grunnleggende regnskapsprinsipper',
+                    'Â§5-1': 'Vurdering av eiendeler og gjeld',
+                    'Â§5-2': 'Anskaffelseskost',
+                    'Â§5-3': 'Virkelig verdi',
+                    'Â§5-4': 'Nedskrivning av anleggsmidler',
+                    'Â§5-5': 'Varelager og oppdrag under utførelse',
+                    'Â§6-1': 'Resultatregnskap',
+                    'Â§6-2': 'Balanse',
+                    'Â§7-1': 'Noter'
                 }
             },
             BOKL: {
@@ -253,14 +253,14 @@ var QuestionBuilder = (function() {
                 year: 2004,
                 url: 'https://lovdata.no/dokument/NL/lov/2004-11-19-73',
                 sections: {
-                    '§3': 'Bokføringspliktige',
-                    '§4': 'Grunnleggende bokføringsprinsipper',
-                    '§5': 'Regnskapssystem',
-                    '§6': 'Bokføring og dokumentasjon',
-                    '§7': 'Dokumentasjon av balansen',
-                    '§8': 'Spesifikasjoner av pliktig regnskapsrapportering',
-                    '§10': 'Oppbevaring',
-                    '§13': 'Oppbevaringstid'
+                    'Â§3': 'Bokføringspliktige',
+                    'Â§4': 'Grunnleggende bokføringsprinsipper',
+                    'Â§5': 'Regnskapssystem',
+                    'Â§6': 'Bokføring og dokumentasjon',
+                    'Â§7': 'Dokumentasjon av balansen',
+                    'Â§8': 'Spesifikasjoner av pliktig regnskapsrapportering',
+                    'Â§10': 'Oppbevaring',
+                    'Â§13': 'Oppbevaringstid'
                 }
             },
             SKTL: {
@@ -270,16 +270,16 @@ var QuestionBuilder = (function() {
                 year: 1999,
                 url: 'https://lovdata.no/dokument/NL/lov/1999-03-26-14',
                 sections: {
-                    '§5-1': 'Hovedregel om inntekt',
-                    '§5-20': 'Fordel vunnet ved arbeid',
-                    '§5-30': 'Fordel vunnet ved kapital',
-                    '§6-1': 'Hovedregel om fradrag',
-                    '§6-10': 'Minstefradrag',
-                    '§6-40': 'Rentekostnader',
-                    '§10-30': 'Gevinst og tap på aksjer mv.',
-                    '§14-40': 'Tidfesting av inntekt',
-                    '§14-41': 'Saldoavskrivning',
-                    '§14-43': 'Avskrivningssatser'
+                    'Â§5-1': 'Hovedregel om inntekt',
+                    'Â§5-20': 'Fordel vunnet ved arbeid',
+                    'Â§5-30': 'Fordel vunnet ved kapital',
+                    'Â§6-1': 'Hovedregel om fradrag',
+                    'Â§6-10': 'Minstefradrag',
+                    'Â§6-40': 'Rentekostnader',
+                    'Â§10-30': 'Gevinst og tap på aksjer mv.',
+                    'Â§14-40': 'Tidfesting av inntekt',
+                    'Â§14-41': 'Saldoavskrivning',
+                    'Â§14-43': 'Avskrivningssatser'
                 }
             },
             MVAL: {
@@ -289,16 +289,16 @@ var QuestionBuilder = (function() {
                 year: 2009,
                 url: 'https://lovdata.no/dokument/NL/lov/2009-06-19-58',
                 sections: {
-                    '§1-1': 'Saklig virkeområde',
-                    '§2-1': 'Registreringsplikt',
-                    '§3-1': 'Avgiftsplikten',
-                    '§4-1': 'Hovedregel om beregningsgrunnlag',
-                    '§5-1': 'Alminnelig sats (25%)',
-                    '§5-2': 'Redusert sats (15%)',
-                    '§5-3': 'Lav sats (12%)',
-                    '§6-1': 'Fritak for eksport',
-                    '§8-1': 'Fradragsrett',
-                    '§8-3': 'Avskåret fradragsrett'
+                    'Â§1-1': 'Saklig virkeområde',
+                    'Â§2-1': 'Registreringsplikt',
+                    'Â§3-1': 'Avgiftsplikten',
+                    'Â§4-1': 'Hovedregel om beregningsgrunnlag',
+                    'Â§5-1': 'Alminnelig sats (25%)',
+                    'Â§5-2': 'Redusert sats (15%)',
+                    'Â§5-3': 'Lav sats (12%)',
+                    'Â§6-1': 'Fritak for eksport',
+                    'Â§8-1': 'Fradragsrett',
+                    'Â§8-3': 'Avskåret fradragsrett'
                 }
             },
             ASAL: {
@@ -308,10 +308,10 @@ var QuestionBuilder = (function() {
                 year: 1997,
                 url: 'https://lovdata.no/dokument/NL/lov/1997-06-13-45',
                 sections: {
-                    '§3-1': 'Krav til aksjekapital',
-                    '§8-1': 'Utbytte',
-                    '§3-4': 'Krav til forsvarlig egenkapital',
-                    '§3-5': 'Handleplikt ved tap av egenkapital'
+                    'Â§3-1': 'Krav til aksjekapital',
+                    'Â§8-1': 'Utbytte',
+                    'Â§3-4': 'Krav til forsvarlig egenkapital',
+                    'Â§3-5': 'Handleplikt ved tap av egenkapital'
                 }
             },
             ASL: {
@@ -321,11 +321,11 @@ var QuestionBuilder = (function() {
                 year: 1997,
                 url: 'https://lovdata.no/dokument/NL/lov/1997-06-13-44',
                 sections: {
-                    '§3-1': 'Krav til aksjekapital (30 000)',
-                    '§3-4': 'Krav til forsvarlig egenkapital',
-                    '§3-5': 'Handleplikt ved tap av egenkapital',
-                    '§8-1': 'Hva kan deles ut som utbytte',
-                    '§8-2': 'Beregning av utbytte'
+                    'Â§3-1': 'Krav til aksjekapital (30 000)',
+                    'Â§3-4': 'Krav til forsvarlig egenkapital',
+                    'Â§3-5': 'Handleplikt ved tap av egenkapital',
+                    'Â§8-1': 'Hva kan deles ut som utbytte',
+                    'Â§8-2': 'Beregning av utbytte'
                 }
             }
         },
@@ -348,7 +348,7 @@ var QuestionBuilder = (function() {
             var law = this.laws[lawCode];
             if (!law) return '';
             
-            var sectionNum = section.replace('§', '').replace('-', '/');
+            var sectionNum = section.replace('Â§', '').replace('-', '/');
             return law.url + '/' + sectionNum;
         },
         
@@ -761,49 +761,49 @@ var QuestionBuilder = (function() {
         grunnleggende: {
             id: 'grunnleggende',
             name: 'Grunnleggende Regnskap',
-            icon: '📚',
+            icon: 'ðŸ“š',
             topics: ['bokforing', 'bilag', 'kontoplan', 'arsavslutning', 'mva', 'lonn', 'skatt', 'avskrivning', 'varelager', 'kundefordringer']
         },
         corporate_finance: {
             id: 'corporate_finance',
             name: 'Corporate Finance',
-            icon: '📊',
+            icon: 'ðŸ“Š',
             topics: ['npv', 'irr', 'wacc', 'capm', 'obligasjoner', 'aksjer', 'dividender', 'kapitalstruktur', 'portefolje', 'risiko', 'opsjoner', 'valuta', 'hedging']
         },
         hjernetrim: {
             id: 'hjernetrim',
             name: 'Hjernetrim',
-            icon: '🧠',
+            icon: 'ðŸ§ ',
             topics: ['mental_math', 'logikk', 'patterns', 'memory', 'speed']
         },
         matte_okonomer: {
             id: 'matte_okonomer',
             name: 'Matte for Økonomer',
-            icon: '🔢',
+            icon: 'ðŸ”¢',
             topics: ['derivasjon', 'integrasjon', 'optimering', 'matriser', 'sannsynlighet', 'statistikk', 'renter', 'annuiteter']
         },
         revisor: {
             id: 'revisor',
             name: 'Revisjon',
-            icon: '🔍',
+            icon: 'ðŸ”',
             topics: ['intern_kontroll', 'risikovurdering', 'vesentlighet', 'revisjonsbevis', 'rapportering', 'etikk', 'standarder', 'isa']
         },
         skatt_avgift: {
             id: 'skatt_avgift',
             name: 'Skatt & Avgift',
-            icon: '🏛️',
+            icon: 'ðŸ›ï¸',
             topics: ['personskatt', 'selskapsskatt', 'mva', 'arbeidsgiveravgift', 'formuesskatt', 'gevinstbeskatning', 'skattemelding']
         },
         juss: {
             id: 'juss',
             name: 'Forretningsjuss',
-            icon: '⚖️',
+            icon: 'âš–ï¸',
             topics: ['selskapsrett', 'avtalerett', 'arbeidsrett', 'konkurs', 'pant', 'regnskapsloven', 'aksjeloven']
         },
         excel_skills: {
             id: 'excel_skills',
             name: 'Excel Ferdigheter',
-            icon: '📗',
+            icon: 'ðŸ“—',
             topics: ['formler', 'funksjoner', 'pivot', 'makroer', 'datavalidering', 'formatering', 'diagrammer']
         }
     };
@@ -816,7 +816,7 @@ var QuestionBuilder = (function() {
         excel_grid: {
             id: 'excel_grid',
             name: 'Excel Grid',
-            icon: '📊',
+            icon: 'ðŸ“Š',
             description: 'Regneark med formler og beregninger',
             subtypes: ['tkonto', 'parameter', 'cashflow', 'budget', 'custom']
         },
@@ -830,35 +830,35 @@ var QuestionBuilder = (function() {
         drag_drop: {
             id: 'drag_drop',
             name: 'Drag & Drop',
-            icon: '🎯',
+            icon: 'ðŸŽ¯',
             description: 'Dra elementer til riktig kategori',
             subtypes: ['categorize', 'order', 'match', 'formula']
         },
         calculation: {
             id: 'calculation',
             name: 'Beregning',
-            icon: '🔢',
+            icon: 'ðŸ”¢',
             description: 'Skriv inn numerisk svar',
             subtypes: ['single', 'multiple', 'formula']
         },
         inline_input: {
             id: 'inline_input',
             name: 'Inline Input',
-            icon: '✏️',
+            icon: 'âœï¸',
             description: 'Tekstfelt direkte i oppgaveteksten',
             subtypes: ['text', 'number', 'account', 'mixed']
         },
         case_study: {
             id: 'case_study',
             name: 'Case Study',
-            icon: '📁',
+            icon: 'ðŸ“',
             description: 'Kompleks oppgave med flere dokumenter og delspørsmål',
             subtypes: ['standard', 'exam', 'practical']
         },
         paragraph: {
             id: 'paragraph',
             name: 'Paragraf/Lov',
-            icon: '📜',
+            icon: 'ðŸ“œ',
             description: 'Finn riktig lovhenvisning',
             subtypes: ['single', 'multiple']
         },
@@ -1083,19 +1083,19 @@ var QuestionBuilder = (function() {
     
     var DocumentSystem = {
         types: {
-            bilag: { icon: '🧾', name: 'Bilag' },
-            faktura: { icon: '📄', name: 'Faktura' },
-            balanse: { icon: '📊', name: 'Balanse' },
-            resultat: { icon: '📈', name: 'Resultatregnskap' },
-            noter: { icon: '📝', name: 'Noter' },
-            kontoplan: { icon: '📋', name: 'Kontoplan' },
-            kontoutskrift: { icon: '🏦', name: 'Kontoutskrift' },
-            kontrakt: { icon: '📃', name: 'Kontrakt' },
-            brev: { icon: '✉️', name: 'Brev' },
-            rapport: { icon: '📑', name: 'Rapport' },
-            kalkyle: { icon: '🔢', name: 'Kalkyle' },
-            skattemelding: { icon: '🏛️', name: 'Skattemelding' },
-            arsmelding: { icon: '📚', name: 'Årsmelding' }
+            bilag: { icon: 'ðŸ§¾', name: 'Bilag' },
+            faktura: { icon: 'ðŸ“„', name: 'Faktura' },
+            balanse: { icon: 'ðŸ“Š', name: 'Balanse' },
+            resultat: { icon: 'ðŸ“ˆ', name: 'Resultatregnskap' },
+            noter: { icon: 'ðŸ“', name: 'Noter' },
+            kontoplan: { icon: 'ðŸ“‹', name: 'Kontoplan' },
+            kontoutskrift: { icon: 'ðŸ¦', name: 'Kontoutskrift' },
+            kontrakt: { icon: 'ðŸ“ƒ', name: 'Kontrakt' },
+            brev: { icon: 'âœ‰ï¸', name: 'Brev' },
+            rapport: { icon: 'ðŸ“‘', name: 'Rapport' },
+            kalkyle: { icon: 'ðŸ”¢', name: 'Kalkyle' },
+            skattemelding: { icon: 'ðŸ›ï¸', name: 'Skattemelding' },
+            arsmelding: { icon: 'ðŸ“š', name: 'Årsmelding' }
         },
         
         createDocument: function(type, title, content) {
@@ -1133,8 +1133,8 @@ var QuestionBuilder = (function() {
                                   onchange="QuestionBuilder.updateDocument(' + questionIndex + ', ' + index + ', \'content\', this.value)">' + escapeHtml(doc.content) + '</textarea>\
                     </div>\
                     <div class="document-actions">\
-                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addGridToDocument(' + questionIndex + ', ' + index + ')">📊 Legg til tabell</button>\
-                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.uploadImageToDocument(' + questionIndex + ', ' + index + ')">🖼️ Last opp bilde</button>\
+                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addGridToDocument(' + questionIndex + ', ' + index + ')">ðŸ“Š Legg til tabell</button>\
+                        <button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.uploadImageToDocument(' + questionIndex + ', ' + index + ')">ðŸ–¼ï¸ Last opp bilde</button>\
                     </div>\
                 </div>\
             ';
@@ -1170,10 +1170,10 @@ var QuestionBuilder = (function() {
                     <div class="subquestion-header">\
                         <span class="subq-letter">' + letter + ')</span>\
                         <select class="subq-type" onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'type\', this.value)">\
-                            <option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>🔢 Beregning</option>\
+                            <option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>ðŸ”¢ Beregning</option>\
                             <option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>✅ Flervalg</option>\
-                            <option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>📝 Tekst</option>\
-                            <option value="excel_grid" ' + (subq.type === 'excel_grid' ? 'selected' : '') + '>📊 Grid</option>\
+                            <option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>ðŸ“ Tekst</option>\
+                            <option value="excel_grid" ' + (subq.type === 'excel_grid' ? 'selected' : '') + '>ðŸ“Š Grid</option>\
                         </select>\
                         <input type="number" class="subq-points" value="' + (subq.points || 5) + '" min="1" max="50"\
                                onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'points\', parseInt(this.value))">\
@@ -1188,7 +1188,7 @@ var QuestionBuilder = (function() {
                             <input type="text" value="' + (subq.solution || '') + '"\
                                    placeholder="Riktig svar"\
                                    onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'solution\', this.value)">\
-                            <label>±</label>\
+                            <label>Â±</label>\
                             <input type="number" class="tolerance" value="' + (subq.tolerance || 0.5) + '" step="0.1"\
                                    onchange="QuestionBuilder.updateSubquestion(' + questionIndex + ', ' + index + ', \'tolerance\', parseFloat(this.value))">\
                         </div>\
@@ -1332,7 +1332,7 @@ var QuestionBuilder = (function() {
                     type: 'parameter',
                     columns: ['Parameter', 'Verdi'],
                     rows: [
-                        { cells: [{ value: 'Investering (I₀)', editable: false }, { value: '-{invest}', editable: false }] },
+                        { cells: [{ value: 'Investering (Iâ‚€)', editable: false }, { value: '-{invest}', editable: false }] },
                         { cells: [{ value: 'Årlig CF', editable: false }, { value: '{cf}', editable: false }] },
                         { cells: [{ value: 'Perioder (n)', editable: false }, { value: '{n}', editable: false }] },
                         { cells: [{ value: 'Rente (r)', editable: false }, { value: '{r}%', editable: false }] },
@@ -1469,144 +1469,11 @@ var QuestionBuilder = (function() {
             type: 'calculation',
             template: {
                 title: 'Deriver funksjonen',
-                question: 'Gitt f(x) = {var:a:2-5}x³ + {var:b:3-8}x² - {var:c:1-10}x. Finn f\'(x) når x = {var:x:1-5}.',
+                question: 'Gitt f(x) = {var:a:2-5}xÂ³ + {var:b:3-8}xÂ² - {var:c:1-10}x. Finn f\'(x) når x = {var:x:1-5}.',
                 solution: '{calc:3*a*Math.pow(x,2) + 2*b*x - c}',
                 hints: [
-                    'f\'(x) = {calc:3*a}x² + {calc:2*b}x - {c}',
+                    'f\'(x) = {calc:3*a}xÂ² + {calc:2*b}x - {c}',
                     'Sett inn x = {x}'
-                ]
-            }
-        },
-        
-        // Case Study - Stor oppgave med flere deler
-        maxsport_import: {
-            name: 'MaxSport A/S - Import og salg',
-            module: 'grunnleggende',
-            topic: 'arsavslutning',
-            type: 'case_study',
-            template: {
-                title: 'Årsoppgjør for MaxSport A/S',
-                scenario: 'Du er regnskapsfører for MaxSport A/S, en norsk sportsutstyrforhandler.',
-                question: 'MaxSport A/S importerte spesialutstyr fra USA for ${var:import_usd:300000-400000:10000} USD. Kursen var {var:kurs:10.5-11.5:0.1} NOK/USD. Tollsatsen er {var:toll_prosent:5,8,10,12}% og MVA er 25%.\n\nMens varene var underveis (4 uker), solgte de fra eksisterende lager:\n- Uke 1: kr {var:salg1:40000-60000:5000}\n- Uke 2: kr {var:salg2:65000-85000:5000}\n- Uke 3: kr {var:salg3:20000-35000:5000}\n- Uke 4: kr {var:salg4:90000-120000:5000}\n\nAlle beløp er inkl. MVA 25%.\n\nBetalingsfordeling:\n- {var:andel_kort:55,60,65}% betalt med bankkort\n- kr {var:kontant:6000-9000:500} betalt kontant\n- Resten på kreditt\n\nEtter 30 dager er kr {var:tap:3000-5000:500} av kreditt fortsatt ubetalt.\n\nSelskapet donerer kr {var:donasjon:25000-35000:5000} til lokale idrettslag.',
-                documents: [
-                    {
-                        type: 'faktura',
-                        title: 'Importfaktura - US Sports Equipment Inc.',
-                        content: 'INVOICE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nFrom: US Sports Equipment Inc.\nTo: MaxSport A/S, Norway\n\nAmount: USD {import_usd}\nExchange rate: {kurs} NOK/USD\nNOK Amount: {calc:import_usd * kurs}'
-                    },
-                    {
-                        type: 'tolldeklarasjon',
-                        title: 'Tolldeklarasjon',
-                        content: 'TOLLDEKLARASJON\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nVareverdi (CIF): kr {calc:import_usd * kurs}\nTollsats: {toll_prosent}%\nToll: kr {calc:Math.round(import_usd * kurs * toll_prosent / 100)}\n\nGrunnlag MVA: kr {calc:Math.round(import_usd * kurs * (1 + toll_prosent/100))}\nMVA 25%: kr {calc:Math.round(import_usd * kurs * (1 + toll_prosent/100) * 0.25)}'
-                    }
-                ],
-                subquestions: [
-                    {
-                        letter: 'a',
-                        question: 'Beregn total importkostnad i NOK (varekost + toll, UTEN mva):',
-                        type: 'calculation',
-                        points: 8,
-                        solution: '{calc:Math.round(import_usd * kurs * (1 + toll_prosent/100))}',
-                        tolerance: 100
-                    },
-                    {
-                        letter: 'b',
-                        question: 'Bokfør importen fra USA (varekjøp med toll og MVA):',
-                        type: 'excel_grid',
-                        points: 15,
-                        grid: {
-                            type: 'tkonto',
-                            columns: ['Konto', 'Kontonavn', 'Debet', 'Kredit'],
-                            rows: [
-                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] },
-                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] },
-                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] }
-                            ]
-                        }
-                    },
-                    {
-                        letter: 'c',
-                        question: 'Beregn totalt salg ekskl. MVA:',
-                        type: 'calculation',
-                        points: 5,
-                        solution: '{calc:Math.round((salg1+salg2+salg3+salg4)/1.25)}',
-                        tolerance: 100
-                    },
-                    {
-                        letter: 'd',
-                        question: 'Bokfør tap på kundefordringer:',
-                        type: 'excel_grid',
-                        points: 10,
-                        grid: {
-                            type: 'tkonto',
-                            columns: ['Konto', 'Kontonavn', 'Debet', 'Kredit'],
-                            rows: [
-                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] },
-                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] }
-                            ]
-                        }
-                    },
-                    {
-                        letter: 'e',
-                        question: 'Bokfør donasjonen til lokale idrettslag:',
-                        type: 'excel_grid',
-                        points: 8,
-                        grid: {
-                            type: 'tkonto',
-                            columns: ['Konto', 'Kontonavn', 'Debet', 'Kredit'],
-                            rows: [
-                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] },
-                                { cells: [{ editable: true }, { editable: true }, { editable: true }, { editable: true }] }
-                            ]
-                        }
-                    },
-                    {
-                        letter: 'f',
-                        question: 'Beregn MVA-oppgjør (netto skyldig/tilgode):',
-                        type: 'calculation',
-                        points: 10,
-                        solution: '{calc:Math.round((salg1+salg2+salg3+salg4)/1.25*0.25 - import_usd * kurs * (1 + toll_prosent/100) * 0.25)}',
-                        tolerance: 100
-                    }
-                ],
-                hints: [
-                    'Husk at alle salgsbeløp oppgis INKL. MVA - del på 1,25 for å finne eks. MVA',
-                    'Toll beregnes av vareverdien i NOK, MVA beregnes av vareverdi + toll',
-                    'Tap på fordringer føres som kostnad (debet) mot kundefordringer (kredit)'
-                ],
-                explanation: 'Denne oppgaven dekker import med toll og MVA, salgsbokføring, tap på fordringer, og donasjoner.',
-                lawReferences: [
-                    { law: 'merverdiavgiftsloven', section: '§ 4-11', topic: 'Innførsel av varer' },
-                    { law: 'skatteloven', section: '§ 6-50', topic: 'Gaver til frivillige organisasjoner' }
-                ]
-            }
-        },
-        
-        // Enkel varekjøp kontant
-        varekjop_kontant: {
-            name: 'Varekjøp kontant',
-            module: 'grunnleggende',
-            topic: 'bokforing',
-            type: 'excel_grid',
-            template: {
-                title: 'Bokfør transaksjonen',
-                question: 'Bedriften kjøper varer for kr {var:belop:5000-50000:1000} kontant. Bokfør transaksjonen.',
-                grid: {
-                    type: 'tkonto',
-                    columns: ['Konto', 'Debet', 'Kredit'],
-                    rows: [
-                        { cells: [{ editable: true, type: 'account' }, { editable: true }, { editable: true }] },
-                        { cells: [{ editable: true, type: 'account' }, { editable: true }, { editable: true }] }
-                    ]
-                },
-                solution: [
-                    { account: '4300', debet: '{belop}', kredit: 0 },
-                    { account: '1920', debet: 0, kredit: '{belop}' }
-                ],
-                hints: [
-                    'Varekjøp er en kostnad - hvilken side øker kostnader?',
-                    'Bank er en eiendel som reduseres',
-                    'Konto 4300 = Varekostnad, Konto 1920 = Bank'
                 ]
             }
         }

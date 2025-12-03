@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question Builder - AccountingQuest</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
     
     <!-- Felles stilark (kan kobles til om ønskelig) -->
     <!-- <link rel="stylesheet" href="css/main.css"> -->
@@ -13,8 +13,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
     <style>
         :root {
             --bg-primary: #0f1419;
@@ -122,18 +120,6 @@
         .subq-letter { background: var(--accent-secondary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
         .subq-type { width: auto; min-width: 100px; }
         .subq-points { width: 50px; text-align: center; }
-        .subq-solution { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
-        .subq-solution label { color: var(--text-secondary); font-size: 0.85em; }
-        .subq-solution input[type="text"] { flex: 1; min-width: 150px; }
-        .subq-solution .tolerance { width: 60px; }
-        
-        /* MC Options Editor */
-        .mc-options-editor { margin-top: 12px; }
-        .mc-options-editor > label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85em; }
-        .mc-option-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-        .mc-option-row input[type="radio"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
-        .mc-option-row input[type="text"] { flex: 1; }
-        .mc-options-editor .btn { margin-top: 8px; }
         
         .preview-question { background: var(--bg-card); border-radius: 10px; padding: 15px; margin-bottom: 12px; }
         .preview-title { color: var(--accent); font-size: 1em; margin-bottom: 8px; }
@@ -256,46 +242,16 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-primary); }
         ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
-        
-        /* Import Modal */
-        .modal-large { max-width: 1000px; width: 95%; max-height: 90vh; }
-        .modal-large .modal-body { max-height: 70vh; }
-        .import-dropzone { border: 2px dashed var(--border); border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 20px; transition: all 0.3s; cursor: pointer; }
-        .import-dropzone:hover, .import-dropzone.dragover { border-color: var(--accent); background: rgba(74, 222, 128, 0.05); }
-        .import-dropzone .icon { font-size: 3em; margin-bottom: 15px; opacity: 0.7; }
-        .import-dropzone p { color: var(--text-secondary); margin-bottom: 10px; }
-        .import-dropzone .hint { font-size: 0.8em; color: var(--text-muted); }
-        .import-file-info { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .import-file-info .name { font-weight: 600; color: var(--accent); }
-        .import-file-info .meta { font-size: 0.8em; color: var(--text-secondary); }
-        .import-editor-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        @media (max-width: 900px) { .import-editor-container { grid-template-columns: 1fr; } }
-        .import-editor { display: flex; flex-direction: column; }
-        .import-editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .import-editor-header h4 { color: var(--accent); font-size: 0.9em; margin: 0; }
-        .import-editor textarea { font-family: 'Consolas', 'Monaco', monospace; font-size: 0.85em; line-height: 1.5; min-height: 350px; resize: vertical; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text-primary); white-space: pre; overflow: auto; }
-        .import-stats { display: flex; gap: 20px; margin-top: 15px; padding: 12px; background: var(--bg-card); border-radius: 8px; }
-        .import-stat { text-align: center; }
-        .import-stat .value { font-size: 1.5em; font-weight: 700; color: var(--accent); }
-        .import-stat .label { font-size: 0.75em; color: var(--text-secondary); }
-        .import-actions { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        .import-error { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 8px; padding: 12px; margin-top: 10px; color: var(--danger); font-size: 0.85em; }
-        .import-success { background: rgba(74, 222, 128, 0.1); border: 1px solid var(--accent); border-radius: 8px; padding: 12px; margin-top: 10px; color: var(--accent); font-size: 0.85em; }
-        .import-preview-list { max-height: 200px; overflow-y: auto; margin-top: 10px; }
-        .import-preview-item { background: var(--bg-tertiary); border-radius: 6px; padding: 8px 12px; margin-bottom: 6px; font-size: 0.85em; display: flex; justify-content: space-between; }
-        .import-preview-item .id { font-family: monospace; color: var(--accent); }
-        .import-preview-item .type { color: var(--purple); font-size: 0.8em; }
     </style>
 </head>
 <body>
     <header class="header">
-        <h1>🏗️ Question Builder</h1>
+        <h1>🏔️ Question Builder</h1>
         <div class="header-actions">
             <div id="apiStatus" class="api-status"><span class="status-dot"></span><span>Sjekker...</span></div>
-            <button class="btn btn-secondary" onclick="openImportModal()">📂 Import</button>
-            <button class="btn btn-secondary" onclick="loadFromApiDialog()">📥 Last fra API</button>
+            <button class="btn btn-secondary" onclick="loadFromApiDialog()">🔥 Last fra API</button>
             <button class="btn btn-primary" onclick="QuestionBuilder.saveToApi()">💾 Lagre til API</button>
-            <button class="btn btn-secondary" onclick="QuestionBuilder.downloadJSON()">📄 Eksporter</button>
+            <button class="btn btn-secondary" onclick="QuestionBuilder.downloadJSON()">🔄 Eksporter</button>
         </div>
     </header>
     
@@ -319,7 +275,7 @@
                 <div class="panel-content" id="editorPanel">
                     <!-- Toolbar -->
                     <div class="editor-toolbar" id="editorToolbar" style="display:none;">
-                        <button class="toolbar-btn" onclick="openFormulaModal()" title="Sett inn formel">📐 Formel</button>
+                        <button class="toolbar-btn" onclick="openFormulaModal()" title="Sett inn formel">📝 Formel</button>
                         <button class="toolbar-btn" onclick="openKontoplanModal()" title="Søk i kontoplan">📋 Kontoplan</button>
                         <button class="toolbar-btn" onclick="openLawModal()" title="Lovhenvisning">⚖️ Lov</button>
                         <div class="toolbar-divider"></div>
@@ -339,7 +295,7 @@
                             <div class="form-group"><label>Modul</label><select id="setModule"></select></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group"><label>Tema</label><select id="setTopic"></select></div>
+                            <div class="form-group"><label>Topic</label><select id="setTopic"></select></div>
                             <div class="form-group"><label>Vanskelighet</label>
                                 <select id="setDifficulty">
                                     <option value="easy">Lett</option>
@@ -378,7 +334,7 @@
     <div class="modal-overlay" id="formulaModal">
         <div class="modal">
             <div class="modal-header">
-                <h3>📐 Sett inn formel</h3>
+                <h3>📝 Sett inn formel</h3>
                 <button class="modal-close" onclick="closeModal('formulaModal')">&times;</button>
             </div>
             <div class="modal-body">
@@ -541,80 +497,6 @@
         </div>
     </div>
     
-    <!-- Import Modal -->
-    <div class="modal-overlay" id="importModal">
-        <div class="modal modal-large">
-            <div class="modal-header">
-                <h3>📂 Import JSON/SQL</h3>
-                <button class="modal-close" onclick="closeModal('importModal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <!-- Dropzone -->
-                <div class="import-dropzone" id="importDropzone" onclick="document.getElementById('importFileInput').click()">
-                    <div class="icon">📁</div>
-                    <p>Slipp fil her eller klikk for å velge</p>
-                    <p class="hint">Støtter .json og .sql filer</p>
-                    <input type="file" id="importFileInput" accept=".json,.sql,.txt" style="display:none" onchange="handleFileImport(this.files[0])">
-                </div>
-                
-                <!-- File info -->
-                <div class="import-file-info" id="importFileInfo" style="display:none">
-                    <div>
-                        <span class="name" id="importFileName">filename.json</span>
-                        <span class="meta" id="importFileMeta">0 KB • JSON</span>
-                    </div>
-                    <button class="btn btn-sm btn-danger" onclick="clearImport()">✕ Fjern</button>
-                </div>
-                
-                <!-- Editor area -->
-                <div class="import-editor-container" id="importEditorArea" style="display:none">
-                    <div class="import-editor">
-                        <div class="import-editor-header">
-                            <h4>📝 Rådata</h4>
-                            <button class="btn btn-sm btn-secondary" onclick="formatImportCode()">🔧 Formater</button>
-                        </div>
-                        <textarea id="importRawEditor" placeholder="Lim inn JSON eller SQL her..."></textarea>
-                    </div>
-                    <div class="import-editor">
-                        <div class="import-editor-header">
-                            <h4>👁️ Forhåndsvisning</h4>
-                            <button class="btn btn-sm btn-secondary" onclick="parseImportData()">🔄 Parse</button>
-                        </div>
-                        <div id="importPreviewArea">
-                            <div class="import-stats" id="importStats" style="display:none">
-                                <div class="import-stat">
-                                    <div class="value" id="importCountQuestions">0</div>
-                                    <div class="label">Spørsmål</div>
-                                </div>
-                                <div class="import-stat">
-                                    <div class="value" id="importCountModules">0</div>
-                                    <div class="label">Moduler</div>
-                                </div>
-                                <div class="import-stat">
-                                    <div class="value" id="importCountTopics">0</div>
-                                    <div class="label">Temaer</div>
-                                </div>
-                            </div>
-                            <div class="import-preview-list" id="importPreviewList"></div>
-                            <div id="importMessages"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Actions -->
-                <div class="import-actions" id="importActions" style="display:none">
-                    <button class="btn btn-secondary" onclick="addToCurrentSet()">➕ Legg til i sett</button>
-                    <button class="btn btn-secondary" onclick="createNewSetFromImport()">📁 Nytt sett fra import</button>
-                    <button class="btn btn-primary" onclick="seedToDatabase()">🚀 Seed til database</button>
-                    <button class="btn btn-secondary" onclick="downloadProcessed()">📥 Last ned prosessert</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('importModal')">Lukk</button>
-            </div>
-        </div>
-    </div>
-    
     <!-- 
         BRUK:
         Plasser question_builder.html i rotmappen
@@ -680,8 +562,7 @@
             if (mod && mod.topics) {
                 mod.topics.forEach(function(topic) {
                     var opt = document.createElement('option');
-                    opt.value = topic;
-                    opt.textContent = QuestionBuilder.getTopicLabel(topic);
+                    opt.value = topic; opt.textContent = topic;
                     select.appendChild(opt);
                 });
             }
@@ -757,17 +638,12 @@
                 return '<option value="' + key + '" ' + (q.type === key ? 'selected' : '') + '>' + types[key].icon + ' ' + types[key].name + '</option>';
             }).join('');
             
-            var difficultyOptions = '<option value="easy" ' + (q.difficulty === 'easy' ? 'selected' : '') + '>🟢 Lett</option>' +
-                '<option value="medium" ' + (q.difficulty === 'medium' || !q.difficulty ? 'selected' : '') + '>🟡 Middels</option>' +
-                '<option value="hard" ' + (q.difficulty === 'hard' ? 'selected' : '') + '>🔴 Vanskelig</option>';
-            
             var typeHtml = '';
             if (q.type === 'excel_grid') typeHtml = renderGridBuilder(q, index);
             else if (q.type === 'mc') typeHtml = renderMCBuilder(q, index);
             else if (q.type === 'calculation') typeHtml = renderCalculationBuilder(q, index);
             else if (q.type === 'case_study') typeHtml = renderCaseStudyBuilder(q, index);
             else if (q.type === 'inline_input') typeHtml = renderInlineInputBuilder(q, index);
-            else if (q.type === 'function_graph') typeHtml = renderFunctionGraphBuilder(q, index);
             
             // Info tables for all types except case_study (which has documents)
             var infoTablesHtml = '';
@@ -775,13 +651,7 @@
                 infoTablesHtml = renderInfoTablesSection(q, index);
             }
             
-            // Subquestions for alle typer unntatt case_study (som har sin egen håndtering)
-            var subqSection = '';
-            if (q.type !== 'case_study') {
-                subqSection = renderSubquestionsSection(q, index);
-            }
-            
-            return '<div class="form-row"><div class="form-group"><label>Tittel</label><input type="text" value="' + escapeHtml(q.title || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'title\', this.value); updatePreview();"></div><div class="form-group" style="width:120px;"><label>Type</label><select onchange="QuestionBuilder.updateQuestion(' + index + ', \'type\', this.value); renderEditor(); updatePreview();">' + typeOptions + '</select></div><div class="form-group" style="width:120px;"><label>Vanskelighet</label><select onchange="QuestionBuilder.updateQuestion(' + index + ', \'difficulty\', this.value); updatePreview();">' + difficultyOptions + '</select></div></div><div class="form-group"><label>Spørsmålstekst <small style="color:var(--purple);">Bruk {var:navn:min-max} for randomisering, [___felt:type___] for inline input</small></label><textarea onchange="QuestionBuilder.updateQuestion(' + index + ', \'question\', this.value); updatePreview();">' + escapeHtml(q.question || '') + '</textarea></div>' + infoTablesHtml + typeHtml + subqSection + renderHintsSection(q, index) + renderExplanationSection(q, index);
+            return '<div class="form-row"><div class="form-group"><label>Tittel</label><input type="text" value="' + escapeHtml(q.title || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'title\', this.value); updatePreview();"></div><div class="form-group"><label>Type</label><select onchange="QuestionBuilder.updateQuestion(' + index + ', \'type\', this.value); renderEditor(); updatePreview();">' + typeOptions + '</select></div></div><div class="form-group"><label>Spørsmålstekst <small style="color:var(--purple);">Bruk {var:navn:min-max} for randomisering, [___felt:type___] for inline input</small></label><textarea onchange="QuestionBuilder.updateQuestion(' + index + ', \'question\', this.value); updatePreview();">' + escapeHtml(q.question || '') + '</textarea></div>' + infoTablesHtml + typeHtml + renderHintsSection(q, index) + renderExplanationSection(q, index);
         }
         
         function renderGridBuilder(q, index) {
@@ -806,189 +676,7 @@
         }
         
         function renderCalculationBuilder(q, index) {
-            return '<div class="form-row" style="margin-top:12px;"><div class="form-group"><label>Fasit</label><input type="text" value="' + (q.solution || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'solution\', this.value);"></div><div class="form-group"><label>Toleranse (±)</label><input type="number" step="0.1" value="' + (q.tolerance || 0.5) + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'tolerance\', parseFloat(this.value));"></div></div>';
-        }
-        
-        function renderFunctionGraphBuilder(q, index) {
-            var settings = q.graphSettings || { xMin: -10, xMax: 30, yMin: -100, yMax: 500, showZeros: true, showExtrema: true, showDerivative: false };
-            var solution = q.solution || {};
-            
-            return '<div class="function-graph-builder" style="margin-top:12px;background:var(--bg-tertiary);border-radius:8px;padding:16px;">' +
-                '<h4 style="margin-bottom:12px;color:var(--accent);">📈 Graf-konfigurasjon</h4>' +
-                
-                // Funksjon - nå med hint om å bruke variabelnavnet
-                '<div class="form-group">' +
-                    '<label>📐 Hovedfunksjon <small style="color:var(--text-muted);">(bruk variabelnavnet nedenfor, f.eks: -3*p^2 + 60*p)</small></label>' +
-                    '<input type="text" id="graph-func-' + index + '" value="' + escapeHtml(q.function || '') + '" placeholder="-3*p^2 + 60*p" onchange="updateGraphProperty(' + index + ', \'function\', this.value)">' +
-                '</div>' +
-                
-                '<div class="form-row">' +
-                    '<div class="form-group"><label>Funksjonsnavn</label><input type="text" value="' + escapeHtml(q.functionLabel || 'f(x)') + '" placeholder="I(p)" onchange="updateGraphProperty(' + index + ', \'functionLabel\', this.value)"></div>' +
-                    '<div class="form-group"><label>Variabelnavn</label><input type="text" id="graph-var-' + index + '" value="' + escapeHtml(q.variableLabel || 'x') + '" placeholder="p" onchange="updateGraphProperty(' + index + ', \'variableLabel\', this.value)"></div>' +
-                '</div>' +
-                
-                // Legg til funksjon
-                '<div style="margin:12px 0;"><button class="btn btn-sm btn-secondary" onclick="addExtraFunction(' + index + ')">+ Legg til funksjon</button></div>' +
-                
-                // Akse-innstillinger
-                '<div class="collapsible-header" onclick="toggleSection(this)" style="margin-top:12px;"><span>⚙️ Graf-innstillinger</span><span>▼</span></div>' +
-                '<div class="collapsible-content">' +
-                    '<div class="form-row">' +
-                        '<div class="form-group"><label>X min</label><input type="number" value="' + settings.xMin + '" onchange="updateGraphSettings(' + index + ', \'xMin\', parseFloat(this.value))"></div>' +
-                        '<div class="form-group"><label>X max</label><input type="number" value="' + settings.xMax + '" onchange="updateGraphSettings(' + index + ', \'xMax\', parseFloat(this.value))"></div>' +
-                        '<div class="form-group"><label>Y min</label><input type="number" value="' + settings.yMin + '" onchange="updateGraphSettings(' + index + ', \'yMin\', parseFloat(this.value))"></div>' +
-                        '<div class="form-group"><label>Y max</label><input type="number" value="' + settings.yMax + '" onchange="updateGraphSettings(' + index + ', \'yMax\', parseFloat(this.value))"></div>' +
-                    '</div>' +
-                    '<div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:8px;">' +
-                        '<label><input type="checkbox" ' + (settings.showZeros ? 'checked' : '') + ' onchange="updateGraphSettings(' + index + ', \'showZeros\', this.checked)"> Vis nullpunkter</label>' +
-                        '<label><input type="checkbox" ' + (settings.showExtrema ? 'checked' : '') + ' onchange="updateGraphSettings(' + index + ', \'showExtrema\', this.checked)"> Vis ekstremalpunkter</label>' +
-                        '<label><input type="checkbox" ' + (settings.showDerivative ? 'checked' : '') + ' onchange="updateGraphSettings(' + index + ', \'showDerivative\', this.checked)"> Vis derivert</label>' +
-                    '</div>' +
-                '</div>' +
-                
-                // Fasit
-                '<div class="collapsible-header" onclick="toggleSection(this)" style="margin-top:12px;"><span>🎯 Forventede svar</span><span>▼</span></div>' +
-                '<div class="collapsible-content open">' +
-                    '<div class="form-row">' +
-                        '<div class="form-group"><label>Nullpunkter <small>(kommaseparert)</small></label><input type="text" value="' + (Array.isArray(solution.zeros) ? solution.zeros.join(', ') : (solution.zeros || '')) + '" placeholder="0, 20" onchange="updateGraphSolution(' + index + ', \'zeros\', this.value)"></div>' +
-                    '</div>' +
-                    '<div class="form-row">' +
-                        '<div class="form-group"><label>Ekstremalpunkt X</label><input type="text" value="' + (solution.extrema && solution.extrema.x !== undefined ? solution.extrema.x : '') + '" placeholder="10" onchange="updateGraphExtrema(' + index + ', \'x\', this.value)"></div>' +
-                        '<div class="form-group"><label>Ekstremalpunkt Y</label><input type="text" value="' + (solution.extrema && solution.extrema.y !== undefined ? solution.extrema.y : '') + '" placeholder="300" onchange="updateGraphExtrema(' + index + ', \'y\', this.value)"></div>' +
-                        '<div class="form-group"><label>Type (max/min)</label><select onchange="updateGraphExtrema(' + index + ', \'type\', this.value)"><option value="max" ' + (solution.extrema && solution.extrema.type === 'max' ? 'selected' : '') + '>Maksimum</option><option value="min" ' + (solution.extrema && solution.extrema.type === 'min' ? 'selected' : '') + '>Minimum</option></select></div>' +
-                    '</div>' +
-                    '<div class="form-row">' +
-                        '<div class="form-group"><label>Toleranse (±)</label><input type="number" step="0.1" value="' + (q.tolerance || 0.5) + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'tolerance\', parseFloat(this.value))"></div>' +
-                    '</div>' +
-                '</div>' +
-                
-                // Forhåndsvisning
-                '<div style="margin-top:16px;">' +
-                    '<button class="btn btn-secondary" onclick="previewGraph(' + index + ')">👁 Forhåndsvis graf</button>' +
-                '</div>' +
-                '<div id="graph-preview-container-' + index + '" style="margin-top:12px;display:none;">' +
-                    '<div style="overflow:hidden;height:250px;background:var(--bg-primary);border-radius:8px;"><canvas id="graph-preview-' + index + '" width="500" height="250"></canvas></div>' +
-                '</div>' +
-            '</div>';
-        }
-        
-        function previewGraph(qIndex) {
-            var s = QuestionBuilder.getState();
-            var q = s.sets[s.currentSetIndex].questions[qIndex];
-            if (!q || !q.function) {
-                alert('Skriv inn en funksjon først!');
-                return;
-            }
-            
-            var container = document.getElementById('graph-preview-container-' + qIndex);
-            var canvas = document.getElementById('graph-preview-' + qIndex);
-            container.style.display = 'block';
-            
-            var settings = q.graphSettings || {};
-            var xMin = settings.xMin !== undefined ? settings.xMin : -10;
-            var xMax = settings.xMax !== undefined ? settings.xMax : 30;
-            var yMin = settings.yMin !== undefined ? settings.yMin : -100;
-            var yMax = settings.yMax !== undefined ? settings.yMax : 500;
-            
-            // Bruk variabelnavnet fra oppgaven (p, x, t, etc.)
-            var varName = q.variableLabel || 'x';
-            
-            try {
-                // Erstatt variabelnavnet med x for Math.js (internt)
-                var expr = q.function;
-                
-                // Kompiler og generer data
-                var compiled = math.compile(expr);
-                var data = [];
-                var step = (xMax - xMin) / 300;
-                
-                for (var val = xMin; val <= xMax; val += step) {
-                    try {
-                        // Evaluer med dynamisk variabelnavn
-                        var scope = {};
-                        scope[varName] = val;
-                        var y = compiled.evaluate(scope);
-                        if (isFinite(y) && Math.abs(y) < 100000) {
-                            data.push({ x: val, y: y });
-                        }
-                    } catch (e) {}
-                }
-                
-                // Destroy eksisterende chart
-                if (window['graphPreviewChart_' + qIndex]) {
-                    window['graphPreviewChart_' + qIndex].destroy();
-                }
-                
-                window['graphPreviewChart_' + qIndex] = new Chart(canvas, {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            label: q.functionLabel || 'f(' + varName + ')',
-                            data: data,
-                            borderColor: '#4ade80',
-                            backgroundColor: 'rgba(74, 222, 128, 0.1)',
-                            fill: false,
-                            pointRadius: 0,
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: false,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: { type: 'linear', position: 'center', min: xMin, max: xMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } },
-                            y: { type: 'linear', position: 'center', min: yMin, max: yMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } }
-                        },
-                        plugins: { legend: { display: true, labels: { color: '#e0e0e0' }, position: 'top' } }
-                    }
-                });
-            } catch (e) {
-                alert('Feil i funksjonen: ' + e.message + '\n\nHusk å bruke * for multiplikasjon, f.eks: -3*p^2 + 60*p');
-            }
-        }
-        
-        function addExtraFunction(qIndex) {
-            alert('Flere funksjoner kommer snart! For nå, bruk én funksjon per oppgave.');
-        }
-        
-        // Graf-hjelpefunksjoner
-        function updateGraphProperty(qIndex, prop, value) {
-            QuestionBuilder.updateQuestion(qIndex, prop, value);
-            updatePreview();
-        }
-        
-        function updateGraphSettings(qIndex, key, value) {
-            var s = QuestionBuilder.getState();
-            var q = s.sets[s.currentSetIndex].questions[qIndex];
-            if (!q.graphSettings) q.graphSettings = {};
-            q.graphSettings[key] = value;
-            QuestionBuilder.saveToStorage();
-            updatePreview();
-        }
-        
-        function updateGraphSolution(qIndex, key, value) {
-            var s = QuestionBuilder.getState();
-            var q = s.sets[s.currentSetIndex].questions[qIndex];
-            if (!q.solution) q.solution = {};
-            
-            if (key === 'zeros') {
-                // Parse kommaseparerte nullpunkter
-                q.solution.zeros = value.split(',').map(function(v) { return v.trim(); }).filter(function(v) { return v !== ''; });
-            } else {
-                q.solution[key] = value;
-            }
-            QuestionBuilder.saveToStorage();
-            updatePreview();
-        }
-        
-        function updateGraphExtrema(qIndex, key, value) {
-            var s = QuestionBuilder.getState();
-            var q = s.sets[s.currentSetIndex].questions[qIndex];
-            if (!q.solution) q.solution = {};
-            if (!q.solution.extrema) q.solution.extrema = {};
-            q.solution.extrema[key] = value;
-            QuestionBuilder.saveToStorage();
-            updatePreview();
+            return '<div class="form-row" style="margin-top:12px;"><div class="form-group"><label>Fasit</label><input type="text" value="' + (q.solution || '') + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'solution\', this.value);"></div><div class="form-group"><label>Toleranse (Â±)</label><input type="number" step="0.1" value="' + (q.tolerance || 0.5) + '" onchange="QuestionBuilder.updateQuestion(' + index + ', \'tolerance\', parseFloat(this.value));"></div></div>';
         }
         
         function renderInfoTablesSection(q, index) {
@@ -1081,241 +769,6 @@
         
         function renderExplanationSection(q, index) {
             return '<div class="collapsible-header" onclick="toggleSection(this)"><span>📖 Forklaring</span><span>▼</span></div><div class="collapsible-content"><textarea onchange="QuestionBuilder.updateQuestion(' + index + ', \'explanation\', this.value);">' + escapeHtml(q.explanation || '') + '</textarea></div>';
-        }
-        
-        function renderSubquestionsSection(q, index) {
-            var subqHtml = (q.subquestions || []).map(function(subq, si) {
-                var letter = String.fromCharCode(97 + si);
-                
-                // Bygg løsnings-seksjon basert på type
-                var solutionHtml = '';
-                if (subq.type === 'mc') {
-                    // Flervalg - vis alternativer
-                    var options = subq.options || ['', '', '', ''];
-                    var correctIndex = subq.correctIndex !== undefined ? subq.correctIndex : 0;
-                    var optionsHtml = options.map(function(opt, oi) {
-                        return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
-                            '<input type="radio" name="mc-' + index + '-' + si + '" ' + (oi === correctIndex ? 'checked' : '') + 
-                            ' onchange="setSubqCorrectOption(' + index + ', ' + si + ', ' + oi + ')" style="width:18px;height:18px;accent-color:var(--accent);">' +
-                            '<span style="color:var(--text-muted);font-weight:bold;">' + String.fromCharCode(65 + oi) + ')</span>' +
-                            '<input type="text" value="' + escapeHtml(opt) + '" placeholder="Alternativ ' + String.fromCharCode(65 + oi) + '" ' +
-                            'onchange="updateSubqOption(' + index + ', ' + si + ', ' + oi + ', this.value)" style="flex:1;">' +
-                            (options.length > 2 ? '<button class="btn btn-sm btn-danger" onclick="deleteSubqOption(' + index + ', ' + si + ', ' + oi + ')">×</button>' : '') +
-                        '</div>';
-                    }).join('');
-                    
-                    solutionHtml = '<div style="margin-top:10px;">' +
-                        '<label style="font-size:0.8em;color:var(--text-muted);display:block;margin-bottom:6px;">Alternativer (velg riktig svar):</label>' +
-                        optionsHtml +
-                        '<button class="btn btn-sm btn-secondary" onclick="addSubqOption(' + index + ', ' + si + ')" style="margin-top:6px;">+ Alternativ</button>' +
-                    '</div>';
-                } else if (subq.type === 'graph_mc') {
-                    // Graf-flervalg - 4 funksjoner som vises som grafer
-                    var graphOptions = subq.graphOptions || [
-                        { func: '', label: 'A' },
-                        { func: '', label: 'B' },
-                        { func: '', label: 'C' },
-                        { func: '', label: 'D' }
-                    ];
-                    var correctIndex = subq.correctIndex !== undefined ? subq.correctIndex : 0;
-                    var varName = q.variableLabel || 'x';
-                    
-                    var graphInputsHtml = graphOptions.map(function(opt, oi) {
-                        return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
-                            '<input type="radio" name="graphmc-' + index + '-' + si + '" ' + (oi === correctIndex ? 'checked' : '') + 
-                            ' onchange="setSubqCorrectOption(' + index + ', ' + si + ', ' + oi + ')" style="width:18px;height:18px;accent-color:var(--accent);">' +
-                            '<span style="color:var(--text-muted);font-weight:bold;width:25px;">' + String.fromCharCode(65 + oi) + ')</span>' +
-                            '<input type="text" value="' + escapeHtml(opt.func || '') + '" placeholder="f(' + varName + ') = ..." ' +
-                            'onchange="updateSubqGraphOption(' + index + ', ' + si + ', ' + oi + ', this.value)" style="flex:1;">' +
-                        '</div>';
-                    }).join('');
-                    
-                    solutionHtml = '<div style="margin-top:10px;">' +
-                        '<label style="font-size:0.8em;color:var(--text-muted);display:block;margin-bottom:6px;">📈 Funksjoner (velg riktig graf):</label>' +
-                        '<p style="font-size:0.75em;color:var(--text-muted);margin-bottom:8px;">Bruk * for multiplikasjon. Variabel: ' + varName + '</p>' +
-                        graphInputsHtml +
-                        '<button class="btn btn-sm btn-secondary" onclick="previewGraphMC(' + index + ', ' + si + ')" style="margin-top:8px;">👁 Forhåndsvis grafer</button>' +
-                        '<div id="graph-mc-preview-' + index + '-' + si + '" style="display:none;margin-top:12px;"></div>' +
-                    '</div>';
-                } else if (subq.type === 'text') {
-                    // Tekst - valgfritt fasit
-                    solutionHtml = '<div style="margin-top:8px;">' +
-                        '<label style="font-size:0.8em;color:var(--text-muted);">Stikkord/fasit (valgfritt)</label>' +
-                        '<input type="text" value="' + escapeHtml(subq.solution || '') + '" placeholder="Forventet svar eller stikkord" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'solution\', this.value)">' +
-                    '</div>';
-                } else {
-                    // Beregning - numerisk fasit med toleranse
-                    solutionHtml = '<div style="display:flex;gap:10px;margin-top:8px;">' +
-                        '<div style="flex:1;"><label style="font-size:0.8em;color:var(--text-muted);">Fasit</label><input type="text" value="' + escapeHtml(subq.solution || '') + '" placeholder="Riktig svar" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'solution\', this.value)"></div>' +
-                        '<div style="width:80px;"><label style="font-size:0.8em;color:var(--text-muted);">Toleranse ±</label><input type="number" step="0.1" value="' + (subq.tolerance || 0.5) + '" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'tolerance\', parseFloat(this.value))"></div>' +
-                    '</div>';
-                }
-                
-                return '<div class="subquestion-editor" style="background:var(--bg-tertiary);border-radius:8px;padding:12px;margin-bottom:10px;">' +
-                    '<div class="subquestion-header" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
-                        '<span class="subq-letter" style="font-weight:bold;color:var(--accent);font-size:1.1em;">' + letter + ')</span>' +
-                        '<select class="subq-type" style="flex:1;" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'type\', this.value); renderEditor();">' +
-                            '<option value="calculation" ' + (subq.type === 'calculation' ? 'selected' : '') + '>🔢 Beregning</option>' +
-                            '<option value="text" ' + (subq.type === 'text' ? 'selected' : '') + '>📝 Tekst</option>' +
-                            '<option value="mc" ' + (subq.type === 'mc' ? 'selected' : '') + '>✅ Flervalg</option>' +
-                            '<option value="graph_mc" ' + (subq.type === 'graph_mc' ? 'selected' : '') + '>📈 Velg riktig graf</option>' +
-                        '</select>' +
-                        '<input type="number" class="subq-points" value="' + (subq.points || 2.5) + '" step="0.5" min="0" style="width:60px;" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'points\', parseFloat(this.value))">' +
-                        '<span style="color:var(--text-muted);font-size:0.85em;">poeng</span>' +
-                        '<button class="btn btn-sm btn-danger" onclick="QuestionBuilder.deleteSubquestion(' + index + ', ' + si + '); renderEditor();">×</button>' +
-                    '</div>' +
-                    '<textarea placeholder="Skriv delspørsmål ' + letter + ')..." style="min-height:60px;" onchange="QuestionBuilder.updateSubquestion(' + index + ', ' + si + ', \'question\', this.value)">' + escapeHtml(subq.question || '') + '</textarea>' +
-                    solutionHtml +
-                '</div>';
-            }).join('');
-            
-            return '<div class="collapsible-header" onclick="toggleSection(this)"><span>📋 Delspørsmål a), b), c)... (' + (q.subquestions || []).length + ')</span><span>▼</span></div>' +
-                   '<div class="collapsible-content">' + subqHtml + 
-                   '<button class="btn btn-sm btn-secondary" onclick="QuestionBuilder.addSubquestion(' + index + '); renderEditor();">+ Legg til delspørsmål</button>' +
-                   '<p style="font-size:0.75em;color:var(--text-muted);margin-top:8px;">Bruk delspørsmål for oppgaver med a), b), c), d) deler. Hvert delspørsmål kan ha egne poeng og fasit.</p>' +
-                   '</div>';
-        }
-        
-        // MC hjelpefunksjoner for subquestions
-        function updateSubqOption(qIndex, subqIndex, optIndex, value) {
-            var s = QuestionBuilder.getState();
-            var subq = s.sets[s.currentSetIndex].questions[qIndex].subquestions[subqIndex];
-            if (!subq.options) subq.options = ['', '', '', ''];
-            subq.options[optIndex] = value;
-            QuestionBuilder.saveToStorage();
-        }
-        
-        function setSubqCorrectOption(qIndex, subqIndex, optIndex) {
-            var s = QuestionBuilder.getState();
-            var subq = s.sets[s.currentSetIndex].questions[qIndex].subquestions[subqIndex];
-            subq.correctIndex = optIndex;
-            QuestionBuilder.saveToStorage();
-        }
-        
-        function addSubqOption(qIndex, subqIndex) {
-            var s = QuestionBuilder.getState();
-            var subq = s.sets[s.currentSetIndex].questions[qIndex].subquestions[subqIndex];
-            if (!subq.options) subq.options = ['', '', '', ''];
-            if (subq.options.length < 8) {
-                subq.options.push('');
-                QuestionBuilder.saveToStorage();
-                renderEditor();
-            } else {
-                QuestionBuilder.showToast('Maks 8 alternativer', 'warning');
-            }
-        }
-        
-        function deleteSubqOption(qIndex, subqIndex, optIndex) {
-            var s = QuestionBuilder.getState();
-            var subq = s.sets[s.currentSetIndex].questions[qIndex].subquestions[subqIndex];
-            if (subq.options && subq.options.length > 2) {
-                subq.options.splice(optIndex, 1);
-                if (subq.correctIndex >= optIndex && subq.correctIndex > 0) {
-                    subq.correctIndex--;
-                }
-                QuestionBuilder.saveToStorage();
-                renderEditor();
-            }
-        }
-        
-        // Graph MC hjelpefunksjoner
-        function updateSubqGraphOption(qIndex, subqIndex, optIndex, value) {
-            var s = QuestionBuilder.getState();
-            var subq = s.sets[s.currentSetIndex].questions[qIndex].subquestions[subqIndex];
-            if (!subq.graphOptions) {
-                subq.graphOptions = [
-                    { func: '', label: 'A' },
-                    { func: '', label: 'B' },
-                    { func: '', label: 'C' },
-                    { func: '', label: 'D' }
-                ];
-            }
-            subq.graphOptions[optIndex].func = value;
-            QuestionBuilder.saveToStorage();
-        }
-        
-        function previewGraphMC(qIndex, subqIndex) {
-            var s = QuestionBuilder.getState();
-            var q = s.sets[s.currentSetIndex].questions[qIndex];
-            var subq = q.subquestions[subqIndex];
-            var container = document.getElementById('graph-mc-preview-' + qIndex + '-' + subqIndex);
-            
-            if (!subq.graphOptions || !subq.graphOptions.some(function(o) { return o.func; })) {
-                alert('Fyll inn minst én funksjon først!');
-                return;
-            }
-            
-            var varName = q.variableLabel || 'x';
-            var settings = q.graphSettings || {};
-            var xMin = settings.xMin !== undefined ? settings.xMin : -10;
-            var xMax = settings.xMax !== undefined ? settings.xMax : 30;
-            var yMin = settings.yMin !== undefined ? settings.yMin : -100;
-            var yMax = settings.yMax !== undefined ? settings.yMax : 500;
-            
-            // Vis container
-            container.style.display = 'block';
-            container.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:600px;">' +
-                subq.graphOptions.map(function(opt, i) {
-                    return '<div style="background:var(--bg-primary);border-radius:8px;padding:10px;' + 
-                           (i === subq.correctIndex ? 'border:2px solid var(--accent);' : 'border:1px solid var(--border);') + '">' +
-                        '<div style="font-weight:bold;margin-bottom:5px;color:' + (i === subq.correctIndex ? 'var(--accent)' : 'var(--text-secondary)') + ';">' + 
-                        String.fromCharCode(65 + i) + ') ' + (opt.func || '(tom)') + '</div>' +
-                        '<div style="overflow:hidden;height:150px;"><canvas id="graph-mc-canvas-' + qIndex + '-' + subqIndex + '-' + i + '" width="250" height="150"></canvas></div>' +
-                    '</div>';
-                }).join('') +
-            '</div>';
-            
-            // Tegn hver graf
-            setTimeout(function() {
-                subq.graphOptions.forEach(function(opt, i) {
-                    if (!opt.func) return;
-                    
-                    var canvas = document.getElementById('graph-mc-canvas-' + qIndex + '-' + subqIndex + '-' + i);
-                    if (!canvas) return;
-                    
-                    try {
-                        var compiled = math.compile(opt.func);
-                        var data = [];
-                        var step = (xMax - xMin) / 100;
-                        
-                        for (var val = xMin; val <= xMax; val += step) {
-                            try {
-                                var scope = {};
-                                scope[varName] = val;
-                                var y = compiled.evaluate(scope);
-                                if (isFinite(y) && Math.abs(y) < 100000) {
-                                    data.push({ x: val, y: y });
-                                }
-                            } catch (e) {}
-                        }
-                        
-                        new Chart(canvas, {
-                            type: 'line',
-                            data: {
-                                datasets: [{
-                                    label: String.fromCharCode(65 + i),
-                                    data: data,
-                                    borderColor: i === subq.correctIndex ? '#4ade80' : '#3b82f6',
-                                    borderWidth: 2,
-                                    fill: false,
-                                    pointRadius: 0
-                                }]
-                            },
-                            options: {
-                                responsive: false,
-                                maintainAspectRatio: false,
-                                plugins: { legend: { display: false } },
-                                scales: {
-                                    x: { type: 'linear', position: 'center', min: xMin, max: xMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af', font: { size: 9 } } },
-                                    y: { type: 'linear', position: 'center', min: yMin, max: yMax, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af', font: { size: 9 } } }
-                                }
-                            }
-                        });
-                    } catch (e) {
-                        canvas.parentElement.innerHTML += '<p style="color:var(--error);font-size:0.8em;">Feil: ' + e.message + '</p>';
-                    }
-                });
-            }, 100);
         }
         
         function addMCOption(qIndex) { var s = QuestionBuilder.getState(); var q = s.sets[s.currentSetIndex].questions[qIndex]; if (!q.options) q.options = []; q.options.push({ text: '', correct: false }); QuestionBuilder.saveToStorage(); renderEditor(); }
@@ -1674,451 +1127,6 @@
                 navigator.clipboard.writeText(text);
                 QuestionBuilder.showToast('Kopiert til utklippstavle: ' + text);
             }
-        }
-        
-        // Eksporter renderEditor til window for bruk fra question-builder.js
-        window.renderEditor = renderEditor;
-        
-        // ==================== IMPORT FUNCTIONS ====================
-        var importState = {
-            rawData: '',
-            parsedData: null,
-            fileType: null,
-            fileName: ''
-        };
-        
-        function openImportModal() {
-            document.getElementById('importModal').classList.add('show');
-            setupDropzone();
-        }
-        
-        function setupDropzone() {
-            var dropzone = document.getElementById('importDropzone');
-            
-            dropzone.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                dropzone.classList.add('dragover');
-            });
-            
-            dropzone.addEventListener('dragleave', function(e) {
-                e.preventDefault();
-                dropzone.classList.remove('dragover');
-            });
-            
-            dropzone.addEventListener('drop', function(e) {
-                e.preventDefault();
-                dropzone.classList.remove('dragover');
-                if (e.dataTransfer.files.length > 0) {
-                    handleFileImport(e.dataTransfer.files[0]);
-                }
-            });
-        }
-        
-        function handleFileImport(file) {
-            if (!file) return;
-            
-            importState.fileName = file.name;
-            importState.fileType = file.name.endsWith('.sql') ? 'sql' : 'json';
-            
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                importState.rawData = e.target.result;
-                showImportEditor();
-            };
-            reader.readAsText(file);
-        }
-        
-        function showImportEditor() {
-            document.getElementById('importDropzone').style.display = 'none';
-            document.getElementById('importFileInfo').style.display = 'flex';
-            document.getElementById('importEditorArea').style.display = 'grid';
-            document.getElementById('importActions').style.display = 'flex';
-            
-            document.getElementById('importFileName').textContent = importState.fileName;
-            document.getElementById('importFileMeta').textContent = 
-                (importState.rawData.length / 1024).toFixed(1) + ' KB • ' + 
-                importState.fileType.toUpperCase();
-            
-            document.getElementById('importRawEditor').value = importState.rawData;
-            parseImportData();
-        }
-        
-        function clearImport() {
-            importState = { rawData: '', parsedData: null, fileType: null, fileName: '' };
-            document.getElementById('importDropzone').style.display = 'block';
-            document.getElementById('importFileInfo').style.display = 'none';
-            document.getElementById('importEditorArea').style.display = 'none';
-            document.getElementById('importActions').style.display = 'none';
-            document.getElementById('importRawEditor').value = '';
-            document.getElementById('importPreviewList').innerHTML = '';
-            document.getElementById('importMessages').innerHTML = '';
-            document.getElementById('importStats').style.display = 'none';
-            document.getElementById('importFileInput').value = '';
-        }
-        
-        function formatImportCode() {
-            var raw = document.getElementById('importRawEditor').value;
-            try {
-                if (importState.fileType === 'json') {
-                    var parsed = JSON.parse(raw);
-                    document.getElementById('importRawEditor').value = JSON.stringify(parsed, null, 2);
-                    QuestionBuilder.showToast('JSON formatert!');
-                } else {
-                    // SQL formatting - basic
-                    var formatted = raw
-                        .replace(/INSERT/gi, '\nINSERT')
-                        .replace(/VALUES/gi, '\nVALUES')
-                        .replace(/\),\s*\(/g, '),\n(')
-                        .trim();
-                    document.getElementById('importRawEditor').value = formatted;
-                    QuestionBuilder.showToast('SQL formatert!');
-                }
-            } catch (e) {
-                showImportError('Formateringsfeil: ' + e.message);
-            }
-        }
-        
-        function parseImportData() {
-            var raw = document.getElementById('importRawEditor').value.trim();
-            importState.rawData = raw;
-            
-            document.getElementById('importMessages').innerHTML = '';
-            
-            try {
-                if (importState.fileType === 'json' || raw.startsWith('{') || raw.startsWith('[')) {
-                    parseJSON(raw);
-                } else {
-                    parseSQL(raw);
-                }
-            } catch (e) {
-                showImportError('Parsing feilet: ' + e.message);
-            }
-        }
-        
-        function parseJSON(raw) {
-            var data = JSON.parse(raw);
-            var questions = [];
-            
-            // Handle different JSON structures
-            if (Array.isArray(data)) {
-                questions = data;
-            } else if (data.questions) {
-                questions = data.questions;
-            } else if (data.template) {
-                // Single question template
-                questions = [data.template];
-            } else {
-                // Single question
-                questions = [data];
-            }
-            
-            importState.parsedData = questions;
-            displayParsedQuestions(questions);
-        }
-        
-        function parseSQL(raw) {
-            var questions = [];
-            
-            // Parse INSERT statements
-            var insertRegex = /INSERT\s+(?:OR\s+REPLACE\s+)?INTO\s+(\w+)\s*\(([^)]+)\)\s*VALUES\s*\(([^;]+)\)/gi;
-            var match;
-            
-            while ((match = insertRegex.exec(raw)) !== null) {
-                var table = match[1];
-                var columns = match[2].split(',').map(function(c) { return c.trim().replace(/['"]/g, ''); });
-                var valuesStr = match[3];
-                
-                // Parse values (handle nested parentheses and quotes)
-                var values = parseCSVValues(valuesStr);
-                
-                if (table === 'questions' || table === 'question') {
-                    var q = {};
-                    columns.forEach(function(col, i) {
-                        if (values[i] !== undefined) {
-                            var val = values[i].trim();
-                            // Remove quotes
-                            if ((val.startsWith("'") && val.endsWith("'")) || 
-                                (val.startsWith('"') && val.endsWith('"'))) {
-                                val = val.slice(1, -1);
-                            }
-                            // Handle NULL
-                            if (val.toUpperCase() === 'NULL') val = null;
-                            // Try to parse JSON in values
-                            if (val && (val.startsWith('[') || val.startsWith('{'))) {
-                                try { val = JSON.parse(val.replace(/\\"/g, '"')); } catch(e) {}
-                            }
-                            q[col] = val;
-                        }
-                    });
-                    if (q.id || q.question) {
-                        questions.push(q);
-                    }
-                }
-            }
-            
-            if (questions.length === 0) {
-                showImportError('Ingen spørsmål funnet i SQL. Sjekk at tabellen heter "questions".');
-                return;
-            }
-            
-            importState.parsedData = questions;
-            displayParsedQuestions(questions);
-        }
-        
-        function parseCSVValues(str) {
-            var values = [];
-            var current = '';
-            var inQuote = false;
-            var quoteChar = '';
-            var depth = 0;
-            
-            for (var i = 0; i < str.length; i++) {
-                var c = str[i];
-                
-                if (!inQuote && (c === '"' || c === "'")) {
-                    inQuote = true;
-                    quoteChar = c;
-                    current += c;
-                } else if (inQuote && c === quoteChar && str[i-1] !== '\\') {
-                    inQuote = false;
-                    current += c;
-                } else if (!inQuote && c === '(') {
-                    depth++;
-                    current += c;
-                } else if (!inQuote && c === ')') {
-                    depth--;
-                    current += c;
-                } else if (!inQuote && depth === 0 && c === ',') {
-                    values.push(current.trim());
-                    current = '';
-                } else {
-                    current += c;
-                }
-            }
-            
-            if (current.trim()) {
-                values.push(current.trim());
-            }
-            
-            return values;
-        }
-        
-        function displayParsedQuestions(questions) {
-            // Collect stats
-            var modules = new Set();
-            var topics = new Set();
-            
-            questions.forEach(function(q) {
-                if (q.module || q.module_id) modules.add(q.module || q.module_id);
-                if (q.topic) topics.add(q.topic);
-            });
-            
-            // Show stats
-            document.getElementById('importStats').style.display = 'flex';
-            document.getElementById('importCountQuestions').textContent = questions.length;
-            document.getElementById('importCountModules').textContent = modules.size;
-            document.getElementById('importCountTopics').textContent = topics.size;
-            
-            // Show preview list
-            var listHtml = '';
-            questions.slice(0, 20).forEach(function(q, i) {
-                var qText = (q.question || q.title || 'Spørsmål ' + (i+1)).substring(0, 60);
-                if ((q.question || q.title || '').length > 60) qText += '...';
-                listHtml += '<div class="import-preview-item">' +
-                    '<span class="id">' + (q.id || '#' + (i+1)) + '</span>' +
-                    '<span>' + qText + '</span>' +
-                    '<span class="type">' + (q.type || 'ukjent') + '</span>' +
-                '</div>';
-            });
-            
-            if (questions.length > 20) {
-                listHtml += '<div class="import-preview-item" style="justify-content:center;color:var(--text-muted)">... og ' + (questions.length - 20) + ' flere</div>';
-            }
-            
-            document.getElementById('importPreviewList').innerHTML = listHtml;
-            showImportSuccess('Lastet ' + questions.length + ' spørsmål fra ' + modules.size + ' modul(er)');
-        }
-        
-        function showImportError(msg) {
-            document.getElementById('importMessages').innerHTML = 
-                '<div class="import-error">⚠️ ' + msg + '</div>';
-        }
-        
-        function showImportSuccess(msg) {
-            document.getElementById('importMessages').innerHTML = 
-                '<div class="import-success">✓ ' + msg + '</div>';
-        }
-        
-        function addToCurrentSet() {
-            if (!importState.parsedData || importState.parsedData.length === 0) {
-                QuestionBuilder.showToast('Ingen data å importere!', 'error');
-                return;
-            }
-            
-            var state = QuestionBuilder.getState();
-            if (state.sets.length === 0) {
-                QuestionBuilder.showToast('Opprett et sett først!', 'error');
-                return;
-            }
-            
-            var currentSet = state.sets[state.currentSetIndex];
-            if (!currentSet) {
-                QuestionBuilder.showToast('Velg et sett først!', 'error');
-                return;
-            }
-            
-            var addedCount = 0;
-            importState.parsedData.forEach(function(q) {
-                // Convert to internal format
-                var question = convertToInternalFormat(q);
-                currentSet.questions.push(question);
-                addedCount++;
-            });
-            
-            QuestionBuilder.saveToStorage();
-            renderEditor();
-            closeModal('importModal');
-            QuestionBuilder.showToast('La til ' + addedCount + ' spørsmål i settet!');
-        }
-        
-        function createNewSetFromImport() {
-            if (!importState.parsedData || importState.parsedData.length === 0) {
-                QuestionBuilder.showToast('Ingen data å importere!', 'error');
-                return;
-            }
-            
-            var setName = prompt('Navn på nytt sett:', importState.fileName.replace(/\.[^/.]+$/, '') || 'Importert sett');
-            if (!setName) return;
-            
-            // Determine module from first question
-            var firstQ = importState.parsedData[0];
-            var moduleId = firstQ.module || firstQ.module_id || 'grunnleggende';
-            
-            var newSet = QuestionBuilder.createNewSet(moduleId, setName);
-            
-            importState.parsedData.forEach(function(q) {
-                var question = convertToInternalFormat(q);
-                newSet.questions.push(question);
-            });
-            
-            QuestionBuilder.saveToStorage();
-            renderSetsList();
-            renderEditor();
-            closeModal('importModal');
-            QuestionBuilder.showToast('Opprettet sett med ' + importState.parsedData.length + ' spørsmål!');
-        }
-        
-        function convertToInternalFormat(q) {
-            return {
-                id: q.id || generateImportId(),
-                type: q.type || 'mc',
-                topic: q.topic || '',
-                difficulty: q.difficulty || 'medium',
-                question: q.question || q.title || '',
-                title: q.title || '',
-                options: q.options || [],
-                grid: q.grid || null,
-                solution: q.solution || null,
-                hints: q.hints || [],
-                explanation: q.explanation || '',
-                subquestions: q.subquestions || [],
-                documents: q.documents || [],
-                points: q.points || 10
-            };
-        }
-        
-        function generateImportId() {
-            return 'imp_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
-        }
-        
-        function seedToDatabase() {
-            if (!importState.parsedData || importState.parsedData.length === 0) {
-                QuestionBuilder.showToast('Ingen data å seede!', 'error');
-                return;
-            }
-            
-            var apiUrl = 'https://api.accountingquest.app';
-            
-            if (!confirm('Vil du seede ' + importState.parsedData.length + ' spørsmål til databasen?\n\nAPI: ' + apiUrl)) {
-                return;
-            }
-            
-            showImportSuccess('Sender til database...');
-            
-            fetch(apiUrl + '/api/questions/bulk', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ questions: importState.parsedData })
-            })
-            .then(function(response) {
-                if (!response.ok) throw new Error('API error: ' + response.status);
-                return response.json();
-            })
-            .then(function(data) {
-                showImportSuccess('Seedet ' + (data.inserted || importState.parsedData.length) + ' spørsmål til databasen!');
-                QuestionBuilder.showToast('Database oppdatert!');
-            })
-            .catch(function(err) {
-                showImportError('Seeding feilet: ' + err.message);
-                QuestionBuilder.showToast('Seeding feilet!', 'error');
-            });
-        }
-        
-        function downloadProcessed() {
-            if (!importState.parsedData || importState.parsedData.length === 0) {
-                QuestionBuilder.showToast('Ingen data å laste ned!', 'error');
-                return;
-            }
-            
-            var format = prompt('Format?\n1. JSON\n2. SQL', '1');
-            
-            var content, filename, type;
-            
-            if (format === '2') {
-                // Generate SQL
-                content = generateSQL(importState.parsedData);
-                filename = (importState.fileName.replace(/\.[^/.]+$/, '') || 'export') + '.sql';
-                type = 'text/sql';
-            } else {
-                // Generate JSON
-                content = JSON.stringify(importState.parsedData, null, 2);
-                filename = (importState.fileName.replace(/\.[^/.]+$/, '') || 'export') + '.json';
-                type = 'application/json';
-            }
-            
-            var blob = new Blob([content], { type: type });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            QuestionBuilder.showToast('Lastet ned: ' + filename);
-        }
-        
-        function generateSQL(questions) {
-            var sql = '-- AccountingQuest Questions Export\n';
-            sql += '-- Generated: ' + new Date().toISOString() + '\n\n';
-            
-            questions.forEach(function(q) {
-                var optionsJson = q.options ? JSON.stringify(q.options).replace(/'/g, "''") : 'NULL';
-                var hintsJson = q.hints ? JSON.stringify(q.hints).replace(/'/g, "''") : 'NULL';
-                var gridJson = q.grid ? JSON.stringify(q.grid).replace(/'/g, "''") : 'NULL';
-                var subqJson = q.subquestions ? JSON.stringify(q.subquestions).replace(/'/g, "''") : 'NULL';
-                
-                sql += "INSERT OR REPLACE INTO questions (id, module_id, type, topic, difficulty, question, options) VALUES (";
-                sql += "'" + (q.id || '').replace(/'/g, "''") + "', ";
-                sql += "'" + (q.module || q.module_id || '').replace(/'/g, "''") + "', ";
-                sql += "'" + (q.type || 'mc') + "', ";
-                sql += "'" + (q.topic || '').replace(/'/g, "''") + "', ";
-                sql += "'" + (q.difficulty || 'medium') + "', ";
-                sql += "'" + (q.question || '').replace(/'/g, "''") + "', ";
-                sql += "'" + optionsJson + "'";
-                sql += ");\n";
-            });
-            
-            return sql;
         }
     </script>
 </body>
