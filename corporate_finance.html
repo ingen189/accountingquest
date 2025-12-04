@@ -668,6 +668,54 @@
             border-color: var(--error);
             background: rgba(239, 68, 68, 0.1);
         }
+        
+        /* Subquestion Grid (bokføring) */
+        .subq-grid-container {
+            margin-top: var(--space-sm);
+            overflow-x: auto;
+        }
+        
+        .subq-grid {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        
+        .subq-grid th, .subq-grid td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .subq-grid th {
+            background: var(--bg-tertiary);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .subq-grid input {
+            width: 100%;
+            padding: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+        
+        .subq-grid input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .subq-grid input.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--success);
+        }
+        
+        .subq-grid input.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--error);
+        }
 
         /* Input Fields */
         .input-fields {
@@ -2190,7 +2238,10 @@
             
             var type = q.type || 'calculation';
             
-            if (type === 'multiple_choice' || type === 'mc') {
+            // Case study - bare vis subquestions
+            if (type === 'case_study') {
+                // Case study viser bare subquestions
+            } else if (type === 'multiple_choice' || type === 'mc') {
                 renderMultipleChoice(q);
             } else if (type === 'multi' || type === 'multi_select') {
                 renderMultiSelect(q);
@@ -2201,11 +2252,10 @@
             } else if (type === 'journal_entry' || type === 'journal') {
                 renderJournalEntry(q);
             } else if (type === 'excel_grid') {
-                document.getElementById('data-display').style.display = 'none'; // ExcelGrid viser data selv
+                document.getElementById('data-display').style.display = 'none';
                 renderExcelGrid(q);
             } else if (type === 'calculation' && q.data && Object.keys(q.data).length > 0) {
-                // Use ExcelGrid for calculations with data
-                document.getElementById('data-display').style.display = 'none'; // ExcelGrid viser data selv
+                document.getElementById('data-display').style.display = 'none';
                 renderExcelGrid(q);
             } else {
                 renderCalculation(q);
@@ -2223,18 +2273,21 @@
             container.id = 'subquestions-container';
             container.className = 'subquestions-container';
             
-            var html = '<div class="subquestions-title">📝 Deloppgaver (' + q.subquestions.length + ')</div>';
+            var totalSubqPoints = q.subquestions.reduce(function(sum, sq) { return sum + (sq.points || 0); }, 0);
+            var html = '<div class="subquestions-title">📝 Deloppgaver (' + q.subquestions.length + ') - ' + totalSubqPoints + ' poeng</div>';
             
             q.subquestions.forEach(function(subq, si) {
-                var letter = String.fromCharCode(97 + si);
+                var letter = subq.letter || String.fromCharCode(97 + si);
                 html += '<div class="subquestion-item" data-subq-index="' + si + '">';
                 html += '<div class="subquestion-header">';
                 html += '<span class="subquestion-letter">' + letter + ') ' + (subq.question || '') + '</span>';
                 html += '<span class="subquestion-points">' + (subq.points || 0) + ' poeng</span>';
                 html += '</div>';
                 
-                // Render based on type
-                if (subq.type === 'mc' && subq.options) {
+                // Render based on type - support ALL types
+                if (subq.type === 'excel_grid' || subq.type === 'bokforing') {
+                    html += renderSubqGrid(subq, si);
+                } else if (subq.type === 'mc' && subq.options) {
                     html += renderSubqMC(subq, si);
                 } else if (subq.type === 'text') {
                     html += '<textarea class="subq-input" id="subq-answer-' + si + '" placeholder="Skriv ditt svar..."></textarea>';
@@ -2248,11 +2301,36 @@
             
             container.innerHTML = html;
             
-            // Insert after the main question content
-            var questionCard = document.querySelector('.question-card');
-            if (questionCard) {
-                questionCard.appendChild(container);
+            // Insert into game-view
+            var gameView = document.getElementById('game-view');
+            var buttonRow = document.querySelector('.button-row');
+            if (gameView && buttonRow) {
+                gameView.insertBefore(container, buttonRow);
+            } else if (gameView) {
+                gameView.appendChild(container);
             }
+        }
+        
+        function renderSubqGrid(subq, si) {
+            var grid = subq.grid || { rows: [] };
+            var numRows = (grid.rows && grid.rows.length > 0) ? grid.rows.length : 3;
+            
+            var html = '<div class="subq-grid-container">';
+            html += '<table class="subq-grid">';
+            html += '<thead><tr><th>#</th><th>Konto</th><th>Debet</th><th>Kredit</th></tr></thead>';
+            html += '<tbody>';
+            
+            for (var ri = 0; ri < numRows; ri++) {
+                html += '<tr>';
+                html += '<td style="text-align:center;color:var(--text-muted);">' + (ri + 1) + '</td>';
+                html += '<td><input type="text" class="subq-grid-cell" data-subq="' + si + '" data-row="' + ri + '" data-col="account" placeholder="Konto"></td>';
+                html += '<td><input type="number" class="subq-grid-cell" data-subq="' + si + '" data-row="' + ri + '" data-col="debet" placeholder="0"></td>';
+                html += '<td><input type="number" class="subq-grid-cell" data-subq="' + si + '" data-row="' + ri + '" data-col="kredit" placeholder="0"></td>';
+                html += '</tr>';
+            }
+            
+            html += '</tbody></table></div>';
+            return html;
         }
         
         function renderSubqMC(subq, si) {
@@ -2851,6 +2929,22 @@
             console.log('Checking answer for question:', q.id);
             console.log('Question type:', q.type);
             
+            // For case_study, only check subquestions
+            if (q.type === 'case_study') {
+                if (q.subquestions && q.subquestions.length > 0) {
+                    var allCorrect = checkSubquestions(q);
+                    if (allCorrect) {
+                        handleCorrect();
+                    } else {
+                        handleIncorrect();
+                    }
+                } else {
+                    handleCorrect();
+                }
+                document.getElementById('btn-check').disabled = false;
+                return;
+            }
+            
             // For excel_grid and calculation, fetch solution from API first
             if (q.type === 'excel_grid' || q.type === 'calculation') {
                 fetchSolutionAndCheck(q);
@@ -2873,6 +2967,18 @@
             if (q.correct !== undefined || q.answer !== undefined) {
                 console.log('Using embedded solution data');
                 processAnswer(q, q);
+                return;
+            }
+            
+            // Check if there are subquestions even without main answer
+            if (q.subquestions && q.subquestions.length > 0) {
+                var allCorrect = checkSubquestions(q);
+                if (allCorrect) {
+                    handleCorrect();
+                } else {
+                    handleIncorrect();
+                }
+                document.getElementById('btn-check').disabled = false;
                 return;
             }
             
@@ -3081,7 +3187,10 @@
             q.subquestions.forEach(function(subq, si) {
                 var isCorrect = false;
                 
-                if (subq.type === 'mc') {
+                if (subq.type === 'excel_grid' || subq.type === 'bokforing') {
+                    // Check bokføring grid
+                    isCorrect = checkSubqGrid(subq, si);
+                } else if (subq.type === 'mc') {
                     var userAnswer = gameState.subquestionAnswers[si];
                     var correctIndex = subq.correctIndex;
                     
@@ -3127,6 +3236,66 @@
                 }
                 
                 if (!isCorrect) allCorrect = false;
+            });
+            
+            return allCorrect;
+        }
+        
+        function checkSubqGrid(subq, si) {
+            var grid = subq.grid || { rows: [] };
+            var solution = grid.rows || [];
+            
+            if (solution.length === 0) return true;
+            
+            var allCorrect = true;
+            var userEntries = [];
+            
+            document.querySelectorAll('.subq-grid-cell[data-subq="' + si + '"]').forEach(function(input) {
+                var row = parseInt(input.dataset.row);
+                var col = input.dataset.col;
+                
+                if (!userEntries[row]) userEntries[row] = {};
+                
+                if (col === 'account') {
+                    userEntries[row].account = input.value.trim();
+                } else if (col === 'debet') {
+                    userEntries[row].debet = parseFloat(input.value) || 0;
+                } else if (col === 'kredit') {
+                    userEntries[row].kredit = parseFloat(input.value) || 0;
+                }
+                userEntries[row][col + 'El'] = input;
+            });
+            
+            solution.forEach(function(solRow, ri) {
+                var userRow = userEntries[ri] || {};
+                
+                var accountCorrect = false;
+                if (solRow.account) {
+                    var expectedAccount = String(solRow.account).trim();
+                    var userAccount = String(userRow.account || '').trim();
+                    accountCorrect = userAccount.startsWith(expectedAccount.substring(0, 4)) || 
+                                     userAccount === expectedAccount;
+                }
+                
+                var debetCorrect = Math.abs((userRow.debet || 0) - (solRow.debet || 0)) < 1;
+                var kreditCorrect = Math.abs((userRow.kredit || 0) - (solRow.kredit || 0)) < 1;
+                
+                if (userRow.accountEl) {
+                    userRow.accountEl.classList.toggle('correct', accountCorrect);
+                    userRow.accountEl.classList.toggle('incorrect', !accountCorrect && userRow.account);
+                }
+                if (userRow.debetEl) {
+                    userRow.debetEl.classList.toggle('correct', debetCorrect && (solRow.debet || 0) > 0);
+                    userRow.debetEl.classList.toggle('incorrect', !debetCorrect && (solRow.debet || 0) > 0);
+                }
+                if (userRow.kreditEl) {
+                    userRow.kreditEl.classList.toggle('correct', kreditCorrect && (solRow.kredit || 0) > 0);
+                    userRow.kreditEl.classList.toggle('incorrect', !kreditCorrect && (solRow.kredit || 0) > 0);
+                }
+                
+                if (!accountCorrect || !debetCorrect || !kreditCorrect) {
+                    allCorrect = false;
+                }
             });
             
             return allCorrect;

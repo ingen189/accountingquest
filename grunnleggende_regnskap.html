@@ -3773,7 +3773,11 @@
             
             var type = q.type || 'calculation';
             
-            if (type === 'multiple_choice' || type === 'mc') {
+            // Case study - bare vis subquestions, ingen hoved-input
+            if (type === 'case_study') {
+                // Case study viser bare subquestions, ingen egen input
+                // Subquestions rendres nedenfor
+            } else if (type === 'multiple_choice' || type === 'mc') {
                 renderMultipleChoice(q);
             } else if (type === 'multi' || type === 'multi_select') {
                 renderMultiSelect(q);
@@ -3817,10 +3821,11 @@
             container.id = 'subquestions-container';
             container.className = 'subquestions-container';
             
-            var html = '<div class="subquestions-title">📝 Deloppgaver (' + q.subquestions.length + ')</div>';
+            var totalSubqPoints = q.subquestions.reduce(function(sum, sq) { return sum + (sq.points || 0); }, 0);
+            var html = '<div class="subquestions-title">📝 Deloppgaver (' + q.subquestions.length + ') - ' + totalSubqPoints + ' poeng</div>';
             
             q.subquestions.forEach(function(subq, si) {
-                var letter = String.fromCharCode(97 + si);
+                var letter = subq.letter || String.fromCharCode(97 + si);
                 html += '<div class="subquestion-item" data-subq-index="' + si + '">';
                 html += '<div class="subquestion-header">';
                 html += '<span class="subquestion-letter">' + letter + ') ' + (subq.question || '') + '</span>';
@@ -3844,10 +3849,13 @@
             
             container.innerHTML = html;
             
-            // Insert after the main question content
-            var questionCard = document.querySelector('.question-card');
-            if (questionCard) {
-                questionCard.appendChild(container);
+            // Insert into game-view, after excel-grid-container
+            var gameView = document.getElementById('game-view');
+            var buttonRow = document.querySelector('.button-row');
+            if (gameView && buttonRow) {
+                gameView.insertBefore(container, buttonRow);
+            } else if (gameView) {
+                gameView.appendChild(container);
             }
         }
         
@@ -4375,7 +4383,23 @@
             var q = gameState.currentQuestion;
             document.getElementById('btn-check').disabled = true;
             
-            console.log('Checking answer for question:', q.id);
+            console.log('Checking answer for question:', q.id, 'type:', q.type);
+            
+            // For case_study, only check subquestions
+            if (q.type === 'case_study') {
+                if (q.subquestions && q.subquestions.length > 0) {
+                    var allCorrect = checkSubquestions(q);
+                    if (allCorrect) {
+                        handleCorrect();
+                    } else {
+                        handleIncorrect();
+                    }
+                } else {
+                    handleCorrect(); // No subquestions = auto-correct
+                }
+                document.getElementById('btn-check').disabled = false;
+                return;
+            }
             
             // For excel_grid, we need to fetch solution from API (not stored in client)
             if (q.type === 'excel_grid') {
@@ -4412,6 +4436,18 @@
             if (q.correct !== undefined || q.answer !== undefined) {
                 console.log('Using embedded solution data');
                 processAnswer(q, q);
+                return;
+            }
+            
+            // Check if there are subquestions even without main answer
+            if (q.subquestions && q.subquestions.length > 0) {
+                var allCorrect = checkSubquestions(q);
+                if (allCorrect) {
+                    handleCorrect();
+                } else {
+                    handleIncorrect();
+                }
+                document.getElementById('btn-check').disabled = false;
                 return;
             }
             
