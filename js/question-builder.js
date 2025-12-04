@@ -2144,7 +2144,7 @@ var QuestionBuilder = (function() {
                 question: q.question,
                 difficulty: q.difficulty || set.difficulty || 'medium',
                 points: q.points || 10,
-                grid_json: q.grid ? JSON.stringify(q.grid) : null,
+                grid: q.grid,
                 hints: q.hints,
                 explanation: q.explanation,
                 options: q.options,
