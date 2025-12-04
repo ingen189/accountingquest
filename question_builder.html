@@ -249,6 +249,7 @@
         <h1>🛠️ Question Builder</h1>
         <div class="header-actions">
             <div id="apiStatus" class="api-status"><span class="status-dot"></span><span>Sjekker...</span></div>
+            <button class="btn btn-secondary" onclick="showSeedPackagesDialog()">🌱 Seed Pakker</button>
             <button class="btn btn-secondary" onclick="loadFromApiDialog()">🔥 Last fra API</button>
             <button class="btn btn-primary" onclick="QuestionBuilder.saveToApi()">💾 Lagre til API</button>
             <button class="btn btn-secondary" onclick="document.getElementById('jsonFileInput').click()">📥 Importer JSON</button>
@@ -1389,6 +1390,151 @@
                 // Copy to clipboard as fallback
                 navigator.clipboard.writeText(text);
                 QuestionBuilder.showToast('Kopiert til utklippstavle: ' + text);
+            }
+        }
+        
+        // ============================================
+        // SEED PACKAGES - Ferdiglagde oppgavesett
+        // ============================================
+        
+        var SEED_PACKAGES = {
+            matte_okonomi: {
+                name: 'Matte for Økonomer',
+                icon: '📐',
+                description: '33 oppgaver: derivasjon, integrasjon, analyse, flervariabel, finans',
+                module: 'matte_okonomi',
+                questions: [
+                    {"id":"matte_linear_001","module_id":"matte_okonomi","topic":"linear","difficulty":"easy","type":"mc","title":"Lineær etterspørselsfunksjon","question":"En bedrift har etterspørselsfunksjonen Q = 100 - 2P. Hva er priselastisiteten når P = 20?","points":5,"options":[{"text":"-0.5","is_correct":false},{"text":"-0.67","is_correct":true},{"text":"-1.0","is_correct":false},{"text":"-2.0","is_correct":false}],"explanation":"Ved P=20: Q = 100 - 2(20) = 60. Elastisitet = (dQ/dP) × (P/Q) = -2 × (20/60) = -2/3 ≈ -0.67","hints":["Finn først Q ved P=20","Elastisitet = (dQ/dP) × (P/Q)"]},
+                    {"id":"matte_linear_002","module_id":"matte_okonomi","topic":"linear","difficulty":"easy","type":"mc","title":"Break-even analyse","question":"Kostnadsfunksjon: K(x) = 5000 + 50x. Inntektsfunksjon: I(x) = 80x. Ved hvilken mengde x oppnås break-even?","points":5,"options":[{"text":"x = 100","is_correct":false},{"text":"x = 125","is_correct":false},{"text":"x = 167","is_correct":true},{"text":"x = 200","is_correct":false}],"explanation":"Break-even: I(x) = K(x) → 80x = 5000 + 50x → 30x = 5000 → x ≈ 167","hints":["Sett I(x) = K(x)","Løs for x"]},
+                    {"id":"matte_linear_003","module_id":"matte_okonomi","topic":"linear","difficulty":"medium","type":"calculation","title":"Likevektspunkt i marked","question":"Tilbud: P = 10 + 0.5Q. Etterspørsel: P = 100 - 2Q. Finn likevektsprisen P*.","points":8,"solution":"28","tolerance":0.5,"explanation":"Likevekt: 10 + 0.5Q = 100 - 2Q → 2.5Q = 90 → Q* = 36. P* = 28","hints":["Sett tilbud = etterspørsel"]},
+                    {"id":"matte_linear_004","module_id":"matte_okonomi","topic":"linear","difficulty":"medium","type":"mc","title":"Stigningstall tolkning","question":"Kostnadsfunksjonen K(x) = 2000 + 35x beskriver en bedrifts totalkostnader. Hva representerer tallet 35?","points":5,"options":[{"text":"Totale faste kostnader","is_correct":false},{"text":"Marginalkostnad per enhet","is_correct":true},{"text":"Gjennomsnittskostnad","is_correct":false},{"text":"Totale variable kostnader","is_correct":false}],"explanation":"Stigningstallet (35) er marginalkostnad per enhet.","hints":["Hva betyr stigningstallet?"]},
+                    {"id":"matte_linear_005","module_id":"matte_okonomi","topic":"linear","difficulty":"hard","type":"calculation","title":"Profittmaksimering lineær","question":"P(x) = 200 - 4x (pris), K(x) = 1000 + 20x (kostnad). Finn x som maksimerer profitt.","points":10,"solution":"22.5","tolerance":0.5,"explanation":"π(x) = -4x² + 180x - 1000. π'(x) = -8x + 180 = 0 → x = 22.5","hints":["π(x) = I(x) - K(x)","Deriver og sett lik null"]},
+                    {"id":"matte_deriv_001","module_id":"matte_okonomi","topic":"derivasjon","difficulty":"easy","type":"mc","title":"Potensregelen","question":"Deriver funksjonen f(x) = 4x³ - 5x + 7","points":5,"options":[{"text":"12x² - 5","is_correct":true},{"text":"12x² - 5x","is_correct":false},{"text":"4x² - 5","is_correct":false},{"text":"12x³ - 5","is_correct":false}],"explanation":"f'(x) = 12x² - 5. Potensregelen: (xⁿ)' = n·xⁿ⁻¹","hints":["Bruk potensregelen"]},
+                    {"id":"matte_deriv_002","module_id":"matte_okonomi","topic":"derivasjon","difficulty":"medium","type":"mc","title":"Produktregelen","question":"Deriver g(x) = x · e^(2x)","points":8,"options":[{"text":"e^(2x)(1 + 2x)","is_correct":true},{"text":"2xe^(2x)","is_correct":false},{"text":"e^(2x) + 2xe^(2x)","is_correct":false},{"text":"2e^(2x)","is_correct":false}],"explanation":"Produktregel: g'(x) = e^(2x)(1+2x)","hints":["(uv)' = u'v + uv'"]},
+                    {"id":"matte_deriv_003","module_id":"matte_okonomi","topic":"derivasjon","difficulty":"medium","type":"mc","title":"Kjerneregelen med ln","question":"Deriver h(x) = ln(5x² + 3)","points":8,"options":[{"text":"10x/(5x² + 3)","is_correct":true},{"text":"1/(5x² + 3)","is_correct":false},{"text":"10x · ln(5x² + 3)","is_correct":false},{"text":"(5x² + 3)/10x","is_correct":false}],"explanation":"(ln(u))' = u'/u = 10x/(5x²+3)","hints":["For ln(u) er derivert u'/u"]},
+                    {"id":"matte_deriv_004","module_id":"matte_okonomi","topic":"derivasjon","difficulty":"hard","type":"mc","title":"Brøkregelen","question":"Deriver f(x) = (3x + 1)/(x² - 4)","points":10,"options":[{"text":"(-3x² - 2x + 12)/(x² - 4)²","is_correct":true},{"text":"(3x² - 2x - 12)/(x² - 4)²","is_correct":false},{"text":"3/(2x)","is_correct":false},{"text":"(3x - 2)/(x² - 4)","is_correct":false}],"explanation":"Brøkregel: (u/v)' = (u'v - uv')/v²","hints":["Brøkregelen"]},
+                    {"id":"matte_deriv_005","module_id":"matte_okonomi","topic":"derivasjon","difficulty":"easy","type":"calculation","title":"Marginalkostnad","question":"K(x) = 0.01x³ - 0.6x² + 15x + 100. Finn MK(20).","points":8,"solution":"3","tolerance":0.5,"explanation":"MK = K'(x) = 0.03x² - 1.2x + 15. MK(20) = 3","hints":["MK = K'(x)"]},
+                    {"id":"matte_deriv_006","module_id":"matte_okonomi","topic":"derivasjon","difficulty":"medium","type":"mc","title":"Eksponentialfunksjon","question":"Deriver f(x) = 5e^(3x) + 2^x","points":8,"options":[{"text":"15e^(3x) + 2^x · ln(2)","is_correct":true},{"text":"15e^(3x) + x·2^(x-1)","is_correct":false},{"text":"5e^(3x) + 2^x","is_correct":false},{"text":"15e^(3x) + 2^x/ln(2)","is_correct":false}],"explanation":"(e^(ax))' = a·e^(ax), (a^x)' = a^x·ln(a)","hints":["(a^x)' = a^x · ln(a)"]},
+                    {"id":"matte_deriv_007","module_id":"matte_okonomi","topic":"derivasjon","difficulty":"hard","type":"mc","title":"Implisitt derivasjon","question":"x² + xy + y² = 7. Finn dy/dx ved (1, 2).","points":10,"options":[{"text":"-4/5","is_correct":true},{"text":"-5/4","is_correct":false},{"text":"4/5","is_correct":false},{"text":"-2/3","is_correct":false}],"explanation":"y' = -(2x+y)/(x+2y) = -4/5","hints":["Derivér implisitt"]},
+                    {"id":"matte_deriv_008","module_id":"matte_okonomi","topic":"derivasjon","difficulty":"medium","type":"mc","title":"Elastisitet","question":"Q = 500/P². Finn priselastisiteten.","points":8,"options":[{"text":"-2","is_correct":true},{"text":"-1","is_correct":false},{"text":"-0.5","is_correct":false},{"text":"2","is_correct":false}],"explanation":"E = (dQ/dP)·(P/Q) = -2","hints":["E = (dQ/dP) × (P/Q)"]},
+                    {"id":"matte_analyse_001","module_id":"matte_okonomi","topic":"analyse","difficulty":"medium","type":"mc","title":"Stasjonært punkt","question":"f(x) = x³ - 6x² + 9x + 1. Finn stasjonære punkter.","points":8,"options":[{"text":"x = 1 og x = 3","is_correct":true},{"text":"x = 0 og x = 2","is_correct":false},{"text":"x = -1 og x = 3","is_correct":false},{"text":"x = 2 og x = 4","is_correct":false}],"explanation":"f'(x) = 3(x-1)(x-3) = 0","hints":["Sett f'(x) = 0"]},
+                    {"id":"matte_analyse_002","module_id":"matte_okonomi","topic":"analyse","difficulty":"medium","type":"mc","title":"Maks eller min?","question":"f(x) = x³ - 6x² + 9x + 1. Klassifiser x=1 og x=3.","points":8,"options":[{"text":"x=1: maks, x=3: min","is_correct":true},{"text":"x=1: min, x=3: maks","is_correct":false},{"text":"Begge vendepunkter","is_correct":false},{"text":"x=1: globalt maks","is_correct":false}],"explanation":"f''(1) < 0 → maks, f''(3) > 0 → min","hints":["Bruk f''(x)"]},
+                    {"id":"matte_analyse_003","module_id":"matte_okonomi","topic":"analyse","difficulty":"hard","type":"calculation","title":"Profittmaksimering","question":"π(x) = -2x² + 80x - 200. Finn x* som maksimerer profitt.","points":10,"solution":"20","tolerance":0.5,"explanation":"π'(x) = -4x + 80 = 0 → x = 20","hints":["Sett π'(x) = 0"]},
+                    {"id":"matte_analyse_004","module_id":"matte_okonomi","topic":"analyse","difficulty":"hard","type":"mc","title":"Vendepunkt","question":"f(x) = x³ - 3x² + 2. Finn vendepunktet.","points":8,"options":[{"text":"x = 1","is_correct":true},{"text":"x = 0","is_correct":false},{"text":"x = 2","is_correct":false},{"text":"x = 3","is_correct":false}],"explanation":"f''(x) = 6x - 6 = 0 → x = 1","hints":["f''(x) = 0"]},
+                    {"id":"matte_analyse_005","module_id":"matte_okonomi","topic":"analyse","difficulty":"medium","type":"calculation","title":"Minimumskostnad","question":"K(x) = x² + 50x + 800. Finn x som minimerer GK = K/x.","points":10,"solution":"28.28","tolerance":1,"explanation":"GK'(x) = 1 - 800/x² = 0 → x ≈ 28.28","hints":["GK = K/x"]},
+                    {"id":"matte_analyse_006","module_id":"matte_okonomi","topic":"analyse","difficulty":"hard","type":"mc","title":"Elastisitet tolkning","question":"E = -1.5. Pris øker 10%. Hva skjer med inntekt?","points":8,"options":[{"text":"Synker ca. 5%","is_correct":true},{"text":"Øker ca. 5%","is_correct":false},{"text":"Uendret","is_correct":false},{"text":"Synker ca. 15%","is_correct":false}],"explanation":"ΔI/I ≈ 10% - 15% = -5%","hints":["I = P × Q"]},
+                    {"id":"matte_int_001","module_id":"matte_okonomi","topic":"integrasjon","difficulty":"easy","type":"mc","title":"Ubestemt integral","question":"Finn ∫(3x² + 2x - 5)dx","points":5,"options":[{"text":"x³ + x² - 5x + C","is_correct":true},{"text":"6x + 2 + C","is_correct":false},{"text":"x³ + x² - 5x","is_correct":false},{"text":"3x³ + 2x² - 5x + C","is_correct":false}],"explanation":"∫x^n = x^(n+1)/(n+1)","hints":["Potensregel baklengs"]},
+                    {"id":"matte_int_002","module_id":"matte_okonomi","topic":"integrasjon","difficulty":"medium","type":"calculation","title":"Bestemt integral","question":"Beregn ∫₀² (x² + 1)dx","points":8,"solution":"4.67","tolerance":0.1,"explanation":"[x³/3 + x]₀² = 14/3 ≈ 4.67","hints":["Sett inn grensene"]},
+                    {"id":"matte_int_003","module_id":"matte_okonomi","topic":"integrasjon","difficulty":"medium","type":"mc","title":"Totalkostnad","question":"MK(x) = 6x + 10, FK = 500. Finn K(x).","points":8,"options":[{"text":"3x² + 10x + 500","is_correct":true},{"text":"6x² + 10x + 500","is_correct":false},{"text":"3x² + 10x","is_correct":false},{"text":"6 + 500","is_correct":false}],"explanation":"K = ∫MK dx + FK","hints":["K = ∫MK dx"]},
+                    {"id":"matte_int_004","module_id":"matte_okonomi","topic":"integrasjon","difficulty":"hard","type":"calculation","title":"Konsumentoverskudd","question":"P = 100 - 2Q, Q* = 30, P* = 40. Finn KO.","points":10,"solution":"900","tolerance":10,"explanation":"KO = ∫P dQ - P*Q* = 900","hints":["Areal under kurven"]},
+                    {"id":"matte_int_005","module_id":"matte_okonomi","topic":"integrasjon","difficulty":"hard","type":"mc","title":"Substitusjon","question":"Finn ∫2x·e^(x²)dx","points":10,"options":[{"text":"e^(x²) + C","is_correct":true},{"text":"x²·e^(x²) + C","is_correct":false},{"text":"2e^(x²) + C","is_correct":false},{"text":"e^(x²)/2 + C","is_correct":false}],"explanation":"u = x², du = 2x dx","hints":["Substitusjon u = x²"]},
+                    {"id":"matte_fler_001","module_id":"matte_okonomi","topic":"flervariabel","difficulty":"medium","type":"mc","title":"Partiell derivasjon","question":"f(x,y) = 3x²y + 2xy² - 5y. Finn ∂f/∂x.","points":8,"options":[{"text":"6xy + 2y²","is_correct":true},{"text":"3x² + 4xy - 5","is_correct":false},{"text":"6x + 2y²","is_correct":false},{"text":"3x²y + 2xy²","is_correct":false}],"explanation":"Behandle y som konstant","hints":["y er konstant"]},
+                    {"id":"matte_fler_002","module_id":"matte_okonomi","topic":"flervariabel","difficulty":"medium","type":"calculation","title":"Stasjonært punkt 2D","question":"f(x,y) = x² + y² - 4x - 6y + 15. Finn x-koordinat.","points":8,"solution":"2","tolerance":0.1,"explanation":"∂f/∂x = 2x - 4 = 0 → x = 2","hints":["Sett ∂f/∂x = 0"]},
+                    {"id":"matte_fler_003","module_id":"matte_okonomi","topic":"flervariabel","difficulty":"hard","type":"mc","title":"Lagrange","question":"Maks f = xy gitt x + y = 10. Finn x.","points":10,"options":[{"text":"5","is_correct":true},{"text":"4","is_correct":false},{"text":"6","is_correct":false},{"text":"10","is_correct":false}],"explanation":"x = y = 5","hints":["L = xy - λ(x+y-10)"]},
+                    {"id":"matte_fler_004","module_id":"matte_okonomi","topic":"flervariabel","difficulty":"hard","type":"mc","title":"Cobb-Douglas","question":"Q = L^0.5·K^0.5. Finn MPL ved L=4, K=16.","points":10,"options":[{"text":"1","is_correct":true},{"text":"0.5","is_correct":false},{"text":"2","is_correct":false},{"text":"4","is_correct":false}],"explanation":"MPL = ∂Q/∂L = 1","hints":["MPL = ∂Q/∂L"]},
+                    {"id":"matte_fin_001","module_id":"matte_okonomi","topic":"finans","difficulty":"easy","type":"calculation","title":"Nåverdi","question":"Finn PV av 10 000 kr om 3 år. r = 5%.","points":5,"solution":"8638","tolerance":10,"explanation":"PV = 10000/1.05³ ≈ 8638","hints":["PV = FV/(1+r)^n"]},
+                    {"id":"matte_fin_002","module_id":"matte_okonomi","topic":"finans","difficulty":"medium","type":"calculation","title":"Annuitet","question":"Lån 500 000, 20 år, 4%. Finn årlig betaling.","points":10,"solution":"36790","tolerance":100,"explanation":"PMT ≈ 36 790","hints":["Annuitetsformel"]},
+                    {"id":"matte_fin_003","module_id":"matte_okonomi","topic":"finans","difficulty":"medium","type":"mc","title":"Evigvarende","question":"Utbytte 50 kr/år evig. r = 10%. Verdi?","points":8,"options":[{"text":"500 kr","is_correct":true},{"text":"450 kr","is_correct":false},{"text":"550 kr","is_correct":false},{"text":"1000 kr","is_correct":false}],"explanation":"PV = C/r = 500","hints":["PV = C/r"]},
+                    {"id":"matte_fin_004","module_id":"matte_okonomi","topic":"finans","difficulty":"hard","type":"calculation","title":"Gordon Growth","question":"D₁ = 12, g = 3%, r = 8%. Finn P₀.","points":10,"solution":"240","tolerance":5,"explanation":"P₀ = D₁/(r-g) = 240","hints":["P₀ = D₁/(r-g)"]},
+                    {"id":"matte_fin_005","module_id":"matte_okonomi","topic":"finans","difficulty":"hard","type":"mc","title":"Kontinuerlig rente","question":"1000 kr, 5% kont., 10 år. Sluttverdi?","points":10,"options":[{"text":"1649 kr","is_correct":true},{"text":"1629 kr","is_correct":false},{"text":"1500 kr","is_correct":false},{"text":"1718 kr","is_correct":false}],"explanation":"FV = PV·e^(rt) ≈ 1649","hints":["FV = PV·e^(rt)"]}
+                ]
+            }
+        };
+        
+        function showSeedPackagesDialog() {
+            var html = '<div style="display:grid;gap:15px;">';
+            
+            Object.keys(SEED_PACKAGES).forEach(function(key) {
+                var pkg = SEED_PACKAGES[key];
+                html += '<div class="seed-package-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:15px;cursor:pointer;" onclick="selectSeedPackage(\'' + key + '\')">';
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+                html += '<div>';
+                html += '<div style="font-size:1.5em;margin-bottom:5px;">' + pkg.icon + ' ' + pkg.name + '</div>';
+                html += '<div style="color:var(--text-secondary);font-size:0.9em;">' + pkg.description + '</div>';
+                html += '<div style="margin-top:8px;"><span class="badge" style="background:var(--accent);color:#1a1a1a;padding:3px 8px;border-radius:10px;font-size:0.8em;">' + pkg.questions.length + ' oppgaver</span></div>';
+                html += '</div>';
+                html += '<div style="font-size:2em;color:var(--accent);">→</div>';
+                html += '</div>';
+                html += '</div>';
+            });
+            
+            html += '</div>';
+            html += '<div style="margin-top:20px;padding-top:15px;border-top:1px solid var(--border);color:var(--text-secondary);font-size:0.85em;">';
+            html += '💡 Velg en pakke for å laste inn oppgavene. Du kan deretter redigere og lagre til database.';
+            html += '</div>';
+            
+            showModal('🌱 Seed Pakker', html);
+        }
+        
+        function selectSeedPackage(packageKey) {
+            var pkg = SEED_PACKAGES[packageKey];
+            if (!pkg) return;
+            
+            closeModal();
+            
+            // Bekreftelse
+            var confirmHtml = '<div style="text-align:center;">';
+            confirmHtml += '<div style="font-size:3em;margin-bottom:15px;">' + pkg.icon + '</div>';
+            confirmHtml += '<h3 style="margin-bottom:10px;">' + pkg.name + '</h3>';
+            confirmHtml += '<p style="color:var(--text-secondary);margin-bottom:20px;">' + pkg.questions.length + ' oppgaver vil bli lastet inn</p>';
+            confirmHtml += '<div style="display:flex;gap:10px;justify-content:center;">';
+            confirmHtml += '<button class="btn btn-secondary" onclick="closeModal()">Avbryt</button>';
+            confirmHtml += '<button class="btn btn-primary" onclick="loadSeedPackage(\'' + packageKey + '\', false)">📥 Last inn</button>';
+            confirmHtml += '<button class="btn btn-primary" style="background:var(--accent-secondary);" onclick="loadSeedPackage(\'' + packageKey + '\', true)">🚀 Last inn + Seed DB</button>';
+            confirmHtml += '</div>';
+            confirmHtml += '</div>';
+            
+            showModal('Bekreft', confirmHtml);
+        }
+        
+        function loadSeedPackage(packageKey, alsoSeedDb) {
+            var pkg = SEED_PACKAGES[packageKey];
+            if (!pkg) return;
+            
+            closeModal();
+            
+            // Lag nytt sett fra pakken
+            var state = QuestionBuilder.getState();
+            var newSet = {
+                id: 'seed_' + packageKey + '_' + Date.now(),
+                name: pkg.name,
+                module: pkg.module,
+                topic: pkg.questions[0]?.topic || 'general',
+                difficulty: 'medium',
+                created: Date.now(),
+                questions: pkg.questions.map(function(q) {
+                    return {
+                        id: q.id,
+                        type: q.type,
+                        topic: q.topic,
+                        title: q.title,
+                        question: q.question,
+                        difficulty: q.difficulty,
+                        points: q.points,
+                        options: q.options,
+                        solution: q.solution,
+                        tolerance: q.tolerance,
+                        hints: q.hints,
+                        explanation: q.explanation
+                    };
+                })
+            };
+            
+            state.sets.push(newSet);
+            state.currentSetIndex = state.sets.length - 1;
+            QuestionBuilder.saveToStorage();
+            
+            renderSetsList();
+            renderEditor();
+            updatePreview();
+            
+            QuestionBuilder.showToast('Lastet inn "' + pkg.name + '" med ' + pkg.questions.length + ' oppgaver!', 'success');
+            
+            // Seed til database hvis valgt
+            if (alsoSeedDb) {
+                setTimeout(function() {
+                    QuestionBuilder.saveToApi();
+                }, 500);
             }
         }
     </script>
